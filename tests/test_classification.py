@@ -2,7 +2,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 from nose.tools import assert_raises
 from pyriemann.classification import (MDM, FgMDM, KNearestNeighbor,
-                                      TSclassifier, QuanticSVM)
+                                      TSclassifier, QuanticSVM, QuanticVQC)
 
 
 def generate_cov(Nt, Ne):
@@ -185,7 +185,7 @@ def test_Quantic_FVT_Classical():
     assert(prediction[iNt:].all() == 1)
 
 def test_QuanticSVM_FVT_SimulatedQuantum():
-    """Perform classification on a simulated quantum computer"""
+    """Perform SVC on a simulated quantum computer"""
     # We will use a quantum simulator on the local machine
     q = QuanticSVM(target=1, quantum=True, verbose=False)
     # We need to have different values for target and non-target in our covset or vector machine will not converge
@@ -204,9 +204,10 @@ def test_QuanticSVM_FVT_SimulatedQuantum():
     assert(prediction[iNt:].all() == 1)
 
 def test_QuanticVQC_FVT_SimulatedQuantum():
-    """Perform classification on a simulated quantum computer"""
+    """Perform VQC on a simulated quantum computer"""
     # We will use a quantum simulator on the local machine
-    q = QuanticVQC(target=1, quantum=True, verbose=False)
+    # quantum parameter for VQC is always true
+    q = QuanticVQC(target=1, verbose=False)
     # We need to have different values for target and non-target in our covset or vector machine will not converge
     # To achieve testing in a reasonnable amount of time, we will lower the size of the feature and the number of trials
     iNt = 10
@@ -232,7 +233,7 @@ def test_Quantic_FVT_Quantum():
     if not token:
         return
     # We will use a quantum simulator on the local machine
-    q = QuanticSVM(target=1, quantum=True, verbose=True, qAccountToken=token)
+    q = QuanticSVM(target=1, quantum=True, verbose=False, qAccountToken=token)
     # We need to have different values for target and non-target in our covset or vector machine will not converge
     # To achieve testing in a reasonnable amount of time, we will lower the size of the feature and the number of trials
     iNt = 2
