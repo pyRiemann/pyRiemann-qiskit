@@ -1,0 +1,92 @@
+"""
+====================================================================
+ERP EEG decoding with Quantum Classifier.
+====================================================================
+
+Decoding applied to EEG data in sensor space decomposed using Xdawn.
+After spatial filtering, covariances matrices are estimated, then projected in
+the tangent space and classified with a quantum classifier
+
+"""
+# Authors: Gregoire Cattan, Alexandre Barachant <alexandre.barachant@gmail.com>
+# Modified from plot_classify_EEG_tangentspace.py
+# License: BSD (3-clause)
+
+import numpy as np
+
+from pyriemann.estimation import XdawnCovariances
+from pyriemann.tangentspace import TangentSpace
+from pyriemann.utils.viz import plot_confusion_matrix
+from pyriemann.classification import QuanticSVM
+
+import mne
+from mne import io
+from mne.datasets import sample
+
+from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import train_test_split
+
+from matplotlib import pyplot as plt
+
+print(__doc__)
+
+data_path = sample.data_path()
+
+###############################################################################
+# Set parameters and read data
+raw_fname = data_path + '/MEG/sample/sample_audvis_filt-0-40_raw.fif'
+event_fname = data_path + '/MEG/sample/sample_audvis_filt-0-40_raw-eve.fif'
+tmin, tmax = -0., 1
+event_id = dict(aud_l=1, aud_r=2, vis_l=3, vis_r=4)
+
+# Setup for reading the raw data
+raw = io.Raw(raw_fname, preload=True, verbose=False)
+raw.filter(2, None, method='iir')  # replace baselining with high-pass
+events = mne.read_events(event_fname)
+
+raw.info['bads'] = ['MEG 2443']  # set bad channels
+picks = mne.pick_types(raw.info, meg=False, eeg=True, stim=False, eog=False,
+                       exclude='bads')
+
+# Read epochs
+epochs = mne.Epochs(raw, events, event_id, tmin, tmax, proj=False,
+                    picks=picks, baseline=None, preload=True, verbose=False)
+
+X = epochs.get_data()
+y = epochs.events[:, -1]
+
+# As our quantic classifier supports only binary classification, we will reduce the number of classes
+y[y % 3 == 0] = 0
+y[y % 3 != 0] = 1
+
+# And to diminish testing time, we will reduce the number of trials
+X = X[:60]
+y = y[:60]
+
+# ...skipping the KFold validation parts
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+
+###############################################################################
+# Decoding in tangent space with a quantum classifier
+
+# Time complexity of quantum algorithm depends on the number of trials and the number of elements inside the correlation matrices
+sf = XdawnCovariances(nfilter=1) # Therefore we are dimishing the number of elements by using restrictive spatial filtering
+ds = lambda v:v[::2] # And by dividing the number of remaining elements by two
+
+# Quantum algoritms accept vectors thus we will project our correlation matrices into the tangent space
+tg = TangentSpace()
+    
+# Results will be computed for QuanticSVM versus SKLearnSVM for comparison
+for quantum in [True, False]:
+    qsvm = QuanticSVM(target=1, verbose=False, quantum=quantum, processVector=ds)
+    clf = make_pipeline(sf, tg, qsvm)
+    clf.fit(X_train, y_train)
+    y_pred = clf.predict(X_test)
+
+    # Printing the results
+    acc = np.mean(y_pred == y_test)
+    print("Classification accuracy: %f " % (acc))
+
+    names = ['audio(quantum)', 'visual(quantum)'] if quantum else ['audio', 'visual']
+    plot_confusion_matrix(y_pred, y_test, names)
+    plt.show()
