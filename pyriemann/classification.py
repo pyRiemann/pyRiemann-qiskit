@@ -576,10 +576,6 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
     nbXta = len(Xta)
     Xnt = X[numpy.logical_not(y == self.target)]
     nbXnt = len(Xnt)
-    balanced = nbXnt == nbXta
-    # if(not balanced):
-    #    self.log("Set is not balanced. Balancing...")
-    #    Xnt = Xnt[range(nbXta)]
         
     VectorizedXta = self.vectorize(Xta)
     VectorizedXnt = self.vectorize(Xnt)
