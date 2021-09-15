@@ -16,7 +16,6 @@ import numpy as np
 
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
-from pyriemann.utils.viz import plot_confusion_matrix
 from pyriemann.classification import QuanticSVM
 
 import mne
@@ -67,11 +66,11 @@ epochs = mne.Epochs(
 X = epochs.get_data()
 y = epochs.events[:, -1]
 
-# As our quantic classifier supports only binary classification, we will reduce the number of classes
+# Reduce the number of classes as QuanticBase supports only 2 classes
 y[y % 3 == 0] = 0
 y[y % 3 != 0] = 1
 
-# And to diminish testing time, we will reduce the number of trials
+# Reduce trial number to dimish testing time
 X = X[:60]
 y = y[:60]
 
@@ -81,12 +80,16 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 ###############################################################################
 # Decoding in tangent space with a quantum classifier
 
-# Time complexity of quantum algorithm depends on the number of trials and the number of elements inside the correlation matrices
-sf = XdawnCovariances(nfilter=1) # Therefore we are dimishing the number of elements by using restrictive spatial filtering
-ds = lambda v:v[::2] # And by dividing the number of remaining elements by two
+# Time complexity of quantum algorithm depends on the number of trials and
+# the number of elements inside the correlation matrices
+# Thus we reduce elements number by using restrictive spatial filtering
+sf = XdawnCovariances(nfilter=1) 
+# ...and dividing the number of remaining elements by two
+ds = lambda v:v[::2] 
 
-# Quantum algoritms accept vectors thus we will project our correlation matrices into the tangent space.
-# If not, then matrices will be inlined inside the quantum classifier
+# Projecting correlation matrices into the tangent space
+# as quantum algorithms take vectors as inputs
+# (If not, then matrices will be inlined inside the quantum classifier)
 tg = TangentSpace()
     
 # Results will be computed for QuanticSVM versus SKLearnSVM for comparison
