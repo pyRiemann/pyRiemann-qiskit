@@ -75,6 +75,7 @@ def download_sample_data(dataset="ssvep", subject=1, session=1):
         _fetch_file(url, destination, print_destination=False)
     return destination
 
+
 # Download data
 destination = download_sample_data(dataset="ssvep", subject=12, session=1)
 # Read data in MNE Raw and numpy format
@@ -125,12 +126,14 @@ raw.plot(duration=n_seconds, start=0, n_channels=8, scalings={'eeg': 4e-2},
 # ---------------------------------------
 # Using the approach proposed by [1], the SSVEP signal is extended to include
 # the filtered signals for each stimulation frequency. We stack the filtered
-# signals to build an extended signal
+# signals to build an extended signal.
+
 
 def _bandpass_filter(signal, lowcut, highcut):
     """ Bandpass filter using MNE """
     return signal.copy().filter(l_freq=lowcut, h_freq=highcut,
                                 method="iir").get_data()
+
 
 # We stack the filtered signals to build an extended signal
 frequencies = [13., 17., 21.]
@@ -231,6 +234,7 @@ plt.show()
 
 ###############################################################################
 # Minimum distance to mean is a simple and robust algorithm for BCI decoding.
+# It reproduces results of [2] for the first session of subject 12.
 
 cv = RepeatedKFold(n_splits=2, n_repeats=10, random_state=42)
 mdm = MDM(metric=dict(mean='riemann', distance='riemann'))
@@ -245,6 +249,7 @@ print("MDM accuracy: {:.2f}% +/- {:.2f}".format(np.mean(scores)*100,
 # ----------
 # [1] M. Congedo, A. Barachant, A. Andreev ,"A New generation of Brain-Computer
 # Interface Based on Riemannian Geometry", arXiv: 1310.8115, 2013.
+#
 # [2] E. K. Kalunga, S. Chevallier, Q. Barthélemy, E. Monacelli,
-# "Review of Riemannian distances and divergences, applied to SSVEP-based BCI", 
+# "Review of Riemannian distances and divergences, applied to SSVEP-based BCI",
 # Neuroinformatics, 2020.

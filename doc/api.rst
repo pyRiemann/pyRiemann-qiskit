@@ -5,7 +5,7 @@ API reference
 =============
 
 Covariance Estimation
-------------------
+---------------------
 .. _estimation_api:
 .. currentmodule:: pyriemann.estimation
 
@@ -22,8 +22,8 @@ Covariance Estimation
     Shrinkage
 
 Embedding
-------------------
-.. _embedding_api
+---------
+.. _embedding_api:
 .. currentmodule:: pyriemann.embedding
 
 .. autosummary::
@@ -33,7 +33,7 @@ Embedding
     Embedding
 
 Classification
-------------------
+--------------
 .. _classification_api:
 .. currentmodule:: pyriemann.classification
 
@@ -85,6 +85,18 @@ Spatial Filtering
     CSP
     SPoC
     BilinearFilter
+    AJDC
+
+Preprocessing
+-------------
+.. _preprocessing_api:
+.. currentmodule:: pyriemann.preprocessing
+
+.. autosummary::
+    :toctree: generated/
+    :template: class.rst
+
+    Whitening
 
 Channel selection
 ------------------
@@ -115,6 +127,22 @@ Utils function
 --------------
 
 Utils functions are low level functions that implement most base components of Riemannian Geometry.
+
+Covariance preprocessing
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. _covariance_api:
+.. currentmodule:: pyriemann.utils.covariance
+
+.. autosummary::
+    :toctree: generated/
+
+    covariances
+    cross_spectrum
+    cospectrum
+    coherence
+    normalize
+    get_nondiag_weight
+
 
 Distances
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -149,6 +177,7 @@ Mean
     mean_logdet
     mean_wasserstein
     mean_ale
+    mean_alm
     mean_harmonic
     mean_kullback_sym
 
@@ -193,7 +222,7 @@ Base
     powm
 
 Aproximate Joint Diagonalization
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. _ajd_api:
 .. currentmodule:: pyriemann.utils.ajd
 
