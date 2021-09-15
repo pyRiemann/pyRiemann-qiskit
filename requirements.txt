@@ -4,4 +4,4 @@ scikit-learn>=0.22
 pandas
 joblib
 seaborn
-qiskit=0.17.1
+qiskit==0.17.1
