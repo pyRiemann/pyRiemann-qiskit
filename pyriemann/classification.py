@@ -26,6 +26,7 @@ from datetime import datetime
 import logging
 logger.level = logging.INFO
 
+
 class MDM(BaseEstimator, ClassifierMixin, TransformerMixin):
 
     """Classification by Minimum Distance to Mean.
@@ -527,32 +528,38 @@ class KNearestNeighbor(MDM):
         out, _ = stats.mode(neighbors_classes[:, 0:self.n_neighbors], axis=1)
         return out.ravel()
 
+
 class QuanticBase(BaseEstimator, ClassifierMixin):
 
     """Quantum classification.
 
     This class implements a SKLearn wrapper around Qiskit library.
-    It provides a mean to run classification tasks on a local and simulated quantum computer or a remote and real quantum computer.
+    It provides a mean to run classification tasks on a local and 
+    simulated quantum computer or a remote and real quantum computer.
     Difference between simulated and real quantum computer will be that:
-    - There is no noise on a simulated quantum computer (therefore results are better)
+    - There is no noise on a simulated quantum computer (so results are better)
     - Real quantum computer are quicker than simulator
-    - Real quantum computer tasks are assigned to a queue before being executed on a back-end
+    - Real quantum computer tasks are assigned to a queue
+      before being executed on a back-end
     
-    WARNING: At the moment this implementation only supports only binary classification (eg. Target vs Non-Target experiment)
+    WARNING: At the moment this implementation only supports binary 
+    classification (eg. Target vs Non-Target experiment)
 
     Parameters
     ----------
     target : int
         Label of the target symbol
     qAccountToken : string (default:None)
-        If quantum==True and qAccountToken provided, the classification task will be running on a IBM quantum backend
+        If quantum==True and qAccountToken provided, 
+        the classification task will be running on a IBM quantum backend
     processVector : lambda vector: processedVector (default)
         Additional processing on the input vectors. eg: downsampling
     verbose : bool (default:True)
         If true will output all intermediate results and logs
     quantum : Bool (default:True)
-        If true will run on local or remote backend (depending on qAccountToken value).
-        If false, will perform classical computing instead
+        - If true will run on local or remote backend 
+        (depending on qAccountToken value).
+        - If false, will perform classical computing instead
     **parameters : dictionnary
         This is used by  SKLearn with get_params and set_params method in order to create a deepcopy of an instance
 
@@ -577,7 +584,8 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
     new_feature_dim : int
         Feature dimension after proccessed by `processVector` lambda
     prev_fit_params : Dictionnary of data and labels
-        Keep in memory data and labels passed to fit method. This is used for self-calibration. 
+        Keep in memory data and labels passed to fit method. 
+        This is used for self-calibration. 
     feature_map: ZZFeatureMap
         Transform data into quantum space
     quantum_instance: QuantumInstance (Object)
@@ -730,12 +738,14 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
         self.log("Balanced accuracy = ", balanced_accuracy)    
         return balanced_accuracy
 
+
 class QuanticSVM(QuanticBase):
 
     """Quantum-enhanced SVM classification.
 
     This class implements SVC on a quantum machine.
-    Note if `quantum` parameter is set to `False` then a classical SVC will be perfomed instead.
+    Note if `quantum` parameter is set to `False` 
+    then a classical SVC will be perfomed instead.
     
     See Also
     --------
@@ -754,11 +764,13 @@ class QuanticSVM(QuanticBase):
         self.log(result)
         return result
 
+
 class QuanticVQC(QuanticBase):
 
     """Variational Quantum Classifier
 
-    Note there is no classical version of this algorithm. This will always run on a quantum computer (simulated or not)
+    Note there is no classical version of this algorithm. 
+    This will always run on a quantum computer (simulated or not)
     
     Parameters
     ----------

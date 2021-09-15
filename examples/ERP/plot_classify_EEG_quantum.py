@@ -83,18 +83,19 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 # Time complexity of quantum algorithm depends on the number of trials and
 # the number of elements inside the correlation matrices
 # Thus we reduce elements number by using restrictive spatial filtering
-sf = XdawnCovariances(nfilter=1) 
+sf = XdawnCovariances(nfilter=1)
 # ...and dividing the number of remaining elements by two
-ds = lambda v:v[::2] 
+ds = lambda v: v[::2]
 
 # Projecting correlation matrices into the tangent space
 # as quantum algorithms take vectors as inputs
 # (If not, then matrices will be inlined inside the quantum classifier)
 tg = TangentSpace()
-    
+
 # Results will be computed for QuanticSVM versus SKLearnSVM for comparison
 for quantum in [True, False]:
-    qsvm = QuanticSVM(target=1, verbose=False, quantum=quantum, processVector=ds)
+    qsvm = QuanticSVM(target=1, verbose=False,
+            quantum=quantum, processVector=ds)
     clf = make_pipeline(sf, tg, qsvm)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
