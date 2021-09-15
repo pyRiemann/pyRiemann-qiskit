@@ -15,12 +15,11 @@ from .utils.distance import distance
 from .tangentspace import FGDA, TangentSpace
 
 from qiskit import BasicAer, IBMQ
-from qiskit.circuit.library import ZZFeatureMap, TwoLocal 
+from qiskit.circuit.library import ZZFeatureMap, TwoLocal
 from qiskit.aqua import QuantumInstance, aqua_globals
 from qiskit.aqua.quantum_instance import logger
 from qiskit.aqua.algorithms import QSVM, SklearnSVM, VQC
-from qiskit.aqua.utils import split_dataset_to_data_and_labels, map_label_to_class_name, get_feature_dimension
-from qiskit.ml.datasets import ad_hoc_data, sample_ad_hoc_data
+from qiskit.aqua.utils import get_feature_dimension
 from qiskit.providers.ibmq import least_busy
 from qiskit.aqua.components.optimizers import SPSA
 from datetime import datetime
