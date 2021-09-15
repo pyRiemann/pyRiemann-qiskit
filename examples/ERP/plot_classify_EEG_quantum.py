@@ -63,7 +63,7 @@ y[y % 3 != 0] = 1
 X = X[:60]
 y = y[:60]
 
-# ...skipping the KFold validation parts
+# ...skipping the KFold validation parts (for the purpose of the test only)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
 ###############################################################################
@@ -73,7 +73,8 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 sf = XdawnCovariances(nfilter=1) # Therefore we are dimishing the number of elements by using restrictive spatial filtering
 ds = lambda v:v[::2] # And by dividing the number of remaining elements by two
 
-# Quantum algoritms accept vectors thus we will project our correlation matrices into the tangent space
+# Quantum algoritms accept vectors thus we will project our correlation matrices into the tangent space.
+# If not, then matrices will be inlined inside the quantum classifier
 tg = TangentSpace()
     
 # Results will be computed for QuanticSVM versus SKLearnSVM for comparison
