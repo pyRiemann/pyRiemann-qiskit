@@ -25,6 +25,7 @@ from mne.datasets import sample
 
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 from matplotlib import pyplot as plt
 
@@ -34,23 +35,34 @@ data_path = sample.data_path()
 
 ###############################################################################
 # Set parameters and read data
-raw_fname = data_path + '/MEG/sample/sample_audvis_filt-0-40_raw.fif'
-event_fname = data_path + '/MEG/sample/sample_audvis_filt-0-40_raw-eve.fif'
-tmin, tmax = -0., 1
+raw_fname = data_path + "/MEG/sample/sample_audvis_filt-0-40_raw.fif"
+event_fname = data_path + "/MEG/sample/sample_audvis_filt-0-40_raw-eve.fif"
+tmin, tmax = -0.0, 1
 event_id = dict(aud_l=1, aud_r=2, vis_l=3, vis_r=4)
 
 # Setup for reading the raw data
 raw = io.Raw(raw_fname, preload=True, verbose=False)
-raw.filter(2, None, method='iir')  # replace baselining with high-pass
+raw.filter(2, None, method="iir")  # replace baselining with high-pass
 events = mne.read_events(event_fname)
 
-raw.info['bads'] = ['MEG 2443']  # set bad channels
-picks = mne.pick_types(raw.info, meg=False, eeg=True, stim=False, eog=False,
-                       exclude='bads')
+raw.info["bads"] = ["MEG 2443"]  # set bad channels
+picks = mne.pick_types(
+    raw.info, meg=False, eeg=True, stim=False, eog=False, exclude="bads"
+)
 
 # Read epochs
-epochs = mne.Epochs(raw, events, event_id, tmin, tmax, proj=False,
-                    picks=picks, baseline=None, preload=True, verbose=False)
+epochs = mne.Epochs(
+    raw,
+    events,
+    event_id,
+    tmin,
+    tmax,
+    proj=False,
+    picks=picks,
+    baseline=None,
+    preload=True,
+    verbose=False,
+)
 
 X = epochs.get_data()
 y = epochs.events[:, -1]
@@ -88,6 +100,7 @@ for quantum in [True, False]:
     acc = np.mean(y_pred == y_test)
     print("Classification accuracy: %f " % (acc))
 
-    names = ['audio(quantum)', 'visual(quantum)'] if quantum else ['audio', 'visual']
-    plot_confusion_matrix(y_pred, y_test, names)
+    names = ['0(quantum)', '1(quantum)'] if quantum else ['0', '1']
+    cm = confusion_matrix(y_pred, y_test)
+    ConfusionMatrixDisplay(cm, display_labels=names).plot()
     plt.show()
