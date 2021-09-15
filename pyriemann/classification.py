@@ -636,7 +636,7 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
         self.log("Feature dimension = ", self.feature_dim)
         Xta = X[y == self.target]
         nbXta = len(Xta)
-        Xnt = X[numpy.logical_not(y == self.target)]
+        Xnt = X[np.logical_not(y == self.target)]
         nbXnt = len(Xnt)
         VectorizedXta = self.vectorize(Xta)
         VectorizedXnt = self.vectorize(Xnt)
@@ -650,7 +650,7 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
     def fit(self, X, y):
         self.log("Fitting: ", X.shape)
         self.prev_fit_params = {"X":X, "y":y}
-        self.classes_ = numpy.unique(y)
+        self.classes_ = np.unique(y)
         VectorizedXta, VectorizedXnt = self.splitTargetAndNonTarget(X, y)
 
         self.training_input["Target"] = VectorizedXta
@@ -717,8 +717,8 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
     def predict_proba(self, X):
         self.log("[WARNING] SVM prediction probabilities are not available. Results from predict will be used instead.")
         predicted_labels = self.predict(X)
-        ret = [numpy.array([c == 0, c == 1]) for c in predicted_labels]
-        return numpy.array(ret)
+        ret = [np.array([c == 0, c == 1]) for c in predicted_labels]
+        return np.array(ret)
 
     def score(self, X, y):
         self.log("Scoring: ", X.shape)
