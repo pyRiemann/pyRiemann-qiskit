@@ -84,8 +84,12 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 # the number of elements inside the correlation matrices
 # Thus we reduce elements number by using restrictive spatial filtering
 sf = XdawnCovariances(nfilter=1)
+
+
 # ...and dividing the number of remaining elements by two
-ds = lambda v: v[::2]
+def ds(v):
+    return v[::2]
+
 
 # Projecting correlation matrices into the tangent space
 # as quantum algorithms take vectors as inputs
@@ -95,7 +99,7 @@ tg = TangentSpace()
 # Results will be computed for QuanticSVM versus SKLearnSVM for comparison
 for quantum in [True, False]:
     qsvm = QuanticSVM(target=1, verbose=False,
-            quantum=quantum, processVector=ds)
+                      quantum=quantum, processVector=ds)
     clf = make_pipeline(sf, tg, qsvm)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
