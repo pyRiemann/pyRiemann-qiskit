@@ -528,6 +528,67 @@ class KNearestNeighbor(MDM):
 
 class QuanticBase(BaseEstimator, ClassifierMixin):
 
+    """Quantum classification.
+
+    This class implements a SKLearn wrapper around Qiskit library.
+    It provides a mean to run classification tasks on a local and simulated quantum computer or a remote and real quantum computer.
+    Difference between simulated and real quantum computer will be that:
+    - There is no noise on a simulated quantum computer (therefore results are better)
+    - Real quantum computer are quicker than simulator
+    - Real quantum computer tasks are assigned to a queue before being executed on a back-end
+    
+    WARNING: At the moment this implementation only supports only binary classification (eg. Target vs Non-Target experiment)
+
+    Parameters
+    ----------
+    target : int
+        Label of the target symbol
+    qAccountToken : string (default:None)
+        If quantum==True and qAccountToken provided, the classification task will be running on a IBM quantum backend
+    processVector : lambda vector: processedVector (default)
+        Additional processing on the input vectors. eg: downsampling
+    verbose : bool (default:True)
+        If true will output all intermediate results and logs
+    quantum : Bool (default:True)
+        If true will run on local or remote backend (depending on qAccountToken value).
+        If false, will perform classical computing instead
+    **parameters : dictionnary
+        This is used by  SKLearn with get_params and set_params method in order to create a deepcopy of an instance
+
+    Attributes
+    ----------
+    classes_ : list
+        list of classes.
+    verbose : see above
+    processVector : see above
+    qAccountToken : see above
+    target : see above
+    quantum : see above
+    test_input : Dictionnary
+        Contains vectorized test set for target and non-target classes
+    training_input : Dictionnary
+        Contains vectorized training set for target and non-target classes
+    provider : IBMQ Provider
+        This service provide a remote quantum computer backend
+    backend : Quantum computer or simulator
+    feature_dim : int
+        Size of the vectorized matrix which is passed to quantum classifier
+    new_feature_dim : int
+        Feature dimension after proccessed by `processVector` lambda
+    prev_fit_params : Dictionnary of data and labels
+        Keep in memory data and labels passed to fit method. This is used for self-calibration. 
+    feature_map: ZZFeatureMap
+        Transform data into quantum space
+    quantum_instance: QuantumInstance (Object)
+        Backend with specific parameters (number of shots, etc.)
+    
+    See Also
+    --------
+    QuanticSVM
+    QuanticVQC
+
+    """
+
     def __init__(self, target, qAccountToken = None, quantum = True, processVector=lambda v:v, verbose=True, **parameters):
         self.verbose = verbose
         self.log("Initializing Quantum Classifier")
@@ -569,7 +630,7 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
             nbSamples = len(X[0][0])
         except:
             nbSamples = 1
-        self.feature_dim = nbSensor*nbSamples
+        self.feature_dim = nbSensor * nbSamples
         self.log("Feature dimension = ", self.feature_dim)
         Xta = X[y == self.target]
         nbXta = len(Xta)
@@ -612,6 +673,8 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
         return self
 
     def get_params(self, deep=True):
+        # Class is re-instanciated for each fold of a cv pipeline. 
+        # Deep copy of the original instance is insure trough this method and the pending one set_params
         return {
         "target":self.target,
         "qAccountToken":self.qAccountToken,
@@ -667,6 +730,18 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
         return balanced_accuracy
 
 class QuanticSVM(QuanticBase):
+
+    """Quantum-enhanced SVM classification.
+
+    This class implements SVC on a quantum machine.
+    Note if `quantum` parameter is set to `False` then a classical SVC will be perfomed instead.
+    
+    See Also
+    --------
+    QuanticBase
+
+    """
+
     def run(self, predict_set=None):
         self.log("SVM classification running...")
         if self.quantum:
@@ -679,6 +754,34 @@ class QuanticSVM(QuanticBase):
         return result
 
 class QuanticVQC(QuanticBase):
+
+    """Variational Quantum Classifier
+
+    Note there is no classical version of this algorithm. This will always run on a quantum computer (simulated or not)
+    
+    Parameters
+    ----------
+    target : see QuanticBase
+    qAccountToken : see QuanticBase
+    processVector : see QuanticBase
+    verbose : see QuanticBase
+    parameters : see QuanticBase
+    
+    Attributes
+    ----------
+    optimizer: SPSA
+        SPSA is a descent method capable of finding global minima
+        https://qiskit.org/documentation/stubs/qiskit.aqua.components.optimizers.SPSA.html
+    var_form: TwoLocal
+        In quantum mechanics, the variational method is one way of finding approximations to the lowest energy eigenstate
+        https://qiskit.org/documentation/apidoc/qiskit.aqua.components.variational_forms.html
+        
+    See Also
+    --------
+    QuanticBase
+
+    """
+
     def __init__(self, target, qAccountToken = None, processVector=lambda v:v, verbose=True, **parameters):
         QuanticBase.__init__(self, target=target, qAccountToken=qAccountToken, processVector=processVector, verbose=verbose, **parameters)
 
