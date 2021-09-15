@@ -219,7 +219,7 @@ def test_QuanticVQC_FVT_SimulatedQuantum():
     q.fit(covset, labels)
     # This will autodefine testing sets
     prediction = q.predict(covset)
-    # In this case, using SVM, predicting accuracy should be 100%
+    # Predicting accuracy should be 100%
     assert(prediction[0:iNt].all() == 0)
     assert(prediction[iNt:].all() == 1)
 
@@ -236,8 +236,8 @@ def test_Quantic_FVT_Quantum():
     q = QuanticSVM(target=1, quantum=True, verbose=False, qAccountToken=token)
     # We need to have different values for target and non-target in our covset or vector machine will not converge
     # To achieve testing in a reasonnable amount of time, we will lower the size of the feature and the number of trials
-    iNt = 2
-    iTa = 2
+    iNt = 10
+    iTa = 5
     nt = np.zeros((iNt, 2, 2))
     ta = np.ones((iTa, 2, 2))
     covset = np.concatenate((nt, ta), axis=0)

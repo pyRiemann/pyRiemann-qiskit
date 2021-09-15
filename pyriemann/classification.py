@@ -527,172 +527,167 @@ class KNearestNeighbor(MDM):
         return out.ravel()
 
 class QuanticBase(BaseEstimator, ClassifierMixin):
-  
-  def __init__(self, target, qAccountToken = None, quantum = True, processVector=lambda v:v, verbose=True, **parameters):
-    self.verbose = verbose
-    self.log("Initializing Quantum Classifier")
-    self.test_input = {}
-    self.set_params(**parameters)
-    self.processVector = processVector
-    self.qAccountToken = qAccountToken
-    self.training_input = {}
-    self.target = target
-    self.quantum = quantum
-    if quantum: 
-      aqua_globals.random_seed = datetime.now().microsecond
-      self.log("seed = ", aqua_globals.random_seed)
-      if qAccountToken:
-        self.log("Real quantum computation will be performed")
-        IBMQ.delete_account()
-        IBMQ.save_account(qAccountToken)
-        IBMQ.load_account()
-        self.log("Getting provider...")
-        self.provider = IBMQ.get_provider(hub='ibm-q')
-      else:
-        self.log("Quantum simulation will be performed")
-        self.backend = BasicAer.get_backend('qasm_simulator')
-    else:
-      self.log("Classical SVM will be performed")
-    
-  def log(self, *values):
-    if self.verbose:
-      print("[QClass] ", *values)
 
-  def vectorize(self, X):
-    vector = X.reshape(len(X), self.feature_dim)
-    return [self.processVector(x) for x in vector]
+    def __init__(self, target, qAccountToken = None, quantum = True, processVector=lambda v:v, verbose=True, **parameters):
+        self.verbose = verbose
+        self.log("Initializing Quantum Classifier")
+        self.test_input = {}
+        self.set_params(**parameters)
+        self.processVector = processVector
+        self.qAccountToken = qAccountToken
+        self.training_input = {}
+        self.target = target
+        self.quantum = quantum
+        if quantum: 
+            aqua_globals.random_seed = datetime.now().microsecond
+            self.log("seed = ", aqua_globals.random_seed)
+            if qAccountToken:
+                self.log("Real quantum computation will be performed")
+                IBMQ.delete_account()
+                IBMQ.save_account(qAccountToken)
+                IBMQ.load_account()
+                self.log("Getting provider...")
+                self.provider = IBMQ.get_provider(hub='ibm-q')
+            else:
+                self.log("Quantum simulation will be performed")
+                self.backend = BasicAer.get_backend('qasm_simulator')
+        else:
+            self.log("Classical SVM will be performed")
 
-  def splitTargetAndNonTarget(self, X, y):
-    self.log("[Warning] Spitting target from non target. Only binary classification is supported.")
-    nbSensor = len(X[0])
-    try:
-        nbSamples = len(X[0][0])
-    except:
-        nbSamples = 1
-    self.feature_dim = nbSensor*nbSamples
-    self.log("Feature dimension = ", self.feature_dim)
-    Xta = X[y == self.target]
-        
-    nbXta = len(Xta)
-    Xnt = X[numpy.logical_not(y == self.target)]
-    nbXnt = len(Xnt)
-        
-    VectorizedXta = self.vectorize(Xta)
-    VectorizedXnt = self.vectorize(Xnt)
-    self.new_feature_dim = len(VectorizedXta[0])
-    self.log("Feature dimension after vector processing = ", self.new_feature_dim)
+    def log(self, *values):
+        if self.verbose:
+            print("[QClass] ", *values)
 
-    return (VectorizedXta, VectorizedXnt)
+    def vectorize(self, X):
+        vector = X.reshape(len(X), self.feature_dim)
+        return [self.processVector(x) for x in vector]
 
-  def additionnal_setup(self):
-    self.log("There is no additional setup.")
+    def splitTargetAndNonTarget(self, X, y):
+        self.log("[Warning] Spitting target from non target. Only binary classification is supported.")
+        nbSensor = len(X[0])
+        try:
+            nbSamples = len(X[0][0])
+        except:
+            nbSamples = 1
+        self.feature_dim = nbSensor*nbSamples
+        self.log("Feature dimension = ", self.feature_dim)
+        Xta = X[y == self.target]
+        nbXta = len(Xta)
+        Xnt = X[numpy.logical_not(y == self.target)]
+        nbXnt = len(Xnt)
+        VectorizedXta = self.vectorize(Xta)
+        VectorizedXnt = self.vectorize(Xnt)
+        self.new_feature_dim = len(VectorizedXta[0])
+        self.log("Feature dimension after vector processing = ", self.new_feature_dim)
+        return (VectorizedXta, VectorizedXnt)
 
-  def fit(self, X, y):
-    self.log("Fitting: ", X.shape)
-    self.prev_fit_params = {"X":X, "y":y}
-    self.classes_ = numpy.unique(y)
-    VectorizedXta, VectorizedXnt = self.splitTargetAndNonTarget(X, y)
+    def additionnal_setup(self):
+        self.log("There is no additional setup.")
 
-    self.training_input["Target"] = VectorizedXta
-    self.training_input["NonTarget"] = VectorizedXnt
-    self.log(get_feature_dimension(self.training_input))
-    self.feature_map = ZZFeatureMap(feature_dimension=get_feature_dimension(self.training_input), reps=2, entanglement='linear')
-    self.additionnal_setup()
-    if self.quantum:
-      if not hasattr(self, "backend"):
-        devices = self.provider.backends(filters=lambda x: x.configuration().n_qubits >= self.new_feature_dim
+    def fit(self, X, y):
+        self.log("Fitting: ", X.shape)
+        self.prev_fit_params = {"X":X, "y":y}
+        self.classes_ = numpy.unique(y)
+        VectorizedXta, VectorizedXnt = self.splitTargetAndNonTarget(X, y)
+
+        self.training_input["Target"] = VectorizedXta
+        self.training_input["NonTarget"] = VectorizedXnt
+        self.log(get_feature_dimension(self.training_input))
+        self.feature_map = ZZFeatureMap(feature_dimension=get_feature_dimension(self.training_input), reps=2, entanglement='linear')
+        self.additionnal_setup()
+        if self.quantum:
+            if not hasattr(self, "backend"):
+                devices = self.provider.backends(filters=lambda x: x.configuration().n_qubits >= self.new_feature_dim
                                             and not x.configuration().simulator 
                                             and x.status().operational==True)
-        try:
-            self.backend = least_busy(devices)
-        except:
-            self.log("Devices are all busy. Getting the first one...")
-            self.backend = devices[0]
-        self.log("Quantum backend = ", self.backend)
-      monitor = lambda job_id, job_status, queue_position, job: print(job_id, job_status, queue_position, job)
-      self.quantum_instance = QuantumInstance(self.backend, shots=1024, seed_simulator=aqua_globals.random_seed,
+                try:
+                    self.backend = least_busy(devices)
+                except:
+                    self.log("Devices are all busy. Getting the first one...")
+                    self.backend = devices[0]
+                self.log("Quantum backend = ", self.backend)
+            monitor = lambda job_id, job_status, queue_position, job: print(job_id, job_status, queue_position, job)
+            self.quantum_instance = QuantumInstance(self.backend, shots=1024, seed_simulator=aqua_globals.random_seed,
                                   seed_transpiler=aqua_globals.random_seed)
-    return self
+        return self
 
-  def get_params(self, deep=True):
-    return {
-      "target":self.target,
-      "qAccountToken":self.qAccountToken,
-      "quantum":self.quantum,
-      "processVector":self.processVector,
-      "verbose":self.verbose,
-      "test_input":self.test_input,
-    }
+    def get_params(self, deep=True):
+        return {
+        "target":self.target,
+        "qAccountToken":self.qAccountToken,
+        "quantum":self.quantum,
+        "processVector":self.processVector,
+        "verbose":self.verbose,
+        "test_input":self.test_input,
+        }
 
-  def set_params(self, **parameters):
-    for parameter, value in parameters.items():
-      setattr(self, parameter, value)
-    return self
+    def set_params(self, **parameters):
+        for parameter, value in parameters.items():
+            setattr(self, parameter, value)
+        return self
 
-  def run(self, predict_set=None):
-    raise Exception("Run method was not implemented")
+    def run(self, predict_set=None):
+        raise Exception("Run method was not implemented")
 
-  def self_calibration(self):
-    X = self.prev_fit_params["X"]
-    y = self.prev_fit_params["y"]
-    test_size = 0.33
-    self.log("Test size = ", test_size, " of previous fitting.")
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size)
-    self.fit(X_train, y_train)
-    self.score(X_test, y_test)
+    def self_calibration(self):
+        X = self.prev_fit_params["X"]
+        y = self.prev_fit_params["y"]
+        test_size = 0.33
+        self.log("Test size = ", test_size, " of previous fitting.")
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size)
+        self.fit(X_train, y_train)
+        self.score(X_test, y_test)
 
-  def predict(self, X):
-    if(len(self.test_input) == 0):
-      self.log("There is no test inputs. Self-calibrating...")
-      self.self_calibration()
+    def predict(self, X):
+        if(len(self.test_input) == 0):
+            self.log("There is no test inputs. Self-calibrating...")
+            self.self_calibration()
+        result = None
+        predict_set = self.vectorize(X)
+        self.log("Prediction: ", X.shape)
+        result = self.run(predict_set)
+        self.log("Prediction finished. Returning predicted labels")
+        return result["predicted_labels"]
 
-    result = None
-    predict_set = self.vectorize(X)
-    self.log("Prediction: ", X.shape)
-    result = self.run(predict_set)
-    self.log("Prediction finished. Returning predicted labels")
-    return result["predicted_labels"]
+    def predict_proba(self, X):
+        self.log("[WARNING] SVM prediction probabilities are not available. Results from predict will be used instead.")
+        predicted_labels = self.predict(X)
+        ret = [numpy.array([c == 0, c == 1]) for c in predicted_labels]
+        return numpy.array(ret)
 
-  def predict_proba(self, X):
-    self.log("[WARNING] SVM prediction probabilities are not available. Results from predict will be used instead.")
-    predicted_labels = self.predict(X)
-    ret = [numpy.array([c == 0, c == 1]) for c in predicted_labels]
-    return numpy.array(ret)
-
-  def score(self, X, y):
-    self.log("Scoring: ", X.shape)
-    VectorizedXta, VectorizedXnt = self.splitTargetAndNonTarget(X, y)
-    self.test_input = {}
-    self.test_input["Target"] = VectorizedXta
-    self.test_input["NonTarget"] = VectorizedXnt 
-    result = self.run()
-    balanced_accuracy = result["testing_accuracy"]
-    self.log("Balanced accuracy = ", balanced_accuracy)    
-    return balanced_accuracy
+    def score(self, X, y):
+        self.log("Scoring: ", X.shape)
+        VectorizedXta, VectorizedXnt = self.splitTargetAndNonTarget(X, y)
+        self.test_input = {}
+        self.test_input["Target"] = VectorizedXta
+        self.test_input["NonTarget"] = VectorizedXnt 
+        result = self.run()
+        balanced_accuracy = result["testing_accuracy"]
+        self.log("Balanced accuracy = ", balanced_accuracy)    
+        return balanced_accuracy
 
 class QuanticSVM(QuanticBase):
-  def run(self, predict_set=None):
-    self.log("SVM classification running...")
-    if self.quantum:
-      self.log("Quantum instance is ", self.quantum_instance)
-      qsvm = QSVM(self.feature_map, self.training_input, self.test_input, predict_set)
-      result = qsvm.run(self.quantum_instance)
-    else:
-      result = SklearnSVM(self.training_input, self.test_input, predict_set).run()
-    self.log(result)
-    return result
+    def run(self, predict_set=None):
+        self.log("SVM classification running...")
+        if self.quantum:
+            self.log("Quantum instance is ", self.quantum_instance)
+            qsvm = QSVM(self.feature_map, self.training_input, self.test_input, predict_set)
+            result = qsvm.run(self.quantum_instance)
+        else:
+            result = SklearnSVM(self.training_input, self.test_input, predict_set).run()
+        self.log(result)
+        return result
 
 class QuanticVQC(QuanticBase):
+    def __init__(self, target, qAccountToken = None, processVector=lambda v:v, verbose=True, **parameters):
+        QuanticBase.__init__(self, target=target, qAccountToken=qAccountToken, processVector=processVector, verbose=verbose, **parameters)
 
-  def __init__(self, target, qAccountToken = None, processVector=lambda v:v, verbose=True, **parameters):
-    QuanticBase.__init__(self, target=target, qAccountToken=qAccountToken, processVector=processVector, verbose=verbose, **parameters)
+    def additionnal_setup(self):
+        self.optimizer = SPSA(maxiter=40, c0=4.0, skip_calibration=True)
+        self.var_form = TwoLocal(self.new_feature_dim, ['ry', 'rz'], 'cz', reps=3)  
 
-  def additionnal_setup(self):
-    self.optimizer = SPSA(maxiter=40, c0=4.0, skip_calibration=True)
-    self.var_form = TwoLocal(self.new_feature_dim, ['ry', 'rz'], 'cz', reps=3)  
-
-  def run(self, predict_set=None):
-    self.log("VQC classification running...")
-    vqc = VQC(self.optimizer, self.feature_map, self.var_form, self.training_input, self.test_input, predict_set)
-    result = vqc.run(self.quantum_instance)
-    return result
+    def run(self, predict_set=None):
+        self.log("VQC classification running...")
+        vqc = VQC(self.optimizer, self.feature_map, self.var_form, self.training_input, self.test_input, predict_set)
+        result = vqc.run(self.quantum_instance)
+        return result
