@@ -4,6 +4,6 @@ scikit-learn>=0.22
 pandas
 joblib
 seaborn
-qiskit==0.20.0
+qiskit==0.19.6
 cvxpy
 cvxopt
