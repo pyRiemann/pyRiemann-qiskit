@@ -71,8 +71,9 @@ y[y % 3 == 0] = 0
 y[y % 3 != 0] = 1
 
 # Reduce trial number to dimish testing time
-X = X[:60]
-y = y[:60]
+print(len(y))
+X = X[:100]
+y = y[:100]
 
 # ...skipping the KFold validation parts (for the purpose of the test only)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
