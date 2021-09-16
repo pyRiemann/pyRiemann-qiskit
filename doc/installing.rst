@@ -36,6 +36,7 @@ Mandatory dependencies
 
 -  `joblib <https://joblib.readthedocs.io/>`__
 
+-  `qiskit <https://qiskit.org/>`__
 
 Recommended dependencies
 ^^^^^^^^^^^^^^^^^^^^^^^^

@@ -6,3 +6,5 @@ scikit-learn
 seaborn
 pandas
 joblib
+qiskit==0.20.0
+cvxpy==1.1.12

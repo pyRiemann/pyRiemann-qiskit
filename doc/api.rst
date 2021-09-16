@@ -45,6 +45,8 @@ Classification
     FgMDM
     TSclassifier
     KNearestNeighbor
+    QuanticSVM
+    QuanticVQC
 
 Clustering
 ------------------
