@@ -5,4 +5,4 @@ pandas
 joblib
 seaborn
 qiskit==0.19.1
-cvxpy
+cvxopt
