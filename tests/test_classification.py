@@ -150,14 +150,14 @@ def test_Quantic_splitTargetAndNonTarget():
     assert(len(xnt[0]) == 3 * 3)
 
 def test_Quantic_SelfCalibration():
-    """Test SelfCalibration method of quantum classifiers"""
+    """Test self_calibration method of quantum classifiers"""
     covset = generate_cov(100, 3)
     labels = np.array([0, 1]).repeat(50)
     q = QuanticSVM(target=1, quantum=False)
     q.fit(covset, labels)
-    test_size = 0.33 #internal setting to SelfCalibration method
+    test_size = 0.33 #internal setting to self_calibration method
     len_test = int(test_size * 100)
-    # Just using a little trick as fit and score method are called by SelfCalibration method
+    # Just using a little trick as fit and score method are called by self_calibration method
     def fit(X_train, y_train):
         assert(len(X_train) == 100 - len_test)
         assert(len(y_train) == 100 - len_test)
