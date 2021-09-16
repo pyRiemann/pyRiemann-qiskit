@@ -6,3 +6,4 @@ joblib
 seaborn
 qiskit==0.20.0
 cvxpy
+cvxopt
