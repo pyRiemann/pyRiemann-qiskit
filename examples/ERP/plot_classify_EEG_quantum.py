@@ -79,7 +79,6 @@ y[y % 3 == 0] = 0
 y[y % 3 != 0] = 1
 
 # Reduce trial number to dimish testing time
-print(len(y))
 X = X[:100]
 y = y[:100]
 
@@ -109,7 +108,7 @@ tg = TangentSpace()
 for quantum in [True, False]:
     # This is a hack for the documentation pipeline
     if(not __cvxpy__):
-        quantum=False
+        pass
 
     qsvm = QuanticSVM(target=1, verbose=False,
                       quantum=quantum, processVector=ds)
