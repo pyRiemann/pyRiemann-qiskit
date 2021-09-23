@@ -7,4 +7,3 @@ scikit-learn
 joblib
 pandas
 qiskit
-cvxpy
