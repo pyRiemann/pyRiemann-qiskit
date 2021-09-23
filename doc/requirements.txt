@@ -3,7 +3,7 @@ scikit-learn
 joblib
 pandas
 qiskit==0.20.0
-cvxpy==1.1.12
+cvxpy
 sphinx-gallery
 sphinx-bootstrap_theme
 numpydoc
