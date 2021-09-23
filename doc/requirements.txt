@@ -1,9 +1,11 @@
+numpy
+scikit-learn
+joblib
+pandas
+qiskit==0.20.0
+cvxpy==1.1.12
 sphinx-gallery
 sphinx-bootstrap_theme
 numpydoc
 mne
-scikit-learn
 seaborn
-pandas
-joblib
-qiskit==0.20.0
