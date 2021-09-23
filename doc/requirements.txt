@@ -1,10 +1,10 @@
-numpy
-scikit-learn
-joblib
-pandas
-qiskit
 sphinx-gallery
 sphinx-bootstrap_theme
 numpydoc
 mne
 seaborn
+scikit-learn
+joblib
+pandas
+qiskit
+cvxpy
