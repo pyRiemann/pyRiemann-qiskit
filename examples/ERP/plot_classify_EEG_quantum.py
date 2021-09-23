@@ -108,7 +108,7 @@ tg = TangentSpace()
 for quantum in [True, False]:
     # This is a hack for the documentation pipeline
     if(not __cvxpy__):
-        pass
+        continue
 
     qsvm = QuanticSVM(target=1, verbose=False,
                       quantum=quantum, processVector=ds)
