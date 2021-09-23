@@ -30,11 +30,12 @@ from matplotlib import pyplot as plt
 
 # cvxpy is not correctly imported due to wheel not building
 # in the doc pipeline
-__cvxpy__=True
+__cvxpy__ = True
 try:
     import cvxpy
+    del cvxpy
 except Exception:
-    __cvxpy__=False
+    __cvxpy__ = False
 
 print(__doc__)
 
