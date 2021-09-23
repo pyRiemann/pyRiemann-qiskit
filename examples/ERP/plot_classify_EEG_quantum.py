@@ -28,6 +28,14 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 from matplotlib import pyplot as plt
 
+# cvxpy is not correctly imported due to wheel not building
+# in the doc pipeline
+__cvxpy__=True
+try:
+    import cvxpy
+except Exception:
+    __cvxpy__=False
+
 print(__doc__)
 
 data_path = sample.data_path()
@@ -99,6 +107,10 @@ tg = TangentSpace()
 
 # Results will be computed for QuanticSVM versus SKLearnSVM for comparison
 for quantum in [True, False]:
+    # This is a hack for the documentation pipeline
+    if(not __cvxpy__):
+        quantum=False
+
     qsvm = QuanticSVM(target=1, verbose=False,
                       quantum=quantum, processVector=ds)
     clf = make_pipeline(sf, tg, qsvm)
