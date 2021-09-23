@@ -15,7 +15,7 @@ jobs:
           pre-build-command: |
             apt-get update
             apt-get install sudo
-            sudo pip install numpy
+            pip install numpy
             sudo -H pip install -e .
             sudo -H pip install -r doc/doc-requirements.txt
       - name:  Upload generated HTML as artifact
