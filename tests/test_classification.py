@@ -1,6 +1,7 @@
 import numpy as np
 from pyriemann_qiskit.classification import (QuanticSVM, QuanticVQC)
 
+
 def test_Quantic_init():
     """Test init of quantum classifiers"""
     # if "classical" computation enable,
