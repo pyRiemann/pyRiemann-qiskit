@@ -8,7 +8,7 @@ After spatial filtering, covariances matrices are estimated, then projected in
 the tangent space and classified with a quantum classifier
 
 """
-# Authors: Gregoire Cattan, Alexandre Barachant <alexandre.barachant@gmail.com>
+# Author: Gregoire Cattan
 # Modified from plot_classify_EEG_tangentspace.py
 # License: BSD (3-clause)
 
@@ -16,7 +16,7 @@ import numpy as np
 
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
-from pyriemann.classification import QuanticSVM
+from pyriemann_qiskit.classification import QuanticSVM
 
 import mne
 from mne import io
