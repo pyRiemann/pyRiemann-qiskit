@@ -1,4 +1,4 @@
 .. _introduction:
 
-Introduction to pyRiemann
+Introduction to pyRiemann-qiskit
 =========================
