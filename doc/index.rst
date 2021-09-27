@@ -19,7 +19,7 @@
 
    </style>
 
-pyRiemann: Biosignals classification with Riemannian Geometry
+pyRiemann-qiskit: Qiskit wrapper for pyRiemann
 =============================================================
 
 .. raw:: html
