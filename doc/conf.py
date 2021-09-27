@@ -83,7 +83,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'pyRiemann'
+project = u'pyRiemann-qiskit'
 copyright = u'2015-2021, PyRiemann Contributors'
 author = u'Alexandre Barachant'
 
