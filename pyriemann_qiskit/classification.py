@@ -25,9 +25,10 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
     It provides a mean to run classification tasks on a local and
     simulated quantum computer or a remote and real quantum computer.
     Difference between simulated and real quantum computer will be that:
-    - There is no noise on a simulated quantum computer (so results are better)
-    - Real quantum computer are quicker than simulator
-    - Real quantum computer tasks are assigned to a queue
+
+    * There is no noise on a simulated quantum computer (so results are better)
+    * Real quantum computer are quicker than simulator
+    * Real quantum computer tasks are assigned to a queue
       before being executed on a back-end
 
     WARNING: At the moment this implementation only supports binary
