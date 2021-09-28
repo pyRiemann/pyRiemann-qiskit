@@ -126,12 +126,12 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
     def _split_target_and_non_target(self, X, y):
         self._log("""[Warning] Spitting target from non target.
                  Only binary classification is supported.""")
-        nbSensor = len(X[0])
+        n_channels = len(X[0])
         try:
-            nbSamples = len(X[0][0])
+            n_matrices = len(X[0][0])
         except Exception:
-            nbSamples = 1
-        self._feature_dim = nbSensor * nbSamples
+            n_matrices = 1
+        self._feature_dim = n_channels * n_matrices
         self._log("Feature dimension = ", self._feature_dim)
         Xta = X[y == self._target]
         Xnt = X[np.logical_not(y == self._target)]
