@@ -149,7 +149,7 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
 
     def fit(self, X, y):
         self._init_quantum()
-        
+
         self._log("Fitting: ", X.shape)
         self._prev_fit_params = {"X": X, "y": y}
         self._classes = np.unique(y)
@@ -193,7 +193,7 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
             "quantum": self._quantum,
             "processVector": self._processVector,
             "verbose": self.verbose_,
-            "test_input": self._test_input,
+            "_test_input": self._test_input,
         }
 
     def set_params(self, **parameters):

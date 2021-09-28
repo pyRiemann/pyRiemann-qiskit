@@ -1,6 +1,17 @@
 import numpy as np
+from pyriemann.classification import TangentSpace
+from pyriemann.estimation import XdawnCovariances
 from pyriemann_qiskit.classification import (QuanticSVM, QuanticVQC)
+from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import StratifiedKFold, cross_val_score
 
+def test_GetSetParams(get_covmats, get_labels):
+    clf = make_pipeline(XdawnCovariances(), TangentSpace(), QuanticSVM(target=1, quantum=False))
+    skf = StratifiedKFold(n_splits=5)
+    n_matrices, n_channels, n_classes = 100, 3, 2
+    covset = get_covmats(n_matrices, n_channels)
+    labels = get_labels(n_matrices, n_classes)
+    initial_score = cross_val_score(clf, covset, labels, cv=skf, scoring='roc_auc').mean()
 
 def test_Quantic_init():
     """Test init of quantum classifiers"""
