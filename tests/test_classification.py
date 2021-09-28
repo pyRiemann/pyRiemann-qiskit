@@ -7,22 +7,22 @@ def test_Quantic_init():
     # if "classical" computation enable,
     # no provider and backend should be defined
     q = QuanticSVM(target=1, quantum=False)
-    assert(not q.quantum)
-    assert(not hasattr(q, "backend"))
-    assert(not hasattr(q, "provider"))
+    assert not q.quantum
+    assert not hasattr(q, "backend")
+    assert not hasattr(q, "provider")
     # if "quantum" computation enabled, but no accountToken are provided,
     # then "quantum" simulation will be enabled
     # i.e., no remote quantum provider will be defined
     q = QuanticSVM(target=1, quantum=True)
-    assert(q.quantum)
-    assert(hasattr(q, "backend"))
-    assert(not hasattr(q, "provider"))
+    assert q.quantum
+    assert hasattr(q, "backend")
+    assert not hasattr(q, "provider")
     # if "quantum" computation enabled, and accountToken is provided,
     # then real quantum backend is used
     # this should raise a error as uncorrect API Token is passed
     try:
         q = QuanticSVM(target=1, quantum=True, qAccountToken="Test")
-        assert(False)  # Should never reach this line
+        assert False  # Should never reach this line
     except Exception:
         pass
 
@@ -33,11 +33,11 @@ def test_Quantic_splitTargetAndNonTarget(get_covmats):
     labels = np.array([0, 1]).repeat(50)
     q = QuanticSVM(target=1, quantum=False)
     xta, xnt = q.splitTargetAndNonTarget(covset, labels)
-    assert(len(xta) == 50)
+    assert len(xta) == 50
     # Covariance matrices should be vectorized
-    assert(len(xta[0]) == 3 * 3)
-    assert(len(xnt) == 50)
-    assert(len(xnt[0]) == 3 * 3)
+    assert len(xta[0]) == 3 * 3
+    assert len(xnt) == 50
+    assert len(xnt[0]) == 3 * 3 
 
 
 def test_Quantic_SelfCalibration(get_covmats):
@@ -52,18 +52,18 @@ def test_Quantic_SelfCalibration(get_covmats):
     # called by self_calibration method
 
     def fit(X_train, y_train):
-        assert(len(X_train) == 100 - len_test)
-        assert(len(y_train) == 100 - len_test)
+        assert len(X_train) == 100 - len_test
+        assert len(y_train) == 100 - len_test
         # Covariances matrices of fit and score method
         # should always be non-vectorized
-        assert(len(X_train[0]) == 3)
-        assert(len(X_train[0][0]) == 3)
+        assert len(X_train[0]) == 3
+        assert len(X_train[0][0]) == 3
 
     def score(X_test, y_test):
-        assert(len(X_test) == len_test)
-        assert(len(y_test) == len_test)
-        assert(len(X_test[0]) == 3)
-        assert(len(X_test[0][0]) == 3)
+        assert len(X_test) == len_test
+        assert len(y_test) == len_test
+        assert len(X_test[0]) == 3
+        assert len(X_test[0][0]) == 3
     q.fit = fit
     q.score = score
     q.self_calibration()
@@ -88,8 +88,8 @@ def test_Quantic_FVT_Classical():
     # This will autodefine testing sets
     prediction = q.predict(covset)
     # In this case, using SVM, predicting accuracy should be 100%
-    assert(prediction[0:iNt].all() == 0)
-    assert(prediction[iNt:].all() == 1)
+    assert prediction[0:iNt].all() == 0
+    assert prediction[iNt:].all() == 1
 
 
 def test_QuanticSVM_FVT_SimulatedQuantum():
@@ -118,8 +118,8 @@ def test_QuanticSVM_FVT_SimulatedQuantum():
     q.test_input = {"Target": [[1, 1, 1, 1]], "NonTarget": [[0, 0, 0, 0]]}
     prediction = q.predict(covset)
     # In this case, using SVM, predicting accuracy should be 100%
-    assert(prediction[0:iNt].all() == 0)
-    assert(prediction[iNt:].all() == 1)
+    assert prediction[0:iNt].all() == 0
+    assert prediction[iNt:].all() == 1
 
 
 def test_QuanticVQC_FVT_SimulatedQuantum():
