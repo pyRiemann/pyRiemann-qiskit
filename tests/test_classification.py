@@ -145,4 +145,4 @@ def test_QuanticVQC_FVT_SimulatedQuantum():
     prediction = q.predict(covset)
     # Considering the inputs, this probably make no sense to test accuracy.
     # Instead, we could consider this test as a canary test
-    assert(len(prediction) == len(labels))
+    assert len(prediction) == len(labels)
