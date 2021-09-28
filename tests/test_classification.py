@@ -35,11 +35,9 @@ def test_Quantic_splitTargetAndNonTarget(get_covmats):
     labels = np.array([nt, ta]).repeat(n_matrices // 2)
     q = QuanticSVM(target=1, quantum=False)
     xta, xnt = q.splitTargetAndNonTarget(covset, labels)
-    assert len(xta) == n_matrices // 2
     # Covariance matrices should be vectorized
-    assert len(xta[0]) == n_channels * n_channels
-    assert len(xnt) == n_matrices // 2
-    assert len(xnt[0]) == n_channels * n_channels
+    assert np.shape(xta) == (n_matrices // 2, n_channels * n_channels)
+    assert np.shape(xnt) == (n_matrices // 2, n_channels * n_channels)
 
 
 def test_Quantic_SelfCalibration(get_covmats):
@@ -56,18 +54,15 @@ def test_Quantic_SelfCalibration(get_covmats):
     # called by self_calibration method
 
     def fit(X_train, y_train):
-        assert len(X_train) == n_matrices - len_test
         assert len(y_train) == n_matrices - len_test
         # Covariances matrices of fit and score method
         # should always be non-vectorized
-        assert len(X_train[0]) == n_channels
-        assert len(X_train[0][0]) == n_channels
+        assert X_train.shape == (n_matrices - len_test, n_channels, n_channels)
 
     def score(X_test, y_test):
-        assert len(X_test) == len_test
         assert len(y_test) == len_test
-        assert len(X_test[0]) == n_channels
-        assert len(X_test[0][0]) == n_channels
+        assert X_test.shape == (len_test, n_channels, n_channels)
+
     q.fit = fit
     q.score = score
     q.self_calibration()
