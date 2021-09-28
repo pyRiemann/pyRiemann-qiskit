@@ -99,7 +99,7 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
             if self.qAccountToken:
                 self._log("Real quantum computation will be performed")
                 IBMQ.delete_account()
-                IBMQ.save_account(qAccountToken)
+                IBMQ.save_account(self.qAccountToken)
                 IBMQ.load_account()
                 self._log("Getting provider...")
                 self._provider = IBMQ.get_provider(hub='ibm-q')
@@ -133,7 +133,7 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
         VectorizedXnt = self._vectorize(Xnt)
         self._new_feature_dim = len(VectorizedXta[0])
         self._log("Feature dimension after vector processing = ",
-                 self._new_feature_dim)
+                  self._new_feature_dim)
         return (VectorizedXta, VectorizedXnt)
 
     def _additional_setup(self):
@@ -152,15 +152,15 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
         self._log(get_feature_dimension(self._training_input))
         feature_dim = get_feature_dimension(self._training_input)
         self._feature_map = ZZFeatureMap(feature_dimension=feature_dim, reps=2,
-                                        entanglement='linear')
+                                         entanglement='linear')
         self._additional_setup()
         if self.quantum:
             if not hasattr(self, "_backend"):
                 def filters(device):
                     return (
-                        device.configuration().n_qubits >= self._new_feature_dim
-                        and not device.configuration().simulator
-                        and device.status().operational)
+                      device.configuration().n_qubits >= self._new_feature_dim
+                      and not device.configuration().simulator
+                      and device.status().operational)
                 devices = self._provider.backends(filters=filters)
                 try:
                     self._backend = least_busy(devices)
@@ -169,12 +169,11 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
                     self._backend = devices[0]
                 self._log("Quantum backend = ", self._backend)
             seed_sim = aqua_globals.random_seed
-            seed_trans = aqua_globals.random_seed
+            seed_trs = aqua_globals.random_seed
             self._quantum_instance = QuantumInstance(self._backend, shots=1024,
-                                                    seed_simulator=seed_sim,
-                                                    seed_transpiler=seed_trans)
+                                                     seed_simulator=seed_sim,
+                                                     seed_transpiler=seed_trs)
         return self
-
 
     def _run(self, predict_set=None):
         raise Exception("Run method was not implemented")

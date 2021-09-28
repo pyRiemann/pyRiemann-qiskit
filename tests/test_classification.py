@@ -5,13 +5,16 @@ from pyriemann_qiskit.classification import (QuanticSVM, QuanticVQC)
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 
+
 def test_GetSetParams(get_covmats, get_labels):
-    clf = make_pipeline(XdawnCovariances(), TangentSpace(), QuanticSVM(target=1, quantum=False))
+    clf = make_pipeline(XdawnCovariances(), TangentSpace(),
+                        QuanticSVM(target=1, quantum=False))
     skf = StratifiedKFold(n_splits=5)
     n_matrices, n_channels, n_classes = 100, 3, 2
     covset = get_covmats(n_matrices, n_channels)
     labels = get_labels(n_matrices, n_classes)
-    initial_score = cross_val_score(clf, covset, labels, cv=skf, scoring='roc_auc').mean()
+    cross_val_score(clf, covset, labels, cv=skf, scoring='roc_auc')
+
 
 def test_Quantic_init():
     """Test init of quantum classifiers"""
@@ -44,13 +47,12 @@ def test_Quantic_init():
 def test_Quantic_splitTargetAndNonTarget(get_covmats, get_labels):
     """Test _split_target_and_non_target method of quantum classifiers"""
     n_matrices, n_channels, n_classes = 100, 3, 2
-    nt, ta = 0, 1
     covset = get_covmats(n_matrices, n_channels)
     labels = get_labels(n_matrices, n_classes)
-    q = QuanticSVM(target=ta, quantum=False)
+    q = QuanticSVM(target=1, quantum=False)
     xta, xnt = q._split_target_and_non_target(covset, labels)
     # Covariance matrices should be vectorized
-    class_len = n_matrices // n_classes # balanced set
+    class_len = n_matrices // n_classes  # balanced set
     assert np.shape(xta) == (class_len, n_channels * n_channels)
     assert np.shape(xnt) == (class_len, n_channels * n_channels)
 
@@ -58,10 +60,9 @@ def test_Quantic_splitTargetAndNonTarget(get_covmats, get_labels):
 def test_Quantic_SelfCalibration(get_covmats, get_labels):
     """Test _self_calibration method of quantum classifiers"""
     n_matrices, n_channels, n_classes = 100, 3, 2
-    nt, ta = 0, 1
     covset = get_covmats(n_matrices, n_channels)
     labels = get_labels(n_matrices, n_classes)
-    q = QuanticSVM(target=ta, quantum=False)
+    q = QuanticSVM(target=1, quantum=False)
     q.fit(covset, labels)
     test_size = 0.33  # internal setting to self_calibration method
     len_test = int(test_size * n_matrices)
@@ -94,7 +95,7 @@ def test_Quantic_FVT_Classical(get_labels):
     # We need to have different values for target and non-target in our covset
     # or vector machine will not converge
     n_matrices, n_channels, n_classes = 100, 3, 2
-    class_len = n_matrices // n_classes # balanced set
+    class_len = n_matrices // n_classes  # balanced set
     nt_covset = np.zeros((class_len, n_channels, n_channels))
     ta_covset = np.ones((class_len, n_channels, n_channels))
     covset = np.concatenate((nt_covset, ta_covset), axis=0)
@@ -120,14 +121,16 @@ def test_QuanticSVM_FVT_SimulatedQuantum(get_labels):
     # We are dealing with a small number of trial,
     # therefore we will skip self_calibration as it may happens
     # that self_calibration select only target or non-target trials
-    test_input = {"Target": [[ta] * n_training], "NonTarget": [[nt] * n_training]}
-    q = QuanticSVM(target=ta, quantum=True, verbose=False, test_input=test_input)
+    test_input = {"Target": [[ta] * n_training],
+                  "NonTarget": [[nt] * n_training]}
+    q = QuanticSVM(target=ta, quantum=True,
+                   verbose=False, test_input=test_input)
     # We need to have different values for target and non-target in our covset
     # or vector machine will not converge
     # To achieve testing in a reasonnable amount of time,
     # we will lower the size of the feature and the number of trials
     n_matrices, n_channels, n_classes = 10, 2, 2
-    class_len = n_matrices // n_classes # balanced set
+    class_len = n_matrices // n_classes  # balanced set
     nt_covset = np.zeros((class_len, n_channels, n_channels))
     ta_covset = np.ones((class_len, n_channels, n_channels))
     covset = np.concatenate((nt_covset, ta_covset), axis=0)
@@ -148,7 +151,8 @@ def test_QuanticVQC_FVT_SimulatedQuantum(get_covmats, get_labels):
     # We are dealing with a small number of trial,
     # therefore we will skip self_calibration as it may happens that
     # self_calibration select only target or non-target trials
-    test_input = {"Target": [[ta] * n_training], "NonTarget": [[nt] * n_training]}
+    test_input = {"Target": [[ta] * n_training],
+                  "NonTarget": [[nt] * n_training]}
     q = QuanticVQC(target=1, verbose=False, test_input=test_input)
     # We need to have different values for target and non-target in our covset
     # or vector machine will not converge
