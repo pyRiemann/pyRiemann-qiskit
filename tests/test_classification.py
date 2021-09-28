@@ -8,6 +8,7 @@ def test_Quantic_init():
     # if "classical" computation enable,
     # no provider and backend should be defined
     q = QuanticSVM(target=ta, quantum=False)
+    q._init_quantum()
     assert not q._quantum
     assert not hasattr(q, "backend")
     assert not hasattr(q, "provider")
@@ -15,6 +16,7 @@ def test_Quantic_init():
     # then "quantum" simulation will be enabled
     # i.e., no remote quantum provider will be defined
     q = QuanticSVM(target=ta, quantum=True)
+    q._init_quantum()
     assert q._quantum
     assert hasattr(q, "_backend")
     assert not hasattr(q, "_provider")

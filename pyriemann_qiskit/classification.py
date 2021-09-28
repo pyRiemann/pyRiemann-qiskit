@@ -99,10 +99,12 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
         self._training_input = {}
         self._target = target
         self._quantum = quantum
-        if quantum:
+
+    def _init_quantum(self):
+        if self._quantum:
             aqua_globals.random_seed = datetime.now().microsecond
             self._log("seed = ", aqua_globals.random_seed)
-            if qAccountToken:
+            if self._qAccountToken:
                 self._log("Real quantum computation will be performed")
                 IBMQ.delete_account()
                 IBMQ.save_account(qAccountToken)
@@ -146,6 +148,8 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
         self._log("There is no additional setup.")
 
     def fit(self, X, y):
+        self._init_quantum()
+        
         self._log("Fitting: ", X.shape)
         self._prev_fit_params = {"X": X, "y": y}
         self._classes = np.unique(y)
