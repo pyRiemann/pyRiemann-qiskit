@@ -8,16 +8,16 @@ def test_Quantic_init():
     # if "classical" computation enable,
     # no provider and backend should be defined
     q = QuanticSVM(target=ta, quantum=False)
-    assert not q.quantum
+    assert not q._quantum
     assert not hasattr(q, "backend")
     assert not hasattr(q, "provider")
     # if "quantum" computation enabled, but no accountToken are provided,
     # then "quantum" simulation will be enabled
     # i.e., no remote quantum provider will be defined
     q = QuanticSVM(target=ta, quantum=True)
-    assert q.quantum
-    assert hasattr(q, "backend")
-    assert not hasattr(q, "provider")
+    assert q._quantum
+    assert hasattr(q, "_backend")
+    assert not hasattr(q, "_provider")
     # if "quantum" computation enabled, and accountToken is provided,
     # then real quantum backend is used
     # this should raise a error as uncorrect API Token is passed
@@ -119,7 +119,7 @@ def test_QuanticSVM_FVT_SimulatedQuantum(get_labels):
     # We are dealing with a small number of trial,
     # therefore we will skip self_calibration as it may happens
     # that self_calibration select only target or non-target trials
-    q.test_input = {"Target": [[ta] * n_training], "NonTarget": [[nt] * n_training]}
+    q._test_input = {"Target": [[ta] * n_training], "NonTarget": [[nt] * n_training]}
     prediction = q.predict(covset)
     # In this case, using SVM, predicting accuracy should be 100%
     assert prediction[:class_len].all() == nt
@@ -144,7 +144,7 @@ def test_QuanticVQC_FVT_SimulatedQuantum(get_covmats, get_labels):
     # We are dealing with a small number of trial,
     # therefore we will skip self_calibration as it may happens that
     # self_calibration select only target or non-target trials
-    q.test_input = {"Target": [[ta] * n_training], "NonTarget": [[nt] * n_training]}
+    q._test_input = {"Target": [[ta] * n_training], "NonTarget": [[nt] * n_training]}
     prediction = q.predict(covset)
     # Considering the inputs, this probably make no sense to test accuracy.
     # Instead, we could consider this test as a canary test
