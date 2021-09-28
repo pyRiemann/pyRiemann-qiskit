@@ -49,21 +49,13 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
         - If true will run on local or remote backend
         (depending on qAccountToken value).
         - If false, will perform classical computing instead
-    **parameters : dictionnary
-        This is used by  SKLearn with get_params and set_params method
-        in order to create a deepcopy of an instance
+    test_input : Dictionnary
+        Contains vectorized test set for target and non-target classes
 
     Attributes
     ----------
-    verbose_ : see above
     _classes : list
         list of classes.
-    _processVector : see above
-    _qAccountToken : see above
-    _target : see above
-    _quantum : see above
-    _test_input : Dictionnary
-        Contains vectorized test set for target and non-target classes
     _training_input : Dictionnary
         Contains vectorized training set for target and non-target classes
     _provider : IBMQ Provider
@@ -89,22 +81,22 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
     """
 
     def __init__(self, target, qAccountToken=None, quantum=True,
-                 processVector=lambda v: v, verbose=True, **parameters):
-        self.verbose_ = verbose
+                 processVector=lambda v: v, verbose=True, test_input={}):
+        self.verbose = verbose
         self._log("Initializing Quantum Classifier")
-        self._test_input = {}
-        self.set_params(**parameters)
-        self._processVector = processVector
-        self._qAccountToken = qAccountToken
+        self.test_input = test_input
+        self.processVector = processVector
+        self.qAccountToken = qAccountToken
+        self.target = target
+        self.quantum = quantum
+        # protected field for child classes
         self._training_input = {}
-        self._target = target
-        self._quantum = quantum
 
     def _init_quantum(self):
-        if self._quantum:
+        if self.quantum:
             aqua_globals.random_seed = datetime.now().microsecond
             self._log("seed = ", aqua_globals.random_seed)
-            if self._qAccountToken:
+            if self.qAccountToken:
                 self._log("Real quantum computation will be performed")
                 IBMQ.delete_account()
                 IBMQ.save_account(qAccountToken)
@@ -118,12 +110,12 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
             self._log("Classical SVM will be performed")
 
     def _log(self, *values):
-        if self.verbose_:
+        if self.verbose:
             print("[QClass] ", *values)
 
     def _vectorize(self, X):
         vector = X.reshape(len(X), self._feature_dim)
-        return [self._processVector(x) for x in vector]
+        return [self.processVector(x) for x in vector]
 
     def _split_target_and_non_target(self, X, y):
         self._log("""[Warning] Spitting target from non target.
@@ -135,8 +127,8 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
             n_matrices = 1
         self._feature_dim = n_channels * n_matrices
         self._log("Feature dimension = ", self._feature_dim)
-        Xta = X[y == self._target]
-        Xnt = X[np.logical_not(y == self._target)]
+        Xta = X[y == self.target]
+        Xnt = X[np.logical_not(y == self.target)]
         VectorizedXta = self._vectorize(Xta)
         VectorizedXnt = self._vectorize(Xnt)
         self._new_feature_dim = len(VectorizedXta[0])
@@ -162,7 +154,7 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
         self._feature_map = ZZFeatureMap(feature_dimension=feature_dim, reps=2,
                                         entanglement='linear')
         self._additional_setup()
-        if self._quantum:
+        if self.quantum:
             if not hasattr(self, "_backend"):
                 def filters(device):
                     return (
@@ -183,23 +175,6 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
                                                     seed_transpiler=seed_trans)
         return self
 
-    def get_params(self, deep=True):
-        # Class is re-instanciated for each fold of a cv pipeline.
-        # Deep copy of the original instance is insure trough this method
-        # and the pending one set_params
-        return {
-            "target": self._target,
-            "qAccountToken": self._qAccountToken,
-            "quantum": self._quantum,
-            "processVector": self._processVector,
-            "verbose": self.verbose_,
-            "_test_input": self._test_input,
-        }
-
-    def set_params(self, **parameters):
-        for parameter, value in parameters.items():
-            setattr(self, parameter, value)
-        return self
 
     def _run(self, predict_set=None):
         raise Exception("Run method was not implemented")
@@ -215,7 +190,7 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
         self.score(X_test, y_test)
 
     def predict(self, X):
-        if(len(self._test_input) == 0):
+        if(len(self.test_input) == 0):
             self._log("There is no test inputs. Self-calibrating...")
             self._self_calibration()
         result = None
@@ -235,9 +210,9 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
     def score(self, X, y):
         self._log("Scoring: ", X.shape)
         VectorizedXta, VectorizedXnt = self._split_target_and_non_target(X, y)
-        self._test_input = {}
-        self._test_input["Target"] = VectorizedXta
-        self._test_input["NonTarget"] = VectorizedXnt
+        self.test_input = {}
+        self.test_input["Target"] = VectorizedXta
+        self.test_input["NonTarget"] = VectorizedXnt
         result = self._run()
         balanced_accuracy = result["testing_accuracy"]
         self._log("Balanced accuracy = ", balanced_accuracy)
@@ -260,14 +235,14 @@ class QuanticSVM(QuanticBase):
 
     def _run(self, predict_set=None):
         self._log("SVM classification running...")
-        if self._quantum:
+        if self.quantum:
             self._log("Quantum instance is ", self._quantum_instance)
             qsvm = QSVM(self._feature_map, self._training_input,
-                        self._test_input, predict_set)
+                        self.test_input, predict_set)
             result = qsvm.run(self._quantum_instance)
         else:
             result = SklearnSVM(self._training_input,
-                                self._test_input, predict_set).run()
+                                self.test_input, predict_set).run()
         self._log(result)
         return result
 
@@ -317,6 +292,6 @@ class QuanticVQC(QuanticBase):
     def _run(self, predict_set=None):
         self._log("VQC classification running...")
         vqc = VQC(self.optimizer, self._feature_map, self.var_form,
-                  self._training_input, self._test_input, predict_set)
+                  self._training_input, self.test_input, predict_set)
         result = vqc.run(self._quantum_instance)
         return result

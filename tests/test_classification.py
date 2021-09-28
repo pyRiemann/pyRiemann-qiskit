@@ -20,7 +20,7 @@ def test_Quantic_init():
     # no provider and backend should be defined
     q = QuanticSVM(target=ta, quantum=False)
     q._init_quantum()
-    assert not q._quantum
+    assert not q.quantum
     assert not hasattr(q, "backend")
     assert not hasattr(q, "provider")
     # if "quantum" computation enabled, but no accountToken are provided,
@@ -28,7 +28,7 @@ def test_Quantic_init():
     # i.e., no remote quantum provider will be defined
     q = QuanticSVM(target=ta, quantum=True)
     q._init_quantum()
-    assert q._quantum
+    assert q.quantum
     assert hasattr(q, "_backend")
     assert not hasattr(q, "_provider")
     # if "quantum" computation enabled, and accountToken is provided,
@@ -117,7 +117,11 @@ def test_QuanticSVM_FVT_SimulatedQuantum(get_labels):
     # We will use a quantum simulator on the local machine
     nt, ta = 0, 1
     n_training = 4
-    q = QuanticSVM(target=ta, quantum=True, verbose=False)
+    # We are dealing with a small number of trial,
+    # therefore we will skip self_calibration as it may happens
+    # that self_calibration select only target or non-target trials
+    test_input = {"Target": [[ta] * n_training], "NonTarget": [[nt] * n_training]}
+    q = QuanticSVM(target=ta, quantum=True, verbose=False, test_input=test_input)
     # We need to have different values for target and non-target in our covset
     # or vector machine will not converge
     # To achieve testing in a reasonnable amount of time,
@@ -129,10 +133,6 @@ def test_QuanticSVM_FVT_SimulatedQuantum(get_labels):
     covset = np.concatenate((nt_covset, ta_covset), axis=0)
     labels = get_labels(n_matrices, n_classes)
     q.fit(covset, labels)
-    # We are dealing with a small number of trial,
-    # therefore we will skip self_calibration as it may happens
-    # that self_calibration select only target or non-target trials
-    q._test_input = {"Target": [[ta] * n_training], "NonTarget": [[nt] * n_training]}
     prediction = q.predict(covset)
     # In this case, using SVM, predicting accuracy should be 100%
     assert prediction[:class_len].all() == nt
@@ -145,7 +145,11 @@ def test_QuanticVQC_FVT_SimulatedQuantum(get_covmats, get_labels):
     # quantum parameter for VQC is always true
     nt, ta = 0, 1
     n_training = 4
-    q = QuanticVQC(target=1, verbose=False)
+    # We are dealing with a small number of trial,
+    # therefore we will skip self_calibration as it may happens that
+    # self_calibration select only target or non-target trials
+    test_input = {"Target": [[ta] * n_training], "NonTarget": [[nt] * n_training]}
+    q = QuanticVQC(target=1, verbose=False, test_input=test_input)
     # We need to have different values for target and non-target in our covset
     # or vector machine will not converge
     # To achieve testing in a reasonnable amount of time,
@@ -154,10 +158,6 @@ def test_QuanticVQC_FVT_SimulatedQuantum(get_covmats, get_labels):
     covset = get_covmats(n_matrices, n_channels)
     labels = get_labels(n_matrices, n_classes)
     q.fit(covset, labels)
-    # We are dealing with a small number of trial,
-    # therefore we will skip self_calibration as it may happens that
-    # self_calibration select only target or non-target trials
-    q._test_input = {"Target": [[ta] * n_training], "NonTarget": [[nt] * n_training]}
     prediction = q.predict(covset)
     # Considering the inputs, this probably make no sense to test accuracy.
     # Instead, we could consider this test as a canary test
