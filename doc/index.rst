@@ -22,25 +22,6 @@
 pyRiemann-qiskit: Qiskit wrapper for pyRiemann
 =============================================================
 
-.. raw:: html
-
-    <div style="clear: both"></div>
-    <div class="container-fluid hidden-xs hidden-sm">
-      <div class="row">
-       <a href="https://github.com/pyRiemann/pyRiemann-qiskit/issues/4">
-         <div class="col-md-3 thumbnail">
-           <img src="_images/sphx_glr_plot_single_thumb.png">
-         </div>
-       </a>
-     </div>
-   </div>
-
-   <br>
-
-   <div class="container-fluid">
-     <div class="row">
-       <div class="col-md-9">
-
 pyRiemann-qiskit is a Qiskit wrapper around pyRiemann. It allows to use quantum classification with riemannian geometry. 
 
 For a brief introduction to the ideas behind the package, you can read the
