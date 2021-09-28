@@ -15,6 +15,10 @@ The install script will install the required dependencies. If you want also to b
 
 If you use a zsh shell, you need to write `pip install -e .\[docs,tests\]`. If you do not know what zsh is, you could use the above command.
 
+You may check that the package was correctly installed by starting a python shell and writing:
+
+``import pyriemann_qiskit``
+
 Dependencies
 ~~~~~~~~~~~~
 

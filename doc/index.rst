@@ -27,7 +27,7 @@ pyRiemann-qiskit: Qiskit wrapper for pyRiemann
     <div style="clear: both"></div>
     <div class="container-fluid hidden-xs hidden-sm">
       <div class="row">
-       <a href="auto_examples/index">
+       <a href="https://github.com/pyRiemann/pyRiemann-qiskit/issues/4">
          <div class="col-md-3 thumbnail">
            <img src="_images/sphx_glr_plot_single_thumb.png">
          </div>
