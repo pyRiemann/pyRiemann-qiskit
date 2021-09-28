@@ -30,9 +30,9 @@ def test_Quantic_init():
 def test_Quantic_splitTargetAndNonTarget(get_covmats):
     """Test splitTargetAndNonTarget method of quantum classifiers"""
     n_matrices, n_channels = 100, 3
-    Nt, Ta = 0, 1
+    nt, ta = 0, 1
     covset = get_covmats(n_matrices, n_channels)
-    labels = np.array([Nt, Ta]).repeat(n_matrices // 2)
+    labels = np.array([nt, ta]).repeat(n_matrices // 2)
     q = QuanticSVM(target=1, quantum=False)
     xta, xnt = q.splitTargetAndNonTarget(covset, labels)
     assert len(xta) == n_matrices // 2
@@ -45,10 +45,10 @@ def test_Quantic_splitTargetAndNonTarget(get_covmats):
 def test_Quantic_SelfCalibration(get_covmats):
     """Test self_calibration method of quantum classifiers"""
     n_matrices, n_channels = 100, 3
-    Nt, Ta = 0, 1
+    nt, ta = 0, 1
     covset = get_covmats(n_matrices, n_channels)
-    labels = np.array([Nt, Ta]).repeat(n_matrices // 2)
-    q = QuanticSVM(target=Ta, quantum=False)
+    labels = np.array([nt, ta]).repeat(n_matrices // 2)
+    q = QuanticSVM(target=ta, quantum=False)
     q.fit(covset, labels)
     test_size = 0.33  # internal setting to self_calibration method
     len_test = int(test_size * n_matrices)
@@ -79,23 +79,23 @@ def test_Quantic_FVT_Classical():
     """
     # When quantum=False, it should use
     # classical SVC implementation from SKlearn
-    Nt, Ta = 0, 1
-    q = QuanticSVM(target=Ta, quantum=False, verbose=False)
+    nt, ta = 0, 1
+    q = QuanticSVM(target=ta, quantum=False, verbose=False)
     # We need to have different values for target and non-target in our covset
     # or vector machine will not converge
     n_matrices, n_channels = 100, 3
-    iNt = 3 * n_matrices // 4
-    iTa = n_matrices // 4
-    nt = np.zeros((iNt, 3, 3))
-    ta = np.ones((iTa, 3, 3))
-    covset = np.concatenate((nt, ta), axis=0)
-    labels = np.concatenate((np.array([0] * iNt), np.array([1] * iTa)), axis=0)
+    n_nt = 3 * n_matrices // 4
+    n_ta = n_matrices // 4
+    nt_covset = np.zeros((n_nt, 3, 3))
+    ta_covset = np.ones((n_ta, 3, 3))
+    covset = np.concatenate((nt_covset, ta_covset), axis=0)
+    labels = np.concatenate((np.array([0] * n_nt), np.array([1] * n_ta)), axis=0)
     q.fit(covset, labels)
     # This will autodefine testing sets
     prediction = q.predict(covset)
     # In this case, using SVM, predicting accuracy should be 100%
-    assert prediction[0:iNt].all() == Nt
-    assert prediction[iNt:].all() == Ta
+    assert prediction[0:n_nt].all() == nt
+    assert prediction[n_nt:].all() == ta
 
 
 def test_QuanticSVM_FVT_SimulatedQuantum():
@@ -106,50 +106,50 @@ def test_QuanticSVM_FVT_SimulatedQuantum():
     Note that the "real quantum version" of this test may also take some time.
     """
     # We will use a quantum simulator on the local machine
-    Nt, Ta = 0, 1
-    q = QuanticSVM(target=Ta, quantum=True, verbose=False)
+    nt, ta = 0, 1
+    q = QuanticSVM(target=ta, quantum=True, verbose=False)
     # We need to have different values for target and non-target in our covset
     # or vector machine will not converge
     # To achieve testing in a reasonnable amount of time,
     # we will lower the size of the feature and the number of trials
-    iNt = 10
-    iTa = 5
-    nt = np.zeros((iNt, 2, 2))
-    ta = np.ones((iTa, 2, 2))
-    covset = np.concatenate((nt, ta), axis=0)
-    labels = np.concatenate((np.array([Nt] * iNt), np.array([Ta] * iTa)), axis=0)
+    n_nt = 10
+    n_ta = 5
+    nt_covset = np.zeros((n_nt, 2, 2))
+    ta_covset = np.ones((n_ta, 2, 2))
+    covset = np.concatenate((nt_covset, ta_covset), axis=0)
+    labels = np.concatenate((np.array([nt] * n_nt), np.array([ta] * n_ta)), axis=0)
     q.fit(covset, labels)
     # We are dealing with a small number of trial,
     # therefore we will skip self_calibration as it may happens
     # that self_calibration select only target or non-target trials
-    q.test_input = {"Target": [[Ta] * 4], "NonTarget": [[Nt] * 4]}
+    q.test_input = {"Target": [[ta] * 4], "NonTarget": [[nt] * 4]}
     prediction = q.predict(covset)
     # In this case, using SVM, predicting accuracy should be 100%
-    assert prediction[0:iNt].all() == Nt
-    assert prediction[iNt:].all() == Ta
+    assert prediction[0:n_nt].all() == nt
+    assert prediction[n_nt:].all() == ta
 
 
 def test_QuanticVQC_FVT_SimulatedQuantum():
     """Perform VQC on a simulated quantum computer"""
     # We will use a quantum simulator on the local machine
     # quantum parameter for VQC is always true
-    Nt, Ta = 0, 1
+    nt, ta = 0, 1
     q = QuanticVQC(target=1, verbose=False)
     # We need to have different values for target and non-target in our covset
     # or vector machine will not converge
     # To achieve testing in a reasonnable amount of time,
     # we will lower the size of the feature and the number of trials
-    iNt = 2
-    iTa = 2
-    nt = np.zeros((iNt, 2, 2))
-    ta = np.ones((iTa, 2, 2))
-    covset = np.concatenate((nt, ta), axis=0)
-    labels = np.concatenate((np.array([Nt] * iNt), np.array([Ta] * iTa)), axis=0)
+    n_nt = 2
+    n_ta = 2
+    nt_covset = np.zeros((n_nt, 2, 2))
+    ta_covset = np.ones((n_ta, 2, 2))
+    covset = np.concatenate((nt_covset, ta_covset), axis=0)
+    labels = np.concatenate((np.array([nt] * n_nt), np.array([ta] * n_ta)), axis=0)
     q.fit(covset, labels)
     # We are dealing with a small number of trial,
     # therefore we will skip self_calibration as it may happens that
     # self_calibration select only target or non-target trials
-    q.test_input = {"Target": [[Ta] * 4], "NonTarget": [[Nt] * 4]}
+    q.test_input = {"Target": [[ta] * 4], "NonTarget": [[nt] * 4]}
     prediction = q.predict(covset)
     # Considering the inputs, this probably make no sense to test accuracy.
     # Instead, we could consider this test as a canary test
