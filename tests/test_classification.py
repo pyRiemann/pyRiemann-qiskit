@@ -29,13 +29,13 @@ def test_Quantic_init():
 
 
 def test_Quantic_splitTargetAndNonTarget(get_covmats, get_labels):
-    """Test splitTargetAndNonTarget method of quantum classifiers"""
+    """Test _split_target_and_non_target method of quantum classifiers"""
     n_matrices, n_channels, n_classes = 100, 3, 2
     nt, ta = 0, 1
     covset = get_covmats(n_matrices, n_channels)
     labels = get_labels(n_matrices, n_classes)
     q = QuanticSVM(target=ta, quantum=False)
-    xta, xnt = q.splitTargetAndNonTarget(covset, labels)
+    xta, xnt = q._split_target_and_non_target(covset, labels)
     # Covariance matrices should be vectorized
     class_len = n_matrices // n_classes # balanced set
     assert np.shape(xta) == (class_len, n_channels * n_channels)
@@ -43,7 +43,7 @@ def test_Quantic_splitTargetAndNonTarget(get_covmats, get_labels):
 
 
 def test_Quantic_SelfCalibration(get_covmats, get_labels):
-    """Test self_calibration method of quantum classifiers"""
+    """Test _self_calibration method of quantum classifiers"""
     n_matrices, n_channels, n_classes = 100, 3, 2
     nt, ta = 0, 1
     covset = get_covmats(n_matrices, n_channels)
@@ -67,7 +67,7 @@ def test_Quantic_SelfCalibration(get_covmats, get_labels):
 
     q.fit = fit
     q.score = score
-    q.self_calibration()
+    q._self_calibration()
 
 
 def test_Quantic_FVT_Classical(get_labels):
