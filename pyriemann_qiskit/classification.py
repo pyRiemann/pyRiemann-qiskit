@@ -236,8 +236,15 @@ class QuanticSVM(QuanticBase):
 
     References
     ----------
-    .. [1] TODO
-    .. [2] TODO
+    .. [1] H. Abraham et al., Qiskit:
+           An Open-source Framework for Quantum Computing.
+           Zenodo, 2019. doi: 10.5281/zenodo.2562110.
+
+    .. [2] V. Havlíček et al.,
+           ‘Supervised learning with quantum-enhanced feature spaces’,
+           Nature, vol. 567, no. 7747, pp. 209–212, Mar. 2019,
+           doi: 10.1038/s41586-019-0980-2.
+
     """
 
     def _run(self, predict_set=None):
@@ -282,6 +289,17 @@ class QuanticVQC(QuanticBase):
     See Also
     --------
     QuanticBase
+
+    References
+    ----------
+    .. [1] H. Abraham et al., Qiskit:
+           An Open-source Framework for Quantum Computing.
+           Zenodo, 2019. doi: 10.5281/zenodo.2562110.
+
+    .. [2] V. Havlíček et al.,
+           ‘Supervised learning with quantum-enhanced feature spaces’,
+           Nature, vol. 567, no. 7747, pp. 209–212, Mar. 2019,
+           doi: 10.1038/s41586-019-0980-2.
 
     """
 
