@@ -234,6 +234,10 @@ class QuanticSVM(QuanticBase):
     --------
     QuanticBase
 
+    References
+    ----------
+    .. [1] TODO
+    .. [2] TODO
     """
 
     def _run(self, predict_set=None):
