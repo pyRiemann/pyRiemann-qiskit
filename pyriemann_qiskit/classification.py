@@ -49,7 +49,7 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
         - If true will run on local or remote backend
         (depending on qAccountToken value).
         - If false, will perform classical computing instead
-    test_input : Dictionnary
+    test_input : dict
         Contains vectorized test set for target and non-target classes
 
     Notes
