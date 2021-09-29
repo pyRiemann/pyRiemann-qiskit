@@ -45,7 +45,7 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
         Additional processing on the input vectors. eg: downsampling
     verbose : bool (default:True)
         If true will output all intermediate results and logs
-    quantum : Bool (default:True)
+    quantum : bool (default: True)
         - If true will run on local or remote backend
         (depending on qAccountToken value).
         - If false, will perform classical computing instead
