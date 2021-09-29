@@ -38,8 +38,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     ----------
     target : int
         Label of the target symbol
-    qAccountToken : string (default:None)
-        If quantum==True and qAccountToken provided,
+    q_account_token : string (default:None)
+        If quantum==True and q_account_token provided,
         the classification task will be running on a IBM quantum backend
     process_vector : lambda function (default: lambda v: v)
         Additional processing on the input vectors. eg: downsampling
@@ -47,7 +47,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         If true will output all intermediate results and logs
     quantum : bool (default: True)
         - If true will run on local or remote backend
-        (depending on qAccountToken value).
+        (depending on q_account_token value).
         - If false, will perform classical computing instead
     test_input : dict
         Contains vectorized test set for target and non-target classes
@@ -68,13 +68,13 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     """
 
-    def __init__(self, target, qAccountToken=None, quantum=True,
-                 processVector=lambda v: v, verbose=True, test_input={}):
+    def __init__(self, target, q_account_token=None, quantum=True,
+                 process_vector=lambda v: v, verbose=True, test_input={}):
         self.verbose = verbose
         self._log("Initializing Quantum Classifier")
         self.test_input = test_input
-        self.processVector = processVector
-        self.qAccountToken = qAccountToken
+        self.process_vector = process_vector
+        self.q_account_token = q_account_token
         self.target = target
         self.quantum = quantum
         # protected field for child classes
@@ -84,10 +84,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         if self.quantum:
             aqua_globals.random_seed = datetime.now().microsecond
             self._log("seed = ", aqua_globals.random_seed)
-            if self.qAccountToken:
+            if self.q_account_token:
                 self._log("Real quantum computation will be performed")
                 IBMQ.delete_account()
-                IBMQ.save_account(self.qAccountToken)
+                IBMQ.save_account(self.q_account_token)
                 IBMQ.load_account()
                 self._log("Getting provider...")
                 self._provider = IBMQ.get_provider(hub='ibm-q')
@@ -103,7 +103,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     def _vectorize(self, X):
         vector = X.reshape(len(X), self._feature_dim)
-        return [self.processVector(x) for x in vector]
+        return [self.process_vector(x) for x in vector]
 
     def _split_target_and_non_target(self, X, y):
         self._log("""[Warning] Spitting target from non target.
@@ -117,12 +117,12 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._log("Feature dimension = ", self._feature_dim)
         Xta = X[y == self.target]
         Xnt = X[np.logical_not(y == self.target)]
-        VectorizedXta = self._vectorize(Xta)
-        VectorizedXnt = self._vectorize(Xnt)
-        self._new_feature_dim = len(VectorizedXta[0])
+        vect_Xta = self._vectorize(Xta)
+        vect_Xnt = self._vectorize(Xnt)
+        self._new_feature_dim = len(vect_Xta[0])
         self._log("Feature dimension after vector processing = ",
                   self._new_feature_dim)
-        return (VectorizedXta, VectorizedXnt)
+        return (vect_Xta, vect_Xnt)
 
     def _additional_setup(self):
         self._log("There is no additional setup.")
@@ -135,7 +135,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         X : ndarray, shape (n_trials, n_channels, n_channels) |
                      shape (n_trials, n_channels * n_channels)
             ndarray of SPD matrices.
-            processVector argument is required if providing 2d matrices
+            process_vector argument is required if providing 2d matrices
         y : ndarray shape (n_trials, 1)
             labels corresponding to each trial.
 
@@ -149,10 +149,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._log("Fitting: ", X.shape)
         self._prev_fit_params = {"X": X, "y": y}
         self.classes_ = np.unique(y)
-        VectorizedXta, VectorizedXnt = self._split_target_and_non_target(X, y)
+        vect_Xta, vect_Xnt = self._split_target_and_non_target(X, y)
 
-        self._training_input["Target"] = VectorizedXta
-        self._training_input["NonTarget"] = VectorizedXnt
+        self._training_input["Target"] = vect_Xta
+        self._training_input["NonTarget"] = vect_Xnt
         self._log(get_feature_dimension(self._training_input))
         feature_dim = get_feature_dimension(self._training_input)
         self._feature_map = ZZFeatureMap(feature_dimension=feature_dim, reps=2,
@@ -200,7 +200,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         X : ndarray, shape (n_trials, n_channels, n_channels) |
                      shape (n_trials, n_channels * n_channels)
             ndarray of SPD matrices.
-            processVector argument is required if providing 2d matrices
+            process_vector argument is required if providing 2d matrices
 
         Returns
         -------
@@ -259,10 +259,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
             the testing accuracy
         """
         self._log("Scoring: ", X.shape)
-        VectorizedXta, VectorizedXnt = self._split_target_and_non_target(X, y)
+        vect_Xta, vect_Xnt = self._split_target_and_non_target(X, y)
         self.test_input = {}
-        self.test_input["Target"] = VectorizedXta
-        self.test_input["NonTarget"] = VectorizedXnt
+        self.test_input["Target"] = vect_Xta
+        self.test_input["NonTarget"] = vect_Xnt
         result = self._run()
         testing_accuracy = result["testing_accuracy"]
         self._log("Testing accuracy = ", testing_accuracy)
@@ -318,8 +318,8 @@ class QuanticVQC(QuanticClassifierBase):
     Parameters
     ----------
     target : see QuanticClassifierBase
-    qAccountToken : see QuanticClassifierBase
-    processVector : see QuanticClassifierBase
+    q_account_token : see QuanticClassifierBase
+    process_vector : see QuanticClassifierBase
     verbose : see QuanticClassifierBase
     parameters : see QuanticClassifierBase
 
@@ -340,11 +340,11 @@ class QuanticVQC(QuanticClassifierBase):
 
     """
 
-    def __init__(self, target, qAccountToken=None,
-                 processVector=lambda v: v, verbose=True, **parameters):
+    def __init__(self, target, q_account_token=None,
+                 process_vector=lambda v: v, verbose=True, **parameters):
         QuanticClassifierBase.__init__(self, target=target,
-                                       qAccountToken=qAccountToken,
-                                       processVector=processVector,
+                                       q_account_token=q_account_token,
+                                       process_vector=process_vector,
                                        verbose=verbose, **parameters)
 
     def _additional_setup(self):
