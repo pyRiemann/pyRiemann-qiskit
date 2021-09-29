@@ -58,24 +58,8 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
 
     Attributes
     ----------
-    _classes : list
+    classes_ : list
         list of classes.
-    _training_input : Dictionnary
-        Contains vectorized training set for target and non-target classes
-    _provider : IBMQ Provider
-        This service provide a remote quantum computer backend
-    _backend : Quantum computer or simulator
-    _feature_dim : int
-        Size of the vectorized matrix which is passed to quantum classifier
-    _new_feature_dim : int
-        Feature dimension after proccessed by `processVector` lambda
-    _prev_fit_params : Dictionnary of data and labels
-        Keep in memory data and labels passed to fit method.
-        This is used for self-calibration.
-    _feature_map: ZZFeatureMap
-        Transform data into quantum space
-    _quantum_instance: QuantumInstance (Object)
-        Backend with specific parameters (number of shots, etc.)
 
     See Also
     --------
@@ -148,7 +132,7 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
 
         self._log("Fitting: ", X.shape)
         self._prev_fit_params = {"X": X, "y": y}
-        self._classes = np.unique(y)
+        self.classes_ = np.unique(y)
         VectorizedXta, VectorizedXnt = self._split_target_and_non_target(X, y)
 
         self._training_input["Target"] = VectorizedXta
@@ -276,16 +260,6 @@ class QuanticVQC(QuanticBase):
     verbose : see QuanticBase
     parameters : see QuanticBase
 
-    Attributes
-    ----------
-    optimizer: SPSA
-        SPSA is a descent method capable of finding global minima
-        https://qiskit.org/documentation/stubs/qiskit.aqua.components.optimizers.SPSA.html
-    var_form: TwoLocal
-        In quantum mechanics, the variational method is one way of finding
-        approximations to the lowest energy eigenstate
-        https://qiskit.org/documentation/apidoc/qiskit.aqua.components.variational_forms.html
-
     See Also
     --------
     QuanticBase
@@ -310,13 +284,13 @@ class QuanticVQC(QuanticBase):
                              **parameters)
 
     def _additional_setup(self):
-        self.optimizer = SPSA(maxiter=40, c0=4.0, skip_calibration=True)
-        self.var_form = TwoLocal(self._new_feature_dim,
-                                 ['ry', 'rz'], 'cz', reps=3)
+        self._optimizer = SPSA(maxiter=40, c0=4.0, skip_calibration=True)
+        self._var_form = TwoLocal(self._new_feature_dim,
+                                  ['ry', 'rz'], 'cz', reps=3)
 
     def _run(self, predict_set=None):
         self._log("VQC classification running...")
-        vqc = VQC(self.optimizer, self._feature_map, self.var_form,
+        vqc = VQC(self._optimizer, self._feature_map, self._var_form,
                   self._training_input, self.test_input, predict_set)
         result = vqc.run(self._quantum_instance)
         return result
