@@ -52,6 +52,10 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
     test_input : Dictionnary
         Contains vectorized test set for target and non-target classes
 
+    Notes
+    -----
+    .. versionadded:: 0.0.1
+
     Attributes
     ----------
     _classes : list
