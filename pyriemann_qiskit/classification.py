@@ -17,7 +17,7 @@ import logging
 logger.level = logging.INFO
 
 
-class QuanticBase(BaseEstimator, ClassifierMixin):
+class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     """Quantum classification.
 
@@ -206,7 +206,7 @@ class QuanticBase(BaseEstimator, ClassifierMixin):
         return balanced_accuracy
 
 
-class QuanticSVM(QuanticBase):
+class QuanticSVM(QuanticClassifierBase):
 
     """Quantum-enhanced SVM classification.
 
@@ -216,7 +216,7 @@ class QuanticSVM(QuanticBase):
 
     See Also
     --------
-    QuanticBase
+    QuanticClassifierBase
 
     References
     ----------
@@ -245,7 +245,7 @@ class QuanticSVM(QuanticBase):
         return result
 
 
-class QuanticVQC(QuanticBase):
+class QuanticVQC(QuanticClassifierBase):
 
     """Variational Quantum Classifier
 
@@ -254,15 +254,15 @@ class QuanticVQC(QuanticBase):
 
     Parameters
     ----------
-    target : see QuanticBase
-    qAccountToken : see QuanticBase
-    processVector : see QuanticBase
-    verbose : see QuanticBase
-    parameters : see QuanticBase
+    target : see QuanticClassifierBase
+    qAccountToken : see QuanticClassifierBase
+    processVector : see QuanticClassifierBase
+    verbose : see QuanticClassifierBase
+    parameters : see QuanticClassifierBase
 
     See Also
     --------
-    QuanticBase
+    QuanticClassifierBase
 
     References
     ----------
@@ -279,9 +279,10 @@ class QuanticVQC(QuanticBase):
 
     def __init__(self, target, qAccountToken=None,
                  processVector=lambda v: v, verbose=True, **parameters):
-        QuanticBase.__init__(self, target=target, qAccountToken=qAccountToken,
-                             processVector=processVector, verbose=verbose,
-                             **parameters)
+        QuanticClassifierBase.__init__(self, target=target,
+                                       qAccountToken=qAccountToken,
+                                       processVector=processVector,
+                                       verbose=verbose, **parameters)
 
     def _additional_setup(self):
         self._optimizer = SPSA(maxiter=40, c0=4.0, skip_calibration=True)
