@@ -108,11 +108,11 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     def _split_target_and_non_target(self, X, y):
         self._log("""[Warning] Spitting target from non target.
                  Only binary classification is supported.""")
-        n_channels = len(X[0])
+        n_matrices = len(X[0])
         try:
-            n_matrices = len(X[0][0])
+            n_channels = len(X[0][0])
         except Exception:
-            n_matrices = 1
+            n_channels = 1
         self._feature_dim = n_channels * n_matrices
         self._log("Feature dimension = ", self._feature_dim)
         Xta = X[y == self.target]
@@ -128,6 +128,22 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._log("There is no additional setup.")
 
     def fit(self, X, y):
+        """Prepare the training data and the quantum backend
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_trials, n_channels, n_channels) |
+                     shape (n_trials, n_channels * n_channels)
+            ndarray of SPD matrices.
+            processVector argument is required if providing 2d matrices
+        y : ndarray shape (n_trials, 1)
+            labels corresponding to each trial.
+
+        Returns
+        -------
+        self : QuanticClassifierBase instance
+            The QuanticClassifierBase instance.
+        """
         self._init_quantum()
 
         self._log("Fitting: ", X.shape)
@@ -177,6 +193,20 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self.score(X_test, y_test)
 
     def predict(self, X):
+        """get the predictions.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_trials, n_channels, n_channels) |
+                     shape (n_trials, n_channels * n_channels)
+            ndarray of SPD matrices.
+            processVector argument is required if providing 2d matrices
+
+        Returns
+        -------
+        pred : array of string, shape (n_trials, 1)
+            predicted labels for all trials.
+        """
         if(len(self.test_input) == 0):
             self._log("There is no test inputs. Self-calibrating...")
             self._self_calibration()
@@ -188,22 +218,55 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         return result["predicted_labels"]
 
     def predict_proba(self, X):
+        """This method is implemented for compatibility purpose
+           as SVM prediction probabilities are not available.
+           This method assigns to each trial a boolean which value
+           depends on wheter the label was assigned to classes 0 or 1
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_trials, n_channels, n_channels) |
+                     shape (n_trials, n_channels * n_channels)
+            ndarray of SPD matrices.
+
+        Returns
+        -------
+        prob : ndarray, shape (n_trials, n_classes)
+            prob[x][0] == True if the xth trial was assigned to 1st class
+            prob[x][1] == True if the xth trial was assigned to 2nd class
+        """
         self._log("""[WARNING] SVM prediction probabilities are not available.
                  Results from predict will be used instead.""")
         predicted_labels = self.predict(X)
-        ret = [np.array([c == 0, c == 1]) for c in predicted_labels]
+        ret = [np.array([c == self.classes_[0], c == self.classes_[1]])
+               for c in predicted_labels]
         return np.array(ret)
 
     def score(self, X, y):
+        """Return the testing accuracy.
+           You might want to use a different metric by using sklearn
+           cross_val_score
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_trials, n_channels, n_channels) |
+                     shape (n_trials, n_channels * n_channels)
+            ndarray of SPD matrices.
+
+        Returns
+        -------
+        prob : double
+            the testing accuracy
+        """
         self._log("Scoring: ", X.shape)
         VectorizedXta, VectorizedXnt = self._split_target_and_non_target(X, y)
         self.test_input = {}
         self.test_input["Target"] = VectorizedXta
         self.test_input["NonTarget"] = VectorizedXnt
         result = self._run()
-        balanced_accuracy = result["testing_accuracy"]
-        self._log("Balanced accuracy = ", balanced_accuracy)
-        return balanced_accuracy
+        testing_accuracy = result["testing_accuracy"]
+        self._log("Testing accuracy = ", testing_accuracy)
+        return testing_accuracy
 
 
 class QuanticSVM(QuanticClassifierBase):
