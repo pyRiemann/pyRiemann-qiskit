@@ -129,8 +129,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         Parameters
         ----------
-        X : ndarray, shape (n_trials, n_channels, n_channels) |
-                     shape (n_trials, n_channels * n_channels)
+        X : ndarray, shape (n_trials, n_channels, n_channels) | \
+                shape (n_trials, n_channels * n_channels)
             ndarray of SPD matrices.
             process_vector argument is required if providing 2d matrices
         y : ndarray shape (n_trials,)
@@ -194,8 +194,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         Parameters
         ----------
-        X : ndarray, shape (n_trials, n_channels, n_channels) |
-                     shape (n_trials, n_channels * n_channels)
+        X : ndarray, shape (n_trials, n_channels, n_channels) | \
+                shape (n_trials, n_channels * n_channels)
             ndarray of SPD matrices.
             process_vector argument is required if providing 2d matrices
 
@@ -246,8 +246,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         Parameters
         ----------
-        X : ndarray, shape (n_trials, n_channels, n_channels) |
-                     shape (n_trials, n_channels * n_channels)
+        X : ndarray, shape (n_trials, n_channels, n_channels) | \
+                shape (n_trials, n_channels * n_channels)
             ndarray of SPD matrices.
 
         Returns
@@ -273,6 +273,10 @@ class QuanticSVM(QuanticClassifierBase):
     This class implements SVC on a quantum machine.
     Note if `quantum` parameter is set to `False`
     then a classical SVC will be perfomed instead.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.1
 
     See Also
     --------
@@ -319,6 +323,10 @@ class QuanticVQC(QuanticClassifierBase):
     process_vector : see QuanticClassifierBase
     verbose : see QuanticClassifierBase
     parameters : see QuanticClassifierBase
+
+    Notes
+    -----
+    .. versionadded:: 0.0.1
 
     See Also
     --------
