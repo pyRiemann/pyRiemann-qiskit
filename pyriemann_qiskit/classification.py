@@ -131,8 +131,11 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         ----------
         X : ndarray, shape (n_trials, n_channels, n_channels) | \
                 shape (n_trials, n_channels * n_channels)
-            ndarray of SPD matrices.
-            process_vector argument is required if providing 2d matrices
+            ndarray of SPD matrices. Matrices can be provided in
+            raw format (3D) or already vectorized (2D) such as after projection
+            into the tangent space. Raw matrices are naively inlined.
+            `process_vector` can be use for both 2D and 3D matrices
+            for providing a custom treatement for each vectorized matrices.
         y : ndarray shape (n_trials,)
             labels corresponding to each trial.
 
@@ -196,8 +199,11 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         ----------
         X : ndarray, shape (n_trials, n_channels, n_channels) | \
                 shape (n_trials, n_channels * n_channels)
-            ndarray of SPD matrices.
-            process_vector argument is required if providing 2d matrices
+            ndarray of SPD matrices. Matrices can be provided in
+            raw format (3D) or already vectorized (2D) such as after projection
+            into the tangent space. Raw matrices are naively inlined.
+            `process_vector` can be use for both 2D and 3D matrices
+            for providing a custom treatement for each vectorized matrices.
 
         Returns
         -------
@@ -248,7 +254,11 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         ----------
         X : ndarray, shape (n_trials, n_channels, n_channels) | \
                 shape (n_trials, n_channels * n_channels)
-            ndarray of SPD matrices.
+            ndarray of SPD matrices. Matrices can be provided in
+            raw format (3D) or already vectorized (2D) such as after projection
+            into the tangent space. Raw matrices are naively inlined.
+            `process_vector` can be use for both 2D and 3D matrices
+            for providing a custom treatement for each vectorized matrices.
 
         Returns
         -------
