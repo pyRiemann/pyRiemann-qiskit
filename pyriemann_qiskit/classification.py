@@ -320,6 +320,10 @@ class QuanticVQC(QuanticClassifierBase):
     verbose : see QuanticClassifierBase
     parameters : see QuanticClassifierBase
 
+    Notes
+    -----
+    .. versionadded:: 0.0.1
+
     See Also
     --------
     QuanticClassifierBase
