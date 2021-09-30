@@ -24,7 +24,8 @@ in the domain of brain computer interfaces.
 pyRiemann-qiskit implements a wrapper around QSVC and VQC, to use quantum
 classification with riemanian geometry. A use case would be to use vectorized
 covariance matrices in the TangentSpace as an input for these classifiers,
-enabling a possible sandbox for researchers and engineers in the field. 
+enabling a possible sandbox for researchers and engineers in the field.
+
 ## References
 
 [1] A. Blance and M. Spannowsky,
