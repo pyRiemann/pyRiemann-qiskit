@@ -129,8 +129,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         Parameters
         ----------
-        X : ndarray, shape (n_trials, n_channels, n_channels) |
-                     shape (n_trials, n_channels * n_channels)
+        X : ndarray, shape (n_trials, n_channels, n_channels) | \
+                shape (n_trials, n_channels * n_channels)
             ndarray of SPD matrices.
             process_vector argument is required if providing 2d matrices
         y : ndarray shape (n_trials, 1)
