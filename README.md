@@ -45,6 +45,7 @@ enabling a possible sandbox for researchers and engineers in the field.
     ‘Supervised learning with quantum-enhanced feature spaces’,
     Nature, vol. 567, no. 7747, pp. 209–212, Mar. 2019,
     doi: 10.1038/s41586-019-0980-2.
+
 ## Installation
 
 As there is no stable version, you should clone this repository
