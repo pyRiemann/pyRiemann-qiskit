@@ -274,6 +274,10 @@ class QuanticSVM(QuanticClassifierBase):
     Note if `quantum` parameter is set to `False`
     then a classical SVC will be perfomed instead.
 
+    Notes
+    -----
+    .. versionadded:: 0.0.1
+
     See Also
     --------
     QuanticClassifierBase
