@@ -49,8 +49,13 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         Additional processing on the input vectors. eg: downsampling
     verbose : bool (default:True)
         If true will output all intermediate results and logs
-    test_input : dict
+    test_input : dict (default: {}})
         Contains vectorized test set for target and non-target classes
+    test_per : double (default: 0.33)
+        Indicate the percent of the fitting set that should be kept for
+        testing. The remaining percent are used for training.
+        This is due to the design of quantum classifiers which require
+        training, testing and predicting sets.
 
     Notes
     -----
@@ -69,10 +74,12 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     """
 
     def __init__(self, target, quantum=True, q_account_token=None,
-                 process_vector=lambda v: v, verbose=True, test_input={}):
+                 process_vector=lambda v: v, verbose=True,
+                 test_input={}, test_per=0.33):
         self.verbose = verbose
         self._log("Initializing Quantum Classifier")
         self.test_input = test_input
+        self.test_per = test_per
         self.process_vector = process_vector
         self.q_account_token = q_account_token
         self.target = target
@@ -185,10 +192,9 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     def _self_calibration(self):
         X = self._prev_fit_params["X"]
         y = self._prev_fit_params["y"]
-        test_per = 0.33
-        self._log("Test size = ", test_per, " of previous fitting.")
-        X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                            test_size=test_per)
+        self._log("Test size = ", self.test_per, " of previous fitting.")
+        X_train, X_test,\
+            y_train, y_test = train_test_split(X, y, test_size=self.test_per)
         self.fit(X_train, y_train)
         self.score(X_test, y_test)
 

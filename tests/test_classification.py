@@ -62,7 +62,7 @@ def test_Quantic_splitTargetAndNonTarget(get_covmats, get_labels):
         xta, xnt = q._split_target_and_non_target(covset, labels)
         assert False  # Should never reach this line
     except Exception:
-       pass
+        pass
 
 
 def test_Quantic_SelfCalibration(get_covmats, get_labels):
@@ -70,9 +70,9 @@ def test_Quantic_SelfCalibration(get_covmats, get_labels):
     n_matrices, n_channels, n_classes = 100, 3, 2
     covset = get_covmats(n_matrices, n_channels)
     labels = get_labels(n_matrices, n_classes)
-    q = QuanticSVM(target=1, quantum=False)
+    test_size = 0.33
+    q = QuanticSVM(target=1, quantum=False, test_per=test_size)
     q.fit(covset, labels)
-    test_size = 0.33  # internal setting to self_calibration method
     len_test = int(test_size * n_matrices)
     # Just using a little trick as fit and score method are
     # called by self_calibration method
