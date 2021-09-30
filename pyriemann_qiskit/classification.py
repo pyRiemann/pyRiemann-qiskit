@@ -108,11 +108,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     def _split_target_and_non_target(self, X, y):
         self._log("""[Warning] Spitting target from non target.
                  Only binary classification is supported.""")
-        n_matrices = len(X[0])
-        try:
-            n_channels = len(X[0][0])
-        except Exception:
-            n_channels = 1
+        first_matrix_in_X = np.atleast_2d(X[0])
+        n_matrices, n_channels = first_matrix_in_X.shape[:2]
         self._feature_dim = n_channels * n_matrices
         self._log("Feature dimension = ", self._feature_dim)
         Xta = X[y == self.target]
