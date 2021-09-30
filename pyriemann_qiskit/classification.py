@@ -133,7 +133,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                      shape (n_trials, n_channels * n_channels)
             ndarray of SPD matrices.
             process_vector argument is required if providing 2d matrices
-        y : ndarray shape (n_trials, 1)
+        y : ndarray shape (n_trials,)
             labels corresponding to each trial.
 
         Returns
@@ -201,7 +201,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         Returns
         -------
-        pred : array of string, shape (n_trials, 1)
+        pred : array of string, shape (n_trials,)
             predicted labels for all trials.
         """
         if(len(self.test_input) == 0):
