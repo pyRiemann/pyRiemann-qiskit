@@ -38,6 +38,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     ----------
     target : int
         Label of the target symbol
+    quantum : bool (default: True)
+        - If true will run on local or remote backend
+        (depending on q_account_token value).
+        - If false, will perform classical computing instead
     q_account_token : string (default:None)
         If quantum==True and q_account_token provided,
         the classification task will be running on a IBM quantum backend
@@ -45,10 +49,6 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         Additional processing on the input vectors. eg: downsampling
     verbose : bool (default:True)
         If true will output all intermediate results and logs
-    quantum : bool (default: True)
-        - If true will run on local or remote backend
-        (depending on q_account_token value).
-        - If false, will perform classical computing instead
     test_input : dict
         Contains vectorized test set for target and non-target classes
 
@@ -68,7 +68,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     """
 
-    def __init__(self, target, q_account_token=None, quantum=True,
+    def __init__(self, target, quantum=True, q_account_token=None,
                  process_vector=lambda v: v, verbose=True, test_input={}):
         self.verbose = verbose
         self._log("Initializing Quantum Classifier")
