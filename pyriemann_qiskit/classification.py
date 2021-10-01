@@ -45,7 +45,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     q_account_token : string (default:None)
         If quantum==True and q_account_token provided,
         the classification task will be running on a IBM quantum backend
-    process_vector : lambda function (default: lambda v: v)
+    process_vector : callable (default: lambda v: v)
         Additional processing on the input vectors. eg: downsampling
     verbose : bool (default:True)
         If true will output all intermediate results and logs
