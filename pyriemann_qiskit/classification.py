@@ -26,10 +26,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     simulated quantum computer or a remote and real quantum computer.
     Difference between simulated and real quantum computer will be that:
 
-    * There is no noise on a simulated quantum computer (so results are better)
-    * Real quantum computer are quicker than simulator
-    * Real quantum computer tasks are assigned to a queue
-      before being executed on a back-end
+    * there is no noise on a simulated quantum computer (so results are better);
+    * real quantum computer are quicker than simulator;
+    * real quantum computer tasks are assigned to a queue
+      before being executed on a back-end.
 
     WARNING: At the moment this implementation only supports binary
     classification (eg. Target vs Non-Target experiment)
