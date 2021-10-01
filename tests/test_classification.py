@@ -58,11 +58,9 @@ def test_Quantic_splitTargetAndNonTarget(get_covmats, get_labels):
     # assert that the method still works
     # when passing already vectorized matrices
     covset.reshape(n_matrices, n_channels * n_channels)
-    try:
-        xta, xnt = q._split_target_and_non_target(covset, labels)
-        assert False  # Should never reach this line
-    except Exception:
-        pass
+    xta, xnt = q._split_target_and_non_target(covset, labels)
+    assert np.shape(xta) == (class_len, n_channels * n_channels)
+    assert np.shape(xnt) == (class_len, n_channels * n_channels)
 
 
 def test_Quantic_SelfCalibration(get_covmats, get_labels):
