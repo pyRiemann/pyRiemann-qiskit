@@ -7,7 +7,7 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score
 
 
 def test_GetSetParams(get_2d_covmats, get_labels):
-    classes = (0,1)
+    classes = (0, 1)
     clf = make_pipeline(XdawnCovariances(), TangentSpace(),
                         QuanticSVM(labels=classes, quantum=False))
     skf = StratifiedKFold(n_splits=5)
@@ -20,7 +20,7 @@ def test_GetSetParams(get_2d_covmats, get_labels):
 
 def test_Quantic_init():
     """Test init of quantum classifiers"""
-    classes = (0,1)
+    classes = (0, 1)
     # if "classical" computation enable,
     # no provider and backend should be defined
     q = QuanticSVM(labels=classes, quantum=False)
@@ -48,7 +48,7 @@ def test_Quantic_init():
 
 def test_Quantic_splitClass1FromClass0(get_2d_covmats, get_labels):
     """Test _split_class1_from_class0 method of quantum classifiers"""
-    classes = (0,1)
+    classes = (0, 1)
     n_matrices, n_channels, n_classes = 100, 3, len(classes)
     covset = get_2d_covmats(n_matrices, n_channels)
     labels = get_labels(n_matrices, n_classes)
@@ -63,7 +63,7 @@ def test_Quantic_splitClass1FromClass0(get_2d_covmats, get_labels):
 
 def test_Quantic_SelfCalibration(get_2d_covmats, get_labels):
     """Test _self_calibration method of quantum classifiers"""
-    classes = (0,1)
+    classes = (0, 1)
     n_matrices, n_channels, n_classes = 100, 3, len(classes)
     covset = get_2d_covmats(n_matrices, n_channels)
     labels = get_labels(n_matrices, n_classes)
@@ -79,7 +79,8 @@ def test_Quantic_SelfCalibration(get_2d_covmats, get_labels):
         assert len(y_train) == n_matrices - len_test
         # Covariances matrices of fit and score method
         # should always be non-vectorized
-        assert X_train.shape == (n_matrices - len_test, n_channels * n_channels)
+        assert X_train.shape == (n_matrices - len_test,
+                                 n_channels * n_channels)
 
     def score(X_test, y_test):
         assert len(y_test) == len_test
@@ -96,7 +97,7 @@ def test_Quantic_FVT_Classical(get_labels):
     """
     # When quantum=False, it should use
     # classical SVC implementation from SKlearn
-    classes = (0,1)
+    classes = (0, 1)
     q = QuanticSVM(labels=classes, quantum=False, verbose=False)
     # We need to have different values for first and second classes
     # in our covset or vector machine will not converge
@@ -123,7 +124,7 @@ def test_QuanticSVM_FVT_SimulatedQuantum(get_labels):
     Note that the "real quantum version" of this test may also take some time.
     """
     # We will use a quantum simulator on the local machine
-    classes = (0,1)
+    classes = (0, 1)
     n_training = 4
     # We are dealing with a small number of trial,
     # therefore we will skip self_calibration as it may happens
@@ -175,4 +176,3 @@ def test_QuanticVQC_FVT_SimulatedQuantum(get_2d_covmats, get_labels):
     # Considering the inputs, this probably make no sense to test accuracy.
     # Instead, we could consider this test as a canary test
     assert len(prediction) == len(labels)
-

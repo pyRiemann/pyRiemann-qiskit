@@ -26,13 +26,14 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     simulated quantum computer or a remote and real quantum computer.
     Difference between simulated and real quantum computer will be that:
 
-    * there is no noise on a simulated quantum computer (so results are better);
+    * there is no noise on a simulated quantum computer
+      (so results are better);
     * real quantum computer are quicker than simulator;
     * real quantum computer tasks are assigned to a queue
       before being executed on a back-end.
 
     WARNING: At the moment this implementation only supports binary
-    classification (eg. Target vs Non-Target experiment)
+    classification (eg. 3d vs Non-vectorize experiment)
 
     Parameters
     ----------
@@ -125,7 +126,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._new_feature_dim = len(vect_class1[0])
         self._log("Feature dimension after vector processing = ",
                   self._new_feature_dim)
-        return (vect_class1 , vect_class0)
+        return (vect_class1, vect_class0)
 
     def _additional_setup(self):
         self._log("There is no additional setup.")
@@ -138,7 +139,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         X : ndarray, shape (n_trials, n_channels * n_channels)
             ndarray of SPD matrices.
             Note that each covariance matrice should be a vector.
-            `process_vector` can be use for providing 
+            `process_vector` can be use for providing
             a custom treatement for each vectorized matrices.
         y : ndarray shape (n_trials,)
             labels corresponding to each trial.
@@ -203,7 +204,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         X : ndarray, shape (n_trials, n_channels * n_channels)
             ndarray of SPD matrices.
             Note that each covariance matrice should be a vector.
-            `process_vector` can be use for providing 
+            `process_vector` can be use for providing
             a custom treatement for each vectorized matrices.
 
         Returns
@@ -255,7 +256,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         X : ndarray, shape (n_trials, n_channels * n_channels)
             ndarray of SPD matrices.
             Note that each covariance matrice should be a vector.
-            `process_vector` can be use for providing 
+            `process_vector` can be use for providing
             a custom treatement for each vectorized matrices.
 
         Returns

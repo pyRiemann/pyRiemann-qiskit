@@ -69,7 +69,8 @@ def get_labels():
 @pytest.fixture
 def get_2d_covmats(rndstate):
     def _get_2d_covmats(n_matrices, n_channels):
-        covset_3d = generate_cov(n_matrices, n_channels, rndstate, return_params=False)
+        covset_3d = generate_cov(n_matrices, n_channels,
+                                 rndstate, return_params=False)
         covset_2d = covset_3d.reshape(n_matrices, n_channels * n_channels)
         return covset_2d
 
