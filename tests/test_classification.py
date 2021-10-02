@@ -49,9 +49,9 @@ def test_Quantic_init():
         pass
 
 
-def test_Quantic_splitTargetAndNonTarget(get_covmats, get_labels,
+def test_Quantic_splitClass1FromClass0(get_covmats, get_labels,
                                          run_with_3d_and_2d):
-    """Test _split_target_and_non_target method of quantum classifiers"""
+    """Test _split_class1_from_class0 method of quantum classifiers"""
     classes = (0,1)
     n_matrices, n_channels, n_classes = 100, 3, len(classes)
     covset_3d = get_covmats(n_matrices, n_channels)
@@ -59,7 +59,7 @@ def test_Quantic_splitTargetAndNonTarget(get_covmats, get_labels,
     q = QuanticSVM(labels=classes, quantum=False)
 
     def handle(covset, is_3d):
-        x_class1, x_class0 = q._split_target_and_non_target(covset, labels)
+        x_class1, x_class0 = q._split_class1_from_class0(covset, labels)
         # Covariance matrices should be vectorized
         class_len = n_matrices // n_classes  # balanced set
         assert np.shape(x_class1) == (class_len, n_channels * n_channels)
@@ -145,8 +145,8 @@ def test_QuanticSVM_FVT_SimulatedQuantum(get_labels, run_with_3d_and_2d):
     # We are dealing with a small number of trial,
     # therefore we will skip self_calibration as it may happens
     # that self_calibration select only target or non-target trials
-    test_input = {"Target": [[classes[0]] * n_training],
-                  "NonTarget": [[classes[1]] * n_training]}
+    test_input = {"class1": [[classes[1]] * n_training],
+                  "class0": [[classes[0]] * n_training]}
     q = QuanticSVM(labels=classes, quantum=True,
                    verbose=False, test_input=test_input)
     # We need to have different values for target and non-target in our covset
@@ -180,8 +180,8 @@ def test_QuanticVQC_FVT_SimulatedQuantum(get_covmats, get_labels,
     # We are dealing with a small number of trial,
     # therefore we will skip self_calibration as it may happens that
     # self_calibration select only target or non-target trials
-    test_input = {"Target": [[classes[0]] * n_training],
-                  "NonTarget": [[classes[1]] * n_training]}
+    test_input = {"class1": [[classes[1]] * n_training],
+                  "class0": [[classes[0]] * n_training]}
     q = QuanticVQC(labels=classes, verbose=False, test_input=test_input)
     # We need to have different values for target and non-target in our covset
     # or vector machine will not converge

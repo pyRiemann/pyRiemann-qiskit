@@ -112,7 +112,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         vector = X.reshape(len(X), self._feature_dim)
         return [self.process_vector(x) for x in vector]
 
-    def _split_target_and_non_target(self, X, y):
+    def _split_class1_from_class0(self, X, y):
         self._log("""[Warning] Splitting first class from second class.
                  Only binary classification is supported.""")
         first_matrix_in_X = np.atleast_2d(X[0])
@@ -156,10 +156,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._log("Fitting: ", X.shape)
         self._prev_fit_params = {"X": X, "y": y}
         self.classes_ = np.unique(y)
-        vect_class1, vect_class0 = self._split_target_and_non_target(X, y)
+        vect_class1, vect_class0 = self._split_class1_from_class0(X, y)
 
-        self._training_input["Target"] = vect_class1
-        self._training_input["NonTarget"] = vect_class0
+        self._training_input["class1"] = vect_class1
+        self._training_input["class0"] = vect_class0
         self._log(get_feature_dimension(self._training_input))
         feature_dim = get_feature_dimension(self._training_input)
         self._feature_map = ZZFeatureMap(feature_dimension=feature_dim, reps=2,
@@ -272,10 +272,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
             the testing accuracy
         """
         self._log("Scoring: ", X.shape)
-        vect_class1, vect_class0 = self._split_target_and_non_target(X, y)
+        vect_class1, vect_class0 = self._split_class1_from_class0(X, y)
         self.test_input = {}
-        self.test_input["Target"] = vect_class1
-        self.test_input["NonTarget"] = vect_class0
+        self.test_input["class1"] = vect_class1
+        self.test_input["class0"] = vect_class0
         result = self._run()
         testing_accuracy = result["testing_accuracy"]
         self._log("Testing accuracy = ", testing_accuracy)
