@@ -36,8 +36,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     Parameters
     ----------
-    target : int
-        Label of the target symbol
+    labels : (int, int)
+        Label of the first and second classes
     quantum : bool (default: True)
         - If true will run on local or remote backend
         (depending on q_account_token value).
@@ -50,7 +50,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     verbose : bool (default:True)
         If true will output all intermediate results and logs
     test_input : dict (default: {}})
-        Contains vectorized test set for target and non-target classes
+        Contains vectorized test set for the two classes
     test_per : double (default: 0.33)
         Indicate the percent of the fitting set that should be kept for
         testing. The remaining percent are used for training.
@@ -73,7 +73,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     """
 
-    def __init__(self, target, quantum=True, q_account_token=None,
+    def __init__(self, labels, quantum=True, q_account_token=None,
                  process_vector=lambda v: v, verbose=True,
                  test_input={}, test_per=0.33):
         self.verbose = verbose
@@ -82,7 +82,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self.test_per = test_per
         self.process_vector = process_vector
         self.q_account_token = q_account_token
-        self.target = target
+        self.labels = labels
         self.quantum = quantum
         # protected field for child classes
         self._training_input = {}
@@ -113,14 +113,14 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         return [self.process_vector(x) for x in vector]
 
     def _split_target_and_non_target(self, X, y):
-        self._log("""[Warning] Spitting target from non target.
+        self._log("""[Warning] Splitting first class from second class.
                  Only binary classification is supported.""")
         first_matrix_in_X = np.atleast_2d(X[0])
         n_matrices, n_channels = first_matrix_in_X.shape[:2]
         self._feature_dim = n_channels * n_matrices
         self._log("Feature dimension = ", self._feature_dim)
-        Xta = X[y == self.target]
-        Xnt = X[np.logical_not(y == self.target)]
+        Xta = X[y == self.labels[1]]
+        Xnt = X[y == self.labels[0]]
         vect_Xta = self._vectorize(Xta)
         vect_Xnt = self._vectorize(Xnt)
         self._new_feature_dim = len(vect_Xta[0])
@@ -334,7 +334,7 @@ class QuanticVQC(QuanticClassifierBase):
 
     Parameters
     ----------
-    target : see QuanticClassifierBase
+    labels : see QuanticClassifierBase
     q_account_token : see QuanticClassifierBase
     process_vector : see QuanticClassifierBase
     verbose : see QuanticClassifierBase
@@ -361,9 +361,9 @@ class QuanticVQC(QuanticClassifierBase):
 
     """
 
-    def __init__(self, target, q_account_token=None,
+    def __init__(self, labels, q_account_token=None,
                  process_vector=lambda v: v, verbose=True, **parameters):
-        QuanticClassifierBase.__init__(self, target=target,
+        QuanticClassifierBase.__init__(self, labels=labels,
                                        q_account_token=q_account_token,
                                        process_vector=process_vector,
                                        verbose=verbose, **parameters)
