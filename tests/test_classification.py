@@ -6,19 +6,16 @@ from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 
 
-def test_GetSetParams(get_covmats, get_labels, run_with_3d_and_2d):
+def test_GetSetParams(get_2d_covmats, get_labels):
     classes = (0,1)
     clf = make_pipeline(XdawnCovariances(), TangentSpace(),
                         QuanticSVM(labels=classes, quantum=False))
     skf = StratifiedKFold(n_splits=5)
     n_matrices, n_channels, n_classes = 100, 3, len(classes)
-    covset_3d = get_covmats(n_matrices, n_channels)
+    covset = get_2d_covmats(n_matrices, n_channels)
     labels = get_labels(n_matrices, n_classes)
 
-    def handle(covset, is_3d):
-        cross_val_score(clf, covset, labels, cv=skf, scoring='roc_auc')
-
-    run_with_3d_and_2d(covset_3d, handle)
+    cross_val_score(clf, covset, labels, cv=skf, scoring='roc_auc')
 
 
 def test_Quantic_init():
@@ -49,62 +46,51 @@ def test_Quantic_init():
         pass
 
 
-def test_Quantic_splitClass1FromClass0(get_covmats, get_labels,
-                                         run_with_3d_and_2d):
+def test_Quantic_splitClass1FromClass0(get_2d_covmats, get_labels):
     """Test _split_class1_from_class0 method of quantum classifiers"""
     classes = (0,1)
     n_matrices, n_channels, n_classes = 100, 3, len(classes)
-    covset_3d = get_covmats(n_matrices, n_channels)
+    covset = get_2d_covmats(n_matrices, n_channels)
     labels = get_labels(n_matrices, n_classes)
     q = QuanticSVM(labels=classes, quantum=False)
 
-    def handle(covset, is_3d):
-        x_class1, x_class0 = q._split_class1_from_class0(covset, labels)
-        # Covariance matrices should be vectorized
-        class_len = n_matrices // n_classes  # balanced set
-        assert np.shape(x_class1) == (class_len, n_channels * n_channels)
-        assert np.shape(x_class0) == (class_len, n_channels * n_channels)
-
-    run_with_3d_and_2d(covset_3d, handle)
+    x_class1, x_class0 = q._split_class1_from_class0(covset, labels)
+    # Covariance matrices should be vectorized
+    class_len = n_matrices // n_classes  # balanced set
+    assert np.shape(x_class1) == (class_len, n_channels * n_channels)
+    assert np.shape(x_class0) == (class_len, n_channels * n_channels)
 
 
-def test_Quantic_SelfCalibration(get_covmats, get_labels, run_with_3d_and_2d):
+def test_Quantic_SelfCalibration(get_2d_covmats, get_labels):
     """Test _self_calibration method of quantum classifiers"""
     classes = (0,1)
     n_matrices, n_channels, n_classes = 100, 3, len(classes)
-    covset_3d = get_covmats(n_matrices, n_channels)
+    covset = get_2d_covmats(n_matrices, n_channels)
     labels = get_labels(n_matrices, n_classes)
     test_size = 0.33
     len_test = int(test_size * n_matrices)
 
-    def handle(covset, is_3d):
-        q = QuanticSVM(labels=classes, quantum=False, test_per=test_size)
-        q.fit(covset, labels)
-        # Just using a little trick as fit and score method are
-        # called by self_calibration method
+    q = QuanticSVM(labels=classes, quantum=False, test_per=test_size)
+    q.fit(covset, labels)
+    # Just using a little trick as fit and score method are
+    # called by self_calibration method
 
-        def fit(X_train, y_train):
-            assert len(y_train) == n_matrices - len_test
-            # Covariances matrices of fit and score method
-            # should always be non-vectorized
-            assert X_train.shape == \
-                   (n_matrices - len_test, n_channels, n_channels) if is_3d \
-                   else (n_matrices - len_test, n_channels * n_channels)
+    def fit(X_train, y_train):
+        assert len(y_train) == n_matrices - len_test
+        # Covariances matrices of fit and score method
+        # should always be non-vectorized
+        assert X_train.shape == (n_matrices - len_test, n_channels * n_channels)
 
-        def score(X_test, y_test):
-            assert len(y_test) == len_test
-            assert X_test.shape == \
-                   (len_test, n_channels, n_channels) if is_3d \
-                   else (len_test, n_channels * n_channels)
+    def score(X_test, y_test):
+        assert len(y_test) == len_test
+        assert X_test.shape == (len_test, n_channels * n_channels)
 
-        q.fit = fit
-        q.score = score
-        q._self_calibration()
-
-    run_with_3d_and_2d(covset_3d, handle)
+    q.fit = fit
+    q.score = score
+    q._self_calibration()
 
 
-def test_Quantic_FVT_Classical(get_labels, run_with_3d_and_2d):
+def test_Quantic_FVT_Classical(get_labels):
     """ Perform standard SVC test
     (canary test to assess pipeline correctness)
     """
@@ -116,23 +102,20 @@ def test_Quantic_FVT_Classical(get_labels, run_with_3d_and_2d):
     # in our covset or vector machine will not converge
     n_matrices, n_channels, n_classes = 100, 3, len(classes)
     class_len = n_matrices // n_classes  # balanced set
-    covset_0 = np.zeros((class_len, n_channels, n_channels))
-    covset_1 = np.ones((class_len, n_channels, n_channels))
-    covset_3d = np.concatenate((covset_0, covset_1), axis=0)
+    covset_0 = np.zeros((class_len, n_channels * n_channels))
+    covset_1 = np.ones((class_len, n_channels * n_channels))
+    covset = np.concatenate((covset_0, covset_1), axis=0)
     labels = get_labels(n_matrices, n_classes)
 
-    def handle(covset, is_3d):
-        q.fit(covset, labels)
-        # This will autodefine testing sets
-        prediction = q.predict(covset)
-        # In this case, using SVM, predicting accuracy should be 100%
-        assert prediction[:class_len].all() == classes[0]
-        assert prediction[class_len:].all() == classes[1]
-
-    run_with_3d_and_2d(covset_3d, handle)
+    q.fit(covset, labels)
+    # This will autodefine testing sets
+    prediction = q.predict(covset)
+    # In this case, using SVM, predicting accuracy should be 100%
+    assert prediction[:class_len].all() == classes[0]
+    assert prediction[class_len:].all() == classes[1]
 
 
-def test_QuanticSVM_FVT_SimulatedQuantum(get_labels, run_with_3d_and_2d):
+def test_QuanticSVM_FVT_SimulatedQuantum(get_labels):
     """Perform SVC on a simulated quantum computer.
     This test can also be run on a real computer by providing a qAccountToken
     To do so, you need to use your own token, by registering on:
@@ -155,23 +138,19 @@ def test_QuanticSVM_FVT_SimulatedQuantum(get_labels, run_with_3d_and_2d):
     # we will lower the size of the feature and the number of trials
     n_matrices, n_channels, n_classes = 10, 2, len(classes)
     class_len = n_matrices // n_classes  # balanced set
-    covset_0 = np.zeros((class_len, n_channels, n_channels))
-    covset_1 = np.ones((class_len, n_channels, n_channels))
-    covset_3d = np.concatenate((covset_0, covset_1), axis=0)
+    covset_0 = np.zeros((class_len, n_channels * n_channels))
+    covset_1 = np.ones((class_len, n_channels * n_channels))
+    covset = np.concatenate((covset_0, covset_1), axis=0)
     labels = get_labels(n_matrices, n_classes)
 
-    def handle(covset, is_3d):
-        q.fit(covset, labels)
-        prediction = q.predict(covset)
-        # In this case, using SVM, predicting accuracy should be 100%
-        assert prediction[:class_len].all() == classes[0]
-        assert prediction[class_len:].all() == classes[1]
-
-    run_with_3d_and_2d(covset_3d, handle)
+    q.fit(covset, labels)
+    prediction = q.predict(covset)
+    # In this case, using SVM, predicting accuracy should be 100%
+    assert prediction[:class_len].all() == classes[0]
+    assert prediction[class_len:].all() == classes[1]
 
 
-def test_QuanticVQC_FVT_SimulatedQuantum(get_covmats, get_labels,
-                                         run_with_3d_and_2d):
+def test_QuanticVQC_FVT_SimulatedQuantum(get_2d_covmats, get_labels):
     """Perform VQC on a simulated quantum computer"""
     # We will use a quantum simulator on the local machine
     # quantum parameter for VQC is always true
@@ -188,14 +167,12 @@ def test_QuanticVQC_FVT_SimulatedQuantum(get_covmats, get_labels,
     # To achieve testing in a reasonnable amount of time,
     # we will lower the size of the feature and the number of trials
     n_matrices, n_channels, n_classes = 4, 2, len(classes)
-    covset_3d = get_covmats(n_matrices, n_channels)
+    covset = get_2d_covmats(n_matrices, n_channels)
     labels = get_labels(n_matrices, n_classes)
 
-    def handle(covset, is_3d):
-        q.fit(covset, labels)
-        prediction = q.predict(covset)
-        # Considering the inputs, this probably make no sense to test accuracy.
-        # Instead, we could consider this test as a canary test
-        assert len(prediction) == len(labels)
+    q.fit(covset, labels)
+    prediction = q.predict(covset)
+    # Considering the inputs, this probably make no sense to test accuracy.
+    # Instead, we could consider this test as a canary test
+    assert len(prediction) == len(labels)
 
-    run_with_3d_and_2d(covset_3d, handle)

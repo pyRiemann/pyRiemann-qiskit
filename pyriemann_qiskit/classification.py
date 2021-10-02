@@ -108,9 +108,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         if self.verbose:
             print("[QClass] ", *values)
 
-    def _vectorize(self, X):
-        vector = X.reshape(len(X), self._feature_dim)
-        return [self.process_vector(x) for x in vector]
+    def _apply_process_vector(self, X):
+        return [self.process_vector(x) for x in X]
 
     def _split_class1_from_class0(self, X, y):
         self._log("""[Warning] Splitting first class from second class.
@@ -121,8 +120,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._log("Feature dimension = ", self._feature_dim)
         X_class1 = X[y == self.labels[1]]
         X_class0 = X[y == self.labels[0]]
-        vect_class1 = self._vectorize(X_class1)
-        vect_class0 = self._vectorize(X_class0)
+        vect_class1 = self._apply_process_vector(X_class1)
+        vect_class0 = self._apply_process_vector(X_class0)
         self._new_feature_dim = len(vect_class1[0])
         self._log("Feature dimension after vector processing = ",
                   self._new_feature_dim)
@@ -136,13 +135,11 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         Parameters
         ----------
-        X : ndarray, shape (n_trials, n_channels, n_channels) | \
-                shape (n_trials, n_channels * n_channels)
-            ndarray of SPD matrices. Matrices can be provided in
-            raw format (3D) or already vectorized (2D) such as after projection
-            into the tangent space. Raw matrices are naively inlined.
-            `process_vector` can be use for both 2D and 3D matrices
-            for providing a custom treatement for each vectorized matrices.
+        X : ndarray, shape (n_trials, n_channels * n_channels)
+            ndarray of SPD matrices.
+            Note that each covariance matrice should be a vector.
+            `process_vector` can be use for providing 
+            a custom treatement for each vectorized matrices.
         y : ndarray shape (n_trials,)
             labels corresponding to each trial.
 
@@ -203,13 +200,11 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         Parameters
         ----------
-        X : ndarray, shape (n_trials, n_channels, n_channels) | \
-                shape (n_trials, n_channels * n_channels)
-            ndarray of SPD matrices. Matrices can be provided in
-            raw format (3D) or already vectorized (2D) such as after projection
-            into the tangent space. Raw matrices are naively inlined.
-            `process_vector` can be use for both 2D and 3D matrices
-            for providing a custom treatement for each vectorized matrices.
+        X : ndarray, shape (n_trials, n_channels * n_channels)
+            ndarray of SPD matrices.
+            Note that each covariance matrice should be a vector.
+            `process_vector` can be use for providing 
+            a custom treatement for each vectorized matrices.
 
         Returns
         -------
@@ -220,7 +215,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
             self._log("There is no test inputs. Self-calibrating...")
             self._self_calibration()
         result = None
-        predict_set = self._vectorize(X)
+        predict_set = self._apply_process_vector(X)
         self._log("Prediction: ", X.shape)
         result = self._run(predict_set)
         self._log("Prediction finished. Returning predicted labels")
@@ -234,8 +229,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         Parameters
         ----------
-        X : ndarray, shape (n_trials, n_channels, n_channels) | \
-                 shape (n_trials, n_channels * n_channels)
+        X : ndarray, shape (n_trials, n_channels * n_channels)
             ndarray of SPD matrices.
 
         Returns
@@ -258,13 +252,11 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         Parameters
         ----------
-        X : ndarray, shape (n_trials, n_channels, n_channels) | \
-                shape (n_trials, n_channels * n_channels)
-            ndarray of SPD matrices. Matrices can be provided in
-            raw format (3D) or already vectorized (2D) such as after projection
-            into the tangent space. Raw matrices are naively inlined.
-            `process_vector` can be use for both 2D and 3D matrices
-            for providing a custom treatement for each vectorized matrices.
+        X : ndarray, shape (n_trials, n_channels * n_channels)
+            ndarray of SPD matrices.
+            Note that each covariance matrice should be a vector.
+            `process_vector` can be use for providing 
+            a custom treatement for each vectorized matrices.
 
         Returns
         -------

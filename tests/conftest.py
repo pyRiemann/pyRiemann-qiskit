@@ -67,14 +67,13 @@ def get_labels():
 
 
 @pytest.fixture
-def run_with_3d_and_2d():
-    def _run_with_3d_and_2d(covset_3d, handle):
-        n_matrices, n_channels = covset_3d.shape[:2]
+def get_2d_covmats(rndstate):
+    def _get_2d_covmats(n_matrices, n_channels):
+        covset_3d = generate_cov(n_matrices, n_channels, rndstate, return_params=False)
         covset_2d = covset_3d.reshape(n_matrices, n_channels * n_channels)
-        handle(covset_3d, True)
-        handle(covset_2d, False)
+        return covset_2d
 
-    return _run_with_3d_and_2d
+    return _get_2d_covmats
 
 
 def is_positive_semi_definite(X):
