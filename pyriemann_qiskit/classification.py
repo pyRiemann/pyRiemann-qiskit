@@ -192,7 +192,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         y = self._prev_fit_params["y"]
         self._log("Test size = ", self.test_per, " of previous fitting.")
         X_train, X_test,\
-            y_train, y_test = train_test_split(X, y, test_size=self.test_per, stratify=y)
+            y_train, y_test = train_test_split(X, y, test_size=self.test_per,
+                                               stratify=y)
         self.fit(X_train, y_train)
         self.score(X_test, y_test)
 
