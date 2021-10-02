@@ -59,11 +59,11 @@ def test_Quantic_splitTargetAndNonTarget(get_covmats, get_labels,
     q = QuanticSVM(labels=classes, quantum=False)
 
     def handle(covset, is_3d):
-        xta, xnt = q._split_target_and_non_target(covset, labels)
+        x_class1, x_class0 = q._split_target_and_non_target(covset, labels)
         # Covariance matrices should be vectorized
         class_len = n_matrices // n_classes  # balanced set
-        assert np.shape(xta) == (class_len, n_channels * n_channels)
-        assert np.shape(xnt) == (class_len, n_channels * n_channels)
+        assert np.shape(x_class1) == (class_len, n_channels * n_channels)
+        assert np.shape(x_class0) == (class_len, n_channels * n_channels)
 
     run_with_3d_and_2d(covset_3d, handle)
 

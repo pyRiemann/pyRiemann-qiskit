@@ -119,14 +119,14 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         n_matrices, n_channels = first_matrix_in_X.shape[:2]
         self._feature_dim = n_channels * n_matrices
         self._log("Feature dimension = ", self._feature_dim)
-        Xta = X[y == self.labels[1]]
-        Xnt = X[y == self.labels[0]]
-        vect_Xta = self._vectorize(Xta)
-        vect_Xnt = self._vectorize(Xnt)
-        self._new_feature_dim = len(vect_Xta[0])
+        X_class1 = X[y == self.labels[1]]
+        X_class0 = X[y == self.labels[0]]
+        vect_class1 = self._vectorize(X_class1)
+        vect_class0 = self._vectorize(X_class0)
+        self._new_feature_dim = len(vect_class1[0])
         self._log("Feature dimension after vector processing = ",
                   self._new_feature_dim)
-        return (vect_Xta, vect_Xnt)
+        return (vect_class1 , vect_class0)
 
     def _additional_setup(self):
         self._log("There is no additional setup.")
@@ -156,10 +156,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._log("Fitting: ", X.shape)
         self._prev_fit_params = {"X": X, "y": y}
         self.classes_ = np.unique(y)
-        vect_Xta, vect_Xnt = self._split_target_and_non_target(X, y)
+        vect_class1, vect_class0 = self._split_target_and_non_target(X, y)
 
-        self._training_input["Target"] = vect_Xta
-        self._training_input["NonTarget"] = vect_Xnt
+        self._training_input["Target"] = vect_class1
+        self._training_input["NonTarget"] = vect_class0
         self._log(get_feature_dimension(self._training_input))
         feature_dim = get_feature_dimension(self._training_input)
         self._feature_map = ZZFeatureMap(feature_dimension=feature_dim, reps=2,
@@ -272,10 +272,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
             the testing accuracy
         """
         self._log("Scoring: ", X.shape)
-        vect_Xta, vect_Xnt = self._split_target_and_non_target(X, y)
+        vect_class1, vect_class0 = self._split_target_and_non_target(X, y)
         self.test_input = {}
-        self.test_input["Target"] = vect_Xta
-        self.test_input["NonTarget"] = vect_Xnt
+        self.test_input["Target"] = vect_class1
+        self.test_input["NonTarget"] = vect_class0
         result = self._run()
         testing_accuracy = result["testing_accuracy"]
         self._log("Testing accuracy = ", testing_accuracy)
