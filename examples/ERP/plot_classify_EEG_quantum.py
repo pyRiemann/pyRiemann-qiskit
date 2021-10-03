@@ -25,7 +25,6 @@ from mne.datasets import sample
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-
 from matplotlib import pyplot as plt
 
 # cvxpy is not correctly imported due to wheel not building
