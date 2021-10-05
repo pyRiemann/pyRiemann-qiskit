@@ -44,8 +44,8 @@ def test_Quantic_init():
         pass
 
 
-def test_Quantic_splitClass1FromClass0(get_2d_covmats, get_labels):
-    """Test _split_class1_from_class0 method of quantum classifiers"""
+def test_Quantic_splitClasses(get_2d_covmats, get_labels):
+    """Test _split_classes method of quantum classifiers"""
     q = QuanticSVM(quantum=False)
 
     n_matrices, n_channels, n_classes = 100, 3, 2
@@ -56,7 +56,7 @@ def test_Quantic_splitClass1FromClass0(get_2d_covmats, get_labels):
     # so we need to provide the classes ourselves.
     q.classes_ = range(0, n_classes)
 
-    x_class1, x_class0 = q._split_class1_from_class0(covset, labels)
+    x_class1, x_class0 = q._split_classes(covset, labels)
     # Covariance matrices should be vectorized
     class_len = n_matrices // n_classes  # balanced set
     assert np.shape(x_class1) == (class_len, n_channels * n_channels)

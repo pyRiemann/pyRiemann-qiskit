@@ -156,7 +156,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._log("Fitting: ", X.shape)
         self._prev_fit_params = {"X": X, "y": y}
         self.classes_ = np.unique(y)
-        vect_class1, vect_class0 = self._split_class1_from_class0(X, y)
+        vect_class1, vect_class0 = self._split_classes(X, y)
 
         self._training_input["class1"] = vect_class1
         self._training_input["class0"] = vect_class0
@@ -267,7 +267,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
             the testing accuracy
         """
         self._log("Scoring: ", X.shape)
-        vect_class1, vect_class0 = self._split_class1_from_class0(X, y)
+        vect_class1, vect_class0 = self._split_classes(X, y)
         self.test_input = {}
         self.test_input["class1"] = vect_class1
         self.test_input["class0"] = vect_class0
