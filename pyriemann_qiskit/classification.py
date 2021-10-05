@@ -118,8 +118,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         n_samples, n_features = X.shape
         self._feature_dim = n_channels * n_matrices
         self._log("Feature dimension = ", self._feature_dim)
-        X_class1 = X[y == self.labels[1]]
-        X_class0 = X[y == self.labels[0]]
+        X_class1 = X[y == self.classes_[1]]
+        X_class0 = X[y == self.classes_[0]]
         vect_class1 = self._apply_process_vector(X_class1)
         vect_class0 = self._apply_process_vector(X_class0)
         self._new_feature_dim = len(vect_class1[0])
