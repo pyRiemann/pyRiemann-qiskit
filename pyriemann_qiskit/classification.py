@@ -72,6 +72,12 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     QuanticSVM
     QuanticVQC
 
+    References
+    ----------
+    .. [1] H. Abraham et al., Qiskit:
+           An Open-source Framework for Quantum Computing.
+           Zenodo, 2019. doi: 10.5281/zenodo.2562110.
+
     """
 
     def __init__(self, labels, quantum=True, q_account_token=None,
