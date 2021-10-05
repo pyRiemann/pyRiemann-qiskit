@@ -33,7 +33,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
       before being executed on a back-end.
 
     WARNING: At the moment this implementation only supports binary
-    classification (eg. 3d vs Non-vectorize experiment)
+    classification.
 
     Parameters
     ----------
