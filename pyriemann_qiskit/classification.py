@@ -211,8 +211,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         Returns
         -------
-        pred : array of string, shape (n_trials,)
-            predicted labels for all trials.
+        pred : array, shape (n_samples,)
+            Class labels for samples in X.
         """
         if(len(self.test_input) == 0):
             self._log("There is no test inputs. Self-calibrating...")
