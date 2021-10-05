@@ -284,7 +284,7 @@ class QuanticSVM(QuanticClassifierBase):
 
     """Quantum-enhanced SVM classification.
 
-    This class implements SVC on a quantum machine.
+    This class implements SVC [1] on a quantum machine [2].
     Note if `quantum` parameter is set to `False`
     then a classical SVC will be perfomed instead.
 
@@ -298,9 +298,7 @@ class QuanticSVM(QuanticClassifierBase):
 
     References
     ----------
-    .. [1] H. Abraham et al., Qiskit:
-           An Open-source Framework for Quantum Computing.
-           Zenodo, 2019. doi: 10.5281/zenodo.2562110.
+    .. [1] https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html
 
     .. [2] V. Havlíček et al.,
            ‘Supervised learning with quantum-enhanced feature spaces’,
