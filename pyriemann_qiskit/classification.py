@@ -138,12 +138,12 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         Parameters
         ----------
-        X : ndarray, shape (n_trials, n_channels * n_channels)
+        X : ndarray, shape (n_samples, n_features)
             ndarray of SPD matrices.
             Note that each covariance matrice should be a vector.
             `process_vector` can be use for providing
             a custom treatement for each vectorized matrices.
-        y : ndarray shape (n_trials,)
+        y : ndarray shape (n_samples,)
             labels corresponding to each trial.
 
         Returns
@@ -203,7 +203,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         Parameters
         ----------
-        X : ndarray, shape (n_trials, n_channels * n_channels)
+        X : ndarray, shape (n_samples, n_features)
             ndarray of SPD matrices.
             Note that each covariance matrice should be a vector.
             `process_vector` can be use for providing
@@ -232,12 +232,12 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         Parameters
         ----------
-        X : ndarray, shape (n_trials, n_channels * n_channels)
+        X : ndarray, shape (n_samples, n_features)
             ndarray of SPD matrices.
 
         Returns
         -------
-        prob : ndarray, shape (n_trials, n_classes)
+        prob : ndarray, shape (n_samples, n_classes)
             prob[n, 0] == True if the nth sample is assigned to 1st class
             prob[n, 1] == True if the nth sample is assigned to 2nd class
         """
@@ -255,7 +255,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         Parameters
         ----------
-        X : ndarray, shape (n_trials, n_channels * n_channels)
+        X : ndarray, shape (n_samples, n_features)
             ndarray of SPD matrices.
             Note that each covariance matrice should be a vector.
             `process_vector` can be use for providing
