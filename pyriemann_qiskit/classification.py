@@ -115,7 +115,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     def _apply_process_vector(self, X):
         return [self.process_vector(x) for x in X]
 
-    def _split_class1_from_class0(self, X, y):
+    def _split_classes(self, X, y):
         self._log("""[Warning] Splitting first class from second class.
                  Only binary classification is supported.""")
         n_samples, n_features = X.shape
