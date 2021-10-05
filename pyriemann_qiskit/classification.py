@@ -238,8 +238,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         Returns
         -------
         prob : ndarray, shape (n_trials, n_classes)
-            prob[x][0] == True if the xth trial was assigned to 1st class
-            prob[x][1] == True if the xth trial was assigned to 2nd class
+            prob[n, 0] == True if the nth sample is assigned to 1st class
+            prob[n, 1] == True if the nth sample is assigned to 2nd class
         """
         self._log("""[WARNING] SVM prediction probabilities are not available.
                  Results from predict will be used instead.""")
