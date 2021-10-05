@@ -270,9 +270,9 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self.test_input["class1"] = vect_class1
         self.test_input["class0"] = vect_class0
         result = self._run()
-        testing_accuracy = result["testing_accuracy"]
-        self._log("Testing accuracy = ", testing_accuracy)
-        return testing_accuracy
+        accuracy = result["testing_accuracy"]
+        self._log("Testing accuracy = ", accuracy)
+        return accuracy
 
 
 class QuanticSVM(QuanticClassifierBase):
