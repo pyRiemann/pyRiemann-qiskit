@@ -123,12 +123,12 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._log("Feature dimension = ", self._feature_dim)
         X_class1 = X[y == self.classes_[1]]
         X_class0 = X[y == self.classes_[0]]
-        vect_class1 = self._apply_process_vector(X_class1)
-        vect_class0 = self._apply_process_vector(X_class0)
-        self._new_feature_dim = len(vect_class1[0])
+        processed_class1 = self._apply_process_vector(X_class1)
+        processed_class0 = self._apply_process_vector(X_class0)
+        self._new_feature_dim = len(processed_class1[0])
         self._log("Feature dimension after vector processing = ",
                   self._new_feature_dim)
-        return (vect_class1, vect_class0)
+        return (processed_class1, processed_class0)
 
     def _additional_setup(self):
         self._log("There is no additional setup.")
@@ -156,10 +156,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._log("Fitting: ", X.shape)
         self._prev_fit_params = {"X": X, "y": y}
         self.classes_ = np.unique(y)
-        vect_class1, vect_class0 = self._split_classes(X, y)
+        class1, class0 = self._split_classes(X, y)
 
-        self._training_input["class1"] = vect_class1
-        self._training_input["class0"] = vect_class0
+        self._training_input["class1"] = class1
+        self._training_input["class0"] = class0
         self._log(get_feature_dimension(self._training_input))
         feature_dim = get_feature_dimension(self._training_input)
         self._feature_map = ZZFeatureMap(feature_dimension=feature_dim, reps=2,
@@ -267,10 +267,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
             the testing accuracy
         """
         self._log("Scoring: ", X.shape)
-        vect_class1, vect_class0 = self._split_classes(X, y)
+        class1, class0 = self._split_classes(X, y)
         self.test_input = {}
-        self.test_input["class1"] = vect_class1
-        self.test_input["class0"] = vect_class0
+        self.test_input["class1"] = class1
+        self.test_input["class0"] = class0
         result = self._run()
         accuracy = result["testing_accuracy"]
         self._log("Testing accuracy = ", accuracy)
