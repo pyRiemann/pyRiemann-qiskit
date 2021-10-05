@@ -258,8 +258,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         Returns
         -------
-        prob : double
-            the testing accuracy
+        accuracy : double
+            Accuracy of predictions from X with respect y.
         """
         self._log("Scoring: ", X.shape)
         class1, class0 = self._split_classes(X, y)
