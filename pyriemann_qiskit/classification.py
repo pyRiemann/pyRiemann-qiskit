@@ -228,8 +228,9 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         Parameters
         ----------
-        X : ndarray, shape (n_trials, n_channels * n_channels)
-            ndarray of SPD matrices.
+        X : ndarray, shape (n_samples, n_features)
+            Input vector, where `n_samples` is the number of samples and
+            `n_features` is the number of features.
 
         Returns
         -------
