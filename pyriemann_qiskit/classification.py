@@ -37,8 +37,6 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     Parameters
     ----------
-    labels : (int, int)
-        Label of the first and second classes
     quantum : bool (default: True)
         - If true will run on local or remote backend
         (depending on q_account_token value).
@@ -80,7 +78,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     """
 
-    def __init__(self, labels, quantum=True, q_account_token=None,
+    def __init__(self, quantum=True, q_account_token=None,
                  process_vector=lambda v: v, verbose=True,
                  test_input={}, test_per=0.33):
         self.verbose = verbose
@@ -89,7 +87,6 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self.test_per = test_per
         self.process_vector = process_vector
         self.q_account_token = q_account_token
-        self.labels = labels
         self.quantum = quantum
         # protected field for child classes
         self._training_input = {}
