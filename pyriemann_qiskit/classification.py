@@ -234,7 +234,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         Returns
         -------
-        prob : ndarray, shape (n_trials, n_classes)
+        prob : ndarray, shape (n_samples, n_classes)
             prob[n, 0] == True if the nth sample is assigned to 1st class
             prob[n, 1] == True if the nth sample is assigned to 2nd class
         """
