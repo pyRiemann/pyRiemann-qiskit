@@ -139,12 +139,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         Parameters
         ----------
         X : ndarray, shape (n_samples, n_features)
-            ndarray of SPD matrices.
-            Note that each covariance matrice should be a vector.
-            `process_vector` can be use for providing
-            a custom treatement for each vectorized matrices.
-        y : ndarray shape (n_samples,)
-            labels corresponding to each trial.
+            Training vector, where `n_samples` is the number of samples and
+            `n_features` is the number of features.
+        y : ndarray, shape (n_samples,)
+            Target vector relative to X.
 
         Returns
         -------
@@ -204,10 +202,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         Parameters
         ----------
         X : ndarray, shape (n_samples, n_features)
-            ndarray of SPD matrices.
-            Note that each covariance matrice should be a vector.
-            `process_vector` can be use for providing
-            a custom treatement for each vectorized matrices.
+            Input vector, where `n_samples` is the number of samples and
+            `n_features` is the number of features.
 
         Returns
         -------
@@ -233,7 +229,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         Parameters
         ----------
         X : ndarray, shape (n_samples, n_features)
-            ndarray of SPD matrices.
+            Input vector, where `n_samples` is the number of samples and
+            `n_features` is the number of features.
 
         Returns
         -------
@@ -256,10 +253,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         Parameters
         ----------
         X : ndarray, shape (n_samples, n_features)
-            ndarray of SPD matrices.
-            Note that each covariance matrice should be a vector.
-            `process_vector` can be use for providing
-            a custom treatement for each vectorized matrices.
+            Input vector, where `n_samples` is the number of samples and
+            `n_features` is the number of features.
 
         Returns
         -------
