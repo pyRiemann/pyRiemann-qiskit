@@ -7,11 +7,10 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score
 
 
 def test_GetSetParams(get_2d_covmats, get_labels):
-    classes = (0, 1)
     clf = make_pipeline(XdawnCovariances(), TangentSpace(),
-                        QuanticSVM(labels=classes, quantum=False))
+                        QuanticSVM(quantum=False))
     skf = StratifiedKFold(n_splits=5)
-    n_matrices, n_channels, n_classes = 100, 3, len(classes)
+    n_matrices, n_channels, n_classes = 100, 3, 2
     covset = get_2d_covmats(n_matrices, n_channels)
     labels = get_labels(n_matrices, n_classes)
 
@@ -20,10 +19,9 @@ def test_GetSetParams(get_2d_covmats, get_labels):
 
 def test_Quantic_init():
     """Test init of quantum classifiers"""
-    classes = (0, 1)
     # if "classical" computation enable,
     # no provider and backend should be defined
-    q = QuanticSVM(labels=classes, quantum=False)
+    q = QuanticSVM(quantum=False)
     q._init_quantum()
     assert not q.quantum
     assert not hasattr(q, "backend")
@@ -31,7 +29,7 @@ def test_Quantic_init():
     # if "quantum" computation enabled, but no accountToken are provided,
     # then "quantum" simulation will be enabled
     # i.e., no remote quantum provider will be defined
-    q = QuanticSVM(labels=classes, quantum=True)
+    q = QuanticSVM(quantum=True)
     q._init_quantum()
     assert q.quantum
     assert hasattr(q, "_backend")
@@ -40,7 +38,7 @@ def test_Quantic_init():
     # then real quantum backend is used
     # this should raise a error as uncorrect API Token is passed
     try:
-        q = QuanticSVM(labels=classes, quantum=True, qAccountToken="Test")
+        q = QuanticSVM(labelsquantum=True, qAccountToken="Test")
         assert False  # Should never reach this line
     except Exception:
         pass
@@ -48,11 +46,15 @@ def test_Quantic_init():
 
 def test_Quantic_splitClass1FromClass0(get_2d_covmats, get_labels):
     """Test _split_class1_from_class0 method of quantum classifiers"""
-    classes = (0, 1)
-    n_matrices, n_channels, n_classes = 100, 3, len(classes)
+    q = QuanticSVM(quantum=False)
+
+    n_matrices, n_channels, n_classes = 100, 3, 2
     covset = get_2d_covmats(n_matrices, n_channels)
     labels = get_labels(n_matrices, n_classes)
-    q = QuanticSVM(labels=classes, quantum=False)
+
+    # As fit method is not called here, classes_ is not set.
+    # so we need to provide the classes ourselves.
+    q.classes_ = range(0, n_classes)
 
     x_class1, x_class0 = q._split_class1_from_class0(covset, labels)
     # Covariance matrices should be vectorized
@@ -63,14 +65,15 @@ def test_Quantic_splitClass1FromClass0(get_2d_covmats, get_labels):
 
 def test_Quantic_SelfCalibration(get_2d_covmats, get_labels):
     """Test _self_calibration method of quantum classifiers"""
-    classes = (0, 1)
-    n_matrices, n_channels, n_classes = 100, 3, len(classes)
+
+    test_size = 0.33
+    q = QuanticSVM(quantum=False, test_per=test_size)
+
+    n_matrices, n_channels, n_classes = 100, 3, 2
     covset = get_2d_covmats(n_matrices, n_channels)
     labels = get_labels(n_matrices, n_classes)
-    test_size = 0.33
     len_test = int(test_size * n_matrices)
 
-    q = QuanticSVM(labels=classes, quantum=False, test_per=test_size)
     q.fit(covset, labels)
     # Just using a little trick as fit and score method are
     # called by self_calibration method
@@ -97,11 +100,10 @@ def test_Quantic_FVT_Classical(get_labels):
     """
     # When quantum=False, it should use
     # classical SVC implementation from SKlearn
-    classes = (0, 1)
-    q = QuanticSVM(labels=classes, quantum=False, verbose=False)
+    q = QuanticSVM(quantum=False, verbose=False)
     # We need to have different values for first and second classes
     # in our covset or vector machine will not converge
-    n_matrices, n_channels, n_classes = 100, 3, len(classes)
+    n_matrices, n_channels, n_classes = 100, 3, 2
     class_len = n_matrices // n_classes  # balanced set
     covset_0 = np.zeros((class_len, n_channels * n_channels))
     covset_1 = np.ones((class_len, n_channels * n_channels))
@@ -112,8 +114,8 @@ def test_Quantic_FVT_Classical(get_labels):
     # This will autodefine testing sets
     prediction = q.predict(covset)
     # In this case, using SVM, predicting accuracy should be 100%
-    assert prediction[:class_len].all() == classes[0]
-    assert prediction[class_len:].all() == classes[1]
+    assert prediction[:class_len].all() == q.classes_[0]
+    assert prediction[class_len:].all() == q.classes_[1]
 
 
 def test_QuanticSVM_FVT_SimulatedQuantum(get_labels):
@@ -124,13 +126,12 @@ def test_QuanticSVM_FVT_SimulatedQuantum(get_labels):
     Note that the "real quantum version" of this test may also take some time.
     """
     # We will use a quantum simulator on the local machine
-    classes = (0, 1)
-    q = QuanticSVM(labels=classes, quantum=True, verbose=False)
+    q = QuanticSVM(quantum=True, verbose=False)
     # We need to have different values for target and non-target in our covset
     # or vector machine will not converge
     # To achieve testing in a reasonnable amount of time,
     # we will lower the size of the feature and the number of trials
-    n_matrices, n_channels, n_classes = 10, 2, len(classes)
+    n_matrices, n_channels, n_classes = 10, 2, 2
     class_len = n_matrices // n_classes  # balanced set
     covset_0 = np.zeros((class_len, n_channels * n_channels))
     covset_1 = np.ones((class_len, n_channels * n_channels))
@@ -140,19 +141,18 @@ def test_QuanticSVM_FVT_SimulatedQuantum(get_labels):
     q.fit(covset, labels)
     prediction = q.predict(covset)
     # In this case, using SVM, predicting accuracy should be 100%
-    assert prediction[:class_len].all() == classes[0]
-    assert prediction[class_len:].all() == classes[1]
+    assert prediction[:class_len].all() == q.classes_[0]
+    assert prediction[class_len:].all() == q.classes_[1]
 
 
 def test_QuanticVQC_FVT_SimulatedQuantum(get_2d_covmats, get_labels):
     """Perform VQC on a simulated quantum computer"""
     # We will use a quantum simulator on the local machine
     # quantum parameter for VQC is always true
-    classes = (0, 1)
-    q = QuanticVQC(labels=classes, verbose=False)
+    q = QuanticVQC(verbose=False)
     # To achieve testing in a reasonnable amount of time,
     # we will lower the size of the feature and the number of trials
-    n_matrices, n_channels, n_classes = 4, 2, len(classes)
+    n_matrices, n_channels, n_classes = 4, 2, 2
     covset = get_2d_covmats(n_matrices, n_channels)
     labels = get_labels(n_matrices, n_classes)
 

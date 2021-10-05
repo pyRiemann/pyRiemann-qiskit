@@ -119,7 +119,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._log("""[Warning] Splitting first class from second class.
                  Only binary classification is supported.""")
         n_samples, n_features = X.shape
-        self._feature_dim = n_channels * n_matrices
+        self._feature_dim = n_samples * n_features
         self._log("Feature dimension = ", self._feature_dim)
         X_class1 = X[y == self.classes_[1]]
         X_class0 = X[y == self.classes_[0]]
@@ -354,9 +354,9 @@ class QuanticVQC(QuanticClassifierBase):
 
     """
 
-    def __init__(self, labels, q_account_token=None,
+    def __init__(self, q_account_token=None,
                  process_vector=lambda v: v, verbose=True, **parameters):
-        QuanticClassifierBase.__init__(self, labels=labels,
+        QuanticClassifierBase.__init__(self,
                                        q_account_token=q_account_token,
                                        process_vector=process_vector,
                                        verbose=verbose, **parameters)
