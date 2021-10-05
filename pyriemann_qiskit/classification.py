@@ -115,8 +115,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     def _split_class1_from_class0(self, X, y):
         self._log("""[Warning] Splitting first class from second class.
                  Only binary classification is supported.""")
-        first_matrix_in_X = np.atleast_2d(X[0])
-        n_matrices, n_channels = first_matrix_in_X.shape[:2]
+        n_samples, n_features = X.shape
         self._feature_dim = n_channels * n_matrices
         self._log("Feature dimension = ", self._feature_dim)
         X_class1 = X[y == self.labels[1]]
