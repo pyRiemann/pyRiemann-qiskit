@@ -1,4 +1,7 @@
-# pyRiemann-qiskit
+.. _introduction:
+
+Introduction to pyRiemann-qiskit
+================================
 
 Litterature on quantum computing suggests it may offer an advantage as compared
 with classical computing in terms of computational time and outcomes, such as
@@ -24,9 +27,7 @@ in the domain of brain computer interfaces.
 pyRiemann-qiskit implements a wrapper around QSVC and VQC, to use quantum
 classification with riemanian geometry. A use case would be to use vectorized
 covariance matrices in the TangentSpace as an input for these classifiers,
-enabling a possible sandbox for researchers and engineers in the field.
-
-## References
+enabling a possible sandbox for researchers and engineers in the field. 
 
 [1] A. Blance and M. Spannowsky,
     ‘Quantum machine learning for particle physics using a variational quantum classifier’,
@@ -45,20 +46,3 @@ enabling a possible sandbox for researchers and engineers in the field.
     ‘Supervised learning with quantum-enhanced feature spaces’,
     Nature, vol. 567, no. 7747, pp. 209–212, Mar. 2019,
     doi: 10.1038/s41586-019-0980-2.
-
-## Installation
-
-As there is no stable version, you should clone this repository
-and install the package on your local machine using the `setup.py` script
-
-```
-python setup.py develop
-```
-
-To check the installation, open a python shell and type:
-
-```
-import pyriemann_qiskit
-```
-
-Full documentation, including API description, is available at <https://pyriemann-qiskit.readthedocs.io/>

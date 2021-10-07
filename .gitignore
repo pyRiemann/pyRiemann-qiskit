@@ -1,0 +1,10 @@
+*.pyc
+.DS_Store
+.coverage
+.coveralls.yml
+/doc/build
+/doc/generated
+/doc/auto_examples
+/dist
+/pyriemann_qiskit.egg-info/*
+*-e
