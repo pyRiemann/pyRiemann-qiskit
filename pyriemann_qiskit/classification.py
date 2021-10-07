@@ -290,7 +290,8 @@ class QuanticSVM(QuanticClassifierBase):
 
     References
     ----------
-    .. [1] https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html
+    .. [1] Available from: \
+        https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html
 
     .. [2] V. Havlíček et al.,
            ‘Supervised learning with quantum-enhanced feature spaces’,
