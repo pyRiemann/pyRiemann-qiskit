@@ -17,7 +17,7 @@ def test_GetSetParams(get_covmats, get_labels):
     cross_val_score(clf, covset, labels, cv=skf, scoring='roc_auc')
 
 
-def test_Quantic_init():
+def test_qsvm_init():
     """Test init of quantum classifiers"""
     # if "classical" computation enable,
     # no provider and backend should be defined
