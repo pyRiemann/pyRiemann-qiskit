@@ -44,8 +44,6 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     q_account_token : string (default:None)
         If quantum==True and q_account_token provided,
         the classification task will be running on a IBM quantum backend
-    process_vector : callable (default: lambda v: v)
-        Additional processing on the input vectors. eg: downsampling
     verbose : bool (default:True)
         If true will output all intermediate results and logs
     test_input : dict (default: {}})
@@ -78,14 +76,12 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     """
 
-    def __init__(self, quantum=True, q_account_token=None,
-                 process_vector=lambda v: v, verbose=True,
+    def __init__(self, quantum=True, q_account_token=None, verbose=True,
                  test_input={}, test_per=0.33):
         self.verbose = verbose
         self._log("Initializing Quantum Classifier")
         self.test_input = test_input
         self.test_per = test_per
-        self.process_vector = process_vector
         self.q_account_token = q_account_token
         self.quantum = quantum
         # protected field for child classes
@@ -112,8 +108,6 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         if self.verbose:
             print("[QClass] ", *values)
 
-    def _apply_process_vector(self, X):
-        return [self.process_vector(x) for x in X]
 
     def _split_classes(self, X, y):
         self._log("""[Warning] Splitting first class from second class.
@@ -123,12 +117,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._log("Feature dimension = ", self._feature_dim)
         X_class1 = X[y == self.classes_[1]]
         X_class0 = X[y == self.classes_[0]]
-        processed_class1 = self._apply_process_vector(X_class1)
-        processed_class0 = self._apply_process_vector(X_class0)
-        self._new_feature_dim = len(processed_class1[0])
+        self._new_feature_dim = len(X_class1[0])
         self._log("Feature dimension after vector processing = ",
                   self._new_feature_dim)
-        return (processed_class1, processed_class0)
+        return (X_class1, X_class0)
 
     def _additional_setup(self):
         self._log("There is no additional setup.")
@@ -214,9 +206,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
             self._log("There is no test inputs. Self-calibrating...")
             self._self_calibration()
         result = None
-        predict_set = self._apply_process_vector(X)
         self._log("Prediction: ", X.shape)
-        result = self._run(predict_set)
+        result = self._run(X)
         self._log("Prediction finished. Returning predicted labels")
         return result["predicted_labels"]
 
@@ -325,7 +316,6 @@ class QuanticVQC(QuanticClassifierBase):
     ----------
     labels : see QuanticClassifierBase
     q_account_token : see QuanticClassifierBase
-    process_vector : see QuanticClassifierBase
     verbose : see QuanticClassifierBase
     parameters : see QuanticClassifierBase
 
@@ -351,10 +341,9 @@ class QuanticVQC(QuanticClassifierBase):
     """
 
     def __init__(self, q_account_token=None,
-                 process_vector=lambda v: v, verbose=True, **parameters):
+                 verbose=True, **parameters):
         QuanticClassifierBase.__init__(self,
                                        q_account_token=q_account_token,
-                                       process_vector=process_vector,
                                        verbose=verbose, **parameters)
 
     def _additional_setup(self):

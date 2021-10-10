@@ -26,6 +26,8 @@ from mne.datasets import sample
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.base import TransformerMixin
+from sklearn.utils import resample
 from matplotlib import pyplot as plt
 
 # cvxpy is not correctly imported due to wheel not building
@@ -96,8 +98,11 @@ sf = XdawnCovariances(nfilter=1)
 
 
 # ...and dividing the number of remaining elements by two
-def ds(v):
-    return v[::2]
+class Downsampler(TransformerMixin):
+    def fit(self, X, y=None):
+        return self
+    def transform(self, X, y=None):
+        return X[:,::2]
 
 
 # Projecting correlation matrices into the tangent space
@@ -111,9 +116,8 @@ for quantum in [True, False]:
     if(not __cvxpy__):
         continue
 
-    qsvm = QuanticSVM(target=1, verbose=False,
-                      quantum=quantum, processVector=ds)
-    clf = make_pipeline(sf, tg, qsvm)
+    qsvm = QuanticSVM(verbose=False, quantum=quantum)
+    clf = make_pipeline(sf, tg, Downsampler(), qsvm)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
 
