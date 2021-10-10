@@ -63,7 +63,7 @@ def test_qsvm_splitclasses(get_2d_covmats, get_labels):
     assert np.shape(x_class0) == (class_len, n_channels * n_channels)
 
 
-def test_Quantic_SelfCalibration(get_2d_covmats, get_labels):
+def test_qsvm_selfcalibration(get_2d_covmats, get_labels):
     """Test _self_calibration method of quantum classifiers"""
 
     test_size = 0.33
