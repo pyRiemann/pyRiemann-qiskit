@@ -78,19 +78,19 @@ def test_qsvm_selfcalibration(get_2d_covmats, get_labels):
     # Just using a little trick as fit and score method are
     # called by self_calibration method
 
-    def fit(X_train, y_train):
+    def test_fit(X_train, y_train):
         assert len(y_train) == n_matrices - len_test
         # Covariances matrices of fit and score method
         # should always be non-vectorized
         assert X_train.shape == (n_matrices - len_test,
                                  n_channels * n_channels)
 
-    def score(X_test, y_test):
+    def test_score(X_test, y_test):
         assert len(y_test) == len_test
         assert X_test.shape == (len_test, n_channels * n_channels)
 
-    q.fit = fit
-    q.score = score
+    q.fit = test_fit
+    q.score = test_score
     q._self_calibration()
 
 
