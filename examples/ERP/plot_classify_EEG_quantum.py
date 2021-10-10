@@ -5,7 +5,8 @@ ERP EEG decoding with Quantum Classifier.
 
 Decoding applied to EEG data in sensor space decomposed using Xdawn.
 After spatial filtering, covariances matrices are estimated, then projected in
-the tangent space and classified with a quantum classifier
+the tangent space and classified with a quantum SVM classifier.
+It is compared to the classical SVM.
 
 """
 # Author: Gregoire Cattan
