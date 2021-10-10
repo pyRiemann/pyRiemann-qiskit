@@ -85,7 +85,7 @@ def test_Quantic_SelfCalibration(get_2d_covmats, get_labels):
         assert X_train.shape == (n_matrices - len_test,
                                  n_channels * n_channels)
 
-    def score(X_test, y_test):
+    def test_score(X_test, y_test):
         assert len(y_test) == len_test
         assert X_test.shape == (len_test, n_channels * n_channels)
 
