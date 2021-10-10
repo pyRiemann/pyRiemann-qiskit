@@ -44,7 +44,7 @@ def test_Quantic_init():
         pass
 
 
-def test_Quantic_splitClasses(get_2d_covmats, get_labels):
+def test_qsvm_splitclasses(get_2d_covmats, get_labels):
     """Test _split_classes method of quantum classifiers"""
     q = QuanticSVM(quantum=False)
 
