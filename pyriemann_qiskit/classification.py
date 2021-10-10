@@ -108,7 +108,6 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         if self.verbose:
             print("[QClass] ", *values)
 
-
     def _split_classes(self, X, y):
         self._log("""[Warning] Splitting first class from second class.
                  Only binary classification is supported.""")

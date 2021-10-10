@@ -27,7 +27,6 @@ from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.base import TransformerMixin
-from sklearn.utils import resample
 from matplotlib import pyplot as plt
 
 # cvxpy is not correctly imported due to wheel not building
@@ -101,8 +100,9 @@ sf = XdawnCovariances(nfilter=1)
 class Downsampler(TransformerMixin):
     def fit(self, X, y=None):
         return self
+
     def transform(self, X, y=None):
-        return X[:,::2]
+        return X[:, ::2]
 
 
 # Projecting correlation matrices into the tangent space
