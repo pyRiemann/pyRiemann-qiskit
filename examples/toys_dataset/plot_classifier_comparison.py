@@ -1,3 +1,12 @@
+"""
+====================================================================
+Comparison with toys datasets.
+====================================================================
+
+Comparison of classification using quantum versus classical SVM
+classifiers on toys datasets.
+
+"""
 # Code source: Gaël Varoquaux
 #              Andreas Müller
 # Modified for documentation by Jaques Grobler
