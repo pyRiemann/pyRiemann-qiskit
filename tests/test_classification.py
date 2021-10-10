@@ -6,12 +6,12 @@ from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 
 
-def test_GetSetParams(get_2d_covmats, get_labels):
+def test_GetSetParams(get_covmats, get_labels):
     clf = make_pipeline(XdawnCovariances(), TangentSpace(),
                         QuanticSVM(quantum=False))
     skf = StratifiedKFold(n_splits=5)
     n_matrices, n_channels, n_classes = 100, 3, 2
-    covset = get_2d_covmats(n_matrices, n_channels)
+    covset = get_covmats(n_matrices, n_channels)
     labels = get_labels(n_matrices, n_classes)
 
     cross_val_score(clf, covset, labels, cv=skf, scoring='roc_auc')
@@ -85,7 +85,7 @@ def test_qsvm_selfcalibration(get_2d_covmats, get_labels):
         assert X_train.shape == (n_matrices - len_test,
                                  n_channels * n_channels)
 
-    def test_score(X_test, y_test):
+    def score(X_test, y_test):
         assert len(y_test) == len_test
         assert X_test.shape == (len_test, n_channels * n_channels)
 
