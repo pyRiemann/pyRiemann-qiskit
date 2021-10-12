@@ -70,6 +70,7 @@ def generate_feat(n_samples, n_features, rs):
     """Generate a set of n_features-dimensional samples for test purpose"""
     return rs.rand(n_samples, n_features)
 
+
 @pytest.fixture
 def get_feats(rndstate):
     def _gen_feat(n_samples, n_features):
