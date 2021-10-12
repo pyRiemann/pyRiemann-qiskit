@@ -109,6 +109,10 @@ class Downsampler(TransformerMixin):
 # (If not, then matrices will be inlined inside the quantum classifier)
 tg = TangentSpace()
 
+# https://stackoverflow.com/questions/61825227/plotting-multiple-confusion-matrix-side-by-side
+
+f, axes = plt.subplots(1, 2, sharey='row')
+
 # Results will be computed for QuanticSVM versus SKLearnSVM for comparison
 for quantum in [True, False]:
     # This is a hack for the documentation pipeline
@@ -124,7 +128,19 @@ for quantum in [True, False]:
     acc = np.mean(y_pred == y_test)
     print("Classification accuracy: %f " % (acc))
 
-    names = ['0(quantum)', '1(quantum)'] if quantum else ['0', '1']
+    names = ['0', '1']
+    title = "Quantum" if quantum else "Classical"
+    axe = axes[0 if quantum else 1]
     cm = confusion_matrix(y_pred, y_test)
-    ConfusionMatrixDisplay(cm, display_labels=names).plot()
-    plt.show()
+    disp = ConfusionMatrixDisplay(cm, display_labels=names)
+    disp.plot(ax=axe, xticks_rotation=45)
+    disp.ax_.set_title(title)
+    disp.im_.colorbar.remove()
+    disp.ax_.set_xlabel('')
+    if not quantum:
+        disp.ax_.set_ylabel('')
+
+f.text(0.4, 0.1, 'Predicted label', ha='left')
+plt.subplots_adjust(wspace=0.40, hspace=0.1)
+f.colorbar(disp.im_, ax=axes)
+plt.show()
