@@ -113,6 +113,8 @@ tg = TangentSpace()
 
 f, axes = plt.subplots(1, 2, sharey='row')
 
+disp = None
+
 # Results will be computed for QuanticSVM versus SKLearnSVM for comparison
 for quantum in [True, False]:
     # This is a hack for the documentation pipeline
@@ -126,10 +128,10 @@ for quantum in [True, False]:
 
     # Printing the results
     acc = np.mean(y_pred == y_test)
-    print("Classification accuracy: %f " % (acc))
+    acc_str = "%0.2f" % acc
 
     names = ['0', '1']
-    title = "Quantum" if quantum else "Classical"
+    title = ("Quantum (" if quantum else "Classical (") + acc_str + ")"
     axe = axes[0 if quantum else 1]
     cm = confusion_matrix(y_pred, y_test)
     disp = ConfusionMatrixDisplay(cm, display_labels=names)
@@ -140,7 +142,8 @@ for quantum in [True, False]:
     if not quantum:
         disp.ax_.set_ylabel('')
 
-f.text(0.4, 0.1, 'Predicted label', ha='left')
-plt.subplots_adjust(wspace=0.40, hspace=0.1)
-f.colorbar(disp.im_, ax=axes)
-plt.show()
+if disp:
+    f.text(0.4, 0.1, 'Predicted label', ha='left')
+    plt.subplots_adjust(wspace=0.40, hspace=0.1)
+    f.colorbar(disp.im_, ax=axes)
+    plt.show()
