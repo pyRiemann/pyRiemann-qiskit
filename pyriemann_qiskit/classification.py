@@ -111,17 +111,11 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     def _split_classes(self, X, y):
         self._log("""[Warning] Splitting first class from second class.
                  Only binary classification is supported.""")
-        n_samples, n_features = X.shape
-        self._feature_dim = n_samples * n_features
-        self._log("Feature dimension = ", self._feature_dim)
         X_class1 = X[y == self.classes_[1]]
         X_class0 = X[y == self.classes_[0]]
-        self._new_feature_dim = len(X_class1[0])
-        self._log("Feature dimension after vector processing = ",
-                  self._new_feature_dim)
         return (X_class1, X_class0)
 
-    def _additional_setup(self):
+    def _additional_setup(self, feature_dim):
         self._log("There is no additional setup.")
 
     def fit(self, X, y):
@@ -149,16 +143,17 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         self._training_input["class1"] = class1
         self._training_input["class0"] = class0
-        self._log(get_feature_dimension(self._training_input))
+
         feature_dim = get_feature_dimension(self._training_input)
+        self._log("Feature dimension = ", feature_dim)
         self._feature_map = ZZFeatureMap(feature_dimension=feature_dim, reps=2,
                                          entanglement='linear')
-        self._additional_setup()
+        self._additional_setup(feature_dim)
         if self.quantum:
             if not hasattr(self, "_backend"):
                 def filters(device):
                     return (
-                      device.configuration().n_qubits >= self._new_feature_dim
+                      device.configuration().n_qubits >= feature_dim
                       and not device.configuration().simulator
                       and device.status().operational)
                 devices = self._provider.backends(filters=filters)
@@ -345,9 +340,9 @@ class QuanticVQC(QuanticClassifierBase):
                                        q_account_token=q_account_token,
                                        verbose=verbose, **parameters)
 
-    def _additional_setup(self):
+    def _additional_setup(self, feature_dim):
         self._optimizer = SPSA(maxiter=40, c0=4.0, skip_calibration=True)
-        self._var_form = TwoLocal(self._new_feature_dim,
+        self._var_form = TwoLocal(feature_dim,
                                   ['ry', 'rz'], 'cz', reps=3)
 
     def _run(self, predict_set=None):

@@ -51,15 +51,15 @@ event_id = dict(aud_l=1, aud_r=2, vis_l=3, vis_r=4)
 # Setup for reading the raw data
 raw = io.Raw(raw_fname, preload=True, verbose=False)
 raw.filter(2, None, method="iir")  # replace baselining with high-pass
-events = mne.read_events(event_fname)
+events = read_events(event_fname)
 
 raw.info["bads"] = ["MEG 2443"]  # set bad channels
-picks = mne.pick_types(
+picks = pick_types(
     raw.info, meg=False, eeg=True, stim=False, eog=False, exclude="bads"
 )
 
 # Read epochs
-epochs = mne.Epochs(
+epochs = Epochs(
     raw,
     events,
     event_id,
