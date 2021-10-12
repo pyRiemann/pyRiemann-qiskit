@@ -94,7 +94,7 @@ def test_qsvm_selfcalibration(get_2d_covmats, get_labels):
     q._self_calibration()
 
 
-def test_Quantic_FVT_Classical(get_labels):
+def test_quantic_fvt_Classical(get_labels):
     """ Perform standard SVC test
     (canary test to assess pipeline correctness)
     """
@@ -118,7 +118,7 @@ def test_Quantic_FVT_Classical(get_labels):
     assert prediction[class_len:].all() == q.classes_[1]
 
 
-def test_QuanticSVM_FVT_SimulatedQuantum(get_labels):
+def test_quantic_svm_fvt_simulated_quantum(get_labels):
     """Perform SVC on a simulated quantum computer.
     This test can also be run on a real computer by providing a qAccountToken
     To do so, you need to use your own token, by registering on:
@@ -145,7 +145,7 @@ def test_QuanticSVM_FVT_SimulatedQuantum(get_labels):
     assert prediction[class_len:].all() == q.classes_[1]
 
 
-def test_QuanticVQC_FVT_SimulatedQuantum(get_2d_covmats, get_labels):
+def test_quantic_vqc_fvt_simulated_quantum(get_2d_covmats, get_labels):
     """Perform VQC on a simulated quantum computer"""
     # We will use a quantum simulator on the local machine
     # quantum parameter for VQC is always true

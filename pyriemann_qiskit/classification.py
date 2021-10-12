@@ -308,10 +308,11 @@ class QuanticVQC(QuanticClassifierBase):
 
     Parameters
     ----------
-    labels : see QuanticClassifierBase
-    q_account_token : see QuanticClassifierBase
-    verbose : see QuanticClassifierBase
-    parameters : see QuanticClassifierBase
+    q_account_token : string (default:None)
+        If quantum==True and q_account_token provided,
+        the classification task will be running on a IBM quantum backend
+    verbose : bool (default:True)
+        If true will output all intermediate results and logs
 
     Notes
     -----
@@ -338,7 +339,7 @@ class QuanticVQC(QuanticClassifierBase):
                  verbose=True, **parameters):
         QuanticClassifierBase.__init__(self,
                                        q_account_token=q_account_token,
-                                       verbose=verbose, **parameters)
+                                       verbose=verbose)
 
     def _additional_setup(self, feature_dim):
         self._optimizer = SPSA(maxiter=40, c0=4.0, skip_calibration=True)
