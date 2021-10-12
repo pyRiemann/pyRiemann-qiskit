@@ -49,15 +49,14 @@ def test_qsvm_splitclasses(get_feats, get_labels):
     q = QuanticSVM(quantum=False)
 
     n_samples, n_features, n_classes = 100, 9, 2
-    covset = get_feats(n_samples, n_features)
+    samples = get_feats(n_samples, n_features)
     labels = get_labels(n_samples, n_classes)
 
     # As fit method is not called here, classes_ is not set.
     # so we need to provide the classes ourselves.
     q.classes_ = range(0, n_classes)
 
-    x_class1, x_class0 = q._split_classes(covset, labels)
-    # Covariance matrices should be vectorized
+    x_class1, x_class0 = q._split_classes(samples, labels)
     class_len = n_samples // n_classes  # balanced set
     assert np.shape(x_class1) == (class_len, n_features)
     assert np.shape(x_class0) == (class_len, n_features)
@@ -70,18 +69,16 @@ def test_qsvm_selfcalibration(get_feats, get_labels):
     q = QuanticSVM(quantum=False, test_per=test_size)
 
     n_samples, n_features, n_classes = 100, 9, 2
-    covset = get_feats(n_samples, n_features)
+    samples = get_feats(n_samples, n_features)
     labels = get_labels(n_samples, n_classes)
     len_test = int(test_size * n_samples)
 
-    q.fit(covset, labels)
+    q.fit(samples, labels)
     # Just using a little trick as fit and score method are
     # called by self_calibration method
 
     def test_fit(X_train, y_train):
         assert len(y_train) == n_samples - len_test
-        # Covariances matrices of fit and score method
-        # should always be non-vectorized
         assert X_train.shape == (n_samples - len_test, n_features)
 
     def test_score(X_test, y_test):
@@ -101,7 +98,7 @@ def test_quantic_fvt_Classical(get_labels):
     # classical SVC implementation from SKlearn
     q = QuanticSVM(quantum=False, verbose=False)
     # We need to have different values for first and second classes
-    # in our covset or vector machine will not converge
+    # in our samples or vector machine will not converge
     n_samples, n_features, n_classes = 100, 9, 2
     class_len = n_samples // n_classes  # balanced set
     samples_0 = np.zeros((class_len, n_features))
@@ -126,7 +123,7 @@ def test_quantic_svm_fvt_simulated_quantum(get_labels):
     """
     # We will use a quantum simulator on the local machine
     q = QuanticSVM(quantum=True, verbose=False)
-    # We need to have different values for target and non-target in our covset
+    # We need to have different values for target and non-target in our samples
     # or vector machine will not converge
     # To achieve testing in a reasonnable amount of time,
     # we will lower the size of the feature and the number of trials
@@ -152,11 +149,11 @@ def test_quantic_vqc_fvt_simulated_quantum(get_feats, get_labels):
     # To achieve testing in a reasonnable amount of time,
     # we will lower the size of the feature and the number of trials
     n_samples, n_features, n_classes = 4, 4, 2
-    covset = get_feats(n_samples, n_features)
+    samples = get_feats(n_samples, n_features)
     labels = get_labels(n_samples, n_classes)
 
-    q.fit(covset, labels)
-    prediction = q.predict(covset)
+    q.fit(samples, labels)
+    prediction = q.predict(samples)
     # Considering the inputs, this probably make no sense to test accuracy.
     # Instead, we could consider this test as a canary test
     assert len(prediction) == len(labels)
