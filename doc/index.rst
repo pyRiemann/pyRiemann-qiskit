@@ -22,6 +22,30 @@
 pyRiemann-qiskit: Qiskit wrapper for pyRiemann
 =============================================================
 
+.. raw:: html
+
+    <div style="clear: both"></div>
+    <div class="container-fluid hidden-xs hidden-sm">
+      <div class="row">
+       <a href="auto_examples/ERP/plot_classify_EEG_quantum.html">
+         <div class="col-md-3 thumbnail">
+           <img src="_images/sphx_glr_plot_single_thumb.png">
+         </div>
+       </a>
+       <a href="auto_examples/toys_dataset/plot_classifier_comparison.html">
+         <div class="col-md-3 thumbnail">
+           <img src="_images/sphx_glr_plot_classify_MEG_mdm_thumb.png">
+         </div>
+       </a>
+     </div>
+   </div>
+
+   <br>
+
+   <div class="container-fluid">
+     <div class="row">
+       <div class="col-md-9">
+
 pyRiemann-qiskit is a Qiskit wrapper around pyRiemann. 
 It allows to use quantum classification with Riemannian geometry. 
 pyRiemann-qiskit provides through Qiskit:
