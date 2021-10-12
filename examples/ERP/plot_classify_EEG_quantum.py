@@ -19,8 +19,7 @@ from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann_qiskit.classification import QuanticSVM
 
-import mne
-from mne import io
+from mne import io, read_events, pick_types, Epochs
 from mne.datasets import sample
 
 from sklearn.pipeline import make_pipeline
