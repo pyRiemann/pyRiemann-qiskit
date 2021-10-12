@@ -87,7 +87,7 @@ datasets = [
             get_qiskit_dataset()
            ]
 
-figure = plt.figure(figsize=(27, 9))
+figure = plt.figure(figsize=(20, 9))
 i = 1
 # iterate over datasets
 for ds_cnt, ds in enumerate(datasets):
