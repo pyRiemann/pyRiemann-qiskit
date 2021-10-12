@@ -44,13 +44,13 @@ def test_qsvm_init():
         pass
 
 
-def test_qsvm_splitclasses(get_2d_covmats, get_labels):
+def test_qsvm_splitclasses(get_feats, get_labels):
     """Test _split_classes method of quantum classifiers"""
     q = QuanticSVM(quantum=False)
 
-    n_matrices, n_channels, n_classes = 100, 3, 2
-    covset = get_2d_covmats(n_matrices, n_channels)
-    labels = get_labels(n_matrices, n_classes)
+    n_samples, n_features, n_classes = 100, 9, 2
+    covset = get_feats(n_samples, n_features)
+    labels = get_labels(n_samples, n_classes)
 
     # As fit method is not called here, classes_ is not set.
     # so we need to provide the classes ourselves.
@@ -58,36 +58,35 @@ def test_qsvm_splitclasses(get_2d_covmats, get_labels):
 
     x_class1, x_class0 = q._split_classes(covset, labels)
     # Covariance matrices should be vectorized
-    class_len = n_matrices // n_classes  # balanced set
-    assert np.shape(x_class1) == (class_len, n_channels * n_channels)
-    assert np.shape(x_class0) == (class_len, n_channels * n_channels)
+    class_len = n_samples // n_classes  # balanced set
+    assert np.shape(x_class1) == (class_len, n_features)
+    assert np.shape(x_class0) == (class_len, n_features)
 
 
-def test_qsvm_selfcalibration(get_2d_covmats, get_labels):
+def test_qsvm_selfcalibration(get_feats, get_labels):
     """Test _self_calibration method of quantum classifiers"""
 
     test_size = 0.33
     q = QuanticSVM(quantum=False, test_per=test_size)
 
-    n_matrices, n_channels, n_classes = 100, 3, 2
-    covset = get_2d_covmats(n_matrices, n_channels)
-    labels = get_labels(n_matrices, n_classes)
-    len_test = int(test_size * n_matrices)
+    n_samples, n_features, n_classes = 100, 9, 2
+    covset = get_feats(n_samples, n_features)
+    labels = get_labels(n_samples, n_classes)
+    len_test = int(test_size * n_samples)
 
     q.fit(covset, labels)
     # Just using a little trick as fit and score method are
     # called by self_calibration method
 
     def test_fit(X_train, y_train):
-        assert len(y_train) == n_matrices - len_test
+        assert len(y_train) == n_samples - len_test
         # Covariances matrices of fit and score method
         # should always be non-vectorized
-        assert X_train.shape == (n_matrices - len_test,
-                                 n_channels * n_channels)
+        assert X_train.shape == (n_samples - len_test, n_features)
 
     def test_score(X_test, y_test):
         assert len(y_test) == len_test
-        assert X_test.shape == (len_test, n_channels * n_channels)
+        assert X_test.shape == (len_test, n_features)
 
     q.fit = test_fit
     q.score = test_score
@@ -103,16 +102,16 @@ def test_quantic_fvt_Classical(get_labels):
     q = QuanticSVM(quantum=False, verbose=False)
     # We need to have different values for first and second classes
     # in our covset or vector machine will not converge
-    n_matrices, n_channels, n_classes = 100, 3, 2
-    class_len = n_matrices // n_classes  # balanced set
-    covset_0 = np.zeros((class_len, n_channels * n_channels))
-    covset_1 = np.ones((class_len, n_channels * n_channels))
-    covset = np.concatenate((covset_0, covset_1), axis=0)
-    labels = get_labels(n_matrices, n_classes)
+    n_samples, n_features, n_classes = 100, 9, 2
+    class_len = n_samples // n_classes  # balanced set
+    samples_0 = np.zeros((class_len, n_features))
+    samples_1 = np.ones((class_len, n_features))
+    samples = np.concatenate((samples_0, samples_1), axis=0)
+    labels = get_labels(n_samples, n_classes)
 
-    q.fit(covset, labels)
+    q.fit(samples, labels)
     # This will autodefine testing sets
-    prediction = q.predict(covset)
+    prediction = q.predict(samples)
     # In this case, using SVM, predicting accuracy should be 100%
     assert prediction[:class_len].all() == q.classes_[0]
     assert prediction[class_len:].all() == q.classes_[1]
@@ -131,30 +130,30 @@ def test_quantic_svm_fvt_simulated_quantum(get_labels):
     # or vector machine will not converge
     # To achieve testing in a reasonnable amount of time,
     # we will lower the size of the feature and the number of trials
-    n_matrices, n_channels, n_classes = 10, 2, 2
-    class_len = n_matrices // n_classes  # balanced set
-    covset_0 = np.zeros((class_len, n_channels * n_channels))
-    covset_1 = np.ones((class_len, n_channels * n_channels))
-    covset = np.concatenate((covset_0, covset_1), axis=0)
-    labels = get_labels(n_matrices, n_classes)
+    n_samples, n_features, n_classes = 10, 4, 2
+    class_len = n_samples // n_classes  # balanced set
+    samples_0 = np.zeros((class_len, n_features))
+    samples_1 = np.ones((class_len, n_features))
+    samples = np.concatenate((samples_0, samples_1), axis=0)
+    labels = get_labels(n_samples, n_classes)
 
-    q.fit(covset, labels)
-    prediction = q.predict(covset)
+    q.fit(samples, labels)
+    prediction = q.predict(samples)
     # In this case, using SVM, predicting accuracy should be 100%
     assert prediction[:class_len].all() == q.classes_[0]
     assert prediction[class_len:].all() == q.classes_[1]
 
 
-def test_quantic_vqc_fvt_simulated_quantum(get_2d_covmats, get_labels):
+def test_quantic_vqc_fvt_simulated_quantum(get_feats, get_labels):
     """Perform VQC on a simulated quantum computer"""
     # We will use a quantum simulator on the local machine
     # quantum parameter for VQC is always true
     q = QuanticVQC(verbose=False)
     # To achieve testing in a reasonnable amount of time,
     # we will lower the size of the feature and the number of trials
-    n_matrices, n_channels, n_classes = 4, 2, 2
-    covset = get_2d_covmats(n_matrices, n_channels)
-    labels = get_labels(n_matrices, n_classes)
+    n_samples, n_features, n_classes = 4, 4, 2
+    covset = get_feats(n_samples, n_features)
+    labels = get_labels(n_samples, n_classes)
 
     q.fit(covset, labels)
     prediction = q.predict(covset)

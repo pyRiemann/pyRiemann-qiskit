@@ -66,15 +66,15 @@ def get_labels():
     return _get_labels
 
 
-@pytest.fixture
-def get_2d_covmats(rndstate):
-    def _get_2d_covmats(n_matrices, n_channels):
-        covset_3d = generate_cov(n_matrices, n_channels,
-                                 rndstate, return_params=False)
-        covset_2d = covset_3d.reshape(n_matrices, n_channels * n_channels)
-        return covset_2d
+def generate_feat(n_samples, n_features, rs):
+    """Generate a set of n_features-dimensional samples for test purpose"""
+    return rs.rand(n_samples, n_features)
 
-    return _get_2d_covmats
+@pytest.fixture
+def get_feats(rndstate):
+    def _gen_feat(n_samples, n_features):
+        return generate_feat(n_samples, n_features, rndstate)
+    return _gen_feat
 
 
 def is_positive_semi_definite(X):
