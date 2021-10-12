@@ -60,6 +60,7 @@ def get_linearly_separable_dataset():
 
     return(X, y)
 
+###############################################################################
 
 h = .02  # step size in the mesh
 labels = (0, 1)
