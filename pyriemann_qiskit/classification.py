@@ -46,7 +46,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         the classification task will be running on a IBM quantum backend
     verbose : bool (default:True)
         If true will output all intermediate results and logs
-    test_input : dict (default: {}})
+    test_input : dict (default: {})
         Contains vectorized test set for the two classes
     test_per : double (default: 0.33)
         Indicate the percent of the fitting set that should be kept for
