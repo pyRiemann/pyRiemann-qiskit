@@ -348,7 +348,8 @@ class QuanticVQC(QuanticClassifierBase):
             prob[n, 0] == True if the nth sample is assigned to 1st class
             prob[n, 1] == True if the nth sample is assigned to 2nd class
         """
-        return self._predict(X)[1]
+        proba, _ = self._predict(X)
+        return proba
 
     def predict(self, X):
         """get the predictions.
@@ -364,4 +365,5 @@ class QuanticVQC(QuanticClassifierBase):
         pred : array, shape (n_samples,)
             Class labels for samples in X.
         """
-        return self._predict(X)[0]
+        _, labels = self._predict(X)
+        return labels
