@@ -199,7 +199,6 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         if(len(self.test_input) == 0):
             self._log("There is no test inputs. Self-calibrating...")
             self._self_calibration()
-        result = None
         self._log("Prediction: ", X.shape)
         result = self._run(X)
         self._log("Prediction finished. Returning predicted labels")
