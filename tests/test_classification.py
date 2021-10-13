@@ -62,34 +62,6 @@ def test_qsvm_splitclasses(get_feats, get_labels):
     assert np.shape(x_class0) == (class_len, n_features)
 
 
-def test_qsvm_selfcalibration(get_feats, get_labels):
-    """Test _self_calibration method of quantum classifiers"""
-
-    test_size = 0.33
-    q = QuanticSVM(quantum=False, test_per=test_size)
-
-    n_samples, n_features, n_classes = 100, 9, 2
-    samples = get_feats(n_samples, n_features)
-    labels = get_labels(n_samples, n_classes)
-    len_test = int(test_size * n_samples)
-
-    q.fit(samples, labels)
-    # Just using a little trick as fit and score method are
-    # called by self_calibration method
-
-    def test_fit(X_train, y_train):
-        assert len(y_train) == n_samples - len_test
-        assert X_train.shape == (n_samples - len_test, n_features)
-
-    def test_score(X_test, y_test):
-        assert len(y_test) == len_test
-        assert X_test.shape == (len_test, n_features)
-
-    q.fit = test_fit
-    q.score = test_score
-    q._self_calibration()
-
-
 def test_quantic_fvt_Classical(get_labels):
     """ Perform standard SVC test
     (canary test to assess pipeline correctness)

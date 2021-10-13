@@ -2,7 +2,6 @@
 import numpy as np
 
 from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.model_selection import train_test_split
 
 from qiskit import BasicAer, IBMQ
 from qiskit.circuit.library import ZZFeatureMap, TwoLocal
@@ -48,11 +47,6 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         If true will output all intermediate results and logs
     test_input : dict (default: {})
         Contains vectorized test set for the two classes
-    test_per : double (default: 0.33)
-        Indicate the percent of the fitting set that should be kept for
-        testing. The remaining percent are used for training.
-        This is due to the design of quantum classifiers which require
-        training, testing and predicting sets.
 
     Notes
     -----
@@ -77,11 +71,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     """
 
     def __init__(self, quantum=True, q_account_token=None, verbose=True,
-                 test_input={}, test_per=0.33):
+                 test_input={}):
         self.verbose = verbose
         self._log("Initializing Quantum Classifier")
         self.test_input = test_input
-        self.test_per = test_per
         self.q_account_token = q_account_token
         self.quantum = quantum
         # protected field for child classes
@@ -115,11 +108,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         X_class0 = X[y == self.classes_[0]]
         return (X_class1, X_class0)
 
-    def _additional_setup(self, feature_dim):
-        self._log("There is no additional setup.")
-
     def fit(self, X, y):
-        """Prepare the training data and the quantum backend
+        """Get a quantum backend and fit the training data.
 
         Parameters
         ----------
@@ -137,7 +127,6 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._init_quantum()
 
         self._log("Fitting: ", X.shape)
-        self._prev_fit_params = {"X": X, "y": y}
         self.classes_ = np.unique(y)
         class1, class0 = self._split_classes(X, y)
 
@@ -148,7 +137,6 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._log("Feature dimension = ", feature_dim)
         self._feature_map = ZZFeatureMap(feature_dimension=feature_dim, reps=2,
                                          entanglement='linear')
-        self._additional_setup(feature_dim)
         if self.quantum:
             if not hasattr(self, "_backend"):
                 def filters(device):
@@ -168,92 +156,45 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
             self._quantum_instance = QuantumInstance(self._backend, shots=1024,
                                                      seed_simulator=seed_sim,
                                                      seed_transpiler=seed_trs)
+        self._classifier = self._init_algo(feature_dim)
+        self._train(X, y)
         return self
 
-    def _run(self, predict_set=None):
-        raise Exception("Run method was not implemented")
+    def _init_algo(self, feature_dim):
+        raise Exception("Init algo method was not implemented")
 
-    def _self_calibration(self):
-        X = self._prev_fit_params["X"]
-        y = self._prev_fit_params["y"]
-        self._log("Test size = ", self.test_per, " of previous fitting.")
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=self.test_per, stratify=y)
-        self.fit(X_train, y_train)
-        self.score(X_test, y_test)
-
-    def predict(self, X):
-        """get the predictions.
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_samples, n_features)
-            Input vector, where `n_samples` is the number of samples and
-            `n_features` is the number of features.
-
-        Returns
-        -------
-        pred : array, shape (n_samples,)
-            Class labels for samples in X.
-        """
-        if(len(self.test_input) == 0):
-            self._log("There is no test inputs. Self-calibrating...")
-            self._self_calibration()
-        self._log("Prediction: ", X.shape)
-        result = self._run(X)
-        self._log("Prediction finished. Returning predicted labels")
-        return result["predicted_labels"]
-
-    def predict_proba(self, X):
-        """This method is implemented for compatibility purpose
-           as SVM prediction probabilities are not available.
-           This method assigns to each trial a boolean which value
-           depends on wheter the label was assigned to classes 0 or 1
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_samples, n_features)
-            Input vector, where `n_samples` is the number of samples and
-            `n_features` is the number of features.
-
-        Returns
-        -------
-        prob : ndarray, shape (n_samples, n_classes)
-            prob[n, 0] == True if the nth sample is assigned to 1st class
-            prob[n, 1] == True if the nth sample is assigned to 2nd class
-        """
-        self._log("""[WARNING] SVM prediction probabilities are not available.
-                 Results from predict will be used instead.""")
-        predicted_labels = self.predict(X)
-        ret = [np.array([c == self.classes_[0], c == self.classes_[1]])
-               for c in predicted_labels]
-        return np.array(ret)
+    def _train(self, X, y):
+        self._log("Training...")
+        if self.quantum:
+            self._classifier.train(X, y, self._quantum_instance)
+        else:
+            self._classifier.train(X, y)
 
     def score(self, X, y):
         """Return the testing accuracy.
            You might want to use a different metric by using sklearn
            cross_val_score
-
         Parameters
         ----------
         X : ndarray, shape (n_samples, n_features)
             Input vector, where `n_samples` is the number of samples and
             `n_features` is the number of features.
-
         Returns
         -------
         accuracy : double
             Accuracy of predictions from X with respect y.
         """
-        self._log("Scoring: ", X.shape)
-        class1, class0 = self._split_classes(X, y)
-        self.test_input = {}
-        self.test_input["class1"] = class1
-        self.test_input["class0"] = class0
-        result = self._run()
-        accuracy = result["testing_accuracy"]
-        self._log("Testing accuracy = ", accuracy)
-        return accuracy
+        self._log("Testing...")
+        if self.quantum:
+            return self._classifier.test(X, y, self._quantum_instance)
+        else:
+            return self._classifier.test(X, y)
+
+    def _predict(self, X):
+        self._log("Prediction: ", X.shape)
+        result = self._classifier.predict(X)
+        self._log("Prediction finished.")
+        return result
 
 
 class QuanticSVM(QuanticClassifierBase):
@@ -284,18 +225,56 @@ class QuanticSVM(QuanticClassifierBase):
 
     """
 
-    def _run(self, predict_set=None):
-        self._log("SVM classification running...")
+    def _init_algo(self, feature_dim):
+        # Although we do not train the classifier at this location
+        # training_input are required by Qiskit library.
+        self._log("SVM initiating algorithm")
         if self.quantum:
-            self._log("Quantum instance is ", self._quantum_instance)
-            qsvm = QSVM(self._feature_map, self._training_input,
-                        self.test_input, predict_set)
-            result = qsvm.run(self._quantum_instance)
+            classifier = QSVM(self._feature_map, self._training_input)
         else:
-            result = SklearnSVM(self._training_input,
-                                self.test_input, predict_set).run()
-        self._log(result)
-        return result
+            classifier = SklearnSVM(self._training_input)
+        return classifier
+
+    def predict_proba(self, X):
+        """This method is implemented for compatibility purpose
+           as SVM prediction probabilities are not available.
+           This method assigns to each trial a boolean which value
+           depends on wheter the label was assigned to classes 0 or 1
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_samples, n_features)
+            Input vector, where `n_samples` is the number of samples and
+            `n_features` is the number of features.
+
+        Returns
+        -------
+        prob : ndarray, shape (n_samples, n_classes)
+            prob[n, 0] == True if the nth sample is assigned to 1st class
+            prob[n, 1] == True if the nth sample is assigned to 2nd class
+        """
+        self._log("""[WARNING] SVM prediction probabilities are not available.
+                 Results from predict will be used instead.""")
+        predicted_labels = self.predict(X)
+        ret = [np.array([c == self.classes_[0], c == self.classes_[1]])
+               for c in predicted_labels]
+        return np.array(ret)
+
+    def predict(self, X):
+        """get the predictions.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_samples, n_features)
+            Input vector, where `n_samples` is the number of samples and
+            `n_features` is the number of features.
+
+        Returns
+        -------
+        pred : array, shape (n_samples,)
+            Class labels for samples in X.
+        """
+        return self._predict(X)
 
 
 class QuanticVQC(QuanticClassifierBase):
@@ -340,14 +319,49 @@ class QuanticVQC(QuanticClassifierBase):
                                        q_account_token=q_account_token,
                                        verbose=verbose)
 
-    def _additional_setup(self, feature_dim):
+    def _init_algo(self, feature_dim):
+        self._log("VQC training...")
         self._optimizer = SPSA(maxiter=40, c0=4.0, skip_calibration=True)
         self._var_form = TwoLocal(feature_dim,
                                   ['ry', 'rz'], 'cz', reps=3)
-
-    def _run(self, predict_set=None):
-        self._log("VQC classification running...")
+        # Although we do not train the classifier at this location
+        # training_input are required by Qiskit library.
         vqc = VQC(self._optimizer, self._feature_map, self._var_form,
-                  self._training_input, self.test_input, predict_set)
-        result = vqc.run(self._quantum_instance)
-        return result
+                  self._training_input)
+        return vqc
+
+    def predict_proba(self, X):
+        """This method is implemented for compatibility purpose
+           as SVM prediction probabilities are not available.
+           This method assigns to each trial a boolean which value
+           depends on wheter the label was assigned to classes 0 or 1
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_samples, n_features)
+            Input vector, where `n_samples` is the number of samples and
+            `n_features` is the number of features.
+
+        Returns
+        -------
+        prob : ndarray, shape (n_samples, n_classes)
+            prob[n, 0] == True if the nth sample is assigned to 1st class
+            prob[n, 1] == True if the nth sample is assigned to 2nd class
+        """
+        return self._predict(X)[1]
+
+    def predict(self, X):
+        """get the predictions.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_samples, n_features)
+            Input vector, where `n_samples` is the number of samples and
+            `n_features` is the number of features.
+
+        Returns
+        -------
+        pred : array, shape (n_samples,)
+            Class labels for samples in X.
+        """
+        return self._predict(X)[0]
