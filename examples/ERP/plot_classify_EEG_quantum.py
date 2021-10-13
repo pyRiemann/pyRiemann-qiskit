@@ -16,6 +16,7 @@ It is compared to the classical SVM.
 import numpy as np
 
 from pyriemann.estimation import XdawnCovariances
+from pyriemann.spatialfilters import Xdawn, CSP
 from pyriemann.tangentspace import TangentSpace
 from pyriemann_qiskit.classification import QuanticSVM
 
@@ -26,6 +27,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.base import TransformerMixin
+from sklearn.decomposition import PCA
 from matplotlib import pyplot as plt
 
 # cvxpy is not correctly imported due to wheel not building
@@ -78,10 +80,16 @@ y = epochs.events[:, -1]
 # Reduce the number of classes as QuanticBase supports only 2 classes
 y[y % 3 == 0] = 0
 y[y % 3 != 0] = 1
+labels = np.unique(y)
 
-# Reduce trial number to dimish testing time
-X = X[:100]
-y = y[:100]
+# Reduce trial number to diminish testing time
+class0 = X[y == 0]
+class1 = X[y == 1]
+
+X = np.concatenate((class0[:50],class1[:50]))
+y = np.concatenate(([0] * 50, [1] * 50))
+
+
 
 # ...skipping the KFold validation parts (for the purpose of the test only)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
@@ -93,6 +101,8 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 # the number of elements inside the correlation matrices
 # Thus we reduce elements number by using restrictive spatial filtering
 sf = XdawnCovariances(nfilter=1)
+csp = CSP(nfilter=1)
+cov = ERPCovariances()
 
 
 # ...and dividing the number of remaining elements by two
@@ -122,7 +132,7 @@ for quantum in [True, False]:
         continue
 
     qsvm = QuanticSVM(verbose=False, quantum=quantum)
-    clf = make_pipeline(sf, tg, Downsampler(), qsvm)
+    clf = make_pipeline(sf, cov, tg, Downsampler(), qsvm)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
 

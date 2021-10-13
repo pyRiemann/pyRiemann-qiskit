@@ -74,8 +74,8 @@ classifiers = [
     ]
 
 if __cvxpy__:
-    classifiers.append(QuanticVQC(labels=labels, test_per=0.5))
-    classifiers.append(QuanticSVM(labels=labels, test_per=0.5, quantum=False))
+    classifiers.append(QuanticVQC())
+    classifiers.append(QuanticSVM(quantum=False))
 
 # Warning: There is a known convergence issue with QSVM
 # and some python versions:
