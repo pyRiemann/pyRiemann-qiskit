@@ -15,8 +15,8 @@ It is compared to the classical SVM.
 
 import numpy as np
 
-from pyriemann.estimation import XdawnCovariances
-from pyriemann.spatialfilters import Xdawn, CSP
+from pyriemann.estimation import XdawnCovariances, ERPCovariances
+from pyriemann.spatialfilters import CSP
 from pyriemann.tangentspace import TangentSpace
 from pyriemann_qiskit.classification import QuanticSVM
 
@@ -27,7 +27,6 @@ from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.base import TransformerMixin
-from sklearn.decomposition import PCA
 from matplotlib import pyplot as plt
 
 # cvxpy is not correctly imported due to wheel not building
@@ -86,10 +85,9 @@ labels = np.unique(y)
 class0 = X[y == 0]
 class1 = X[y == 1]
 
-X = np.concatenate((class0[:50],class1[:50]))
-y = np.concatenate(([0] * 50, [1] * 50))
-
-
+n_trials = 50
+X = np.concatenate((class0[:n_trials], class1[:n_trials]))
+y = np.concatenate(([0] * n_trials, [1] * n_trials))
 
 # ...skipping the KFold validation parts (for the purpose of the test only)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
@@ -98,7 +96,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 # Decoding in tangent space with a quantum classifier
 
 # Time complexity of quantum algorithm depends on the number of trials and
-# the number of elements inside the correlation matrices
+# the number of elements inside the covariance matrices
 # Thus we reduce elements number by using restrictive spatial filtering
 sf = XdawnCovariances(nfilter=1)
 csp = CSP(nfilter=1)
