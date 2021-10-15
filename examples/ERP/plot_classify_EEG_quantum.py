@@ -149,7 +149,6 @@ for quantum in [True, False]:
         continue
 
     qsvm = QuanticSVM(verbose=True, quantum=quantum)
-    # clf = make_pipeline(sf, cov, tg, Downsampler(), qsvm)
     clf = make_pipeline(sf, tg, TgDown(), qsvm)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
