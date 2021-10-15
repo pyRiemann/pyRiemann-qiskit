@@ -7,9 +7,8 @@ Comparison of classification using quantum versus classical SVM
 classifiers on toys datasets.
 
 """
-# Code source: Gaël Varoquaux
-#              Andreas Müller
-# Modified for documentation by Jaques Grobler
+# Code source:
+# https://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html
 # Modified for pyRiemann-qiskit by Gregoire Cattan
 # License: BSD 3 clause
 
@@ -89,7 +88,7 @@ datasets = [
             get_qiskit_dataset()
            ]
 
-figure = plt.figure(figsize=(20, 9))
+figure = plt.figure(figsize=(15, 9))
 i = 1
 # iterate over datasets
 for ds_cnt, ds in enumerate(datasets):
