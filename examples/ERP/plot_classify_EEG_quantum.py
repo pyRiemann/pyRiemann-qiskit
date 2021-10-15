@@ -24,7 +24,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.base import TransformerMixin
 from matplotlib import pyplot as plt
-import itertools
 
 # cvxpy is not correctly imported due to wheel not building
 # in the doc pipeline
@@ -100,35 +99,12 @@ sf = XdawnCovariances(nfilter=1)
 
 
 # ...and dividing the number of remaining elements by two
-class TgDown(TransformerMixin):
-    def __init__(self, ndim=None):
-        self.ndim = ndim
-        self.closest_subset_to_vector = None
-
+class Downsampler(TransformerMixin):
     def fit(self, X, y=None):
-        n_ts = X.shape[1]
-        if self.ndim is None:
-            self.ndim = n_ts // 2
-        indices = range(n_ts)
-        ret = {}
-        for v in X:
-            for subset in itertools.combinations(indices, self.ndim):
-                not_indices = [i for i in indices if i not in subset]
-                sub_v = v.copy()
-                sub_v[not_indices] = 0
-                dist = np.linalg.norm(v - sub_v)
-                key = ''.join(str(val) for val in subset)
-                if key in ret:
-                    ret[key] = ret[key] + dist
-                else:
-                    ret[key] = dist
-        self.closest_subset_to_vector = min(ret, key=ret.get)
         return self
 
     def transform(self, X, y=None):
-        subset = [int(i) for i in self.closest_subset_to_vector]
-        ret = X[:, subset]
-        return ret
+        return X[:, ::2]
 
 
 # Projecting correlation matrices into the tangent space
@@ -149,7 +125,7 @@ for quantum in [True, False]:
         continue
 
     qsvm = QuanticSVM(verbose=True, quantum=quantum)
-    clf = make_pipeline(sf, tg, TgDown(), qsvm)
+    clf = make_pipeline(sf, tg, Downsampler(), qsvm)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
 
