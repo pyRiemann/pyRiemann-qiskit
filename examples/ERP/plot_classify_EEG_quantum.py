@@ -73,17 +73,19 @@ X = epochs.get_data()
 y = epochs.events[:, -1]
 
 # Reduce the number of classes as QuanticBase supports only 2 classes
-y[y % 3 == 0] = 0
-y[y % 3 != 0] = 1
-labels = np.unique(y)
+X = X[(y == 3) | (y == 4)]
+y = y[(y == 3) | (y == 4)]
+y[y == 3] = 0
+y[y == 4] = 1
 
 # Reduce trial number to diminish testing time
-class0 = X[y == 0]
-class1 = X[y == 1]
+# (uncomment to enable)
+# # class0 = X[y == 0]
+# # class1 = X[y == 1]
 
-n_trials = 50
-X = np.concatenate((class0[:n_trials], class1[:n_trials]))
-y = np.concatenate(([0] * n_trials, [1] * n_trials))
+# # n_trials = 50
+# # X = np.concatenate((class0[:n_trials], class1[:n_trials]))
+# # y = np.concatenate(([0] * n_trials, [1] * n_trials))
 
 # ...skipping the KFold validation parts (for the purpose of the test only)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3,
@@ -99,7 +101,7 @@ sf = XdawnCovariances(nfilter=1)
 
 
 # ...and dividing the number of remaining elements by two
-class Downsampler(TransformerMixin):
+class NaiveDimRed(TransformerMixin):
     def fit(self, X, y=None):
         return self
 
@@ -125,7 +127,7 @@ for quantum in [True, False]:
         continue
 
     qsvm = QuanticSVM(verbose=True, quantum=quantum)
-    clf = make_pipeline(sf, tg, Downsampler(), qsvm)
+    clf = make_pipeline(sf, tg, NaiveDimRed(), qsvm)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
 
@@ -133,7 +135,7 @@ for quantum in [True, False]:
     acc = np.mean(y_pred == y_test)
     acc_str = "%0.2f" % acc
 
-    names = ['0', '1']
+    names = ["vis left", "vis right"]
     title = ("Quantum (" if quantum else "Classical (") + acc_str + ")"
     axe = axes[0 if quantum else 1]
     cm = confusion_matrix(y_pred, y_test)
