@@ -20,7 +20,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     """Quantum classification.
 
-    This class implements a SKLearn wrapper around Qiskit library.
+    This class implements a SKLearn wrapper around Qiskit library [1]_.
     It provides a mean to run classification tasks on a local and
     simulated quantum computer or a remote and real quantum computer.
     Difference between simulated and real quantum computer will be that:
