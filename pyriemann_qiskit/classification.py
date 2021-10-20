@@ -250,8 +250,8 @@ class QuanticSVM(QuanticClassifierBase):
         Returns
         -------
         prob : ndarray, shape (n_samples, n_classes)
-            prob[n, 0] == True if the nth sample is assigned to 1st class
-            prob[n, 1] == True if the nth sample is assigned to 2nd class
+            prob[n, 0] == True if the nth sample is assigned to 1st class;
+            prob[n, 1] == True if the nth sample is assigned to 2nd class.
         """
         self._log("""[WARNING] SVM prediction probabilities are not available.
                  Results from predict will be used instead.""")
