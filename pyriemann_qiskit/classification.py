@@ -45,8 +45,6 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         the classification task will be running on a IBM quantum backend
     verbose : bool (default:True)
         If true will output all intermediate results and logs
-    test_input : dict (default: {})
-        Contains vectorized test set for the two classes
 
     Notes
     -----
@@ -70,11 +68,9 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     """
 
-    def __init__(self, quantum=True, q_account_token=None, verbose=True,
-                 test_input={}):
+    def __init__(self, quantum=True, q_account_token=None, verbose=True):
         self.verbose = verbose
         self._log("Initializing Quantum Classifier")
-        self.test_input = test_input
         self.q_account_token = q_account_token
         self.quantum = quantum
         # protected field for child classes
