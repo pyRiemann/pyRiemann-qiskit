@@ -69,7 +69,7 @@ names = ["Linear SVM", "RBF SVM", "VQC", "QSVM"]
 
 classifiers = [
     SVC(kernel="linear", C=0.025),
-    SVC(gamma=2, C=1),
+    SVC(gamma='auto', C=0.001),
     ]
 
 if __cvxpy__:
