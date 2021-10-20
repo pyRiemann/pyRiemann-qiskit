@@ -88,8 +88,8 @@ y[y == 4] = 1
 # # y = np.concatenate(([0] * n_trials, [1] * n_trials))
 
 # ...skipping the KFold validation parts (for the purpose of the test only)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3,
-                                                    random_state=1)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=1)
 
 ###############################################################################
 # Decoding in tangent space with a quantum classifier
