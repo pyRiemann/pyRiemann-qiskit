@@ -10,7 +10,7 @@ It is compared to the classical SVM.
 
 """
 # Author: Gregoire Cattan
-# Modified from plot_classify_EEG_tangentspace.py
+# Modified from plot_classify_EEG_tangentspace.py of pyRiemann
 # License: BSD (3-clause)
 
 import numpy as np
