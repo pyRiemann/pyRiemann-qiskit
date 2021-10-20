@@ -215,7 +215,7 @@ class QuanticSVM(QuanticClassifierBase):
 
     """Quantum-enhanced SVM classification.
 
-    This class implements SVC [1] on a quantum machine [2].
+    This class implements SVC [1]_ on a quantum machine [2]_.
     Note if `quantum` parameter is set to `False`
     then a classical SVC will be perfomed instead.
 
