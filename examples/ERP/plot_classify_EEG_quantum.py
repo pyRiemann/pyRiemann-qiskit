@@ -13,7 +13,6 @@ It is compared to the classical SVM.
 # Modified from plot_classify_EEG_tangentspace.py of pyRiemann
 # License: BSD (3-clause)
 
-import numpy as np
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann_qiskit.classification import QuanticSVM
@@ -21,7 +20,8 @@ from mne import io, read_events, pick_types, Epochs
 from mne.datasets import sample
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import (confusion_matrix, ConfusionMatrixDisplay,
+                             balanced_accuracy_score)
 from sklearn.base import TransformerMixin
 from matplotlib import pyplot as plt
 
@@ -72,21 +72,6 @@ epochs = Epochs(
 X = epochs.get_data()
 y = epochs.events[:, -1]
 
-# Reduce the number of classes as QuanticBase supports only 2 classes
-X = X[(y == 3) | (y == 4)]
-y = y[(y == 3) | (y == 4)]
-y[y == 3] = 0
-y[y == 4] = 1
-
-# Reduce trial number to diminish testing time
-# (uncomment to enable)
-# # class0 = X[y == 0]
-# # class1 = X[y == 1]
-
-# # n_trials = 50
-# # X = np.concatenate((class0[:n_trials], class1[:n_trials]))
-# # y = np.concatenate(([0] * n_trials, [1] * n_trials))
-
 # ...skipping the KFold validation parts (for the purpose of the test only)
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.3, random_state=1)
@@ -99,6 +84,11 @@ X_train, X_test, y_train, y_test = train_test_split(
 # Thus we reduce elements number by using restrictive spatial filtering
 sf = XdawnCovariances(nfilter=1)
 
+# Projecting correlation matrices into the tangent space
+# as quantum algorithms take vectors as inputs
+# (If not, then matrices will be inlined inside the quantum classifier)
+tg = TangentSpace()
+
 
 # ...and dividing the number of remaining elements by two
 class NaiveDimRed(TransformerMixin):
@@ -109,13 +99,7 @@ class NaiveDimRed(TransformerMixin):
         return X[:, ::2]
 
 
-# Projecting correlation matrices into the tangent space
-# as quantum algorithms take vectors as inputs
-# (If not, then matrices will be inlined inside the quantum classifier)
-tg = TangentSpace()
-
 # https://stackoverflow.com/questions/61825227/plotting-multiple-confusion-matrix-side-by-side
-
 f, axes = plt.subplots(1, 2, sharey='row')
 
 disp = None
@@ -132,7 +116,7 @@ for quantum in [True, False]:
     y_pred = clf.predict(X_test)
 
     # Printing the results
-    acc = np.mean(y_pred == y_test)
+    acc = balanced_accuracy_score(y_pred, y_test)
     acc_str = "%0.2f" % acc
 
     names = ["vis left", "vis right"]

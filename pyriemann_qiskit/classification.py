@@ -104,6 +104,18 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         X_class0 = X[y == self.classes_[0]]
         return (X_class1, X_class0)
 
+    def _map_classes_to_0_1(self, y):
+        y_copy = y.copy()
+        y_copy[y == self.classes_[0]] = 0
+        y_copy[y == self.classes_[1]] = 1
+        return y_copy
+
+    def _map_0_1_to_classes(self, y):
+        y_copy = y.copy()
+        y_copy[y == 0] = self.classes_[0]
+        y_copy[y == 1] = self.classes_[1]
+        return y_copy
+
     def fit(self, X, y):
         """Get a quantum backend and fit the training data.
 
@@ -124,10 +136,12 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         self._log("Fitting: ", X.shape)
         self.classes_ = np.unique(y)
+        y = self._map_classes_to_0_1(y)
+
         class1, class0 = self._split_classes(X, y)
 
-        self._training_input["class1"] = class1
-        self._training_input["class0"] = class0
+        self._training_input[self.classes_[1]] = class1
+        self._training_input[self.classes_[0]] = class0
 
         feature_dim = get_feature_dimension(self._training_input)
         self._log("Feature dimension = ", feature_dim)
@@ -180,6 +194,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         accuracy : double
             Accuracy of predictions from X with respect y.
         """
+        y = self._map_classes_to_0_1(y)
         self._log("Testing...")
         if self.quantum:
             return self._classifier.test(X, y, self._quantum_instance)
@@ -188,6 +203,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     def _predict(self, X):
         self._log("Prediction: ", X.shape)
+        print(self._training_input)
         result = self._classifier.predict(X)
         self._log("Prediction finished.")
         return result
@@ -270,7 +286,8 @@ class QuanticSVM(QuanticClassifierBase):
         pred : array, shape (n_samples,)
             Class labels for samples in X.
         """
-        return self._predict(X)
+        labels = self._predict(X)
+        return self._map_0_1_to_classes(labels)
 
 
 class QuanticVQC(QuanticClassifierBase):
@@ -362,4 +379,4 @@ class QuanticVQC(QuanticClassifierBase):
             Class labels for samples in X.
         """
         _, labels = self._predict(X)
-        return labels
+        return self._map_0_1_to_classes(labels)
