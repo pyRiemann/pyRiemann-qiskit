@@ -265,8 +265,6 @@ class QuanticSVM(QuanticClassifierBase):
             prob[n, 0] == True if the nth sample is assigned to 1st class;
             prob[n, 1] == True if the nth sample is assigned to 2nd class.
         """
-        self._log("""[WARNING] SVM prediction probabilities are not available.
-                 Results from predict will be used instead.""")
         predicted_labels = self.predict(X)
         ret = [np.array([c == self.classes_[0], c == self.classes_[1]])
                for c in predicted_labels]
