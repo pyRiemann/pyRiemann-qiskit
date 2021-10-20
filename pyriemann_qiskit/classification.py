@@ -358,8 +358,8 @@ class QuanticVQC(QuanticClassifierBase):
         Returns
         -------
         prob : ndarray, shape (n_samples, n_classes)
-            prob[n, 0] == True if the nth sample is assigned to 1st class
-            prob[n, 1] == True if the nth sample is assigned to 2nd class
+            prob[n, 0] == True if the nth sample is assigned to 1st class;
+            prob[n, 1] == True if the nth sample is assigned to 2nd class.
         """
         proba, _ = self._predict(X)
         return proba
