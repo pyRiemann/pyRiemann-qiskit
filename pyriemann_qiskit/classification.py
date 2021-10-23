@@ -99,7 +99,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     def _split_classes(self, X, y):
         self._log("[Warning] Splitting first class from second class."
-                      "Only binary classification is supported.")
+                  "Only binary classification is supported.")
         X_class1 = X[y == self.classes_[1]]
         X_class0 = X[y == self.classes_[0]]
         return (X_class1, X_class0)
