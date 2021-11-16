@@ -84,7 +84,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pyRiemann-qiskit'
-copyright = u'2015-2021, PyRiemann Contributors'
+copyright = u'2015-2021, pyRiemann Contributors'
 author = u'Gregoire Cattan'
 
 # The version info for the project you're documenting, acts as replacement for

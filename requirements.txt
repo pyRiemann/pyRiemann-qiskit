@@ -1,4 +1,4 @@
 cython
-pyriemann
+git+https://github.com/pyRiemann/pyRiemann#egg=pyriemann
 qiskit==0.20.0
 cvxpy==1.1.12

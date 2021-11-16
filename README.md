@@ -22,7 +22,7 @@ this could be an interesting research direction to investigate illiteracy
 in the domain of brain computer interfaces.
 
 pyRiemann-qiskit implements a wrapper around QSVC and VQC, to use quantum
-classification with riemanian geometry. A use case would be to use vectorized
+classification with Riemannian geometry. A use case would be to use vectorized
 covariance matrices in the TangentSpace as an input for these classifiers,
 enabling a possible sandbox for researchers and engineers in the field.
 
