@@ -29,6 +29,28 @@ classification with riemanian geometry. A use case would be to use vectorized
 covariance matrices in the TangentSpace as an input for these classifiers,
 enabling a possible sandbox for researchers and engineers in the field. 
 
+Quantum drawbacks
+================================
+
+- Limitation of the feature dimension
+
+    The number of qubits (and therefore the feature dimension) is limited to:
+    - 24 on a local quantum simulator, and up to:
+    - 5000 on a remote quantum simulator;
+    - 5 on free real quantum computers, and up to:
+    - 65 on exploratory quantum computers (not available for public use).
+
+- Time complexity
+
+    A higher number of trials or dimension increases time to completion of the quantum algorithm, especially when running on a local machine. This is why the number of trials is limited in the examples we provided. However, you should avoid such practices in your own analysis. 
+    
+    Although these aspects are less important in a remote backend, it may happen that the quantum algorithm is queued depending on the number of concurrent users.
+
+    For all these aspects, the use of pyRiemann-qiskit should be limited to offline analysis only.
+
+References
+================================
+
 [1] A. Blance and M. Spannowsky,
     ‘Quantum machine learning for particle physics using a variational quantum classifier’,
     J. High Energ. Phys., vol. 2021, no. 2, p. 212, Feb. 2021,

@@ -66,6 +66,18 @@ def get_labels():
     return _get_labels
 
 
+def generate_feat(n_samples, n_features, rs):
+    """Generate a set of n_features-dimensional samples for test purpose"""
+    return rs.rand(n_samples, n_features)
+
+
+@pytest.fixture
+def get_feats(rndstate):
+    def _gen_feat(n_samples, n_features):
+        return generate_feat(n_samples, n_features, rndstate)
+    return _gen_feat
+
+
 def is_positive_semi_definite(X):
     """Check if all matrices are positive semi-definite.
 
