@@ -34,7 +34,7 @@ setup(name='pyriemann-qiskit',
       platforms='any',
       python_requires=">=3.6",
       install_requires=['cython', 'pyriemann', 'qiskit==0.20.0', 'cvxpy==1.1.12'],
-      extras_require={'docs': ['sphinx-gallery', 'sphinx-bootstrap_theme', 'numpydoc', 'mne', 'seaborn'],
+      extras_require={'docs': ['pooch', 'sphinx-gallery', 'sphinx-bootstrap_theme', 'numpydoc', 'mne', 'seaborn'],
                       'tests': ['pytest', 'seaborn', 'flake8']},
       zip_safe=False,
 )
