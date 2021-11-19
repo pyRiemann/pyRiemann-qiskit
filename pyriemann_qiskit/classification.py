@@ -45,6 +45,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         the classification task will be running on a IBM quantum backend
     verbose : bool (default:True)
         If true will output all intermediate results and logs
+    shots : int (default:1024)
+        Number of repetitions of each circuit, for sampling
 
     Notes
     -----
@@ -68,11 +70,13 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     """
 
-    def __init__(self, quantum=True, q_account_token=None, verbose=True):
+    def __init__(self, quantum=True, q_account_token=None, verbose=True,
+                 shots=1024):
         self.verbose = verbose
         self._log("Initializing Quantum Classifier")
         self.q_account_token = q_account_token
         self.quantum = quantum
+        self.shots = shots
         # protected field for child classes
         self._training_input = {}
 
@@ -166,7 +170,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                 self._log("Quantum backend = ", self._backend)
             seed_sim = aqua_globals.random_seed
             seed_trs = aqua_globals.random_seed
-            self._quantum_instance = QuantumInstance(self._backend, shots=1024,
+            self._quantum_instance = QuantumInstance(self._backend,
+                                                     shots=self.shots,
                                                      seed_simulator=seed_sim,
                                                      seed_transpiler=seed_trs)
         self._classifier = self._init_algo(feature_dim)
