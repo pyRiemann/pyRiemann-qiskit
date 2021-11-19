@@ -1,10 +1,12 @@
 """Module for classification function."""
 import numpy as np
 
+from .utils.hyper_params_factory import gen_zz_feature_map
+
 from sklearn.base import BaseEstimator, ClassifierMixin
 
 from qiskit import BasicAer, IBMQ
-from qiskit.circuit.library import ZZFeatureMap, TwoLocal
+from qiskit.circuit.library import TwoLocal
 from qiskit.aqua import QuantumInstance, aqua_globals
 from qiskit.aqua.quantum_instance import logger
 from qiskit.aqua.algorithms import QSVM, SklearnSVM, VQC
@@ -47,7 +49,9 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         If true will output all intermediate results and logs
     shots : int (default:1024)
         Number of repetitions of each circuit, for sampling
-
+    gen_feature_map : Callable[[int], Union[QuantumCircuit, FeatureMap]]
+        Generate a feature map.
+        The feature map encodes the data into a quantum state.
     Notes
     -----
     .. versionadded:: 0.0.1
@@ -71,12 +75,13 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     """
 
     def __init__(self, quantum=True, q_account_token=None, verbose=True,
-                 shots=1024):
+                 shots=1024, gen_feature_map=gen_zz_feature_map()):
         self.verbose = verbose
         self._log("Initializing Quantum Classifier")
         self.q_account_token = q_account_token
         self.quantum = quantum
         self.shots = shots
+        self.gen_feature_map = gen_feature_map
         # protected field for child classes
         self._training_input = {}
 
@@ -152,8 +157,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         feature_dim = get_feature_dimension(self._training_input)
         self._log("Feature dimension = ", feature_dim)
-        self._feature_map = ZZFeatureMap(feature_dimension=feature_dim, reps=2,
-                                         entanglement='linear')
+        self._feature_map = self.gen_feature_map(feature_dim)
         if self.quantum:
             if not hasattr(self, "_backend"):
                 def filters(device):
