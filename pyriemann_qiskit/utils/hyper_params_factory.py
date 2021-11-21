@@ -5,7 +5,7 @@ def gen_zz_feature_map(reps=2, entanglement='linear'):
     """Return a callable that generate a ZZFeatureMap.
     A feature map encodes data into a quantum state.
     A ZZFeatureMap is a second-order Pauli-Z evolution circuit.
-    
+
     Parameters
     ----------
     reps : int
