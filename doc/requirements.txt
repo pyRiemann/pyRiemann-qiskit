@@ -8,4 +8,4 @@ scikit-learn
 joblib
 pandas
 qiskit
-pyriemann
+git+https://github.com/pyRiemann/pyRiemann#egg=pyriemann
