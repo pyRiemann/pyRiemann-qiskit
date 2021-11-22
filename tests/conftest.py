@@ -66,4 +66,3 @@ def get_feats(rndstate):
         return generate_feat(n_samples, n_features, rndstate)
     return _gen_feat
 
-
