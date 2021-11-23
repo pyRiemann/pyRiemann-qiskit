@@ -1,10 +1,6 @@
 """Module for classification function."""
 import numpy as np
-
-from .utils.hyper_params_factory import gen_zz_feature_map
-
 from sklearn.base import BaseEstimator, ClassifierMixin
-
 from qiskit import BasicAer, IBMQ
 from qiskit.circuit.library import TwoLocal
 from qiskit.aqua import QuantumInstance, aqua_globals
@@ -15,6 +11,8 @@ from qiskit.providers.ibmq import least_busy
 from qiskit.aqua.components.optimizers import SPSA
 from datetime import datetime
 import logging
+from .utils.hyper_params_factory import gen_zz_feature_map
+
 logger.level = logging.INFO
 
 
