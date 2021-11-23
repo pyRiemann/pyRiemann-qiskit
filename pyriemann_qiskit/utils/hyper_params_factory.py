@@ -8,10 +8,17 @@ def gen_zz_feature_map(reps=2, entanglement='linear'):
 
     Parameters
     ----------
-    reps : int
-        The number of repeated circuits, has a min. value of 1.
+    reps : int (default 2)
+        The number of repeated circuits.
+        The value should be greater or equal to 1.
     entanglement : Union[str, List[List[int]], Callable[[int], List[int]]]
         Specifies the entanglement structure.
+        Entanglement structure can be provided with indices or string.
+        Possible string values are:
+        full, linear, circular, sca and pairwise.
+        Please consult the above link for more details
+        on entanglement structure:
+        https://qiskit.org/documentation/stubs/qiskit.circuit.library.NLocal.html#qiskit.circuit.library.NLocal
 
     Returns
     -------
