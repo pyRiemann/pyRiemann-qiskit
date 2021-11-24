@@ -66,28 +66,34 @@ def get_feats(rndstate):
         return generate_feat(n_samples, n_features, rndstate)
     return _gen_feat
 
-@pytest.fixture
-def get_zz_feature_map_linear_entanglement_callable():
-    def _get_zz_feature_map_linear_entanglement_callable(feature_dim):
-        num_qubits_by_block = [1, 2]
-        indices_by_block = []
-        for n in num_qubits_by_block:
-            linear = [tuple(range(i, i + n)) for i in range(feature_dim - n + 1)]
-            indices_by_block.append(linear)
-        return lambda _rep: [indices_by_block]
 
-    return _get_zz_feature_map_linear_entanglement_callable
+def _get_linear_entanglement(n_qbits_in_block, feature_dim):
+    return [list(range(i, i + n_qbits_in_block))
+            for i in range(feature_dim - n_qbits_in_block + 1)]
+
+
+def _get_pauli_z_rep_linear_entanglement(feature_dim):
+    num_qubits_by_block = [1, 2]
+    indices_by_block = []
+    for n in num_qubits_by_block:
+        linear = _get_linear_entanglement(n, feature_dim)
+        indices_by_block.append(linear)
+    return indices_by_block
+
 
 @pytest.fixture
-def get_zz_feature_map_linear_entanglement_indices():
-    def _get_zz_feature_map_linear_entanglement_indices(reps, feature_dim):
-        indices_by_rep = []
-        num_qubits_by_block = [1, 2]
-        for rep in range(reps):
-            indices_by_block = []
-            for n in num_qubits_by_block:
-                linear = [tuple(range(i, i + n)) for i in range(feature_dim - n + 1)]
-                indices_by_block.append(linear)
-            indices_by_rep.append(indices_by_block)
-        return indices_by_rep
-    return _get_zz_feature_map_linear_entanglement_indices
+def get_pauli_z_linear_entangl_handle():
+    def _get_pauli_z_linear_entangl_handle(feature_dim):
+        indices = _get_pauli_z_rep_linear_entanglement(feature_dim)
+        return lambda _: [indices]
+
+    return _get_pauli_z_linear_entangl_handle
+
+
+@pytest.fixture
+def get_pauli_z_linear_entangl_idx():
+    def _get_pauli_z_linear_entangl_idx(reps, feature_dim):
+        indices = _get_pauli_z_rep_linear_entanglement(feature_dim)
+        return [indices for _ in range(reps)]
+
+    return _get_pauli_z_linear_entangl_idx

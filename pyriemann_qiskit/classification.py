@@ -49,7 +49,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         Number of repetitions of each circuit, for sampling
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap]
         Function generating a feature map to encode data into a quantum state.
-        
+
     Notes
     -----
     .. versionadded:: 0.0.1
