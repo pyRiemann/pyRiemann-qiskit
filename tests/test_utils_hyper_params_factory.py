@@ -6,7 +6,7 @@ from pyriemann_qiskit.utils.hyper_params_factory import gen_zz_feature_map
     'entanglement', ['full', 'linear', 'circular', 'sca']
 )
 def test_gen_zz_feature_map_entangl_strings(entanglement):
-    """Test gen_zz_feature_map with different values of entanglement"""
+    """Test gen_zz_feature_map with different string options of entanglement"""
     feature_dim = 2
     feature_map = gen_zz_feature_map(entanglement=entanglement)(feature_dim)
     assert isinstance(feature_map.parameters, set)
