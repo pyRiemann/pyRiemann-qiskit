@@ -20,6 +20,10 @@ def gen_zz_feature_map(reps=2, entanglement='linear'):
     -------
     ret : ZZFeatureMap
         An instance of ZZFeatureMap
+
+    References
+    ----------
+    .. [1] https://qiskit.org/documentation/stable/0.19/stubs/qiskit.circuit.library.NLocal.html
     """
     if reps < 1:
         raise ValueError("Parameter reps must be superior or equal to 1 (Got %d)" % reps)
