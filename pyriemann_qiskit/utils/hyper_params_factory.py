@@ -14,11 +14,8 @@ def gen_zz_feature_map(reps=2, entanglement='linear'):
     entanglement : Union[str, List[List[int]], Callable[[int], List[int]]]
         Specifies the entanglement structure.
         Entanglement structure can be provided with indices or string.
-        Possible string values are:
-        full, linear, circular, sca and pairwise.
-        Please consult the above link for more details
-        on entanglement structure:
-        https://qiskit.org/documentation/stubs/qiskit.circuit.library.NLocal.html#qiskit.circuit.library.NLocal
+        Possible string values are: 'full', 'linear', 'circular', 'sca' and 'pairwise'.
+        Consult [1]_ for more details on entanglement structure.
 
     Returns
     -------
