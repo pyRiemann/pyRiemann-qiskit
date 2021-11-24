@@ -47,7 +47,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         If true will output all intermediate results and logs
     shots : int (default:1024)
         Number of repetitions of each circuit, for sampling
-    gen_feature_map : Callable[[int], Union[QuantumCircuit, FeatureMap]]
+    gen_feature_map : Callable[int, QuantumCircuit | FeatureMap]
         Function generating a feature map to encode data into a quantum state.
         
     Notes
