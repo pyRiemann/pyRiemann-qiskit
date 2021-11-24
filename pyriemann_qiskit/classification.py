@@ -48,7 +48,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     shots : int (default:1024)
         Number of repetitions of each circuit, for sampling
     gen_feature_map : Callable[[int], Union[QuantumCircuit, FeatureMap]]
-        Generate a feature map encoding the data into a quantum state.
+        Function generating a feature map to encode data into a quantum state.
+        
     Notes
     -----
     .. versionadded:: 0.0.1
