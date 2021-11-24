@@ -25,6 +25,9 @@ def gen_zz_feature_map(reps=2, entanglement='linear'):
     ret : ZZFeatureMap
         An instance of ZZFeatureMap
     """
+    if reps < 1:
+        raise ValueError("Parameter reps must be superior or equal to 1 (Got %d)" % reps)
+
     return lambda dim: ZZFeatureMap(feature_dimension=dim,
                                     reps=reps,
                                     entanglement=entanglement)
