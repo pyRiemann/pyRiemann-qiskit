@@ -9,8 +9,7 @@ def gen_zz_feature_map(reps=2, entanglement='linear'):
     Parameters
     ----------
     reps : int (default 2)
-        The number of repeated circuits.
-        The value should be greater or equal to 1.
+        The number of repeated circuits, greater or equal to 1.
     entanglement : Union[str, List[List[int]], Callable[[int], List[int]]]
         Specifies the entanglement structure.
         Entanglement structure can be provided with indices or string.
