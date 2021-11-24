@@ -65,3 +65,29 @@ def get_feats(rndstate):
     def _gen_feat(n_samples, n_features):
         return generate_feat(n_samples, n_features, rndstate)
     return _gen_feat
+
+@pytest.fixture
+def get_zz_feature_map_linear_entanglement_callable():
+    def _get_zz_feature_map_linear_entanglement_callable(feature_dim):
+        num_qubits_by_block = [1, 2]
+        indices_by_block = []
+        for n in num_qubits_by_block:
+            linear = [tuple(range(i, i + n)) for i in range(feature_dim - n + 1)]
+            indices_by_block.append(linear)
+        return lambda _rep: [indices_by_block]
+
+    return _get_zz_feature_map_linear_entanglement_callable
+
+@pytest.fixture
+def get_zz_feature_map_linear_entanglement_indices():
+    def _get_zz_feature_map_linear_entanglement_indices(reps, feature_dim):
+        indices_by_rep = []
+        num_qubits_by_block = [1, 2]
+        for rep in range(reps):
+            indices_by_block = []
+            for n in num_qubits_by_block:
+                linear = [tuple(range(i, i + n)) for i in range(feature_dim - n + 1)]
+                indices_by_block.append(linear)
+            indices_by_rep.append(indices_by_block)
+        return indices_by_rep
+    return _get_zz_feature_map_linear_entanglement_indices
