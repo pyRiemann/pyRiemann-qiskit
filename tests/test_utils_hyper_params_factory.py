@@ -31,7 +31,7 @@ def test_gen_zz_feature_map_entangl_handle(get_pauli_z_linear_entangl_handle):
 
 
 def test_gen_zz_feature_map_entangl_invalid_value():
-    """Test gen_zz_feature_map with uncorrect string value"""
+    """Test gen_zz_feature_map with uncorrect value"""
     feature_dim = 2
     feature_map = gen_zz_feature_map(entanglement="invalid")(feature_dim)
     try:
