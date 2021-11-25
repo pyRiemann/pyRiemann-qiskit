@@ -34,8 +34,5 @@ def test_gen_zz_feature_map_entangl_invalid_value():
     """Test gen_zz_feature_map with uncorrect value"""
     n_features = 2
     feature_map = gen_zz_feature_map(entanglement="invalid")(n_features)
-    try:
+    with pytest.raises(ValueError):
         feature_map.parameters
-        raise Exception("Invalid option should raise a ValueError exception")
-    except ValueError:
-        pass
