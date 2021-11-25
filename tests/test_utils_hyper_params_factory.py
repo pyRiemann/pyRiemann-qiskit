@@ -7,33 +7,33 @@ from pyriemann_qiskit.utils.hyper_params_factory import gen_zz_feature_map
 )
 def test_gen_zz_feature_map_entangl_strings(entanglement):
     """Test gen_zz_feature_map with different string options of entanglement"""
-    feature_dim = 2
-    feature_map = gen_zz_feature_map(entanglement=entanglement)(feature_dim)
+    n_features = 2
+    feature_map = gen_zz_feature_map(entanglement=entanglement)(n_features)
     assert isinstance(feature_map.parameters, set)
 
 
 def test_gen_zz_feature_map_entangl_idx(get_pauli_z_linear_entangl_idx):
     """Test gen_zz_feature_map with valid indices value"""
-    feature_dim = 2
+    n_features = 2
     reps = 2
-    indices = get_pauli_z_linear_entangl_idx(reps, feature_dim)
+    indices = get_pauli_z_linear_entangl_idx(reps, n_features)
     feature_map_handle = gen_zz_feature_map(reps=reps, entanglement=indices)
-    feature_map = feature_map_handle(feature_dim)
+    feature_map = feature_map_handle(n_features)
     assert isinstance(feature_map.parameters, set)
 
 
 def test_gen_zz_feature_map_entangl_handle(get_pauli_z_linear_entangl_handle):
     """Test gen_zz_feature_map with a valid callable"""
-    feature_dim = 2
-    indices = get_pauli_z_linear_entangl_handle(feature_dim)
-    feature_map = gen_zz_feature_map(entanglement=indices)(feature_dim)
+    n_features = 2
+    indices = get_pauli_z_linear_entangl_handle(n_features)
+    feature_map = gen_zz_feature_map(entanglement=indices)(n_features)
     assert isinstance(feature_map.parameters, set)
 
 
 def test_gen_zz_feature_map_entangl_invalid_value():
     """Test gen_zz_feature_map with uncorrect value"""
-    feature_dim = 2
-    feature_map = gen_zz_feature_map(entanglement="invalid")(feature_dim)
+    n_features = 2
+    feature_map = gen_zz_feature_map(entanglement="invalid")(n_features)
     try:
         feature_map.parameters
         raise Exception("Invalid option should raise a ValueError exception")

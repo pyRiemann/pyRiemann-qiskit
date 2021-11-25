@@ -153,14 +153,14 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._training_input[self.classes_[1]] = class1
         self._training_input[self.classes_[0]] = class0
 
-        feature_dim = get_feature_dimension(self._training_input)
-        self._log("Feature dimension = ", feature_dim)
-        self._feature_map = self.gen_feature_map(feature_dim)
+        n_features = get_feature_dimension(self._training_input)
+        self._log("Feature dimension = ", n_features)
+        self._feature_map = self.gen_feature_map(n_features)
         if self.quantum:
             if not hasattr(self, "_backend"):
                 def filters(device):
                     return (
-                      device.configuration().n_qubits >= feature_dim
+                      device.configuration().n_qubits >= n_features
                       and not device.configuration().simulator
                       and device.status().operational)
                 devices = self._provider.backends(filters=filters)
@@ -176,11 +176,11 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                                                      shots=self.shots,
                                                      seed_simulator=seed_sim,
                                                      seed_transpiler=seed_trs)
-        self._classifier = self._init_algo(feature_dim)
+        self._classifier = self._init_algo(n_features)
         self._train(X, y)
         return self
 
-    def _init_algo(self, feature_dim):
+    def _init_algo(self, n_features):
         raise Exception("Init algo method was not implemented")
 
     def _train(self, X, y):
@@ -247,7 +247,7 @@ class QuanticSVM(QuanticClassifierBase):
 
     """
 
-    def _init_algo(self, feature_dim):
+    def _init_algo(self, n_features):
         # Although we do not train the classifier at this location
         # training_input are required by Qiskit library.
         self._log("SVM initiating algorithm")
@@ -340,10 +340,10 @@ class QuanticVQC(QuanticClassifierBase):
                                        q_account_token=q_account_token,
                                        verbose=verbose)
 
-    def _init_algo(self, feature_dim):
+    def _init_algo(self, n_features):
         self._log("VQC training...")
         self._optimizer = SPSA(maxiter=40, c0=4.0, skip_calibration=True)
-        self._var_form = TwoLocal(feature_dim,
+        self._var_form = TwoLocal(n_features,
                                   ['ry', 'rz'], 'cz', reps=3)
         # Although we do not train the classifier at this location
         # training_input are required by Qiskit library.
