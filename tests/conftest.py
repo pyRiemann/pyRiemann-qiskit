@@ -65,3 +65,35 @@ def get_feats(rndstate):
     def _gen_feat(n_samples, n_features):
         return generate_feat(n_samples, n_features, rndstate)
     return _gen_feat
+
+
+def _get_linear_entanglement(n_qbits_in_block, n_features):
+    return [list(range(i, i + n_qbits_in_block))
+            for i in range(n_features - n_qbits_in_block + 1)]
+
+
+def _get_pauli_z_rep_linear_entanglement(n_features):
+    num_qubits_by_block = [1, 2]
+    indices_by_block = []
+    for n in num_qubits_by_block:
+        linear = _get_linear_entanglement(n, n_features)
+        indices_by_block.append(linear)
+    return indices_by_block
+
+
+@pytest.fixture
+def get_pauli_z_linear_entangl_handle():
+    def _get_pauli_z_linear_entangl_handle(n_features):
+        indices = _get_pauli_z_rep_linear_entanglement(n_features)
+        return lambda _: [indices]
+
+    return _get_pauli_z_linear_entangl_handle
+
+
+@pytest.fixture
+def get_pauli_z_linear_entangl_idx():
+    def _get_pauli_z_linear_entangl_idx(reps, n_features):
+        indices = _get_pauli_z_rep_linear_entanglement(n_features)
+        return [indices for _ in range(reps)]
+
+    return _get_pauli_z_linear_entangl_idx
