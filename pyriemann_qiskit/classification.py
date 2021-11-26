@@ -8,10 +8,10 @@ from qiskit.aqua.quantum_instance import logger
 from qiskit.aqua.algorithms import QSVM, SklearnSVM, VQC
 from qiskit.aqua.utils import get_feature_dimension
 from qiskit.providers.ibmq import least_busy
-from qiskit.aqua.components.optimizers import SPSA
 from datetime import datetime
 import logging
-from .utils.hyper_params_factory import gen_zz_feature_map
+from .utils.hyper_params_factory import (gen_zz_feature_map,
+                                         get_spsa)
 
 logger.level = logging.INFO
 
@@ -317,6 +317,12 @@ class QuanticVQC(QuanticClassifierBase):
     Note there is no classical version of this algorithm.
     This will always run on a quantum computer (simulated or not)
 
+    Attributes
+    ----------
+    optimizer : Optimizer (default:SPSA)
+        The classical optimizer to use.
+        See [3] for details.
+
     Notes
     -----
     .. versionadded:: 0.0.1
@@ -336,22 +342,25 @@ class QuanticVQC(QuanticClassifierBase):
            Nature, vol. 567, no. 7747, pp. 209–212, Mar. 2019,
            doi: 10.1038/s41586-019-0980-2.
 
+    .. [3] \
+        https://qiskit.org/documentation/stable/0.19/stubs/qiskit.aqua.algorithms.VQC.html?highlight=vqc#qiskit.aqua.algorithms.VQC
+
     """
 
-    def __init__(self, **parameters):
+    def __init__(self, optimizer=get_spsa(), **parameters):
         if "quantum" in parameters and not parameters["quantum"]:
             raise ValueError("VQC can only run on a quantum \
                               computer or simulator.")
         QuanticClassifierBase.__init__(self, **parameters)
+        self.optimizer = optimizer
 
     def _init_algo(self, n_features):
         self._log("VQC training...")
-        self._optimizer = SPSA(maxiter=40, c0=4.0, skip_calibration=True)
         self._var_form = TwoLocal(n_features,
                                   ['ry', 'rz'], 'cz', reps=3)
         # Although we do not train the classifier at this location
         # training_input are required by Qiskit library.
-        vqc = VQC(self._optimizer, self._feature_map, self._var_form,
+        vqc = VQC(self.optimizer, self._feature_map, self._var_form,
                   self._training_input)
         return vqc
 
