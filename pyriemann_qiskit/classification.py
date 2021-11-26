@@ -2,7 +2,6 @@
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
 from qiskit import BasicAer, IBMQ
-from qiskit.circuit.library import TwoLocal
 from qiskit.aqua import QuantumInstance, aqua_globals
 from qiskit.aqua.quantum_instance import logger
 from qiskit.aqua.algorithms import QSVM, SklearnSVM, VQC
@@ -11,6 +10,7 @@ from qiskit.providers.ibmq import least_busy
 from datetime import datetime
 import logging
 from .utils.hyper_params_factory import (gen_zz_feature_map,
+                                         gen_two_local,
                                          get_spsa)
 
 logger.level = logging.INFO
@@ -47,7 +47,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         If true will output all intermediate results and logs
     shots : int (default:1024)
         Number of repetitions of each circuit, for sampling
-    gen_feature_map : Callable[int, QuantumCircuit | FeatureMap]
+    gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
+                      (default : Callable[int, ZZFeatureMap])
         Function generating a feature map to encode data into a quantum state.
 
     Notes
@@ -322,6 +323,9 @@ class QuanticVQC(QuanticClassifierBase):
     optimizer : Optimizer (default:SPSA)
         The classical optimizer to use.
         See [3] for details.
+    gen_var_form : Callable[int, QuantumCircuit | VariationalForm] \
+                   (default: Callable[int, TwoLocal])
+        Function generating a variational form instance.
 
     Notes
     -----
@@ -347,20 +351,21 @@ class QuanticVQC(QuanticClassifierBase):
 
     """
 
-    def __init__(self, optimizer=get_spsa(), **parameters):
+    def __init__(self, optimizer=get_spsa(), gen_var_form=gen_two_local(),
+                 **parameters):
         if "quantum" in parameters and not parameters["quantum"]:
             raise ValueError("VQC can only run on a quantum \
                               computer or simulator.")
         QuanticClassifierBase.__init__(self, **parameters)
         self.optimizer = optimizer
+        self.gen_var_form = gen_var_form
 
     def _init_algo(self, n_features):
         self._log("VQC training...")
-        self._var_form = TwoLocal(n_features,
-                                  ['ry', 'rz'], 'cz', reps=3)
+        var_form = self.gen_var_form(n_features)
         # Although we do not train the classifier at this location
         # training_input are required by Qiskit library.
-        vqc = VQC(self.optimizer, self._feature_map, self._var_form,
+        vqc = VQC(self.optimizer, self._feature_map, var_form,
                   self._training_input)
         return vqc
 
