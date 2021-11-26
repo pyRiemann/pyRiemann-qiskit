@@ -231,6 +231,12 @@ class QuanticSVM(QuanticClassifierBase):
     -----
     .. versionadded:: 0.0.1
 
+    Attributes
+    ----------
+    gamma : float | None (default:None)
+        Used as input for sklearn rbf_kernel which is used internally.
+        See [3]_ for more information about gamma.
+
     See Also
     --------
     QuanticClassifierBase
@@ -244,8 +250,14 @@ class QuanticSVM(QuanticClassifierBase):
            ‘Supervised learning with quantum-enhanced feature spaces’,
            Nature, vol. 567, no. 7747, pp. 209–212, Mar. 2019,
            doi: 10.1038/s41586-019-0980-2.
+    .. [3] Available from: \
+        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.rbf_kernel.html
 
     """
+
+    def __init__(self, gamma=None, **parameters):
+        QuanticClassifierBase.__init__(self, **parameters)
+        self.gamma = gamma
 
     def _init_algo(self, n_features):
         # Although we do not train the classifier at this location
@@ -254,7 +266,7 @@ class QuanticSVM(QuanticClassifierBase):
         if self.quantum:
             classifier = QSVM(self._feature_map, self._training_input)
         else:
-            classifier = SklearnSVM(self._training_input)
+            classifier = SklearnSVM(self._training_input, gamma=self.gamma)
         return classifier
 
     def predict_proba(self, X):
@@ -305,14 +317,6 @@ class QuanticVQC(QuanticClassifierBase):
     Note there is no classical version of this algorithm.
     This will always run on a quantum computer (simulated or not)
 
-    Parameters
-    ----------
-    q_account_token : string (default:None)
-        If quantum==True and q_account_token provided,
-        the classification task will be running on a IBM quantum backend
-    verbose : bool (default:True)
-        If true will output all intermediate results and logs
-
     Notes
     -----
     .. versionadded:: 0.0.1
@@ -334,11 +338,11 @@ class QuanticVQC(QuanticClassifierBase):
 
     """
 
-    def __init__(self, q_account_token=None,
-                 verbose=True, **parameters):
-        QuanticClassifierBase.__init__(self,
-                                       q_account_token=q_account_token,
-                                       verbose=verbose)
+    def __init__(self, **parameters):
+        if "quantum" in parameters and not parameters["quantum"]:
+            raise ValueError("VQC can only run on a quantum \
+                              computer or simulator.")
+        QuanticClassifierBase.__init__(self, **parameters)
 
     def _init_algo(self, n_features):
         self._log("VQC training...")
