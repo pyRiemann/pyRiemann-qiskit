@@ -135,6 +135,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         y : ndarray, shape (n_samples,)
             Target vector relative to X.
 
+        :raises Exception: if the number of classes different than 2
+
         Returns
         -------
         self : QuanticClassifierBase instance
@@ -334,6 +336,8 @@ class QuanticVQC(QuanticClassifierBase):
     See Also
     --------
     QuanticClassifierBase
+
+    :raises ValueError: if `quantum` is False
 
     References
     ----------

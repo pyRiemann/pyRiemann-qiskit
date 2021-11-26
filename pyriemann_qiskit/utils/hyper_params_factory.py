@@ -24,7 +24,7 @@ def gen_zz_feature_map(reps=2, entanglement='linear'):
     ret : ZZFeatureMap
         An instance of ZZFeatureMap
 
-    raise ValueError if `reps` lower than 1.
+    :raises ValueError: if `reps` lower than 1.
 
     References
     ----------
@@ -46,6 +46,17 @@ gates = ['ch', 'cx', 'cy', 'cz', 'crx', 'cry', 'crz',
          'rx', 'rxx', 'ry', 'ryy', 'rz', 'rzx', 'rzz',
          's', 'sdg', 'swap',
          'x', 'y', 'z', 't', 'tdg']
+
+
+def _check_gates_in_blocks(blocks):
+    if isinstance(blocks, list):
+        for gate in blocks:
+            if gate not in gates:
+                raise ValueError("Gate %s is not a valid gate" % gate)
+    else:
+        if blocks not in gates:
+            raise ValueError("Gate %s is not a valid gate"
+                             % blocks)
 
 
 def gen_two_local(reps=3, rotation_blocks=['ry', 'rz'],
@@ -71,7 +82,7 @@ def gen_two_local(reps=3, rotation_blocks=['ry', 'rz'],
     ret : TwoLocal
         An instance of a TwoLocal circuit
 
-    raise ValueError if `rotation_blocks` or `entanglement_blocks` contains
+    :raises ValueError: if `rotation_blocks` or `entanglement_blocks` contains
         a non valid gate
 
     References
@@ -83,23 +94,9 @@ def gen_two_local(reps=3, rotation_blocks=['ry', 'rz'],
         raise ValueError("Parameter reps must be superior \
                           or equal to 1 (Got %d)" % reps)
 
-    if isinstance(rotation_blocks, list):
-        for gate in rotation_blocks:
-            if gate not in gates:
-                raise ValueError("Gate %s is not a valid gate" % gate)
-    else:
-        if rotation_blocks not in gates:
-            raise ValueError("Gate %s is not a valid gate"
-                             % rotation_blocks)
+    _check_gates_in_blocks(rotation_blocks)
 
-    if isinstance(entanglement_blocks, list):
-        for gate in entanglement_blocks:
-            if gate not in gates:
-                raise ValueError("Gate %s is not a valid gate" % gate)
-    else:
-        if entanglement_blocks not in gates:
-            raise ValueError("Gate %s is not a valid gate"
-                             % entanglement_blocks)
+    _check_gates_in_blocks(entanglement_blocks)
 
     return lambda n_features: TwoLocal(n_features,
                                        rotation_blocks,
