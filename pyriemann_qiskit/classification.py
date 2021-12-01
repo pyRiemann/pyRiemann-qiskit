@@ -234,7 +234,7 @@ class QuanticSVM(QuanticClassifierBase):
     -----
     .. versionadded:: 0.0.1
 
-    Attributes
+    Parameters
     ----------
     gamma : float | None (default:None)
         Used as input for sklearn rbf_kernel which is used internally.
