@@ -107,7 +107,7 @@ def get_spsa(max_trials=40, c=(None, None, None, None, 4.0)):
     """Return an instance of SPSA.
     SPSA [1, 2]_ is an algorithmic method for optimizing systems
     with multiple unknown parameters.
-    For more details, see [3] and [4].
+    For more details, see [3]_ and [4]_.
 
     Parameters
     ----------
