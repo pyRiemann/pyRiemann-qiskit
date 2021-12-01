@@ -13,7 +13,8 @@ jobs:
         with:
           docs-folder: "doc/"
           pre-build-command: |
-            python -m pip install --upgrade pip
+            apt-get update
+            python -m pip install --upgrade pip --fix-missing
             apt-get -y install git-all
             whereis git
             pip install -e .
