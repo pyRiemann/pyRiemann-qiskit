@@ -115,7 +115,7 @@ def get_spsa(max_trials=40, c=(None, None, None, None, 4.0)):
         Maximum number of iterations to perform.
     c : tuple[float | None] (default:(None, None, None, None, 4.0))
         The 5 control parameters for SPSA algorithms.
-        See [3] for implementation details.
+        See [3]_ for implementation details.
         Auto calibration of SPSA will be skiped if one
         of the parameters is different from None.
 
