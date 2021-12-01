@@ -352,7 +352,7 @@ class QuanticVQC(QuanticClassifierBase):
            doi: 10.1038/s41586-019-0980-2.
 
     .. [3] \
-        https://qiskit.org/documentation/stable/0.19/stubs/qiskit.aqua.algorithms.VQC.html?highlight=vqc#qiskit.aqua.algorithms.VQC
+        https://qiskit.org/documentation/stable/0.19/stubs/qiskit.aqua.algorithms.VQC.html
 
     """
 
