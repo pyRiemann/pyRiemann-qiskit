@@ -321,7 +321,7 @@ class QuanticVQC(QuanticClassifierBase):
     Note there is no classical version of this algorithm.
     This will always run on a quantum computer (simulated or not)
 
-    Attributes
+    Parameters
     ----------
     optimizer : Optimizer (default:SPSA)
         The classical optimizer to use.
