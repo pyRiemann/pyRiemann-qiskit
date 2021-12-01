@@ -13,6 +13,7 @@ jobs:
         with:
           docs-folder: "doc/"
           pre-build-command: |
+            sudo apt-get update
             apt-get -y install git
             pip install -e .
       - name:  Upload generated HTML as artifact
