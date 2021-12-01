@@ -100,7 +100,7 @@ def test_get_spsa_default():
     assert spsa._skip_calibration
 
 
-def test_get_spsa_unknown_auto_calibration():
+def test_get_spsa_auto_calibration():
     """Test to create spsa with all none control parameters"""
     spsa = get_spsa(c=(None, None, None, None, None))
     for i in range(5):
