@@ -13,7 +13,7 @@ jobs:
         with:
           docs-folder: "doc/"
           pre-build-command: |
-            apt-get update
+            apt-get --allow-releaseinfo-change update
             python -m pip install --upgrade pip
             apt-get -y install --fix-missing git-core
             pip install -r doc/requirements.txt

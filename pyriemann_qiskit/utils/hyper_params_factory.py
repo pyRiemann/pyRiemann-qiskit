@@ -24,7 +24,10 @@ def gen_zz_feature_map(reps=2, entanglement='linear'):
     ret : ZZFeatureMap
         An instance of ZZFeatureMap
 
-    :raises ValueError: if `reps` lower than 1.
+    Raises
+    ------
+    ValueError
+        Raised if ``reps`` is lower than 1.
 
     References
     ----------
@@ -82,7 +85,10 @@ def gen_two_local(reps=3, rotation_blocks=['ry', 'rz'],
     ret : TwoLocal
         An instance of a TwoLocal circuit
 
-    :raises ValueError: if `rotation_blocks` or `entanglement_blocks` contains
+    Raises
+    ------
+    ValueError
+        Raised if ``rotation_blocks`` or ``entanglement_blocks`` contain
         a non valid gate
 
     References
