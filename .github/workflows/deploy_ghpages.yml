@@ -15,8 +15,8 @@ jobs:
           pre-build-command: |
             apt-get update
             python -m pip install --upgrade pip
-            apt-get -y install git-core
-            pip install --fix-missing -r doc/requirements.txt
+            apt-get -y install --fix-missing git-core
+            pip install -r doc/requirements.txt
       - name:  Upload generated HTML as artifact
         uses: actions/upload-artifact@v2
         with:
