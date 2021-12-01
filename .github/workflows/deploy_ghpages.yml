@@ -13,7 +13,9 @@ jobs:
         with:
           docs-folder: "doc/"
           pre-build-command: |
+            apt-get update --fix-missing
             python -m pip install --upgrade pip
+            apt-get install git
             pip install -r doc/requirements.txt
       - name:  Upload generated HTML as artifact
         uses: actions/upload-artifact@v2
