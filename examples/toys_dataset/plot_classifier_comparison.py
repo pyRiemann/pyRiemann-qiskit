@@ -22,14 +22,6 @@ from sklearn.svm import SVC
 from pyriemann_qiskit.classification import QuanticSVM, QuanticVQC
 from qiskit.ml.datasets import ad_hoc_data
 
-# cvxpy is not correctly imported due to wheel not building
-# in the doc pipeline
-__cvxpy__ = True
-try:
-    import cvxpy
-    del cvxpy
-except Exception:
-    __cvxpy__ = False
 
 print(__doc__)
 
@@ -70,11 +62,9 @@ names = ["Linear SVM", "RBF SVM", "VQC", "QSVM"]
 classifiers = [
     SVC(kernel="linear", C=0.025),
     SVC(gamma='auto', C=0.001),
+    QuanticVQC(),
+    QuanticSVM(quantum=False)
     ]
-
-if __cvxpy__:
-    classifiers.append(QuanticVQC())
-    classifiers.append(QuanticSVM(quantum=False))
 
 # Warning: There is a known convergence issue with QSVM
 # and some python versions:
