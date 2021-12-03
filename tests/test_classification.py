@@ -1,3 +1,4 @@
+import pytest
 import numpy as np
 from pyriemann.classification import TangentSpace
 from pyriemann.estimation import XdawnCovariances
@@ -15,6 +16,11 @@ def test_params(get_covmats, get_labels):
     labels = get_labels(n_matrices, n_classes)
 
     cross_val_score(clf, covset, labels, cv=skf, scoring='roc_auc')
+
+
+def test_vqc_classical_should_return_value_error():
+    with pytest.raises(ValueError):
+        QuanticVQC(quantum=False)
 
 
 def test_qsvm_init():
