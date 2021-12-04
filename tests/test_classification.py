@@ -5,7 +5,7 @@ from pyriemann.estimation import XdawnCovariances
 from pyriemann_qiskit.classification import QuanticSVM, QuanticVQC
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
-
+ 
 
 def test_params(get_covmats, get_labels):
     clf = make_pipeline(XdawnCovariances(), TangentSpace(),
