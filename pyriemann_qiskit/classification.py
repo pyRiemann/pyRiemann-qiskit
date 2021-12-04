@@ -15,7 +15,7 @@ from .utils.hyper_params_factory import (gen_zz_feature_map,
 
 logger.level = logging.INFO
 
- 
+
 class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     """Quantum classification.
