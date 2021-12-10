@@ -8,5 +8,5 @@ scikit-learn
 joblib
 pandas
 cvxpy==1.1.12
-qiskit
+qiskit==0.20.0
 git+https://github.com/pyRiemann/pyRiemann#egg=pyriemann
