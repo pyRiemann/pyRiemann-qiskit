@@ -19,7 +19,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.datasets import make_moons, make_circles, make_classification
 from sklearn.svm import SVC
-from pyriemann_qiskit.classification import QuanticSVM, QuanticVQC
+from pyriemann_qiskit.classification import QuanticSVM
+# uncomment to run comparison with QuanticVQC (disabled for CI/CD)
+# from pyriemann_qiskit.classification import QuanticVQC
 from qiskit.ml.datasets import ad_hoc_data
 
 
@@ -62,6 +64,7 @@ names = ["Linear SVM", "RBF SVM", "VQC", "QSVM"]
 classifiers = [
     SVC(kernel="linear", C=0.025),
     SVC(gamma='auto', C=0.001),
+    # uncomment to run comparison with QuanticVQC (disabled for CI/CD)
     # QuanticVQC(),
     QuanticSVM(quantum=False)
     ]
