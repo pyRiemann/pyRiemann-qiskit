@@ -62,7 +62,7 @@ names = ["Linear SVM", "RBF SVM", "VQC", "QSVM"]
 classifiers = [
     SVC(kernel="linear", C=0.025),
     SVC(gamma='auto', C=0.001),
-    QuanticVQC(),
+    # QuanticVQC(),
     QuanticSVM(quantum=False)
     ]
 
