@@ -1,7 +1,16 @@
 name: Deploy GitHub pages
 
-on: [push, pull_request]
-
+on:
+  push:
+    paths:
+    - 'doc/**'
+    - 'examples/**'
+    - '.github/workflows/deploy_ghpages.yml'
+  pull_request:
+    paths:
+    - 'doc/**'
+    - 'examples/**'
+    - '.github/workflows/deploy_ghpages.yml'
 
 jobs:
   build_docs:
@@ -16,6 +25,7 @@ jobs:
             apt-get --allow-releaseinfo-change update
             python -m pip install --upgrade pip
             apt-get -y install --fix-missing git-core
+            apt-get -y install build-essential
             pip install -r doc/requirements.txt
       - name:  Upload generated HTML as artifact
         uses: actions/upload-artifact@v2
