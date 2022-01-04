@@ -56,16 +56,16 @@ def get_labels():
     return _get_labels
 
 
-def _generate_feat(n_samples, n_features, rs):
+def _generate_rand_feat(n_samples, n_features, rs):
     """Generate a set of n_features-dimensional samples for test purpose"""
     return rs.randn(n_samples, n_features)
 
 
 @pytest.fixture
-def get_feats(rndstate):
-    def _gen_feat(n_samples, n_features):
-        return _generate_feat(n_samples, n_features, rndstate)
-    return _gen_feat
+def get_rand_feats(rndstate):
+    def _gen_rand_feat(n_samples, n_features):
+        return _generate_rand_feat(n_samples, n_features, rndstate)
+    return _gen_rand_feat
 
 
 def _generate_bin_feats(n_samples, n_features):
@@ -85,15 +85,15 @@ def get_bin_feats():
 
 
 @pytest.fixture
-def prepare_bin_data(rndstate):
-    def _prepare_bin_data(n_samples, n_features, random=True):
+def prepare_data(rndstate):
+    def _prepare_data(n_samples, n_features, random=True):
         if random:
-            samples = _generate_feat(n_samples, n_features, rndstate)
+            samples = _generate_rand_feat(n_samples, n_features, rndstate)
         else:
             samples = _generate_bin_feats(n_samples, n_features)
         labels = _get_labels(n_samples, 2)
         return samples, labels
-    return _prepare_bin_data
+    return _prepare_data
 
 
 def _get_linear_entanglement(n_qbits_in_block, n_features):

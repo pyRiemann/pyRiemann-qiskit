@@ -50,12 +50,12 @@ def test_qsvm_init():
         pass
 
 
-def test_qsvm_splitclasses(get_feats, get_labels):
+def test_qsvm_splitclasses(get_rand_feats, get_labels):
     """Test _split_classes method of quantum classifiers"""
     q = QuanticSVM(quantum=False)
 
     n_samples, n_features, n_classes = 100, 9, 2
-    samples = get_feats(n_samples, n_features)
+    samples = get_rand_feats(n_samples, n_features)
     labels = get_labels(n_samples, n_classes)
 
     # As fit method is not called here, classes_ is not set.
@@ -119,7 +119,7 @@ def test_quantic_svm_fvt_simulated_quantum(get_labels):
     assert prediction[class_len:].all() == q.classes_[1]
 
 
-def test_quantic_vqc_fvt_simulated_quantum(get_feats, get_labels):
+def test_quantic_vqc_fvt_simulated_quantum(get_rand_feats, get_labels):
     """Perform VQC on a simulated quantum computer"""
     # We will use a quantum simulator on the local machine
     # quantum parameter for VQC is always true
@@ -127,7 +127,7 @@ def test_quantic_vqc_fvt_simulated_quantum(get_feats, get_labels):
     # To achieve testing in a reasonnable amount of time,
     # we will lower the size of the feature and the number of trials
     n_samples, n_features, n_classes = 4, 4, 2
-    samples = get_feats(n_samples, n_features)
+    samples = get_rand_feats(n_samples, n_features)
     labels = get_labels(n_samples, n_classes)
 
     q.fit(samples, labels)
