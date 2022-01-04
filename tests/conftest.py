@@ -58,7 +58,7 @@ def _get_rand_feat(n_samples, n_features, rs):
 
 def _get_feats(n_samples, n_features):
     """Generate a balanced binary set of n_features-dimensional
-     samples for test purpose, contaning either 0 or 1"""
+     samples for test purpose, containing either 0 or 1"""
     n_classes = 2
     class_len = n_samples // n_classes  # balanced set
     samples_0 = np.zeros((class_len, n_features))
@@ -69,6 +69,8 @@ def _get_feats(n_samples, n_features):
 
 @pytest.fixture
 def prepare_data(rndstate):
+    # Note: the n_classes parameters might be misleading as it is only
+    # recognized by the _get_labels methods.
     def _prepare_data(n_samples, n_features, n_classes, random=True):
         if random:
             samples = _get_rand_feat(n_samples, n_features, rndstate)
