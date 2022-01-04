@@ -51,24 +51,12 @@ def _get_labels(n_matrices, n_classes):
     return np.arange(n_classes).repeat(n_matrices // n_classes)
 
 
-@pytest.fixture
-def get_labels():
-    return _get_labels
-
-
-def _generate_rand_feat(n_samples, n_features, rs):
+def _get_rand_feat(n_samples, n_features, rs):
     """Generate a set of n_features-dimensional samples for test purpose"""
     return rs.randn(n_samples, n_features)
 
 
-@pytest.fixture
-def get_rand_feats(rndstate):
-    def _gen_rand_feat(n_samples, n_features):
-        return _generate_rand_feat(n_samples, n_features, rndstate)
-    return _gen_rand_feat
-
-
-def _generate_feats(n_samples, n_features):
+def _get_feats(n_samples, n_features):
     """Generate a balanced binary set of n_features-dimensional
      samples for test purpose, contaning either 0 or 1"""
     n_classes = 2
@@ -80,17 +68,12 @@ def _generate_feats(n_samples, n_features):
 
 
 @pytest.fixture
-def get_feats():
-    return _generate_feats
-
-
-@pytest.fixture
 def prepare_data(rndstate):
     def _prepare_data(n_samples, n_features, n_classes, random=True):
         if random:
-            samples = _generate_rand_feat(n_samples, n_features, rndstate)
+            samples = _get_rand_feat(n_samples, n_features, rndstate)
         else:
-            samples = _generate_feats(n_samples, n_features)
+            samples = _get_feats(n_samples, n_features)
         labels = _get_labels(n_samples, n_classes)
         return samples, labels
     return _prepare_data
