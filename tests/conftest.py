@@ -86,12 +86,12 @@ def get_feats():
 
 @pytest.fixture
 def prepare_data(rndstate):
-    def _prepare_data(n_samples, n_features, random=True):
+    def _prepare_data(n_samples, n_features, n_classes, random=True):
         if random:
             samples = _generate_rand_feat(n_samples, n_features, rndstate)
         else:
             samples = _generate_feats(n_samples, n_features)
-        labels = _get_labels(n_samples, 2)
+        labels = _get_labels(n_samples, n_classes)
         return samples, labels
     return _prepare_data
 
