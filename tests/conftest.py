@@ -47,15 +47,16 @@ def get_covmats_params(rndstate):
     return _gen_cov_params
 
 
+def _get_labels(n_matrices, n_classes):
+    return np.arange(n_classes).repeat(n_matrices // n_classes)
+
+
 @pytest.fixture
 def get_labels():
-    def _get_labels(n_matrices, n_classes):
-        return np.arange(n_classes).repeat(n_matrices // n_classes)
-
     return _get_labels
 
 
-def generate_feat(n_samples, n_features, rs):
+def _generate_feat(n_samples, n_features, rs):
     """Generate a set of n_features-dimensional samples for test purpose"""
     return rs.randn(n_samples, n_features)
 
@@ -63,8 +64,36 @@ def generate_feat(n_samples, n_features, rs):
 @pytest.fixture
 def get_feats(rndstate):
     def _gen_feat(n_samples, n_features):
-        return generate_feat(n_samples, n_features, rndstate)
+        return _generate_feat(n_samples, n_features, rndstate)
     return _gen_feat
+
+
+def _generate_bin_feats(n_samples, n_features):
+    """Generate a balanced binary set of n_features-dimensional
+     samples for test purpose, contaning either 0 or 1"""
+    n_classes = 2
+    class_len = n_samples // n_classes  # balanced set
+    samples_0 = np.zeros((class_len, n_features))
+    samples_1 = np.ones((class_len, n_features))
+    samples = np.concatenate((samples_0, samples_1), axis=0)
+    return samples
+
+
+@pytest.fixture
+def get_bin_feats():
+    return _generate_bin_feats
+
+
+@pytest.fixture
+def prepare_bin_data(rndstate):
+    def _prepare_bin_data(n_samples, n_features, random=True):
+        if random:
+            samples = _generate_feat(n_samples, n_features, rndstate)
+        else:
+            samples = _generate_bin_feats(n_samples, n_features)
+        labels = _get_labels(n_samples, 2)
+        return samples, labels
+    return _prepare_bin_data
 
 
 def _get_linear_entanglement(n_qbits_in_block, n_features):
