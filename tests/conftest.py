@@ -71,7 +71,7 @@ def _get_binary_feats(n_samples, n_features):
 def prepare_data(rndstate):
     # Note: the n_classes parameters might be misleading as it is only
     # recognized by the _get_labels methods.
-    def _prepare_data(n_samples, n_features, n_classes, random=True):
+    def _get_dataset(n_samples, n_features, n_classes, random=True):
         if random:
             samples = _get_rand_feat(n_samples, n_features, rndstate)
         else:
