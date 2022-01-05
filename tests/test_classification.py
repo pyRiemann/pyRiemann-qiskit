@@ -72,10 +72,12 @@ class BinFVT:
         # there is no __init__ method with pytest
         n_samples, n_features, quantum_instance, random = self.get_params()
         self.prepare(n_samples, n_features, quantum_instance, random)
-        samples, labels = get_dataset(self.n_samples, self.n_features,
-                                      self.n_classes, self.random)
-        self.quantum_instance.fit(samples, labels)
-        prediction = self.quantum_instance.predict(samples)
+        self.samples, self.labels = get_dataset(self.n_samples,
+                                                self.n_features,
+                                                self.n_classes,
+                                                self.random)
+        self.quantum_instance.fit(self.samples, self.labels)
+        prediction = self.quantum_instance.predict(self.samples)
         self.check(prediction)
 
     def get_params(self):
@@ -85,7 +87,10 @@ class BinFVT:
         raise NotImplementedError
 
 
-class TestQuanticClassical(BinFVT):
+class TestClassicalSVM(BinFVT):
+    """ Perform standard SVC test
+    (canary test to assess pipeline correctness)
+    """
     def get_params(self):
         quantum_instance = QuanticSVM(quantum=False, verbose=False)
         return 100, 9, quantum_instance, False
@@ -97,43 +102,33 @@ class TestQuanticClassical(BinFVT):
                self.quantum_instance.classes_[1]
 
 
-def test_quantic_svm_fvt_simulated_quantum(get_dataset):
+class TestQuanticSVM(BinFVT):
     """Perform SVC on a simulated quantum computer.
     This test can also be run on a real computer by providing a qAccountToken
     To do so, you need to use your own token, by registering on:
     https://quantum-computing.ibm.com/
     Note that the "real quantum version" of this test may also take some time.
     """
-    # We will use a quantum simulator on the local machine
-    q = QuanticSVM(quantum=True, verbose=False)
-    # We need to have different values for target and non-target in our samples
-    # or vector machine will not converge
-    # To achieve testing in a reasonnable amount of time,
-    # we will lower the size of the feature and the number of trials
-    n_samples, n_features, n_classes = 10, 4, 2
-    class_len = n_samples // n_classes  # balanced set
-    samples, labels = get_dataset(n_samples, n_features, n_classes,
-                                  random=False)
+    def get_params(self):
+        quantum_instance = QuanticSVM(quantum=True, verbose=False)
+        return 10, 4, quantum_instance, False
 
-    q.fit(samples, labels)
-    prediction = q.predict(samples)
-    # In this case, using SVM, predicting accuracy should be 100%
-    assert prediction[:class_len].all() == q.classes_[0]
-    assert prediction[class_len:].all() == q.classes_[1]
+    def check(self, prediction):
+        assert prediction[:self.class_len].all() == \
+               self.quantum_instance.classes_[0]
+        assert prediction[self.class_len:].all() == \
+               self.quantum_instance.classes_[1]
 
 
-def test_quantic_vqc_fvt_simulated_quantum(get_dataset):
+class TestQuanticVQC(BinFVT):
     """Perform VQC on a simulated quantum computer"""
-    # We will use a quantum simulator on the local machine
-    # quantum parameter for VQC is always true
-    q = QuanticVQC(verbose=False)
-    # To achieve testing in a reasonnable amount of time,
-    # we will lower the size of the feature and the number of trials
-    n_samples, n_features, n_classes = 4, 4, 2
-    samples, labels = get_dataset(n_samples, n_features, n_classes)
+    def get_params(self):
+        quantum_instance = QuanticVQC(verbose=False)
+        # To achieve testing in a reasonnable amount of time,
+        # we will lower the size of the feature and the number of trials
+        return 4, 4, quantum_instance, True
 
-    q.fit(samples, labels)
-    prediction = q.predict(samples)
-    # Considering the inputs, this probably make no sense to test accuracy.
-    # Instead, we could consider this test as a canary test
-    assert len(prediction) == len(labels)
+    def check(self, prediction):
+        # Considering the inputs, this probably make no sense to test accuracy.
+        # Instead, we could consider this test as a canary test
+        assert len(prediction) == len(self.labels)
