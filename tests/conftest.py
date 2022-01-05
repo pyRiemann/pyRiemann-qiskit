@@ -56,7 +56,7 @@ def _get_rand_feats(n_samples, n_features, rs):
     return rs.randn(n_samples, n_features)
 
 
-def _get_feats(n_samples, n_features):
+def _get_binary_feats(n_samples, n_features):
     """Generate a balanced binary set of n_features-dimensional
      samples for test purpose, containing either 0 or 1"""
     n_classes = 2
