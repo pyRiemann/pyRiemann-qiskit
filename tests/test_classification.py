@@ -42,24 +42,7 @@ def test_qsvm_init(quantum):
     assert not hasattr(q, "_provider")
 
 
-def test_qsvm_splitclasses(get_dataset):
-    """Test _split_classes method of quantum classifiers"""
-    q = QuanticSVM(quantum=False)
-
-    n_samples, n_features, n_classes = 100, 9, 2
-    samples, labels = get_dataset(n_samples, n_features, n_classes)
-
-    # As fit method is not called here, classes_ is not set.
-    # so we need to provide the classes ourselves.
-    q.classes_ = range(0, n_classes)
-
-    x_class1, x_class0 = q._split_classes(samples, labels)
-    class_len = n_samples // n_classes  # balanced set
-    assert np.shape(x_class1) == (class_len, n_features)
-    assert np.shape(x_class0) == (class_len, n_features)
-
-
-class BinFVT:
+class BinaryTest:
     def prepare(self, n_samples, n_features, quantum_instance, random):
         self.n_classes = 2
         self.n_samples = n_samples
@@ -76,18 +59,45 @@ class BinFVT:
                                                 self.n_features,
                                                 self.n_classes,
                                                 self.random)
-        self.quantum_instance.fit(self.samples, self.labels)
-        prediction = self.quantum_instance.predict(self.samples)
-        self.check(prediction)
+        self.additional_steps()
+        self.check()
 
     def get_params(self):
         raise NotImplementedError
 
-    def check(self, prediction):
+    def additional_steps(self):
+        raise NotImplementedError
+
+    def check(self):
         raise NotImplementedError
 
 
-class TestClassicalSVM(BinFVT):
+class TestQSVMSplitClasses(BinaryTest):
+    """Test _split_classes method of quantum classifiers"""
+    def get_params(self):
+        quantum_instance = QuanticSVM(quantum=False)
+        return 100, 9, quantum_instance, True
+
+    def additional_steps(self):
+        # As fit method is not called here, classes_ is not set.
+        # so we need to provide the classes ourselves.
+        self.quantum_instance.classes_ = range(0, self.n_classes)
+        self.x_class1, \
+            self.x_class0 = self.quantum_instance._split_classes(self.samples,
+                                                                 self.labels)
+
+    def check(self):
+        assert np.shape(self.x_class1) == (self.class_len, self.n_features)
+        assert np.shape(self.x_class0) == (self.class_len, self.n_features)
+
+
+class BinaryFVT(BinaryTest):
+    def additional_steps(self):
+        self.quantum_instance.fit(self.samples, self.labels)
+        self.prediction = self.quantum_instance.predict(self.samples)
+
+
+class TestClassicalSVM(BinaryFVT):
     """ Perform standard SVC test
     (canary test to assess pipeline correctness)
     """
@@ -95,14 +105,14 @@ class TestClassicalSVM(BinFVT):
         quantum_instance = QuanticSVM(quantum=False, verbose=False)
         return 100, 9, quantum_instance, False
 
-    def check(self, prediction):
-        assert prediction[:self.class_len].all() == \
+    def check(self):
+        assert self.prediction[:self.class_len].all() == \
                self.quantum_instance.classes_[0]
-        assert prediction[self.class_len:].all() == \
+        assert self.prediction[self.class_len:].all() == \
                self.quantum_instance.classes_[1]
 
 
-class TestQuanticSVM(BinFVT):
+class TestQuanticSVM(BinaryFVT):
     """Perform SVC on a simulated quantum computer.
     This test can also be run on a real computer by providing a qAccountToken
     To do so, you need to use your own token, by registering on:
@@ -113,14 +123,14 @@ class TestQuanticSVM(BinFVT):
         quantum_instance = QuanticSVM(quantum=True, verbose=False)
         return 10, 4, quantum_instance, False
 
-    def check(self, prediction):
-        assert prediction[:self.class_len].all() == \
+    def check(self):
+        assert self.prediction[:self.class_len].all() == \
                self.quantum_instance.classes_[0]
-        assert prediction[self.class_len:].all() == \
+        assert self.prediction[self.class_len:].all() == \
                self.quantum_instance.classes_[1]
 
 
-class TestQuanticVQC(BinFVT):
+class TestQuanticVQC(BinaryFVT):
     """Perform VQC on a simulated quantum computer"""
     def get_params(self):
         quantum_instance = QuanticVQC(verbose=False)
@@ -128,7 +138,7 @@ class TestQuanticVQC(BinFVT):
         # we will lower the size of the feature and the number of trials
         return 4, 4, quantum_instance, True
 
-    def check(self, prediction):
+    def check(self):
         # Considering the inputs, this probably make no sense to test accuracy.
         # Instead, we could consider this test as a canary test
-        assert len(prediction) == len(self.labels)
+        assert len(self.prediction) == len(self.labels)
