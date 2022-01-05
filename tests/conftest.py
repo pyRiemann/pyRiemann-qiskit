@@ -51,7 +51,7 @@ def _get_labels(n_matrices, n_classes):
     return np.arange(n_classes).repeat(n_matrices // n_classes)
 
 
-def _get_rand_feat(n_samples, n_features, rs):
+def _get_rand_feats(n_samples, n_features, rs):
     """Generate a set of n_features-dimensional samples for test purpose"""
     return rs.randn(n_samples, n_features)
 
