@@ -68,7 +68,7 @@ def _get_binary_feats(n_samples, n_features):
 
 
 @pytest.fixture
-def prepare_data(rndstate):
+def get_dataset(rndstate):
     # Note: the n_classes parameters might be misleading as it is only
     # recognized by the _get_labels methods.
     def _get_dataset(n_samples, n_features, n_classes, random=True):
