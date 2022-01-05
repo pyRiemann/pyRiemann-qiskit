@@ -5,7 +5,6 @@ from pyriemann.estimation import XdawnCovariances
 from pyriemann_qiskit.classification import QuanticSVM, QuanticVQC
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
-from qiskit.providers.ibmq.api.exceptions import RequestsApiError
 
 
 def test_params(get_dataset):
@@ -24,7 +23,7 @@ def test_vqc_classical_should_return_value_error():
 
 
 def test_qsvm_init_quantum_wrong_token():
-    with pytest.raises(RequestsApiError):
+    with pytest.raises(Exception):
         q = QuanticSVM(quantum=True, q_account_token="INVALID")
         q._init_quantum()
 
