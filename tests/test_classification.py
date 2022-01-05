@@ -59,26 +59,42 @@ def test_qsvm_splitclasses(get_dataset):
     assert np.shape(x_class0) == (class_len, n_features)
 
 
-def test_quantic_fvt_Classical(get_dataset):
-    """ Perform standard SVC test
-    (canary test to assess pipeline correctness)
-    """
-    # When quantum=False, it should use
-    # classical SVC implementation from SKlearn
-    q = QuanticSVM(quantum=False, verbose=False)
-    # We need to have different values for first and second classes
-    # in our samples or vector machine will not converge
-    n_samples, n_features, n_classes = 100, 9, 2
-    class_len = n_samples // n_classes  # balanced set
-    samples, labels = get_dataset(n_samples, n_features, n_classes,
-                                  random=False)
+class BinFVT:
+    def prepare(self, n_samples, n_features, quantum_instance, random):
+        self.n_classes = 2
+        self.n_samples = n_samples
+        self.n_features = n_features
+        self.quantum_instance = quantum_instance
+        self.random = random
+        self.class_len = n_samples // self.n_classes
 
-    q.fit(samples, labels)
-    # This will autodefine testing sets
-    prediction = q.predict(samples)
-    # In this case, using SVM, predicting accuracy should be 100%
-    assert prediction[:class_len].all() == q.classes_[0]
-    assert prediction[class_len:].all() == q.classes_[1]
+    def test(self, get_dataset):
+        # there is no __init__ method with pytest
+        n_samples, n_features, quantum_instance, random = self.get_params()
+        self.prepare(n_samples, n_features, quantum_instance, random)
+        samples, labels = get_dataset(self.n_samples, self.n_features,
+                                      self.n_classes, self.random)
+        self.quantum_instance.fit(samples, labels)
+        prediction = self.quantum_instance.predict(samples)
+        self.check(prediction)
+
+    def get_params(self):
+        raise NotImplementedError
+
+    def check(self, prediction):
+        raise NotImplementedError
+
+
+class TestQuanticClassical(BinFVT):
+    def get_params(self):
+        quantum_instance = QuanticSVM(quantum=False, verbose=False)
+        return 100, 9, quantum_instance, False
+
+    def check(self, prediction):
+        assert prediction[:self.class_len].all() == \
+               self.quantum_instance.classes_[0]
+        assert prediction[self.class_len:].all() == \
+               self.quantum_instance.classes_[1]
 
 
 def test_quantic_svm_fvt_simulated_quantum(get_dataset):
