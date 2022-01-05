@@ -7,12 +7,12 @@ from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 
 
-def test_params(prepare_data):
+def test_params(get_dataset):
     clf = make_pipeline(XdawnCovariances(), TangentSpace(),
                         QuanticSVM(quantum=False))
     skf = StratifiedKFold(n_splits=5)
     n_matrices, n_channels, n_classes = 100, 3, 2
-    covset, labels = prepare_data(n_matrices, n_channels, n_classes)
+    covset, labels = get_dataset(n_matrices, n_channels, n_classes)
 
     cross_val_score(clf, covset, labels, cv=skf, scoring='roc_auc')
 
@@ -49,12 +49,12 @@ def test_qsvm_init():
         pass
 
 
-def test_qsvm_splitclasses(prepare_data):
+def test_qsvm_splitclasses(get_dataset):
     """Test _split_classes method of quantum classifiers"""
     q = QuanticSVM(quantum=False)
 
     n_samples, n_features, n_classes = 100, 9, 2
-    samples, labels = prepare_data(n_samples, n_features, n_classes)
+    samples, labels = get_dataset(n_samples, n_features, n_classes)
 
     # As fit method is not called here, classes_ is not set.
     # so we need to provide the classes ourselves.
@@ -66,7 +66,7 @@ def test_qsvm_splitclasses(prepare_data):
     assert np.shape(x_class0) == (class_len, n_features)
 
 
-def test_quantic_fvt_Classical(prepare_data):
+def test_quantic_fvt_Classical(get_dataset):
     """ Perform standard SVC test
     (canary test to assess pipeline correctness)
     """
@@ -77,8 +77,8 @@ def test_quantic_fvt_Classical(prepare_data):
     # in our samples or vector machine will not converge
     n_samples, n_features, n_classes = 100, 9, 2
     class_len = n_samples // n_classes  # balanced set
-    samples, labels = prepare_data(n_samples, n_features, n_classes,
-                                   random=False)
+    samples, labels = get_dataset(n_samples, n_features, n_classes,
+                                  random=False)
 
     q.fit(samples, labels)
     # This will autodefine testing sets
@@ -88,7 +88,7 @@ def test_quantic_fvt_Classical(prepare_data):
     assert prediction[class_len:].all() == q.classes_[1]
 
 
-def test_quantic_svm_fvt_simulated_quantum(prepare_data):
+def test_quantic_svm_fvt_simulated_quantum(get_dataset):
     """Perform SVC on a simulated quantum computer.
     This test can also be run on a real computer by providing a qAccountToken
     To do so, you need to use your own token, by registering on:
@@ -103,8 +103,8 @@ def test_quantic_svm_fvt_simulated_quantum(prepare_data):
     # we will lower the size of the feature and the number of trials
     n_samples, n_features, n_classes = 10, 4, 2
     class_len = n_samples // n_classes  # balanced set
-    samples, labels = prepare_data(n_samples, n_features, n_classes,
-                                   random=False)
+    samples, labels = get_dataset(n_samples, n_features, n_classes,
+                                  random=False)
 
     q.fit(samples, labels)
     prediction = q.predict(samples)
@@ -113,7 +113,7 @@ def test_quantic_svm_fvt_simulated_quantum(prepare_data):
     assert prediction[class_len:].all() == q.classes_[1]
 
 
-def test_quantic_vqc_fvt_simulated_quantum(prepare_data):
+def test_quantic_vqc_fvt_simulated_quantum(get_dataset):
     """Perform VQC on a simulated quantum computer"""
     # We will use a quantum simulator on the local machine
     # quantum parameter for VQC is always true
@@ -121,7 +121,7 @@ def test_quantic_vqc_fvt_simulated_quantum(prepare_data):
     # To achieve testing in a reasonnable amount of time,
     # we will lower the size of the feature and the number of trials
     n_samples, n_features, n_classes = 4, 4, 2
-    samples, labels = prepare_data(n_samples, n_features, n_classes)
+    samples, labels = get_dataset(n_samples, n_features, n_classes)
 
     q.fit(samples, labels)
     prediction = q.predict(samples)

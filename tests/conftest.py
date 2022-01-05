@@ -73,12 +73,12 @@ def get_dataset(rndstate):
     # recognized by the _get_labels methods.
     def _get_dataset(n_samples, n_features, n_classes, random=True):
         if random:
-            samples = _get_rand_feat(n_samples, n_features, rndstate)
+            samples = _get_rand_feats(n_samples, n_features, rndstate)
         else:
-            samples = _get_feats(n_samples, n_features)
+            samples = _get_binary_feats(n_samples, n_features)
         labels = _get_labels(n_samples, n_classes)
         return samples, labels
-    return _prepare_data
+    return _get_dataset
 
 
 def _get_linear_entanglement(n_qbits_in_block, n_features):
