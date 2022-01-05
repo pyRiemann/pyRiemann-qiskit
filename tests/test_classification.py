@@ -5,6 +5,7 @@ from pyriemann.estimation import XdawnCovariances
 from pyriemann_qiskit.classification import QuanticSVM, QuanticVQC
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
+from qiskit.providers.ibmq.api.exceptions import RequestsApiError
 
 
 def test_params(get_dataset):
@@ -22,31 +23,23 @@ def test_vqc_classical_should_return_value_error():
         QuanticVQC(quantum=False)
 
 
-def test_qsvm_init():
+def test_qsvm_init_quantum_wrong_token():
+    with pytest.raises(RequestsApiError):
+        q = QuanticSVM(quantum=True, q_account_token="INVALID")
+        q._init_quantum()
+
+
+@pytest.mark.parametrize('quantum', [False, True])
+def test_qsvm_init(quantum):
     """Test init of quantum classifiers"""
-    # if "classical" computation enable,
-    # no provider and backend should be defined
-    q = QuanticSVM(quantum=False)
+
+    q = QuanticSVM(quantum=quantum)
     q._init_quantum()
-    assert not q.quantum
-    assert not hasattr(q, "backend")
-    assert not hasattr(q, "provider")
-    # if "quantum" computation enabled, but no accountToken are provided,
-    # then "quantum" simulation will be enabled
-    # i.e., no remote quantum provider will be defined
-    q = QuanticSVM(quantum=True)
-    q._init_quantum()
-    assert q.quantum
-    assert hasattr(q, "_backend")
+    assert q.quantum == quantum
+    assert hasattr(q, "_backend") == quantum
+
+    # A provider is only assigned when running on a real quantum backend
     assert not hasattr(q, "_provider")
-    # if "quantum" computation enabled, and accountToken is provided,
-    # then real quantum backend is used
-    # this should raise a error as uncorrect API Token is passed
-    try:
-        q = QuanticSVM(labelsquantum=True, qAccountToken="Test")
-        assert False  # Should never reach this line
-    except Exception:
-        pass
 
 
 def test_qsvm_splitclasses(get_dataset):
