@@ -18,8 +18,7 @@ class TestGenZZFeatureMapParams:
 
     def test_entangl_idx(self, get_pauli_z_linear_entangl_idx):
         """Test gen_zz_feature_map with valid indices value"""
-        n_features = 2
-        reps = 2
+        n_features, reps = 2, 2
         indices = get_pauli_z_linear_entangl_idx(reps, n_features)
         feature_map_handle = gen_zz_feature_map(reps=reps,
                                                 entanglement=indices)
