@@ -30,14 +30,6 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score, cross_val_
 from sklearn.metrics import balanced_accuracy_score
 import itertools
 
-# cvxpy is not correctly imported due to wheel not building
-# in the doc pipeline
-__cvxpy__ = True
-try:
-    import cvxpy
-    del cvxpy
-except Exception:
-    __cvxpy__ = False
 
 print(__doc__)
 
@@ -192,9 +184,6 @@ disp = None
 # Results will be computed for QuanticSVM versus SKLearnSVM for comparison
 for quantum in [False, True]:
     for i in range(n_filters):
-        # This is a hack for the documentation pipeline
-        if(not __cvxpy__):
-            continue
 
         filter = filters[i]
         
