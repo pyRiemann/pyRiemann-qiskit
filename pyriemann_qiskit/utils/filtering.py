@@ -56,7 +56,7 @@ class Closest(TransformerMixin):
         ret = X[:, subset]
         return ret
 
-# ...and dividing the number of remaining elements by two
+
 class Preclassif(TransformerMixin):
     def __init__(self, ndim=None):
         self.ndim = ndim
@@ -88,3 +88,4 @@ class Preclassif(TransformerMixin):
         subset = [int(i) for i in self.closest_subset_to_vector]
         ret = X[:, subset]
         return ret
+

@@ -13,24 +13,18 @@ It is compared to the classical SVM.
 # Modified from plot_classify_EEG_tangentspace.py
 # License: BSD (3-clause)
 
-
-from pyriemann.estimation import XdawnCovariances
-from pyriemann.tangentspace import TangentSpace
 from pyriemann_qiskit.classification import QuanticSVM, QuanticVQC, StandardQuanticPipeline
 from pyriemann_qiskit.utils.filtering import NaivePair, NaiveImpair
 from mne import io, read_events, pick_types, Epochs
 from mne.datasets import sample
-from sklearn.pipeline import make_pipeline
 
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 
 from sklearn.decomposition import PCA
 from matplotlib import pyplot as plt
-from sklearn.model_selection import StratifiedKFold, cross_val_score, cross_val_predict
+from sklearn.model_selection import StratifiedKFold, GridSearchCV, cross_val_predict
 from sklearn.metrics import balanced_accuracy_score
-
-
 
 
 print(__doc__)
@@ -77,56 +71,88 @@ y = epochs.events[:, -1]
 ###############################################################################
 # Decoding in tangent space with a quantum classifier
 
-# Time complexity of quantum algorithm depends on the number of trials and
-# the number of elements inside the covariance matrices
-# Thus we reduce elements number by using restrictive spatial filtering
-sf = XdawnCovariances(nfilter=2)
 
-
-
-
-# Projecting correlation matrices into the tangent space
-# as quantum algorithms take vectors as inputs
-# (If not, then matrices will be inlined inside the quantum classifier)
-tg = TangentSpace()
 
 # https://stackoverflow.com/questions/61825227/plotting-multiple-confusion-matrix-side-by-side
 
-
 # filters = [Closest(ndim=5), Preclassif(ndim=5), NaivePair(), NaiveImpair(), PCA(n_components=5), NoFilter()]
-filters = [NaivePair(), NaiveImpair()]
-n_filters = len(filters)
 
-f, axes = plt.subplots(2, n_filters, sharey='row')
+
+nfilters = [1, 1]
+
+f, axes = plt.subplots(3, len(nfilters), sharey='row')
 
 disp = None
 
+
+
+dim_reds = [NaivePair(), NaiveImpair()]
+
+pipe = StandardQuanticPipeline()
+param_grid_qsvc= {
+        "nfilter" : [1],
+        "dim_red": dim_reds,
+        "quantum_clf": [QuanticSVM(quantum=True)],
+    }
+param_grid_vqc= {
+        "nfilter" : [1],
+        "dim_red": dim_reds,
+        "quantum_clf": [QuanticVQC()],
+    }
+param_grid_classical = {
+        "nfilter" : [1],
+        "dim_red": dim_reds,
+        "quantum_clf": [QuanticSVM(quantum=False)],
+    }
+search_qsvc = GridSearchCV(pipe, param_grid_qsvc, n_jobs=2)
+search_qsvc.fit(X, y)
+
+search_vqc = GridSearchCV(pipe, param_grid_vqc, n_jobs=2)
+search_vqc.fit(X, y)
+
+search = GridSearchCV(pipe, param_grid_classical, n_jobs=2)
+search.fit(X, y)
+print("Best parameter (CV score=%0.3f):" % search_qsvc.best_score_)
+print(search_qsvc.best_params_)
+
+
+print("Best parameter Classical (CV score=%0.3f):" % search.best_score_)
+print(search.best_params_)
+
+
+SVC = 0
+QSVC = 1
+VQC = 2
+
 # Results will be computed for QuanticSVM versus SKLearnSVM for comparison
-for quantum in [False, True]:
-    for i in range(n_filters):
-
-        filter = filters[i]
-        
-        filter_name = type(filter).__name__
-
-        print("running filter " + filter_name)
+for classif in [SVC, QSVC, VQC]:
+    for i in range(len(nfilters)):
         cv = StratifiedKFold(n_splits=5, shuffle=False)
         
-        # pipe = make_pipeline(sf, tg, filter, QuanticSVM(quantum=quantum))
-        pipe = StandardQuanticPipeline(dim_red=filter, quantum_clf=QuanticSVM(quantum=quantum))
-        # score = cross_val_score(clf, X, y, cv=cv, scoring='balanced_accuracy').mean()
+        if classif == QSVC:
+            params = search_qsvc.best_params_
+            title = "QSVC"
+            axe = axes[0][i]
+        elif classif == VQC:
+            params = search_vqc.best_params_
+            title = "VQC"
+            axe = axes[1][i]
+        else:
+            params = search.best_params_
+            title = "SVC"
+            axe = axes[2][i]
+
+        pipe = StandardQuanticPipeline(**params)
+
         y_pred = cross_val_predict(pipe, X, y, cv=cv)
 
         score = balanced_accuracy_score(y_pred, y)
         # Printing the results
         score_str = "%0.2f" % score
 
-        # names = ['0', '1']
         names = ["vis left", "vis right"]
-        # names = ["vis left", "vis right"]
 
-        title = filter_name + "(" + score_str + ")"
-        axe = axes[1 if quantum else 0][i]
+        title = title + " (" + score_str + ")" + " (nfilter = " + str(nfilters[i]) + ")"
         cm = confusion_matrix(y_pred, y)
         disp = ConfusionMatrixDisplay(cm, display_labels=names)
         disp.plot(ax=axe, xticks_rotation=45)
@@ -135,8 +161,8 @@ for quantum in [False, True]:
         disp.ax_.set_xlabel('')
         if i > 0:
             disp.ax_.set_ylabel('')
-        if not quantum:
-            disp.ax_.set_xlabel('')
+        # if not quantum:
+        #     disp.ax_.set_xlabel('')
 
 if disp:
     f.text(0.4, 0.1, 'Predicted label', ha='left')

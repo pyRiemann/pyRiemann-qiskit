@@ -1,6 +1,6 @@
 """Module for classification function."""
 import numpy as np
-from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.pipeline import make_pipeline
 from qiskit import BasicAer, IBMQ
 from qiskit.aqua import QuantumInstance, aqua_globals
@@ -423,7 +423,7 @@ class QuanticVQC(QuanticClassifierBase):
         return self._map_0_1_to_classes(labels)
 
 
-class StandardQuanticPipeline(BaseEstimator, ClassifierMixin):
+class StandardQuanticPipeline(BaseEstimator, ClassifierMixin, TransformerMixin):
     def __init__(self, nfilter=1, dim_red=NaivePair(), quantum_clf=QuanticSVM()):
         self.nfilter = nfilter
         self.dim_red = dim_red
@@ -442,3 +442,6 @@ class StandardQuanticPipeline(BaseEstimator, ClassifierMixin):
 
     def predict_proba(self, X):
         return self._pipe.predict_proba(X)
+
+    def transform(self, X):
+        return self._pipe.transform(X)
