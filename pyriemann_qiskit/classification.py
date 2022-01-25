@@ -424,7 +424,7 @@ class QuanticVQC(QuanticClassifierBase):
 
 
 class StandardQuanticPipeline(BaseEstimator, ClassifierMixin):
-    def __init__(self, nfilter=2, dim_red=NaivePair(), quantum_clf=QuanticSVM()):
+    def __init__(self, nfilter=1, dim_red=NaivePair(), quantum_clf=QuanticSVM()):
         self.nfilter = nfilter
         self.dim_red = dim_red
         self.quantum_clf = quantum_clf
@@ -432,12 +432,13 @@ class StandardQuanticPipeline(BaseEstimator, ClassifierMixin):
 
     def fit(self, X, y):
         self._pipe.fit(X, y)
+        return self
 
     def score(self, X, y):
         return self._pipe.score(X, y)
 
-    def predict(self, X, y):
-        return self._pipe.predict_proba(X, y)
+    def predict(self, X):
+        return self._pipe.predict(X)
 
-    def predict_proba(self, X, y):
-        return self._pipe.predict_proba(X, y)
+    def predict_proba(self, X):
+        return self._pipe.predict_proba(X)
