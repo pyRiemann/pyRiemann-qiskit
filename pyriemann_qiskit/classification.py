@@ -1,6 +1,7 @@
 """Module for classification function."""
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.pipeline import make_pipeline
 from qiskit import BasicAer, IBMQ
 from qiskit.aqua import QuantumInstance, aqua_globals
 from qiskit.aqua.quantum_instance import logger
@@ -12,9 +13,12 @@ import logging
 from .utils.hyper_params_factory import (gen_zz_feature_map,
                                          gen_two_local,
                                          get_spsa)
+from pyriemann.estimation import XdawnCovariances
+from pyriemann.tangentspace import TangentSpace
+
+from pyriemann_qiskit.utils.filtering import NaivePair
 
 logger.level = logging.INFO
-
 
 class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
@@ -417,3 +421,23 @@ class QuanticVQC(QuanticClassifierBase):
         """
         _, labels = self._predict(X)
         return self._map_0_1_to_classes(labels)
+
+
+class StandardQuanticPipeline(BaseEstimator, ClassifierMixin):
+    def __init__(self, nfilter=2, dim_red=NaivePair(), quantum_clf=QuanticSVM()):
+        self.nfilter = nfilter
+        self.dim_red = dim_red
+        self.quantum_clf = quantum_clf
+        self._pipe = make_pipeline(XdawnCovariances(nfilter), TangentSpace(), dim_red, quantum_clf)
+
+    def fit(self, X, y):
+        self._pipe.fit(X, y)
+
+    def score(self, X, y):
+        return self._pipe.score(X, y)
+
+    def predict(self, X, y):
+        return self._pipe.predict_proba(X, y)
+
+    def predict_proba(self, X, y):
+        return self._pipe.predict_proba(X, y)
