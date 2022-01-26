@@ -423,12 +423,34 @@ class QuanticVQC(QuanticClassifierBase):
         return self._map_0_1_to_classes(labels)
 
 
-class StandardQuanticPipeline(BaseEstimator, ClassifierMixin, TransformerMixin):
-    def __init__(self, nfilter=1, dim_red=NaivePair(), quantum_clf=QuanticSVM()):
+class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin, TransformerMixin):
+    def __init__(self, nfilter=1, dim_red=NaivePair(),
+        gamma=None,
+        shots=1024,
+        feature_entanglement='full',
+        feature_reps=2,
+        spsa_trials=None,
+        two_local_reps=None):
         self.nfilter = nfilter
         self.dim_red = dim_red
-        self.quantum_clf = quantum_clf
-        self._pipe = make_pipeline(XdawnCovariances(nfilter), TangentSpace(), dim_red, quantum_clf)
+        self.gamma=gamma
+        self.shots=shots
+        self.feature_entanglement=feature_entanglement
+        self.feature_reps=feature_reps
+        self.spsa_trials=spsa_trials
+        self.two_local_reps=two_local_reps
+        feature_map = gen_zz_feature_map(self.feature_reps, self.feature_entanglement)
+        if spsa_trials and two_local_reps:
+            clf = QuanticVQC(optimizer=get_spsa(self.spsa_trials),
+                gen_var_form=gen_two_local(self.two_local_reps),
+                gen_feature_map=feature_map,
+                shots=self.shots)
+        else: 
+            quantum= not shots == None 
+            clf = QuanticSVM(quantum=quantum, gamma=self.gamma,
+            gen_feature_map=feature_map,
+                shots=self.shots)
+        self._pipe = make_pipeline(XdawnCovariances(nfilter), TangentSpace(), dim_red, clf)
 
     def fit(self, X, y):
         self._pipe.fit(X, y)

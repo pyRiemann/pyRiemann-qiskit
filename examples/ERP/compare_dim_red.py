@@ -13,8 +13,9 @@ It is compared to the classical SVM.
 # Modified from plot_classify_EEG_tangentspace.py
 # License: BSD (3-clause)
 
-from pyriemann_qiskit.classification import QuanticSVM, QuanticVQC, StandardQuanticPipeline
-from pyriemann_qiskit.utils.filtering import NaivePair, NaiveImpair
+from pyriemann_qiskit.classification import QuanticSVM, QuanticVQC, RiemannQuantumClassifier
+from pyriemann_qiskit.utils.filtering import NaivePair, NaiveImpair, NoFilter
+from pyriemann_qiskit.utils.hyper_params_factory import gen_zz_feature_map, gen_two_local, get_spsa
 from mne import io, read_events, pick_types, Epochs
 from mne.datasets import sample
 
@@ -62,7 +63,7 @@ epochs = Epochs(
     verbose=False,
 )
 
-epochs = epochs[:20]
+# epochs = epochs[:20]
 
 X = epochs.get_data()
 y = epochs.events[:, -1]
@@ -84,25 +85,48 @@ f, axes = plt.subplots(3, len(nfilters), sharey='row')
 
 disp = None
 
+# in common: shots, feature_map
+# quanticsvm (gamma, shots, feature_map)
+# quanticvqc (shots, feature_map, optimizer, two_local)
+# svc? (gamma)
 
+gamma = [0.001, 0.01, 0.1]
+shots = [512, 1024, 2048]
+feature_entanglement=['full', 'linear', 'circular', 'sca']
+reps = [2, 3, 4]
 
-dim_reds = [NaivePair(), NaiveImpair()]
+dim_reds = [NaivePair(), NaiveImpair(), NoFilter(), PCA()]
 
-pipe = StandardQuanticPipeline()
+pipe = RiemannQuantumClassifier()
 param_grid_qsvc= {
         "nfilter" : [1],
+        "gamma" : gamma,
         "dim_red": dim_reds,
-        "quantum_clf": [QuanticSVM(quantum=True)],
+        "shots" : shots,
+        "feature_entanglement" : feature_entanglement,
+        "feature_reps" : reps,
+        "spsa_trials" : [None],
+        "two_local_reps" : [None]
     }
 param_grid_vqc= {
         "nfilter" : [1],
+        "gamma" : [None],
         "dim_red": dim_reds,
-        "quantum_clf": [QuanticVQC()],
+        "shots" : shots,
+        "feature_entanglement" : feature_entanglement,
+        "feature_reps" : reps,
+        "spsa_trials" : [20, 40, 60],
+        "two_local_reps" : reps
     }
 param_grid_classical = {
         "nfilter" : [1],
+        "gamma" : gamma,
         "dim_red": dim_reds,
-        "quantum_clf": [QuanticSVM(quantum=False)],
+        "shots" : [None],
+        "feature_entanglement" : feature_entanglement,
+        "feature_reps" : reps,
+        "spsa_trials" : [None],
+        "two_local_reps" : [None]
     }
 search_qsvc = GridSearchCV(pipe, param_grid_qsvc, n_jobs=2)
 search_qsvc.fit(X, y)
@@ -112,12 +136,6 @@ search_vqc.fit(X, y)
 
 search = GridSearchCV(pipe, param_grid_classical, n_jobs=2)
 search.fit(X, y)
-print("Best parameter (CV score=%0.3f):" % search_qsvc.best_score_)
-print(search_qsvc.best_params_)
-
-
-print("Best parameter Classical (CV score=%0.3f):" % search.best_score_)
-print(search.best_params_)
 
 
 SVC = 0
@@ -142,7 +160,7 @@ for classif in [SVC, QSVC, VQC]:
             title = "SVC"
             axe = axes[2][i]
 
-        pipe = StandardQuanticPipeline(**params)
+        pipe = RiemannQuantumClassifier(**params)
 
         y_pred = cross_val_predict(pipe, X, y, cv=cv)
 
@@ -163,6 +181,13 @@ for classif in [SVC, QSVC, VQC]:
             disp.ax_.set_ylabel('')
         # if not quantum:
         #     disp.ax_.set_xlabel('')
+
+print("Best parameter (CV score=%0.3f):" % search_qsvc.best_score_)
+print(search_qsvc.best_params_)
+print("Best parameter (CV score=%0.3f):" % search_vqc.best_score_)
+print(search_vqc.best_params_)
+print("Best parameter Classical (CV score=%0.3f):" % search.best_score_)
+print(search.best_params_)
 
 if disp:
     f.text(0.4, 0.1, 'Predicted label', ha='left')
