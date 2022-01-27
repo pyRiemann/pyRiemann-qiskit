@@ -16,13 +16,13 @@ then projected in the tangent space and classified with a quantum SVM
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann_qiskit.classification import QuanticSVM
+from pyriemann_qiskit.utils.filtering import NaivePairDimRed
 from mne import io, read_events, pick_types, Epochs
 from mne.datasets import sample
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import (confusion_matrix, ConfusionMatrixDisplay,
                              balanced_accuracy_score)
-from sklearn.base import TransformerMixin
 from matplotlib import pyplot as plt
 
 
@@ -83,12 +83,7 @@ tg = TangentSpace()
 
 
 # ...and dividing the number of remaining elements by two
-class NaiveDimRed(TransformerMixin):
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X, y=None):
-        return X[:, ::2]
+dim_red = NaivePairDimRed()
 
 
 # https://stackoverflow.com/questions/61825227/plotting-multiple-confusion-matrix-side-by-side
@@ -100,7 +95,7 @@ disp = None
 for quantum in [True, False]:
 
     qsvm = QuanticSVM(verbose=True, quantum=quantum)
-    clf = make_pipeline(sf, tg, NaiveDimRed(), qsvm)
+    clf = make_pipeline(sf, tg, dim_red, qsvm)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
 
