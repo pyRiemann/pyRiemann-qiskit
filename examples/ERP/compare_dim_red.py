@@ -63,7 +63,7 @@ epochs = Epochs(
     verbose=False,
 )
 
-# epochs = epochs[:20]
+epochs = epochs[:20]
 
 X = epochs.get_data()
 y = epochs.events[:, -1]
@@ -128,13 +128,13 @@ param_grid_classical = {
         "spsa_trials" : [None],
         "two_local_reps" : [None]
     }
-search_qsvc = GridSearchCV(pipe, param_grid_qsvc, n_jobs=2)
+search_qsvc = GridSearchCV(pipe, param_grid_qsvc, n_jobs=3)
 search_qsvc.fit(X, y)
 
-search_vqc = GridSearchCV(pipe, param_grid_vqc, n_jobs=2)
+search_vqc = GridSearchCV(pipe, param_grid_vqc, n_jobs=3)
 search_vqc.fit(X, y)
 
-search = GridSearchCV(pipe, param_grid_classical, n_jobs=2)
+search = GridSearchCV(pipe, param_grid_classical, n_jobs=3)
 search.fit(X, y)
 
 
