@@ -11,7 +11,7 @@ class TestCommon:
     )
     def test_init_and_fit(self, dim_red):
         """Ensure all filtering can be instanciated,
-        and fitted
+        and fitted.
         """
         X = np.array([[]])
         y = None
@@ -23,7 +23,7 @@ class TestCommon:
     )
     def test_transform_empty_array(self, dim_red):
         """Ensure we can provide an empty array to the
-        transform method
+        transform method.
         """
         X = np.array([[]])
         assert dim_red.transform(X).shape == (1, 0)

@@ -77,8 +77,9 @@ class NaiveEvenDimRed(TransformerMixin):
         X : ndarray, shape (n_samples, n_features)
             Training vector, where `n_samples` is the number of samples and
             `n_features` is the number of features.
-        y : ndarray, shape (n_samples, n_features)
+        y : ndarray, shape (n_samples,) (default: None)
             Target vector relative to X.
+            In practice, never used.
 
         Returns
         -------
@@ -99,7 +100,7 @@ class NaiveEvenDimRed(TransformerMixin):
         Returns
         -------
         X : ndarray, shape (n_samples, (n_features + 1) // 2)
-            The Filtered feature vectors.
+            The filtered feature vectors.
         """
         return X[:, ::2]
 
@@ -124,6 +125,9 @@ class NaiveOddDimRed(TransformerMixin):
         X : ndarray, shape (n_samples, n_features)
             Training vector, where `n_samples` is the number of samples and
             `n_features` is the number of features.
+        y : ndarray, shape (n_samples,) (default: None)
+            Target vector relative to X.
+            In practice, never used.
 
         Returns
         -------
@@ -140,12 +144,10 @@ class NaiveOddDimRed(TransformerMixin):
         ----------
         X : ndarray, shape (n_samples, n_features)
             ndarray of feature vectors.
-        y : ndarray, shape (n_samples,)
-            Target vector relative to X.
 
         Returns
         -------
         X : ndarray, shape (n_samples, n_features // 2)
-            The Filtered feature vectors.
+            The filtered feature vectors.
         """
         return X[:, 1::2]
