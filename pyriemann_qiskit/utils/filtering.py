@@ -88,7 +88,7 @@ class NaiveEvenDimRed(TransformerMixin):
         return self
 
     def transform(self, X):
-        """Divide the feature dimension by two, 
+        """Divide the feature dimension by two,
         keeping only even indices.
 
         Parameters
@@ -133,7 +133,7 @@ class NaiveOddDimRed(TransformerMixin):
         return self
 
     def transform(self, X):
-        """Divide the feature dimension by two, 
+        """Divide the feature dimension by two,
         keeping only odd indices.
 
         Parameters
