@@ -44,5 +44,4 @@ Filtering
     :toctree: generated/
 
     NoDimRed
-    NaiveEvenDimRed
-    NaiveOddDimRed
+    NaiveDimRed

@@ -16,7 +16,7 @@ then projected in the tangent space and classified with a quantum SVM
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann_qiskit.classification import QuanticSVM
-from pyriemann_qiskit.utils.filtering import NaiveEvenDimRed
+from pyriemann_qiskit.utils.filtering import NaiveDimRed
 from mne import io, read_events, pick_types, Epochs
 from mne.datasets import sample
 from sklearn.pipeline import make_pipeline
@@ -83,7 +83,7 @@ tg = TangentSpace()
 
 
 # ...and dividing the number of remaining elements by two
-dim_red = NaiveEvenDimRed()
+dim_red = NaiveDimRed()
 
 
 # https://stackoverflow.com/questions/61825227/plotting-multiple-confusion-matrix-side-by-side
