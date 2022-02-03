@@ -16,7 +16,7 @@ from .utils.hyper_params_factory import (gen_zz_feature_map,
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
 
-from pyriemann_qiskit.utils.filtering import NaivePair
+from pyriemann_qiskit.utils.filtering import NaiveDimRed
 
 logger.level = logging.INFO
 
@@ -424,7 +424,7 @@ class QuanticVQC(QuanticClassifierBase):
 
 
 class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin, TransformerMixin):
-    def __init__(self, nfilter=1, dim_red=NaivePair(),
+    def __init__(self, nfilter=1, dim_red=NaiveDimRed(),
         gamma=None,
         shots=1024,
         feature_entanglement='full',
