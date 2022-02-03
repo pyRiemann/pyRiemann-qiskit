@@ -34,3 +34,14 @@ Hyper-parameters generation
     gen_zz_feature_map
     gen_two_local
     get_spsa
+
+Filtering
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _filtering_api:
+.. currentmodule:: pyriemann_qiskit.utils.filtering
+
+.. autosummary::
+    :toctree: generated/
+
+    NoDimRed
+    NaiveDimRed
