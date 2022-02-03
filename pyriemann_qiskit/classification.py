@@ -424,6 +424,44 @@ class QuanticVQC(QuanticClassifierBase):
 
 
 class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin, TransformerMixin):
+
+    """RiemannQuantumClassifier
+    
+    Project the data into the tangant space of the Riemannian manifold,
+    before applying quantum classification.
+    The type of quantum classification (SVM, quantum SVM, or VQC) depends on 
+    the value of the parameters.
+
+    Parameters
+    ----------
+    nfilter : int (default: 1)
+        TODO
+    dim_red : TransformerMixin (default: NaiveDimRed(is_even=True))
+        TODO
+    gamma : TODO
+        TODO
+    shots : TODO
+        TODO
+    feature_entanglement : TODO
+        TODO
+    feature_reps : TODO
+        TODO
+    spsa_trials : TODO
+        TODO
+    two_local_reps : TODO
+        TODO
+
+    Notes
+    -----
+    .. versionadded:: 0.0.1
+
+    See Also
+    --------
+    QuanticVQC
+    QuanticSVM
+
+    """
+
     def __init__(self, nfilter=1, dim_red=NaiveDimRed(),
         gamma=None,
         shots=1024,
