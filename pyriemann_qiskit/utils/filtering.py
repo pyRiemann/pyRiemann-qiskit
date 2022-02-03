@@ -66,7 +66,7 @@ class NaiveDimRed(TransformerMixin):
     ----------
     is_even : bool (default: True)
         - If true keep only even indices of feature vectors.
-        - If false, keep only od indices of feature vectors.
+        - If false, keep only odd indices of feature vectors.
 
     Notes
     -----
