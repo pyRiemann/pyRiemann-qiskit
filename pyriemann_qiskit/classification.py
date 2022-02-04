@@ -385,10 +385,7 @@ class QuanticVQC(QuanticClassifierBase):
         return vqc
 
     def predict_proba(self, X):
-        """This method is implemented for compatibility purpose
-           as SVM prediction probabilities are not available.
-           This method assigns to each trial a boolean which value
-           depends on wheter the label was assigned to classes 0 or 1
+        """Return the probabilities associated with predictions.
 
         Parameters
         ----------
@@ -520,17 +517,82 @@ class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin, TransformerMixin)
         self._pipe = make_pipeline(XdawnCovariances(nfilter), TangentSpace(), dim_red, clf)
 
     def fit(self, X, y):
+        """Train the riemann quantum classifier.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_trials, n_channels, n_times)
+            ndarray of trials.
+        y : ndarray, shape (n_samples,)
+            Target vector relative to X.
+
+        Returns
+        -------
+        self : RiemannQuantumClassifier instance
+            The riemann quantum classifier instance.
+        """
+
         self._pipe.fit(X, y)
         return self
 
     def score(self, X, y):
+        """TODO
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_trials, n_channels, n_times)
+            ndarray of trials.
+
+        Returns
+        -------
+        pred : ndarray of int, shape (n_trials, 1)
+            Class labels for samples in X.
+        """
         return self._pipe.score(X, y)
 
     def predict(self, X):
+        """get the predictions.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_trials, n_channels, n_times)
+            ndarray of trials.
+
+        Returns
+        -------
+        pred : ndarray of int, shape (n_trials, 1)
+            Class labels for samples in X.
+        """
         return self._pipe.predict(X)
 
     def predict_proba(self, X):
+        """Return the probabilities associated with predictions.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_trials, n_channels, n_times)
+            ndarray of trials.
+
+        Returns
+        -------
+        prob : ndarray, shape (n_samples, n_classes)
+            prob[n, 0] == True if the nth sample is assigned to 1st class;
+            prob[n, 1] == True if the nth sample is assigned to 2nd class.
+        """
+
         return self._pipe.predict_proba(X)
 
     def transform(self, X):
+        """TODO
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_trials, n_channels, n_times)
+            ndarray of trials.
+
+        Returns
+        -------
+        pred : ndarray of int, shape (n_trials, 1)
+            Class labels for samples in X.
+        """
         return self._pipe.transform(X)
