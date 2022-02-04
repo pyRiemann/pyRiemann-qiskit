@@ -45,3 +45,14 @@ Filtering
 
     NoDimRed
     NaiveDimRed
+
+Datasets
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _datasets_api
+.. currentmodule:: pyriemann_qiskit.datasets.utils
+
+.. autosummary::
+    :toctree: generated/
+
+    get_mne_sample
+
