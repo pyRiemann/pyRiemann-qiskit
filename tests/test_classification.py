@@ -9,22 +9,16 @@ from pyriemann_qiskit.datasets import get_mne_sample
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
     
-
-def test_get_set_params(get_dataset):
-    clf = make_pipeline(XdawnCovariances(nfilter=1), TangentSpace(), NaiveDimRed(),
-                        QuanticSVM(quantum=False))
+@pytest.mark.parametrize('estimator', [make_pipeline(XdawnCovariances(nfilter=1),
+                                                     TangentSpace(), NaiveDimRed(),
+                                                     QuanticSVM(quantum=False)),
+                                       RiemannQuantumClassifier(nfilter=1, shots=None)])
+def test_get_set_params(estimator):
     skf = StratifiedKFold(n_splits=2)
     X, y = get_mne_sample()
-    scr = cross_val_score(clf, X, y, cv=skf, scoring='roc_auc', error_score='raise')
+    scr = cross_val_score(estimator, X, y, cv=skf, scoring='roc_auc', error_score='raise')
     assert scr.mean() > 0
 
-def test_params_2(get_dataset):
-    clf = RiemannQuantumClassifier(nfilter=1, shots=None)
-    skf = StratifiedKFold(n_splits=2)
-    X, y = get_mne_sample()
-    scr = cross_val_score(clf, X, y, cv=skf, scoring='roc_auc', error_score='raise')
-    
-    assert scr.mean() > 0
 
 def test_vqc_classical_should_return_value_error():
     with pytest.raises(ValueError):
