@@ -26,7 +26,6 @@ from pyriemann_qiskit.classification import QuanticSVM
 # from pyriemann_qiskit.classification import QuanticVQC
 
 
-
 print(__doc__)
 
 ###############################################################################

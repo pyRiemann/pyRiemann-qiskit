@@ -1,22 +1,26 @@
-from distutils.log import error
-from pyriemann_qiskit.utils.filtering import NaiveDimRed
 import pytest
 import numpy as np
 from pyriemann.classification import TangentSpace
 from pyriemann.estimation import XdawnCovariances
-from pyriemann_qiskit.classification import QuanticSVM, QuanticVQC, RiemannQuantumClassifier
+from pyriemann_qiskit.classification import (QuanticSVM,
+                                             QuanticVQC,
+                                             RiemannQuantumClassifier)
 from pyriemann_qiskit.datasets import get_mne_sample
+from pyriemann_qiskit.utils.filtering import NaiveDimRed
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
-    
-@pytest.mark.parametrize('estimator', [make_pipeline(XdawnCovariances(nfilter=1),
-                                                     TangentSpace(), NaiveDimRed(),
-                                                     QuanticSVM(quantum=False)),
-                                       RiemannQuantumClassifier(nfilter=1, shots=None)])
+
+
+@pytest.mark.parametrize('estimator',
+                         [make_pipeline(XdawnCovariances(nfilter=1),
+                                        TangentSpace(), NaiveDimRed(),
+                                        QuanticSVM(quantum=False)),
+                          RiemannQuantumClassifier(nfilter=1, shots=None)])
 def test_get_set_params(estimator):
     skf = StratifiedKFold(n_splits=2)
     X, y = get_mne_sample()
-    scr = cross_val_score(estimator, X, y, cv=skf, scoring='roc_auc', error_score='raise')
+    scr = cross_val_score(estimator, X, y, cv=skf, scoring='roc_auc',
+                          error_score='raise')
     assert scr.mean() > 0
 
 
@@ -144,6 +148,7 @@ class TestQuanticVQC(BinaryFVT):
         # Considering the inputs, this probably make no sense to test accuracy.
         # Instead, we could consider this test as a canary test
         assert len(self.prediction) == len(self.labels)
+
 
 class TestRiemannQuantumClassifier(BinaryFVT):
     """Functional testing for riemann quantum classifier."""

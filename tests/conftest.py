@@ -1,8 +1,6 @@
-from pyriemann_qiskit.datasets.utils import get_mne_sample
 import pytest
 import numpy as np
 from functools import partial
-
 from pyriemann.datasets import make_covariances
 from pyriemann_qiskit.datasets import get_mne_sample
 

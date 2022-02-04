@@ -9,7 +9,6 @@ def get_mne_sample(samples=10):
 
     data_path = sample.data_path()
 
-    ###############################################################################
     # Set parameters and read data
     raw_fname = data_path + "/MEG/sample/sample_audvis_filt-0-40_raw.fif"
     event_fname = data_path + "/MEG/sample/sample_audvis_filt-0-40_raw-eve.fif"
