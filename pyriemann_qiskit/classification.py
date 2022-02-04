@@ -494,7 +494,8 @@ class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin,
 
     def __init__(self, nfilter=1, dim_red=NaiveDimRed(),
                  gamma=None, shots=1024, feature_entanglement='full',
-                 feature_reps=2, spsa_trials=None, two_local_reps=None):
+                 feature_reps=2, spsa_trials=None, two_local_reps=None,
+                 **params):
 
         self.nfilter = nfilter
         self.dim_red = dim_red
@@ -514,13 +515,14 @@ class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin,
                              gen_var_form=gen_two_local(two_local_reps),
                              gen_feature_map=feature_map,
                              shots=self.shots,
-                             quantum=is_quantum)
+                             quantum=is_quantum,
+                             **params)
         else:
             clf = QuanticSVM(quantum=is_quantum, gamma=gamma,
                              gen_feature_map=feature_map,
-                             shots=shots)
+                             shots=shots, **params)
 
-        self._pipe = make_pipeline(XdawnCovariances(nfilter),
+        self._pipe = make_pipeline(XdawnCovariances(nfilter=nfilter),
                                    TangentSpace(), dim_red, clf)
 
     def fit(self, X, y):
@@ -539,6 +541,7 @@ class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin,
             The riemann quantum classifier instance.
         """
 
+        self.classes_ = np.unique(y)
         self._pipe.fit(X, y)
         return self
 

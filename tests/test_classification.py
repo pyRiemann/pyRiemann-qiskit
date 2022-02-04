@@ -1,21 +1,77 @@
+from distutils.log import error
+from pyriemann_qiskit.utils.filtering import NaiveDimRed
 import pytest
 import numpy as np
 from pyriemann.classification import TangentSpace
 from pyriemann.estimation import XdawnCovariances
-from pyriemann_qiskit.classification import QuanticSVM, QuanticVQC
+from pyriemann.spatialfilters import Xdawn
+from pyriemann_qiskit.classification import QuanticSVM, QuanticVQC, RiemannQuantumClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.datasets import make_moons, make_circles, make_classification
+from qiskit.ml.datasets import ad_hoc_data
 
 
-def test_params(get_dataset):
-    clf = make_pipeline(XdawnCovariances(), TangentSpace(),
+from mne import io, read_events, pick_types, Epochs
+from mne.datasets import sample
+
+
+data_path = sample.data_path()
+
+###############################################################################
+# Set parameters and read data
+raw_fname = data_path + "/MEG/sample/sample_audvis_filt-0-40_raw.fif"
+event_fname = data_path + "/MEG/sample/sample_audvis_filt-0-40_raw-eve.fif"
+tmin, tmax = -0.0, 1
+event_id = dict(vis_l=3, vis_r=4)  # select only two classes
+
+# Setup for reading the raw data
+raw = io.Raw(raw_fname, preload=True, verbose=False)
+raw.filter(2, None, method="iir")  # replace baselining with high-pass
+events = read_events(event_fname)
+
+raw.info["bads"] = ["MEG 2443"]  # set bad channels
+picks = pick_types(
+    raw.info, meg=False, eeg=True, stim=False, eog=False, exclude="bads"
+)
+
+# Read epochs
+epochs = Epochs(
+    raw,
+    events,
+    event_id,
+    tmin,
+    tmax,
+    proj=False,
+    picks=picks,
+    baseline=None,
+    preload=True,
+    verbose=False,
+)
+
+X = epochs.get_data()[:10]
+y = epochs.events[:, -1][:10]
+    
+
+def test_get_set_params(get_dataset):
+    clf = make_pipeline(XdawnCovariances(nfilter=1), TangentSpace(), NaiveDimRed(),
                         QuanticSVM(quantum=False))
-    skf = StratifiedKFold(n_splits=5)
-    n_matrices, n_channels, n_classes = 100, 3, 2
-    covset, labels = get_dataset(n_matrices, n_channels, n_classes)
+    skf = StratifiedKFold(n_splits=2)
+    # n_matrices, n_channels, n_classes = 100, 3, 2
+    # covset, labels = get_dataset(n_matrices, n_channels, n_classes, "covset")
 
-    cross_val_score(clf, covset, labels, cv=skf, scoring='roc_auc')
+    scr = cross_val_score(clf, X, y, cv=skf, scoring='roc_auc', error_score='raise')
 
+    assert scr.mean() > 0
+
+def test_params_2(get_dataset):
+    clf = RiemannQuantumClassifier(nfilter=1, shots=None)
+    skf = StratifiedKFold(n_splits=2)
+    # n_matrices, n_channels, n_classes = 100, 2, 2
+    # covset, labels = get_dataset(n_matrices, n_channels, n_classes, "")
+    scr = cross_val_score(clf, X, y, cv=skf, scoring='roc_auc', error_score='raise')
+    
+    assert scr.mean() > 0
 
 def test_vqc_classical_should_return_value_error():
     with pytest.raises(ValueError):
@@ -42,22 +98,22 @@ def test_qsvm_init(quantum):
 
 
 class BinaryTest:
-    def prepare(self, n_samples, n_features, quantum_instance, random):
+    def prepare(self, n_samples, n_features, quantum_instance, type):
         self.n_classes = 2
         self.n_samples = n_samples
         self.n_features = n_features
         self.quantum_instance = quantum_instance
-        self.random = random
+        self.type = type
         self.class_len = n_samples // self.n_classes
 
     def test(self, get_dataset):
         # there is no __init__ method with pytest
-        n_samples, n_features, quantum_instance, random = self.get_params()
-        self.prepare(n_samples, n_features, quantum_instance, random)
+        n_samples, n_features, quantum_instance, type = self.get_params()
+        self.prepare(n_samples, n_features, quantum_instance, type)
         self.samples, self.labels = get_dataset(self.n_samples,
                                                 self.n_features,
                                                 self.n_classes,
-                                                self.random)
+                                                self.type)
         self.additional_steps()
         self.check()
 
@@ -75,7 +131,7 @@ class TestQSVMSplitClasses(BinaryTest):
     """Test _split_classes method of quantum classifiers"""
     def get_params(self):
         quantum_instance = QuanticSVM(quantum=False)
-        return 100, 9, quantum_instance, True
+        return 100, 9, quantum_instance, "rand_feats"
 
     def additional_steps(self):
         # As fit method is not called here, classes_ is not set.
@@ -102,7 +158,7 @@ class TestClassicalSVM(BinaryFVT):
     """
     def get_params(self):
         quantum_instance = QuanticSVM(quantum=False, verbose=False)
-        return 100, 9, quantum_instance, False
+        return 100, 9, quantum_instance, "bin_feats"
 
     def check(self):
         assert self.prediction[:self.class_len].all() == \
@@ -120,7 +176,7 @@ class TestQuanticSVM(BinaryFVT):
     """
     def get_params(self):
         quantum_instance = QuanticSVM(quantum=True, verbose=False)
-        return 10, 4, quantum_instance, False
+        return 10, 4, quantum_instance, "bin_feats"
 
     def check(self):
         assert self.prediction[:self.class_len].all() == \
@@ -135,9 +191,18 @@ class TestQuanticVQC(BinaryFVT):
         quantum_instance = QuanticVQC(verbose=False)
         # To achieve testing in a reasonnable amount of time,
         # we will lower the size of the feature and the number of trials
-        return 4, 4, quantum_instance, True
+        return 4, 4, quantum_instance, "rand_feats"
 
     def check(self):
         # Considering the inputs, this probably make no sense to test accuracy.
         # Instead, we could consider this test as a canary test
+        assert len(self.prediction) == len(self.labels)
+
+class TestRiemannQuantumClassifier(BinaryFVT):
+    """Functional testing for riemann quantum classifier."""
+    def get_params(self):
+        quantum_instance = RiemannQuantumClassifier(verbose=False)
+        return 4, 4, quantum_instance, ""
+
+    def check(self):
         assert len(self.prediction) == len(self.labels)
