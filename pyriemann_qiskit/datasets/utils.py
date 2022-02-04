@@ -1,5 +1,8 @@
+import numpy as np
 from mne import io, read_events, pick_types, Epochs
 from mne.datasets import sample
+from qiskit.ml.datasets import ad_hoc_data
+from sklearn.datasets import make_classification
 
 
 def get_mne_sample(samples=10):
@@ -41,3 +44,28 @@ def get_mne_sample(samples=10):
     y = epochs.events[:, -1][:10]
 
     return X, y
+
+
+def get_qiskit_dataset():
+    feature_dim = 2
+    _, inputs, _, _ = ad_hoc_data(
+        training_size=30,
+        test_size=0,
+        n=feature_dim,
+        gap=0.3,
+        plot_data=False
+    )
+
+    X = np.concatenate((inputs['A'], inputs['B']))
+    y = np.concatenate(([0] * 30, [1] * 30))
+
+    return (X, y)
+
+
+def get_linearly_separable_dataset():
+    X, y = make_classification(n_features=2, n_redundant=0, n_informative=2,
+                               random_state=1, n_clusters_per_class=1)
+    rng = np.random.RandomState(2)
+    X += 2 * rng.uniform(size=X.shape)
+
+    return(X, y)

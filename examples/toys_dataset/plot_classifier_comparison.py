@@ -17,42 +17,17 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.datasets import make_moons, make_circles, make_classification
+from sklearn.datasets import make_moons, make_circles
 from sklearn.svm import SVC
+from pyriemann_qiskit.datasets import (get_linearly_separable_dataset,
+                                       get_qiskit_dataset)
 from pyriemann_qiskit.classification import QuanticSVM
 # uncomment to run comparison with QuanticVQC (disabled for CI/CD)
 # from pyriemann_qiskit.classification import QuanticVQC
-from qiskit.ml.datasets import ad_hoc_data
+
 
 
 print(__doc__)
-
-###############################################################################
-
-
-def get_qiskit_dataset():
-    feature_dim = 2
-    _, inputs, _, _ = ad_hoc_data(
-        training_size=30,
-        test_size=0,
-        n=feature_dim,
-        gap=0.3,
-        plot_data=False
-    )
-
-    X = np.concatenate((inputs['A'], inputs['B']))
-    y = np.concatenate(([0] * 30, [1] * 30))
-
-    return (X, y)
-
-
-def get_linearly_separable_dataset():
-    X, y = make_classification(n_features=2, n_redundant=0, n_informative=2,
-                               random_state=1, n_clusters_per_class=1)
-    rng = np.random.RandomState(2)
-    X += 2 * rng.uniform(size=X.shape)
-
-    return(X, y)
 
 ###############################################################################
 
