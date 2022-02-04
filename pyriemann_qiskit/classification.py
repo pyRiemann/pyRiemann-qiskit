@@ -427,29 +427,43 @@ class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin, TransformerMixin)
 
     """RiemannQuantumClassifier
     
-    Project the data into the tangant space of the Riemannian manifold,
+    Project the data into the tangent space of the Riemannian manifold,
     before applying quantum classification.
+
     The type of quantum classification (SVM, quantum SVM, or VQC) depends on 
     the value of the parameters.
+
+    Data are entangled using a ZZFeatureMap. A SPSA optimizer and two-local
+    circuirts are used in addition for VQC.
+    
+
 
     Parameters
     ----------
     nfilter : int (default: 1)
-        TODO
+        The number of filter for the xDawnFilter.
+        The number of components selected is 2 x nfilter.
     dim_red : TransformerMixin (default: NaiveDimRed(is_even=True))
-        TODO
-    gamma : TODO
-        TODO
-    shots : TODO
-        TODO
-    feature_entanglement : TODO
-        TODO
-    feature_reps : TODO
-        TODO
-    spsa_trials : TODO
-        TODO
-    two_local_reps : TODO
-        TODO
+        A transformer that will reduce the dimension of the feature, 
+        after the data are projeced into the tangent space.
+    gamma : float | None (default:None)
+        Used as input for sklearn rbf_kernel which is used internally.
+        See [1]_ for more information about gamma.
+    shots : int (default:1024)
+        Number of repetitions of each circuit, for sampling
+    feature_entanglement : str | list[list[list[int]]] | \
+                   Callable[int, list[list[list[int]]]]
+        Specifies the entanglement structure for the ZZFeatureMap.
+        Entanglement structure can be provided with indices or string.
+        Possible string values are: 'full', 'linear', 'circular' and 'sca'.
+        Consult [2]_ for more details on entanglement structure.
+    feature_reps : int (default 2)
+        The number of repeated circuits for the ZZFeatureMap,
+        greater or equal to 1.
+    spsa_trials : int (default:40)
+        Maximum number of iterations to perform using SPSA optimizer.
+    two_local_reps : int (default 3)
+        The number of repetition for the two-local cricuit.
 
     Notes
     -----
@@ -457,18 +471,28 @@ class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin, TransformerMixin)
 
     See Also
     --------
+    XdawnCovariances
+    TangentSpace
+    gen_zz_feature_map
+    gen_two_local
+    get_spsa
     QuanticVQC
     QuanticSVM
+
+    References
+    ----------
+    .. [1] Available from: \
+        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.rbf_kernel.html
+    
+    .. [2] \
+        https://qiskit.org/documentation/stable/0.19/stubs/qiskit.circuit.library.NLocal.html
 
     """
 
     def __init__(self, nfilter=1, dim_red=NaiveDimRed(),
-        gamma=None,
-        shots=1024,
-        feature_entanglement='full',
-        feature_reps=2,
-        spsa_trials=None,
-        two_local_reps=None):
+                 gamma=None, shots=1024, feature_entanglement='full',
+                feature_reps=2, spsa_trials=None, two_local_reps=None):
+
         self.nfilter = nfilter
         self.dim_red = dim_red
         self.gamma=gamma
@@ -477,17 +501,22 @@ class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin, TransformerMixin)
         self.feature_reps=feature_reps
         self.spsa_trials=spsa_trials
         self.two_local_reps=two_local_reps
+
+        is_vqc = spsa_trials and two_local_reps
+        is_quantum= not shots == None 
+
         feature_map = gen_zz_feature_map(self.feature_reps, self.feature_entanglement)
-        if spsa_trials and two_local_reps:
+        if is_vqc:
             clf = QuanticVQC(optimizer=get_spsa(self.spsa_trials),
                 gen_var_form=gen_two_local(self.two_local_reps),
                 gen_feature_map=feature_map,
-                shots=self.shots)
+                shots=self.shots,
+                quantum=is_quantum)
         else: 
-            quantum= not shots == None 
-            clf = QuanticSVM(quantum=quantum, gamma=self.gamma,
+            clf = QuanticSVM(quantum=is_quantum, gamma=self.gamma,
             gen_feature_map=feature_map,
                 shots=self.shots)
+                
         self._pipe = make_pipeline(XdawnCovariances(nfilter), TangentSpace(), dim_red, clf)
 
     def fit(self, X, y):
