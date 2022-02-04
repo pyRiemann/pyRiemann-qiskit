@@ -204,11 +204,15 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         """Return the testing accuracy.
            You might want to use a different metric by using sklearn
            cross_val_score
+
         Parameters
         ----------
         X : ndarray, shape (n_samples, n_features)
             Input vector, where `n_samples` is the number of samples and
             `n_features` is the number of features.
+        y: ndarray, shape (n_samples,)
+            Predicted target vector relative to X.
+
         Returns
         -------
         accuracy : double
@@ -536,17 +540,21 @@ class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin, TransformerMixin)
         return self
 
     def score(self, X, y):
-        """TODO
+        """Return the accuracy.
+        You might want to use a different metric by using sklearn
+        cross_val_score
 
         Parameters
         ----------
         X : ndarray, shape (n_trials, n_channels, n_times)
             ndarray of trials.
+        y : ndarray, shape (n_trials,)
+            Predicted target vector relative to X.
 
         Returns
         -------
-        pred : ndarray of int, shape (n_trials, 1)
-            Class labels for samples in X.
+        accuracy : double
+            Accuracy of predictions from X with respect y.
         """
         return self._pipe.score(X, y)
 
@@ -583,7 +591,7 @@ class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin, TransformerMixin)
         return self._pipe.predict_proba(X)
 
     def transform(self, X):
-        """TODO
+        """Transform the data into feature vectors.
 
         Parameters
         ----------
@@ -592,7 +600,9 @@ class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin, TransformerMixin)
 
         Returns
         -------
-        pred : ndarray of int, shape (n_trials, 1)
-            Class labels for samples in X.
+        dist : ndarray, shape (n_trials, n_ts)
+            the tangent space projection of the data.
+            the dimension of the feature vector depends on
+            `n_filter` and `dim_red`.
         """
         return self._pipe.transform(X)
