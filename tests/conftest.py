@@ -1,10 +1,10 @@
-import math
-import string
+from pyriemann_qiskit.datasets.utils import get_mne_sample
 import pytest
 import numpy as np
 from functools import partial
 
 from pyriemann.datasets import make_covariances
+from pyriemann_qiskit.datasets import get_mne_sample
 
 
 def requires_module(function, name, call=None):
@@ -69,31 +69,25 @@ def _get_binary_feats(n_samples, n_features):
     return samples
 
 
-def _get_binary_epochs(n_samples, n_channels, n_times):
-    """Generate a balanced binary set of n_features-dimensional
-     samples for test purpose, containing either 0 or 1"""
-    n_classes = 2
-    class_len = n_samples // n_classes  # balanced set
-    samples_0 = np.ones((class_len, n_channels, n_times)) * 0.5
-    samples_1 = np.ones((class_len, n_channels, n_times)) * 0.6
-    samples = np.concatenate((samples_0, samples_1), axis=0)
-    return samples
-
 @pytest.fixture
 def get_dataset(rndstate):
+    """Return a dataset with shape (n_samples, n_features).
+    The dataset can contains random (type="rand") or
+    binary (type="bin") values.
+    If the attribute `type` is None, the default mne dataset
+    is returned.
+    """
     # Note: the n_classes parameters might be misleading as it is only
     # recognized by the _get_labels methods.
-    def _get_dataset(n_samples, n_features, n_classes, type="bin_feats"):
-        if type == "rand_feats":
+    def _get_dataset(n_samples, n_features, n_classes, type="bin"):
+        if type == "rand":
             samples = _get_rand_feats(n_samples, n_features, rndstate)
-        elif type == "bin_feats":
+            labels = _get_labels(n_samples, n_classes)
+        elif type == "bin":
             samples = _get_binary_feats(n_samples, n_features)
-        elif type == "covset":
-            samples = make_covariances(n_samples, int(math.sqrt(n_features)), rndstate,
-                                       return_params=False)
+            labels = _get_labels(n_samples, n_classes)
         else:
-            samples = _get_binary_epochs(n_samples, n_features, 100)
-        labels = _get_labels(n_samples, n_classes)
+            samples, labels = get_mne_sample()
         return samples, labels
     return _get_dataset
 

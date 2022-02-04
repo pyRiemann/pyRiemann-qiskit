@@ -4,30 +4,24 @@ import pytest
 import numpy as np
 from pyriemann.classification import TangentSpace
 from pyriemann.estimation import XdawnCovariances
-from pyriemann.spatialfilters import Xdawn
 from pyriemann_qiskit.classification import QuanticSVM, QuanticVQC, RiemannQuantumClassifier
+from pyriemann_qiskit.datasets import get_mne_sample
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
-from sklearn.datasets import make_moons, make_circles, make_classification
-from qiskit.ml.datasets import ad_hoc_data
     
 
 def test_get_set_params(get_dataset):
     clf = make_pipeline(XdawnCovariances(nfilter=1), TangentSpace(), NaiveDimRed(),
                         QuanticSVM(quantum=False))
     skf = StratifiedKFold(n_splits=2)
-    # n_matrices, n_channels, n_classes = 100, 3, 2
-    # covset, labels = get_dataset(n_matrices, n_channels, n_classes, "covset")
-
+    X, y = get_mne_sample()
     scr = cross_val_score(clf, X, y, cv=skf, scoring='roc_auc', error_score='raise')
-
     assert scr.mean() > 0
 
 def test_params_2(get_dataset):
     clf = RiemannQuantumClassifier(nfilter=1, shots=None)
     skf = StratifiedKFold(n_splits=2)
-    # n_matrices, n_channels, n_classes = 100, 2, 2
-    # covset, labels = get_dataset(n_matrices, n_channels, n_classes, "")
+    X, y = get_mne_sample()
     scr = cross_val_score(clf, X, y, cv=skf, scoring='roc_auc', error_score='raise')
     
     assert scr.mean() > 0
@@ -90,7 +84,7 @@ class TestQSVMSplitClasses(BinaryTest):
     """Test _split_classes method of quantum classifiers"""
     def get_params(self):
         quantum_instance = QuanticSVM(quantum=False)
-        return 100, 9, quantum_instance, "rand_feats"
+        return 100, 9, quantum_instance, "rand"
 
     def additional_steps(self):
         # As fit method is not called here, classes_ is not set.
@@ -117,7 +111,7 @@ class TestClassicalSVM(BinaryFVT):
     """
     def get_params(self):
         quantum_instance = QuanticSVM(quantum=False, verbose=False)
-        return 100, 9, quantum_instance, "bin_feats"
+        return 100, 9, quantum_instance, "bin"
 
     def check(self):
         assert self.prediction[:self.class_len].all() == \
@@ -135,7 +129,7 @@ class TestQuanticSVM(BinaryFVT):
     """
     def get_params(self):
         quantum_instance = QuanticSVM(quantum=True, verbose=False)
-        return 10, 4, quantum_instance, "bin_feats"
+        return 10, 4, quantum_instance, "bin"
 
     def check(self):
         assert self.prediction[:self.class_len].all() == \
@@ -150,7 +144,7 @@ class TestQuanticVQC(BinaryFVT):
         quantum_instance = QuanticVQC(verbose=False)
         # To achieve testing in a reasonnable amount of time,
         # we will lower the size of the feature and the number of trials
-        return 4, 4, quantum_instance, "rand_feats"
+        return 4, 4, quantum_instance, "rand"
 
     def check(self):
         # Considering the inputs, this probably make no sense to test accuracy.
@@ -161,7 +155,7 @@ class TestRiemannQuantumClassifier(BinaryFVT):
     """Functional testing for riemann quantum classifier."""
     def get_params(self):
         quantum_instance = RiemannQuantumClassifier(verbose=False)
-        return 4, 4, quantum_instance, ""
+        return 4, 4, quantum_instance, None
 
     def check(self):
         assert len(self.prediction) == len(self.labels)
