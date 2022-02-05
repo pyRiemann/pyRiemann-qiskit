@@ -7,7 +7,7 @@ from sklearn.datasets import make_classification
 
 def get_mne_sample(n_trials=10):
     """Return mne epochs with duration 1s.
-    Only visual left and right are selected.
+    Only visual left and right trials are selected.
     Data are returned filtered.
 
     Parameters
@@ -20,7 +20,7 @@ def get_mne_sample(n_trials=10):
     X : ndarray, shape (n_trials, n_channels, n_times)
         ndarray of trials.
     y : ndarray, shape (n_trials,)
-            Predicted target vector relative to X.
+        Predicted target vector relative to X.
 
     """
     data_path = sample.data_path()
@@ -62,6 +62,18 @@ def get_mne_sample(n_trials=10):
 
 
 def get_qiskit_dataset():
+    """Return qiskit dataset.
+
+    Returns
+    -------
+    X : ndarray, shape (n_samples, n_features)
+        Input vector, where `n_samples` is the number of samples and
+        `n_features` is the number of features.
+    y: ndarray, shape (n_samples,)
+        Predicted target vector relative to X.
+
+    """
+
     feature_dim = 2
     _, inputs, _, _ = ad_hoc_data(
         training_size=30,
@@ -78,6 +90,17 @@ def get_qiskit_dataset():
 
 
 def get_linearly_separable_dataset():
+    """Return linearly separable dataset.
+
+    Returns
+    -------
+    X : ndarray, shape (n_samples, n_features)
+        Input vector, where `n_samples` is the number of samples and
+        `n_features` is the number of features.
+    y: ndarray, shape (n_samples,)
+        Predicted target vector relative to X.
+
+    """
     X, y = make_classification(n_features=2, n_redundant=0, n_informative=2,
                                random_state=1, n_clusters_per_class=1)
     rng = np.random.RandomState(2)
