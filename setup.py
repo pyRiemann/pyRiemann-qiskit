@@ -35,6 +35,6 @@ setup(name='pyriemann-qiskit',
       python_requires=">=3.6",
       install_requires=['cython', 'pyriemann @ git+https://github.com/pyRiemann/pyRiemann#egg=pyriemann', 'qiskit==0.20.0', 'cvxpy==1.1.12'],
       extras_require={'docs': ['sphinx-gallery', 'sphinx-bootstrap_theme', 'numpydoc', 'mne', 'seaborn'],
-                      'tests': ['pytest', 'seaborn', 'flake8', 'mne', 'pooch']},
+                      'tests': ['pytest', 'seaborn', 'flake8', 'mne', 'pooch', 'tqdm']},
       zip_safe=False,
 )

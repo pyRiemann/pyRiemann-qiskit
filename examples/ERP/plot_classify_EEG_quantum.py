@@ -28,7 +28,7 @@ from matplotlib import pyplot as plt
 print(__doc__)
 
 
-X, y = get_mne_sample(samples=-1)
+X, y = get_mne_sample(n_trials=-1)
 
 # ...skipping the KFold validation parts (for the purpose of the test only)
 X_train, X_test, y_train, y_test = train_test_split(

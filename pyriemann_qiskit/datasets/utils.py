@@ -5,8 +5,24 @@ from qiskit.ml.datasets import ad_hoc_data
 from sklearn.datasets import make_classification
 
 
-def get_mne_sample(samples=10):
+def get_mne_sample(n_trials=10):
+    """Return mne epochs with duration 1s.
+    Only visual left and right are selected.
+    Data are returned filtered.
 
+    Parameters
+    ----------
+    n_trials : int (default:10)
+        Number of trials to return.
+
+    Returns
+    -------
+    X : ndarray, shape (n_trials, n_channels, n_times)
+        ndarray of trials.
+    y : ndarray, shape (n_trials,)
+            Predicted target vector relative to X.
+
+    """
     data_path = sample.data_path()
 
     # Set parameters and read data
@@ -39,8 +55,8 @@ def get_mne_sample(samples=10):
         verbose=False,
     )
 
-    X = epochs.get_data()[:samples, :-1, :-1]
-    y = epochs.events[:samples, -1]
+    X = epochs.get_data()[:n_trials, :-1, :-1]
+    y = epochs.events[:n_trials, -1]
 
     return X, y
 
