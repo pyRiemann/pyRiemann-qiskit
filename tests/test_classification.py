@@ -64,8 +64,7 @@ class BinaryTest:
             quantum_instance, type = itemgetter('n_samples',
                                                 'n_features',
                                                 'quantum_instance',
-                                                'type')\
-                                                (self.get_params())
+                                                'type')(self.get_params())
         self.prepare(n_samples, n_features, quantum_instance, type)
         self.samples, self.labels = get_dataset(self.n_samples,
                                                 self.n_features,
@@ -92,7 +91,7 @@ class TestQSVMSplitClasses(BinaryTest):
             "n_samples": 100,
             "n_features": 9,
             "quantum_instance": quantum_instance,
-            "type":"rand"
+            "type": "rand"
         }
 
     def additional_steps(self):
@@ -124,7 +123,7 @@ class TestClassicalSVM(BinaryFVT):
             "n_samples": 100,
             "n_features": 9,
             "quantum_instance": quantum_instance,
-            "type":"bin"
+            "type": "bin"
         }
 
     def check(self):
@@ -147,7 +146,7 @@ class TestQuanticSVM(BinaryFVT):
             "n_samples": 10,
             "n_features": 4,
             "quantum_instance": quantum_instance,
-            "type":"bin"
+            "type": "bin"
         }
 
     def check(self):
@@ -167,7 +166,7 @@ class TestQuanticVQC(BinaryFVT):
             "n_samples": 4,
             "n_features": 4,
             "quantum_instance": quantum_instance,
-            "type":"rand"
+            "type": "rand"
         }
 
     def check(self):
