@@ -9,6 +9,7 @@ from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
+from operator import itemgetter
 
 
 @pytest.mark.parametrize('estimator',
@@ -59,7 +60,12 @@ class BinaryTest:
 
     def test(self, get_dataset):
         # there is no __init__ method with pytest
-        n_samples, n_features, quantum_instance, type = self.get_params()
+        n_samples, n_features, \
+            quantum_instance, type = itemgetter('n_samples',
+                                                'n_features',
+                                                'quantum_instance',
+                                                'type')\
+                                                (self.get_params())
         self.prepare(n_samples, n_features, quantum_instance, type)
         self.samples, self.labels = get_dataset(self.n_samples,
                                                 self.n_features,
@@ -82,7 +88,12 @@ class TestQSVMSplitClasses(BinaryTest):
     """Test _split_classes method of quantum classifiers"""
     def get_params(self):
         quantum_instance = QuanticSVM(quantum=False)
-        return 100, 9, quantum_instance, "rand"
+        return {
+            "n_samples": 100,
+            "n_features": 9,
+            "quantum_instance": quantum_instance,
+            "type":"rand"
+        }
 
     def additional_steps(self):
         # As fit method is not called here, classes_ is not set.
@@ -109,7 +120,12 @@ class TestClassicalSVM(BinaryFVT):
     """
     def get_params(self):
         quantum_instance = QuanticSVM(quantum=False, verbose=False)
-        return 100, 9, quantum_instance, "bin"
+        return {
+            "n_samples": 100,
+            "n_features": 9,
+            "quantum_instance": quantum_instance,
+            "type":"bin"
+        }
 
     def check(self):
         assert self.prediction[:self.class_len].all() == \
@@ -127,7 +143,12 @@ class TestQuanticSVM(BinaryFVT):
     """
     def get_params(self):
         quantum_instance = QuanticSVM(quantum=True, verbose=False)
-        return 10, 4, quantum_instance, "bin"
+        return {
+            "n_samples": 10,
+            "n_features": 4,
+            "quantum_instance": quantum_instance,
+            "type":"bin"
+        }
 
     def check(self):
         assert self.prediction[:self.class_len].all() == \
@@ -142,7 +163,12 @@ class TestQuanticVQC(BinaryFVT):
         quantum_instance = QuanticVQC(verbose=False)
         # To achieve testing in a reasonnable amount of time,
         # we will lower the size of the feature and the number of trials
-        return 4, 4, quantum_instance, "rand"
+        return {
+            "n_samples": 4,
+            "n_features": 4,
+            "quantum_instance": quantum_instance,
+            "type":"rand"
+        }
 
     def check(self):
         # Considering the inputs, this probably make no sense to test accuracy.
@@ -154,7 +180,12 @@ class TestRiemannQuantumClassifier(BinaryFVT):
     """Functional testing for riemann quantum classifier."""
     def get_params(self):
         quantum_instance = RiemannQuantumClassifier(verbose=False)
-        return 4, 4, quantum_instance, None
+        return {
+            "n_samples": 4,
+            "n_features": 4,
+            "quantum_instance": quantum_instance,
+            "type": None
+        }
 
     def check(self):
         assert len(self.prediction) == len(self.labels)
