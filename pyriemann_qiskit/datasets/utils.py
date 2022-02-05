@@ -39,8 +39,8 @@ def get_mne_sample(samples=10):
         verbose=False,
     )
 
-    X = epochs.get_data()[:10]
-    y = epochs.events[:, -1][:10]
+    X = epochs.get_data()[:samples, :-1, :-1]
+    y = epochs.events[:samples, -1]
 
     return X, y
 
