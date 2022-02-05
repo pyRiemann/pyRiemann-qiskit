@@ -15,7 +15,6 @@ from .utils.hyper_params_factory import (gen_zz_feature_map,
                                          get_spsa)
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
-
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
 
 logger.level = logging.INFO
@@ -433,11 +432,11 @@ class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin,
     Project the data into the tangent space of the Riemannian manifold,
     before applying quantum classification.
 
-    The type of quantum classification (SVM, quantum SVM, or VQC) depends on
+    The type of quantum classification (quantum SVM or VQC) depends on
     the value of the parameters.
 
-    Data are entangled using a ZZFeatureMap. A SPSA optimizer and two-local
-    circuirts are used in addition for VQC.
+    Data are entangled using a ZZFeatureMap. A SPSA optimizer and a two-local
+    circuirt are used in addition for VQC.
 
 
 
@@ -448,24 +447,24 @@ class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin,
         The number of components selected is 2 x nfilter.
     dim_red : TransformerMixin (default: NaiveDimRed(is_even=True))
         A transformer that will reduce the dimension of the feature,
-        after the data are projeced into the tangent space.
+        after the data are projected into the tangent space.
     gamma : float | None (default:None)
         Used as input for sklearn rbf_kernel which is used internally.
         See [1]_ for more information about gamma.
     shots : int (default:1024)
-        Number of repetitions of each circuit, for sampling
+        Number of repetitions of each circuit, for sampling.
     feature_entanglement : str | list[list[list[int]]] | \
                    Callable[int, list[list[list[int]]]]
         Specifies the entanglement structure for the ZZFeatureMap.
         Entanglement structure can be provided with indices or string.
         Possible string values are: 'full', 'linear', 'circular' and 'sca'.
         Consult [2]_ for more details on entanglement structure.
-    feature_reps : int (default 2)
+    feature_reps : int (default: 2)
         The number of repeated circuits for the ZZFeatureMap,
         greater or equal to 1.
-    spsa_trials : int (default:40)
+    spsa_trials : int (default: 40)
         Maximum number of iterations to perform using SPSA optimizer.
-    two_local_reps : int (default 3)
+    two_local_reps : int (default: 3)
         The number of repetition for the two-local cricuit.
 
     Notes

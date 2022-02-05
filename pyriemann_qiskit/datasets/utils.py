@@ -90,7 +90,7 @@ def get_qiskit_dataset():
 
 
 def get_linearly_separable_dataset():
-    """Return linearly separable dataset.
+    """Return a linearly separable dataset.
 
     Returns
     -------
