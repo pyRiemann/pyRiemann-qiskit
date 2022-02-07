@@ -30,7 +30,6 @@ jobs:
         python -m pip install --upgrade pip
     - name: Install package
       run: |
-        pip install -U jax==0.2.9 jaxlib==0.1.60
         python -m pip install .[tests]
     - name: Lint with flake8
       run: |
