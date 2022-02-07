@@ -446,7 +446,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
     nfilter : int (default: 1)
         The number of filter for the xDawnFilter.
         The number of components selected is 2 x nfilter.
-    dim_red : TransformerMixin (default: NaiveDimRed(is_even=True))
+    dim_red : TransformerMixin (default: PCA())
         A transformer that will reduce the dimension of the feature,
         after the data are projected into the tangent space.
     gamma : float | None (default:None)
