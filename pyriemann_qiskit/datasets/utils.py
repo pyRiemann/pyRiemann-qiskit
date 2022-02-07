@@ -6,7 +6,18 @@ from sklearn.datasets import make_classification
 
 
 def get_mne_sample(n_trials=10):
-    """Return mne epochs with duration 1s.
+    """Return sample data from the mne dataset.
+
+    ```
+    In this experiment, checkerboard patterns were presented to the subject
+    into the left and right visual field, interspersed by tones to the
+    left or right ear. The interval between the stimuli was 750 ms.
+    Occasionally a smiley face was presented at the center of the visual field.
+    The subject was asked to press a key with the right index finger
+    as soon as possible after the appearance of the face.
+    ``` [1]_
+
+    The samples returned by this method are epochs of duration 1s.
     Only visual left and right trials are selected.
     Data are returned filtered.
 
@@ -21,6 +32,11 @@ def get_mne_sample(n_trials=10):
         ndarray of trials.
     y : ndarray, shape (n_trials,)
         Predicted target vector relative to X.
+
+    References
+    ----------
+    .. [1] Available from: \
+        https://mne.tools/stable/overview/datasets_index.html
 
     """
     data_path = sample.data_path()
