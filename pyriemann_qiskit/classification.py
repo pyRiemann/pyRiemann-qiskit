@@ -1,6 +1,7 @@
 """Module for classification function."""
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
+from sklearn.decomposition import PCA
 from sklearn.pipeline import make_pipeline
 from qiskit import BasicAer, IBMQ
 from qiskit.aqua import QuantumInstance, aqua_globals
@@ -15,7 +16,6 @@ from .utils.hyper_params_factory import (gen_zz_feature_map,
                                          get_spsa)
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
-from pyriemann_qiskit.utils.filtering import NaiveDimRed
 
 logger.level = logging.INFO
 
@@ -424,10 +424,11 @@ class QuanticVQC(QuanticClassifierBase):
         return self._map_0_1_to_classes(labels)
 
 
-class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin,
-                               TransformerMixin):
+class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
+                                                     ClassifierMixin,
+                                                     TransformerMixin):
 
-    """RiemannQuantumClassifier
+    """Default pipeline wiht riemann geometry and quantum classifiers.
 
     Project the data into the tangent space of the Riemannian manifold,
     before applying quantum classification.
@@ -491,7 +492,7 @@ class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin,
 
     """
 
-    def __init__(self, nfilter=1, dim_red=NaiveDimRed(),
+    def __init__(self, nfilter=1, dim_red=PCA(),
                  gamma=None, shots=1024, feature_entanglement='full',
                  feature_reps=2, spsa_trials=None, two_local_reps=None,
                  **params):
@@ -536,8 +537,8 @@ class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin,
 
         Returns
         -------
-        self : RiemannQuantumClassifier instance
-            The riemann quantum classifier instance.
+        self : QuantumClassifierWithDefaultRiemannianPipeline instance
+            The QuantumClassifierWithDefaultRiemannianPipeline instance
         """
 
         self.classes_ = np.unique(y)

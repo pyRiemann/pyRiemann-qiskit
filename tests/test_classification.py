@@ -2,9 +2,10 @@ import pytest
 import numpy as np
 from pyriemann.classification import TangentSpace
 from pyriemann.estimation import XdawnCovariances
-from pyriemann_qiskit.classification import (QuanticSVM,
-                                             QuanticVQC,
-                                             RiemannQuantumClassifier)
+from pyriemann_qiskit.classification \
+    import (QuanticSVM,
+            QuanticVQC,
+            QuantumClassifierWithDefaultRiemannianPipeline)
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
 from sklearn.pipeline import make_pipeline
@@ -16,7 +17,9 @@ from operator import itemgetter
                          [make_pipeline(XdawnCovariances(nfilter=1),
                                         TangentSpace(), NaiveDimRed(),
                                         QuanticSVM(quantum=False)),
-                          RiemannQuantumClassifier(nfilter=1, shots=None)])
+                          QuantumClassifierWithDefaultRiemannianPipeline(
+                              nfilter=1,
+                              shots=None)])
 def test_get_set_params(estimator):
     skf = StratifiedKFold(n_splits=2)
     X, y = get_mne_sample()
@@ -175,10 +178,11 @@ class TestQuanticVQC(BinaryFVT):
         assert len(self.prediction) == len(self.labels)
 
 
-class TestRiemannQuantumClassifier(BinaryFVT):
+class TestQuantumClassifierWithDefaultRiemannianPipeline(BinaryFVT):
     """Functional testing for riemann quantum classifier."""
     def get_params(self):
-        quantum_instance = RiemannQuantumClassifier(verbose=False)
+        quantum_instance = \
+            QuantumClassifierWithDefaultRiemannianPipeline(verbose=False)
         return {
             "n_samples": 4,
             "n_features": 4,
