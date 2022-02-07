@@ -48,7 +48,7 @@ Filtering
 
 Datasets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. _datasets_api
+.. _datasets_api:
 .. currentmodule:: pyriemann_qiskit.datasets.utils
 
 .. autosummary::
