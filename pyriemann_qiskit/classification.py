@@ -510,7 +510,10 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
         is_quantum = not shots
 
         feature_map = gen_zz_feature_map(feature_reps, feature_entanglement)
+        # verbose is passed as an additional parameter to quantum classifiers.
+        self.verbose = "verbose" in params and params["verbose"]
         if is_vqc:
+            self._log("QuanticVQC chosen.")
             clf = QuanticVQC(optimizer=get_spsa(spsa_trials),
                              gen_var_form=gen_two_local(two_local_reps),
                              gen_feature_map=feature_map,
@@ -518,12 +521,17 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
                              quantum=is_quantum,
                              **params)
         else:
+            self._log("QuanticSVM chosen.")
             clf = QuanticSVM(quantum=is_quantum, gamma=gamma,
                              gen_feature_map=feature_map,
                              shots=shots, **params)
 
         self._pipe = make_pipeline(XdawnCovariances(nfilter=nfilter),
                                    TangentSpace(), dim_red, clf)
+
+    def _log(self, trace):
+        if self.verbose:
+            print("[QuantumClassifierWithDefaultRiemannianPipeline] ", trace)
 
     def fit(self, X, y):
         """Train the riemann quantum classifier.
