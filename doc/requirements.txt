@@ -9,4 +9,5 @@ joblib
 pandas
 cvxpy==1.1.12
 qiskit==0.20.0
+scipy==1.7.3
 git+https://github.com/pyRiemann/pyRiemann#egg=pyriemann

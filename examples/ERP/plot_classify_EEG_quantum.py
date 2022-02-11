@@ -17,8 +17,7 @@ from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann_qiskit.classification import QuanticSVM
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
-from mne import io, read_events, pick_types, Epochs
-from mne.datasets import sample
+from pyriemann_qiskit.datasets import get_mne_sample
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import (confusion_matrix, ConfusionMatrixDisplay,
@@ -28,41 +27,8 @@ from matplotlib import pyplot as plt
 
 print(__doc__)
 
-data_path = sample.data_path()
 
-###############################################################################
-# Set parameters and read data
-raw_fname = data_path + "/MEG/sample/sample_audvis_filt-0-40_raw.fif"
-event_fname = data_path + "/MEG/sample/sample_audvis_filt-0-40_raw-eve.fif"
-tmin, tmax = -0.0, 1
-event_id = dict(vis_l=3, vis_r=4)  # select only two classes
-
-# Setup for reading the raw data
-raw = io.Raw(raw_fname, preload=True, verbose=False)
-raw.filter(2, None, method="iir")  # replace baselining with high-pass
-events = read_events(event_fname)
-
-raw.info["bads"] = ["MEG 2443"]  # set bad channels
-picks = pick_types(
-    raw.info, meg=False, eeg=True, stim=False, eog=False, exclude="bads"
-)
-
-# Read epochs
-epochs = Epochs(
-    raw,
-    events,
-    event_id,
-    tmin,
-    tmax,
-    proj=False,
-    picks=picks,
-    baseline=None,
-    preload=True,
-    verbose=False,
-)
-
-X = epochs.get_data()
-y = epochs.events[:, -1]
+X, y = get_mne_sample(n_trials=-1)
 
 # ...skipping the KFold validation parts (for the purpose of the test only)
 X_train, X_test, y_train, y_test = train_test_split(

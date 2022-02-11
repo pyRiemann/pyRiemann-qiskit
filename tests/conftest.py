@@ -1,8 +1,8 @@
 import pytest
 import numpy as np
 from functools import partial
-
 from pyriemann.datasets import make_covariances
+from pyriemann_qiskit.datasets import get_mne_sample
 
 
 def requires_module(function, name, call=None):
@@ -69,14 +69,23 @@ def _get_binary_feats(n_samples, n_features):
 
 @pytest.fixture
 def get_dataset(rndstate):
+    """Return a dataset with shape (n_samples, n_features).
+    The dataset can contains random (type="rand") or
+    binary (type="bin") values.
+    If the attribute `type` is None, the default mne dataset
+    is returned.
+    """
     # Note: the n_classes parameters might be misleading as it is only
     # recognized by the _get_labels methods.
-    def _get_dataset(n_samples, n_features, n_classes, random=True):
-        if random:
+    def _get_dataset(n_samples, n_features, n_classes, type="bin"):
+        if type == "rand":
             samples = _get_rand_feats(n_samples, n_features, rndstate)
-        else:
+            labels = _get_labels(n_samples, n_classes)
+        elif type == "bin":
             samples = _get_binary_feats(n_samples, n_features)
-        labels = _get_labels(n_samples, n_classes)
+            labels = _get_labels(n_samples, n_classes)
+        else:
+            samples, labels = get_mne_sample()
         return samples, labels
     return _get_dataset
 
