@@ -9,4 +9,3 @@ def test_get_square_cont_var():
     mat = prob.continuous_var_matrix(keys1=channels, keys2=channels,
                                      name='test', lb=-prob.infinity)
     assert mat is not None
-
