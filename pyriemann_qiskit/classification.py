@@ -1,6 +1,7 @@
 """Module for classification function."""
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
+from sklearn.decomposition import PCA
 from sklearn.pipeline import make_pipeline
 from qiskit import BasicAer, IBMQ
 from qiskit.aqua import QuantumInstance, aqua_globals
@@ -16,9 +17,8 @@ from .utils.hyper_params_factory import (gen_zz_feature_map,
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
 
-from pyriemann_qiskit.utils.filtering import NaiveDimRed
-
 logger.level = logging.INFO
+
 
 class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
@@ -424,19 +424,21 @@ class QuanticVQC(QuanticClassifierBase):
         return self._map_0_1_to_classes(labels)
 
 
-class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin, TransformerMixin):
+class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
+                                                     ClassifierMixin,
+                                                     TransformerMixin):
 
-    """RiemannQuantumClassifier
-    
+    """Default pipeline wiht riemann geometry and quantum classifiers.
+
     Project the data into the tangent space of the Riemannian manifold,
     before applying quantum classification.
 
-    The type of quantum classification (SVM, quantum SVM, or VQC) depends on 
+    The type of quantum classification (quantum SVM or VQC) depends on
     the value of the parameters.
 
-    Data are entangled using a ZZFeatureMap. A SPSA optimizer and two-local
-    circuirts are used in addition for VQC.
-    
+    Data are entangled using a ZZFeatureMap. A SPSA optimizer and a two-local
+    circuirt are used in addition for VQC.
+
 
 
     Parameters
@@ -444,26 +446,26 @@ class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin, TransformerMixin)
     nfilter : int (default: 1)
         The number of filter for the xDawnFilter.
         The number of components selected is 2 x nfilter.
-    dim_red : TransformerMixin (default: NaiveDimRed(is_even=True))
-        A transformer that will reduce the dimension of the feature, 
-        after the data are projeced into the tangent space.
+    dim_red : TransformerMixin (default: PCA())
+        A transformer that will reduce the dimension of the feature,
+        after the data are projected into the tangent space.
     gamma : float | None (default:None)
         Used as input for sklearn rbf_kernel which is used internally.
         See [1]_ for more information about gamma.
     shots : int (default:1024)
-        Number of repetitions of each circuit, for sampling
+        Number of repetitions of each circuit, for sampling.
     feature_entanglement : str | list[list[list[int]]] | \
                    Callable[int, list[list[list[int]]]]
         Specifies the entanglement structure for the ZZFeatureMap.
         Entanglement structure can be provided with indices or string.
         Possible string values are: 'full', 'linear', 'circular' and 'sca'.
         Consult [2]_ for more details on entanglement structure.
-    feature_reps : int (default 2)
+    feature_reps : int (default: 2)
         The number of repeated circuits for the ZZFeatureMap,
         greater or equal to 1.
-    spsa_trials : int (default:40)
+    spsa_trials : int (default: 40)
         Maximum number of iterations to perform using SPSA optimizer.
-    two_local_reps : int (default 3)
+    two_local_reps : int (default: 3)
         The number of repetition for the two-local cricuit.
 
     Notes
@@ -484,41 +486,52 @@ class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin, TransformerMixin)
     ----------
     .. [1] Available from: \
         https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.rbf_kernel.html
-    
+
     .. [2] \
         https://qiskit.org/documentation/stable/0.19/stubs/qiskit.circuit.library.NLocal.html
 
     """
 
-    def __init__(self, nfilter=1, dim_red=NaiveDimRed(),
+    def __init__(self, nfilter=1, dim_red=PCA(),
                  gamma=None, shots=1024, feature_entanglement='full',
-                feature_reps=2, spsa_trials=None, two_local_reps=None):
+                 feature_reps=2, spsa_trials=None, two_local_reps=None,
+                 **params):
 
         self.nfilter = nfilter
         self.dim_red = dim_red
-        self.gamma=gamma
-        self.shots=shots
-        self.feature_entanglement=feature_entanglement
-        self.feature_reps=feature_reps
-        self.spsa_trials=spsa_trials
-        self.two_local_reps=two_local_reps
+        self.gamma = gamma
+        self.shots = shots
+        self.feature_entanglement = feature_entanglement
+        self.feature_reps = feature_reps
+        self.spsa_trials = spsa_trials
+        self.two_local_reps = two_local_reps
 
         is_vqc = spsa_trials and two_local_reps
-        is_quantum= not shots == None 
+        is_quantum = not shots
 
-        feature_map = gen_zz_feature_map(self.feature_reps, self.feature_entanglement)
+        feature_map = gen_zz_feature_map(feature_reps, feature_entanglement)
+        # verbose is passed as an additional parameter to quantum classifiers.
+        self.verbose = "verbose" in params and params["verbose"]
         if is_vqc:
-            clf = QuanticVQC(optimizer=get_spsa(self.spsa_trials),
-                gen_var_form=gen_two_local(self.two_local_reps),
-                gen_feature_map=feature_map,
-                shots=self.shots,
-                quantum=is_quantum)
-        else: 
-            clf = QuanticSVM(quantum=is_quantum, gamma=self.gamma,
-            gen_feature_map=feature_map,
-                shots=self.shots)
-                
-        self._pipe = make_pipeline(XdawnCovariances(nfilter), TangentSpace(), dim_red, clf)
+            self._log("QuanticVQC chosen.")
+            clf = QuanticVQC(optimizer=get_spsa(spsa_trials),
+                             gen_var_form=gen_two_local(two_local_reps),
+                             gen_feature_map=feature_map,
+                             shots=self.shots,
+                             quantum=is_quantum,
+                             **params)
+        else:
+            self._log("QuanticSVM chosen.")
+            clf = QuanticSVM(quantum=is_quantum, gamma=gamma,
+                             gen_feature_map=feature_map,
+                             shots=shots, **params)
+
+        self._pipe = make_pipeline(XdawnCovariances(nfilter=nfilter),
+                                   TangentSpace(), dim_red, clf)
+
+    def _log(self, trace):
+        if self.verbose:
+            print("[QuantumClassifierWithDefaultRiemannianPipeline] ", trace)
 
     def fit(self, X, y):
         """Train the riemann quantum classifier.
@@ -532,10 +545,11 @@ class RiemannQuantumClassifier(BaseEstimator, ClassifierMixin, TransformerMixin)
 
         Returns
         -------
-        self : RiemannQuantumClassifier instance
-            The riemann quantum classifier instance.
+        self : QuantumClassifierWithDefaultRiemannianPipeline instance
+            The QuantumClassifierWithDefaultRiemannianPipeline instance
         """
 
+        self.classes_ = np.unique(y)
         self._pipe.fit(X, y)
         return self
 
