@@ -13,7 +13,7 @@ It is compared to the classical SVM.
 # Modified from plot_classify_EEG_tangentspace.py
 # License: BSD (3-clause)
 
-from pyriemann_qiskit.classification import QuanticSVM, QuanticVQC, RiemannQuantumClassifier
+from pyriemann_qiskit.classification import QuantumClassifierWithDefaultRiemannianPipeline
 from pyriemann_qiskit.utils.filtering import NaivePair, NaiveImpair, NoFilter
 from pyriemann_qiskit.utils.hyper_params_factory import gen_zz_feature_map, gen_two_local, get_spsa
 from mne import io, read_events, pick_types, Epochs
@@ -97,7 +97,7 @@ reps = [2, 3, 4]
 
 dim_reds = [NaivePair(), NaiveImpair(), NoFilter(), PCA()]
 
-pipe = RiemannQuantumClassifier()
+pipe = QuantumClassifierWithDefaultRiemannianPipeline()
 param_grid_qsvc= {
         "nfilter" : [1],
         "gamma" : gamma,
@@ -160,7 +160,7 @@ for classif in [SVC, QSVC, VQC]:
             title = "SVC"
             axe = axes[2][i]
 
-        pipe = RiemannQuantumClassifier(**params)
+        pipe = QuantumClassifierWithDefaultRiemannianPipeline(**params)
 
         y_pred = cross_val_predict(pipe, X, y, cv=cv)
 

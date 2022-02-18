@@ -3,6 +3,7 @@ import itertools
 import numpy as np
 from sklearn.svm import SVC
 
+
 class Closest(TransformerMixin):
     def __init__(self, ndim=None):
         self.ndim = ndim
@@ -53,7 +54,8 @@ class Preclassif(TransformerMixin):
                 if sub_vectors is None:
                     sub_vectors = np.atleast_2d([v[list(subset)]])
                 else:
-                    sub_vectors = np.append(sub_vectors, [v[list(subset)]], axis=0)
+                    sub_vectors = np.append(sub_vectors, [v[list(subset)]],
+                                            axis=0)
             svc = SVC()
 
             svc.fit(sub_vectors, y)
@@ -67,7 +69,6 @@ class Preclassif(TransformerMixin):
         subset = [int(i) for i in self.closest_subset_to_vector]
         ret = X[:, subset]
         return ret
-
 
 
 class NoDimRed(TransformerMixin):
