@@ -13,7 +13,7 @@ TODO
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.classification import \
     QuantumClassifierWithDefaultRiemannianPipeline
-from pyriemann_qiskit.utils.filtering import NaivePair
+from pyriemann_qiskit.utils.filtering import NaiveDimRed
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.decomposition import PCA
 from matplotlib import pyplot as plt
@@ -36,7 +36,7 @@ default = {
     "shots": [1024],
     "feature_entanglement": ['linear', 'sca'],
     "reps": [2, 3],
-    "dim_reds": [NaivePair(), PCA()]
+    "dim_reds": [NaiveDimRed(), PCA()]
 }
 
 pipe = QuantumClassifierWithDefaultRiemannianPipeline()
