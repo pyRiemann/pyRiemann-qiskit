@@ -23,7 +23,7 @@ from sklearn.metrics import balanced_accuracy_score
 
 print(__doc__)
 
-X, y = get_mne_sample()
+X, y = get_mne_sample(n_trials=-1)
 
 nfilters = [1, 1]
 
@@ -73,7 +73,7 @@ SVC = get_grid_search(2, "SVC", default["gamma"], [None], [None], [None])
 # Results will be computed for QuanticSVM versus SKLearnSVM for comparison
 for classif in [SVC, QSVC, VQC]:
     for i in range(len(nfilters)):
-        cv = StratifiedKFold(n_splits=5, shuffle=False)
+        cv = StratifiedKFold(n_splits=5, shuffle=False, random_state=0)
 
         params = classif["best_params"]
         title = classif["title"]
@@ -100,14 +100,16 @@ for classif in [SVC, QSVC, VQC]:
         disp.ax_.set_xlabel('')
         if i > 0:
             disp.ax_.set_ylabel('')
+        if n < 2:
+            disp.ax_.set_xlabel('')
         # if not quantum:
         #     disp.ax_.set_xlabel('')
 
-print("Best parameter (CV score=%0.3f):" % QSVC["best_score"])
+print("Best QSVC parameter (CV score=%0.3f):" % QSVC["best_score"])
 print(QSVC["best_params"])
-print("Best parameter (CV score=%0.3f):" % VQC["best_score"])
+print("Best VQC parameter (CV score=%0.3f):" % VQC["best_score"])
 print(VQC["best_params"])
-print("Best parameter Classical (CV score=%0.3f):" % SVC["best_score"])
+print("Best SVC parameter Classical (CV score=%0.3f):" % SVC["best_score"])
 print(SVC["best_params"])
 
 if disp:
