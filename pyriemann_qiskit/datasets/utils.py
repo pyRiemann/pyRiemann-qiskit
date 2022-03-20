@@ -41,7 +41,10 @@ def get_mne_sample(n_trials=10):
         https://mne.tools/stable/overview/datasets_index.html
 
     """
-    data_path = sample.data_path()
+    try:
+        data_path = sample.data_path()
+    except RuntimeError:
+        pass
 
     # Set parameters and read data
     raw_fname = data_path + "/MEG/sample/sample_audvis_filt-0-40_raw.fif"
