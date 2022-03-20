@@ -128,12 +128,15 @@ def get_linearly_separable_dataset():
 
 
 def get_bi2012_dataset():
-    """Return the brain invaders 2012 dataset.
+    """Return an iterator over the brain invaders 2012 dataset.
+
+    Each call to the _next_ method return the epochs `X` and the predicted
+    target vector `y` relative to `X` for a subject in the dataset.
 
     Returns
     -------
-    dataset: BrainInvaders2012
-       An instance of the brain invaders 2012 dataset.
+    dataset: Iterator
+       An iterator over the brain invaders 2012 dataset.
 
     """
 
