@@ -3,6 +3,7 @@ from mne import io, read_events, pick_types, Epochs
 from mne.datasets import sample
 from qiskit.ml.datasets import ad_hoc_data
 from sklearn.datasets import make_classification
+from braininvaders2012.dataset import BrainInvaders2012
 
 
 def get_mne_sample(n_trials=10):
@@ -123,3 +124,16 @@ def get_linearly_separable_dataset():
     X += 2 * rng.uniform(size=X.shape)
 
     return(X, y)
+
+
+def get_bi2012_dataset():
+    """Return the brain invaders 2012 dataset.
+
+    Returns
+    -------
+    dataset: BrainInvaders2012
+       An instance of the brain invaders 2012 dataset.
+
+    """
+
+    return BrainInvaders2012(Training=True)
