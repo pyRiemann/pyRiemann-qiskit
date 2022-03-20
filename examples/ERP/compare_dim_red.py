@@ -23,11 +23,11 @@ from sklearn.metrics import balanced_accuracy_score
 
 print(__doc__)
 
-X, y = get_mne_sample(n_trials=-1)
+X, y = get_mne_sample(n_trials=10)
 
-nfilters = [1, 1]
+nfilters = [1, 2]
 
-f, axes = plt.subplots(3, len(nfilters), sharey='row')
+f, axes = plt.subplots(len(nfilters), 3, sharey='row')
 
 disp = None
 
@@ -45,7 +45,7 @@ pipe = QuantumClassifierWithDefaultRiemannianPipeline()
 def get_grid_search(idx, title, a_gamma, a_spsa_trials=[None],
                     a_two_local_reps=[None], a_shots=default["shots"]):
     params = {
-        "nfilter": [1],
+        "nfilter": nfilters,
         "gamma": a_gamma,
         "dim_red": default["dim_reds"],
         "shots": a_shots,
@@ -54,37 +54,49 @@ def get_grid_search(idx, title, a_gamma, a_spsa_trials=[None],
         "spsa_trials": a_spsa_trials,
         "two_local_reps": a_two_local_reps
     }
-    grid = GridSearchCV(pipe, params, n_jobs=3)
+    grid = GridSearchCV(pipe, params, scoring='balanced_accuracy',n_jobs=3, cv=StratifiedKFold())
     search = grid.fit(X, y)
+    filters = search.cv_results_["param_nfilter"]
+    scores = search.cv_results_["mean_test_score"]
+    test_params = search.cv_results_["params"]
+    i_best_score_1 = scores == max(scores[filters == 1])
+    i_best_score_2 = scores == max(scores[filters == 2])
+    print(search.cv_results_["rank_test_score"])
+    print(filters)
+    print(scores)
+    print(scores[filters == 1])
+    print(max(scores[filters == 1]))
+    print(i_best_score_1)
     return {
         "idx": idx,
         "title": title,
-        "best_params": search.best_params_,
-        "best_score": search.best_score_
+        "best_params": [test_params[i_best_score_1], test_params[i_best_score_2]],
+        "best_score": [scores[i_best_score_1], scores[i_best_score_2]]
+
     }
 
+SVC = get_grid_search(2, "SVC", default["gamma"], [None], [None], [None])
 
+print(SVC)
+exit(0)
 QSVC = get_grid_search(0, "QSVC", default["gamma"])
 
 VQC = get_grid_search(1, "VQC", [None], [40], default["reps"])
 
-SVC = get_grid_search(2, "SVC", default["gamma"], [None], [None], [None])
+
+
 
 # Results will be computed for QuanticSVM versus SKLearnSVM for comparison
 for classif in [SVC, QSVC, VQC]:
     for i in range(len(nfilters)):
-        cv = StratifiedKFold(n_splits=5, shuffle=False, random_state=0)
-
-        params = classif["best_params"]
+        params = classif["best_params"][i]
         title = classif["title"]
         n = classif["idx"]
-        axe = axes[n][i]
+        axe = axes[i][n]
 
-        pipe = QuantumClassifierWithDefaultRiemannianPipeline(**params)
 
-        y_pred = cross_val_predict(pipe, X, y, cv=cv)
+        score = classif["best_score"][i]
 
-        score = balanced_accuracy_score(y_pred, y)
         # Printing the results
         score_str = "%0.2f" % score
 
@@ -98,9 +110,9 @@ for classif in [SVC, QSVC, VQC]:
         disp.ax_.set_title(title)
         disp.im_.colorbar.remove()
         disp.ax_.set_xlabel('')
-        if i > 0:
+        if n > 0:
             disp.ax_.set_ylabel('')
-        if n < 2:
+        if i < 2:
             disp.ax_.set_xlabel('')
         # if not quantum:
         #     disp.ax_.set_xlabel('')
