@@ -1,8 +1,9 @@
 import numpy as np
-from mne import io, read_events, pick_types, Epochs
+from mne import io, read_events, pick_types, Epochs, find_events
 from mne.datasets import sample
 from qiskit.ml.datasets import ad_hoc_data
 from sklearn.datasets import make_classification
+from sklearn.preprocessing import LabelEncoder
 from braininvaders2012.dataset import BrainInvaders2012
 
 
@@ -136,4 +137,39 @@ def get_bi2012_dataset():
 
     """
 
-    return BrainInvaders2012(Training=True)
+    dataset = BrainInvaders2012(Training=True)
+    subjects = dataset.subject_list
+
+    class Iterator():
+        def _iter_(self):
+            self.index = 0
+
+        def _next_(self):
+            if self.index == len(subjects - 1):
+                raise StopIteration
+
+            subject = subjects[self.index]
+            self.index += 1
+            data = dataset._get_single_subject_data(subject)
+            raw = data['session_1']['run_training']
+
+            # filter data and resample
+            fmin = 1
+            fmax = 24
+            raw.filter(fmin, fmax, verbose=False)
+            raw.resample(128)
+
+            # detect the events and cut the signal into epochs
+            events = find_events(raw=raw, shortest_event=1, verbose=False)
+            event_id = {'NonTarget': 1, 'Target': 2}
+            epochs = Epochs(raw, events, event_id, tmin=0.1, tmax=0.7,
+                            baseline=None, verbose=False, preload=True)
+            epochs.pick_types(eeg=True)
+
+            # get trials and labels
+            X = epochs.get_data()
+            y = events[:, -1]
+            y = LabelEncoder().fit_transform(y)
+            return (X, y)
+
+    return Iterator()
