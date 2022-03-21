@@ -6,7 +6,7 @@ Quantum classification of ERPs using data from bi2012
 #TODO
 
 """
-# Author:  #TODO
+# Author: #TODO
 # License: BSD (3-clause)
 
 from pyriemann_qiskit.datasets import get_bi2012_dataset

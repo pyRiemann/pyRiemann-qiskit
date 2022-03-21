@@ -6,7 +6,6 @@ from sklearn.datasets import make_classification
 from sklearn.preprocessing import LabelEncoder
 from braininvaders2012.dataset import BrainInvaders2012
 
-_data_path_sample = sample.data_path(update_path=True)
 
 def get_mne_sample(n_trials=10):
     """Return sample data from the mne dataset.
@@ -43,9 +42,11 @@ def get_mne_sample(n_trials=10):
 
     """
 
+    path_sample = sample.data_path()
+
     # Set parameters and read data
-    raw_fname = _data_path_sample + "/MEG/sample/sample_audvis_filt-0-40_raw.fif"
-    event_fname = _data_path_sample + "/MEG/sample/sample_audvis_filt-0-40_raw-eve.fif"
+    raw_fname = path_sample + "/MEG/sample/sample_audvis_filt-0-40_raw.fif"
+    event_fname = path_sample + "/MEG/sample/sample_audvis_filt-0-40_raw-eve.fif"
     tmin, tmax = -0.0, 1
     event_id = dict(vis_l=3, vis_r=4)  # select only two classes
 

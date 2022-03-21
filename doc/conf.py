@@ -20,7 +20,7 @@ import matplotlib
 import mne
 # Error the pipeline with bi2012 example (mne.utils._fetch_data)
 # print(mne.datasets.sample.data_path(update_path=True))
-print(mne.datasets.eegbci.load_data(1, [6, 10, 14], update_path=True))
+# print(mne.datasets.eegbci.load_data(1, [6, 10, 14], update_path=True))
 
 matplotlib.use('Agg')
 import shlex
