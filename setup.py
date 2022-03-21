@@ -38,9 +38,10 @@ setup(name='pyriemann-qiskit',
                         'scipy==1.5.4; python_version < "3.7.0"',
                         'scipy==1.7.3; python_version >= "3.7.0"',
                         'docplex',
+                        'braininvaders2012',
                         'tqdm'
                         ],
-      extras_require={'docs': ['sphinx-gallery', 'sphinx-bootstrap_theme', 'numpydoc', 'mne', 'seaborn', 'braininvaders2012'],
+      extras_require={'docs': ['sphinx-gallery', 'sphinx-bootstrap_theme', 'numpydoc', 'mne', 'seaborn'],
                       'tests': ['pytest', 'seaborn', 'flake8', 'mne', 'pooch', 'tqdm']},
       zip_safe=False,
 )
