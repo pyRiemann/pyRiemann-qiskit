@@ -6,7 +6,7 @@ from sklearn.datasets import make_classification
 from sklearn.preprocessing import LabelEncoder
 from braininvaders2012.dataset import BrainInvaders2012
 
-_data_path_sample = sample.data_path()
+_data_path_sample = sample.data_path(update_path=True)
 
 def get_mne_sample(n_trials=10):
     """Return sample data from the mne dataset.
