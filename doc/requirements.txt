@@ -2,7 +2,7 @@ sphinx-gallery
 sphinx-bootstrap_theme
 numpydoc
 cython
-mne
+mne==0.20.1
 seaborn
 scikit-learn
 joblib
