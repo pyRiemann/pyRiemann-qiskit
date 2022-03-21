@@ -42,7 +42,7 @@ setup(name='pyriemann-qiskit',
                         'mne==0.20.1',
                         'tqdm'
                         ],
-      extras_require={'docs': ['sphinx-gallery', 'sphinx-bootstrap_theme', 'numpydoc',, 'seaborn'],
+      extras_require={'docs': ['sphinx-gallery', 'sphinx-bootstrap_theme', 'numpydoc', 'seaborn'],
                       'tests': ['pytest', 'seaborn', 'flake8', 'pooch', 'tqdm']},
       zip_safe=False,
 )
