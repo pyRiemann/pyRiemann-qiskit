@@ -42,11 +42,11 @@ def get_mne_sample(n_trials=10):
 
     """
 
-    path_sample = sample.data_path()
+    data_path = sample.data_path()
 
     # Set parameters and read data
-    raw_fname = path_sample + "/MEG/sample/sample_audvis_filt-0-40_raw.fif"
-    event_fname = path_sample + "/MEG/sample/sample_audvis_filt-0-40_raw-eve.fif"
+    raw_fname = data_path + "/MEG/sample/sample_audvis_filt-0-40_raw.fif"
+    event_fname = data_path + "/MEG/sample/sample_audvis_filt-0-40_raw-eve.fif"
     tmin, tmax = -0.0, 1
     event_id = dict(vis_l=3, vis_r=4)  # select only two classes
 
