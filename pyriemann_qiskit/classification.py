@@ -288,7 +288,7 @@ class QuanticSVM(QuanticClassifierBase):
         """This method is implemented for compatibility purpose
            as SVM prediction probabilities are not available.
            This method assigns a boolean value to each trial which
-           depends on whether the label was assigned to classe 0 or 1
+           depends on whether the label was assigned to class 0 or 1
 
         Parameters
         ----------
