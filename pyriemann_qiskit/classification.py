@@ -31,9 +31,9 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     * there is no noise on a simulated quantum computer
       (so results are better)
-    * a real quantum computer is quicker than simulator
+    * a real quantum computer is quicker than a quantum simulator
     * tasks on a real quantum computer are assigned to a queue
-      before being executed on a back-end
+      before being executed on a back-end (delayed execution)
 
     WARNING: At the moment this implementation only supports binary
     classification.
@@ -330,7 +330,7 @@ class QuanticVQC(QuanticClassifierBase):
     """Variational Quantum Classifier
 
     Note that there is no classical version of this algorithm.
-    This will always run on a quantum computer (simulated or not)
+    This will always run on a quantum computer (simulated or not).
 
     Parameters
     ----------
