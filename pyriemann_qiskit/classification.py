@@ -428,7 +428,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
                                                      ClassifierMixin,
                                                      TransformerMixin):
 
-    """Default pipeline wiht Riemann Geometry and a quantum classifier.
+    """Default pipeline with Riemann Geometry and a quantum classifier.
 
     Projects the data into the tangent space of the Riemannian manifold
     and applies quantum classification.
