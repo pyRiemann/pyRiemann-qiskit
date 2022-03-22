@@ -437,7 +437,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
     the value of the parameters.
 
     Data are entangled using a ZZFeatureMap. A SPSA optimizer and a two-local
-    circuirt are used in addition when the VQC is selected.
+    circuits are used in addition when the VQC is selected.
 
 
 
