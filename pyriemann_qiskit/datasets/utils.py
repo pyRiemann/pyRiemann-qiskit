@@ -139,6 +139,10 @@ def get_bi2012_dataset():
     dataset: Iterator
        An iterator over the brain invaders 2012 dataset.
 
+    References
+    ----------
+    .. [1] Available from: \
+        https://github.com/plcrodrigues/py.BI.EEG.2012-GIPSA
     """
 
     dataset = BrainInvaders2012(Training=True)
