@@ -30,10 +30,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     Difference between simulated and real quantum computer will be that:
 
     * there is no noise on a simulated quantum computer
-      (so results are better);
-    * real quantum computer are quicker than simulator;
-    * real quantum computer tasks are assigned to a queue
-      before being executed on a back-end.
+      (so results are better)
+    * a real quantum computer is quicker than a quantum simulator
+    * tasks on a real quantum computer are assigned to a queue
+      before being executed on a back-end (delayed execution)
 
     WARNING: At the moment this implementation only supports binary
     classification.
@@ -129,7 +129,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         return y_copy
 
     def fit(self, X, y):
-        """Get a quantum backend and fit the training data.
+        """Uses a quantum backend and fits the training data.
 
         Parameters
         ----------
@@ -142,7 +142,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         Raises
         ------
         Exception
-            Raised if the number of classes is different than 2
+            Raised if the number of classes is different from 2
 
         Returns
         -------
@@ -201,7 +201,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
             self._classifier.train(X, y)
 
     def score(self, X, y):
-        """Return the testing accuracy.
+        """Returns the testing accuracy.
            You might want to use a different metric by using sklearn
            cross_val_score
 
@@ -238,7 +238,7 @@ class QuanticSVM(QuanticClassifierBase):
     """Quantum-enhanced SVM classification.
 
     This class implements SVC [1]_ on a quantum machine [2]_.
-    Note if `quantum` parameter is set to `False`
+    Note that if `quantum` parameter is set to `False`
     then a classical SVC will be perfomed instead.
 
     Notes
@@ -287,8 +287,8 @@ class QuanticSVM(QuanticClassifierBase):
     def predict_proba(self, X):
         """This method is implemented for compatibility purpose
            as SVM prediction probabilities are not available.
-           This method assigns to each trial a boolean which value
-           depends on wheter the label was assigned to classes 0 or 1
+           This method assigns a boolean value to each trial which
+           depends on whether the label was assigned to class 0 or 1
 
         Parameters
         ----------
@@ -308,7 +308,7 @@ class QuanticSVM(QuanticClassifierBase):
         return np.array(ret)
 
     def predict(self, X):
-        """get the predictions.
+        """Calculates the predictions.
 
         Parameters
         ----------
@@ -329,8 +329,8 @@ class QuanticVQC(QuanticClassifierBase):
 
     """Variational Quantum Classifier
 
-    Note there is no classical version of this algorithm.
-    This will always run on a quantum computer (simulated or not)
+    Note that there is no classical version of this algorithm.
+    This will always run on a quantum computer (simulated or not).
 
     Parameters
     ----------
@@ -389,7 +389,7 @@ class QuanticVQC(QuanticClassifierBase):
         return vqc
 
     def predict_proba(self, X):
-        """Return the probabilities associated with predictions.
+        """Returns the probabilities associated with predictions.
 
         Parameters
         ----------
@@ -407,7 +407,7 @@ class QuanticVQC(QuanticClassifierBase):
         return proba
 
     def predict(self, X):
-        """get the predictions.
+        """Calculates the predictions.
 
         Parameters
         ----------
@@ -428,16 +428,16 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
                                                      ClassifierMixin,
                                                      TransformerMixin):
 
-    """Default pipeline wiht riemann geometry and quantum classifiers.
+    """Default pipeline with Riemann Geometry and a quantum classifier.
 
-    Project the data into the tangent space of the Riemannian manifold,
-    before applying quantum classification.
+    Projects the data into the tangent space of the Riemannian manifold
+    and applies quantum classification.
 
     The type of quantum classification (quantum SVM or VQC) depends on
     the value of the parameters.
 
     Data are entangled using a ZZFeatureMap. A SPSA optimizer and a two-local
-    circuirt are used in addition for VQC.
+    circuits are used in addition when the VQC is selected.
 
 
 
