@@ -38,7 +38,7 @@ setup(name='pyriemann-qiskit',
                         'scipy==1.5.4; python_version < "3.7.0"',
                         'scipy==1.7.3; python_version >= "3.7.0"',
                         'docplex',
-                        'braininvaders2012',
+                        'braininvaders2012>=0.1',
                         'mne==0.20.1',
                         'tqdm'
                         ],
