@@ -128,11 +128,40 @@ def get_linearly_separable_dataset():
     return(X, y)
 
 
-def get_bi2012_dataset():
-    """Return an iterator over the brain invaders 2012 dataset.
-
+def get_bi2012_dataset(training=True,
+                       fmin=1, fmax=24, sampling=128, tmin=0.1, tmax=0.7,
+                       baseline=None, verbose=False):
+    """Return an iterator over the brain invaders 2012 dataset [1]_.
     Each call to the _next_ method return the epochs `X` and the predicted
     target vector `y` relative to `X` for a subject in the dataset.
+
+    The dataset contains the EEG recording of 26 participants playing a BCI
+    version of the vintage game Brain Invaders, based on the
+    oddball paradigm (P300).
+    Each subject participated in a Training and Online session of the game.
+
+    A detailed description of the dataset can be found in [2]_.
+
+    Parameters
+    ----------
+    training : bool (default:True)
+        If true will only download and analyze data related\
+        to the training session.
+    fmin : int (default:1)
+        Minimum frequence (Hz) for passband filtering (data preprocessing).
+    fmax : int (default:24)
+        Maximum frequence (Hz) for passband filtering (data preprocessing).
+    sampling : int (default:128)
+        Data were initially sampled at 128Hz. You can resample the data using
+        this parameter.
+    tmin : int (default:0.1)
+        Start time before event.
+    tmax : int (default:0.7)
+        Stop time before event.
+    baseline : None | tuple[2] (default:None)
+        The time interval to apply baseline correction [3]_.
+    verbose : bool (default:False)
+        Print all traces if true.
 
     Returns
     -------
@@ -143,9 +172,16 @@ def get_bi2012_dataset():
     ----------
     .. [1] Available from: \
         https://github.com/plcrodrigues/py.BI.EEG.2012-GIPSA
+    .. [2] G. F. P. Van Veen et al. \
+        ‘Building Brain Invaders: EEG data of an experimental validation’
+        (mai 2019). Available at:  \
+        https://hal.archives-ouvertes.fr/hal-02126068
+    .. [3] \
+        https://mne.tools/0.20/generated/mne.Epochs.html#mne.Epochs
+
     """
 
-    dataset = BrainInvaders2012(Training=True)
+    dataset = BrainInvaders2012(Training=training, Online=not training)
     subjects = dataset.subject_list
 
     class Iterator():
@@ -159,19 +195,18 @@ def get_bi2012_dataset():
             subject = subjects[self.index]
             self.index += 1
             data = dataset._get_single_subject_data(subject)
-            raw = data['session_1']['run_training']
+            run = "run_" + ("training" if training else "online")
+            raw = data['session_1'][run]
 
             # filter data and resample
-            fmin = 1
-            fmax = 24
-            raw.filter(fmin, fmax, verbose=False)
-            raw.resample(128)
+            raw.filter(fmin, fmax, verbose=verbose)
+            raw.resample(sampling)
 
             # detect the events and cut the signal into epochs
-            events = find_events(raw=raw, shortest_event=1, verbose=False)
+            events = find_events(raw=raw, shortest_event=1, verbose=verbose)
             event_id = {'NonTarget': 1, 'Target': 2}
-            epochs = Epochs(raw, events, event_id, tmin=0.1, tmax=0.7,
-                            baseline=None, verbose=False, preload=True)
+            epochs = Epochs(raw, events, event_id, tmin, tmax,
+                            baseline=baseline, verbose=verbose, preload=True)
             epochs.pick_types(eeg=True)
 
             # get trials and labels
