@@ -10,6 +10,7 @@ TODO
 # Modified from plot_classify_EEG_tangentspace.py
 # License: BSD (3-clause)
 
+import numpy as np
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.classification import \
     QuantumClassifierWithDefaultRiemannianPipeline
@@ -59,14 +60,17 @@ def get_grid_search(idx, title, a_gamma, a_spsa_trials=[None],
     filters = search.cv_results_["param_nfilter"]
     scores = search.cv_results_["mean_test_score"]
     test_params = search.cv_results_["params"]
-    i_best_score_1 = scores == max(scores[filters == 1])
-    i_best_score_2 = scores == max(scores[filters == 2])
-    print(search.cv_results_["rank_test_score"])
-    print(filters)
-    print(scores)
-    print(scores[filters == 1])
-    print(max(scores[filters == 1]))
-    print(i_best_score_1)
+
+    i_best_score_1 = np.where(scores == max(scores[filters == 2]))
+    i_best_score_2 = np.where(scores == max(scores[filters == 2]))
+    i_best_score_1 = i_best_score_1[0][0]
+    i_best_score_2 = i_best_score_2[0][0]
+    # print(search.cv_results_["rank_test_score"])
+    # print(filters)
+    # print(scores)
+    # print(scores[filters == 1])
+    # print(max(scores[filters == 1]))
+    print("i_best_score_1", i_best_score_1, i_best_score_1)
     return {
         "idx": idx,
         "title": title,
@@ -77,8 +81,8 @@ def get_grid_search(idx, title, a_gamma, a_spsa_trials=[None],
 
 SVC = get_grid_search(2, "SVC", default["gamma"], [None], [None], [None])
 
-print(SVC)
-exit(0)
+# print(SVC)
+# exit(0)
 QSVC = get_grid_search(0, "QSVC", default["gamma"])
 
 VQC = get_grid_search(1, "VQC", [None], [40], default["reps"])
@@ -96,7 +100,7 @@ for classif in [SVC, QSVC, VQC]:
 
 
         score = classif["best_score"][i]
-
+        print(classif)
         # Printing the results
         score_str = "%0.2f" % score
 
@@ -104,7 +108,7 @@ for classif in [SVC, QSVC, VQC]:
 
         title = title + " (" + score_str + ")" + \
             " (nfilter = " + str(nfilters[i]) + ")"
-        cm = confusion_matrix(y_pred, y)
+        cm = confusion_matrix(y, y)
         disp = ConfusionMatrixDisplay(cm, display_labels=names)
         disp.plot(ax=axe, xticks_rotation=45)
         disp.ax_.set_title(title)
@@ -117,11 +121,11 @@ for classif in [SVC, QSVC, VQC]:
         # if not quantum:
         #     disp.ax_.set_xlabel('')
 
-print("Best QSVC parameter (CV score=%0.3f):" % QSVC["best_score"])
+print("Best QSVC parameter (CV score=%0.3f):" % QSVC["best_score"][0])
 print(QSVC["best_params"])
-print("Best VQC parameter (CV score=%0.3f):" % VQC["best_score"])
+print("Best VQC parameter (CV score=%0.3f):" % VQC["best_score"][0])
 print(VQC["best_params"])
-print("Best SVC parameter Classical (CV score=%0.3f):" % SVC["best_score"])
+print("Best SVC parameter Classical (CV score=%0.3f):" % SVC["best_score"][0])
 print(SVC["best_params"])
 
 if disp:
