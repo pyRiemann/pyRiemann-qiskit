@@ -61,7 +61,7 @@ def get_grid_search(idx, title, a_gamma, a_spsa_trials=[None],
     scores = search.cv_results_["mean_test_score"]
     test_params = search.cv_results_["params"]
 
-    i_best_score_1 = np.where(scores == max(scores[filters == 2]))
+    i_best_score_1 = np.where(scores == max(scores[filters == 1]))
     i_best_score_2 = np.where(scores == max(scores[filters == 2]))
     i_best_score_1 = i_best_score_1[0][0]
     i_best_score_2 = i_best_score_2[0][0]
@@ -87,7 +87,8 @@ QSVC = get_grid_search(0, "QSVC", default["gamma"])
 
 VQC = get_grid_search(1, "VQC", [None], [40], default["reps"])
 
-
+FILTER_1 = 0
+FILTER_2 = 1
 
 
 # Results will be computed for QuanticSVM versus SKLearnSVM for comparison
