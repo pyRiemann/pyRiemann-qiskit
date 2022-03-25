@@ -178,8 +178,7 @@ def get_bi2012_dataset(training=True,
         ‘Building Brain Invaders: EEG data of an experimental validation’
         (mai 2019). Available at:  \
         https://hal.archives-ouvertes.fr/hal-02126068
-    .. [3] \
-        https://mne.tools/0.20/generated/mne.Epochs.html#mne.Epochs
+    .. [3] https://mne.tools/0.20/generated/mne.Epochs.html
 
     """
 
