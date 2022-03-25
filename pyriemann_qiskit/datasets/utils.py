@@ -147,7 +147,7 @@ def get_bi2012_dataset(training=True,
     Parameters
     ----------
     training : bool (default:True)
-        If true will only download and analyze data related\
+        If true will only download and analyze data related
         to the training session.
     fmin : int (default:1)
         Minimum frequence (Hz) for passband filtering (data preprocessing).
