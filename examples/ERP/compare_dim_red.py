@@ -25,17 +25,23 @@ from sklearn.metrics import balanced_accuracy_score
 
 print(__doc__)
 
-X, y = get_mne_sample(n_trials=10)
+X, y = get_mne_sample(n_trials=-1)
 
 nfilters = [1, 2]
 len_nfilters = len(nfilters)
+
+
+class PCA2(PCA):
+    def fit(self, X, y):
+        super().n_components = min(X.shape) / 2
+        super().fit(X, y)
 
 default = {
     "gamma": [0.01],
     "shots": [1024],
     "feature_entanglement": ['linear', 'sca'],
     "reps": [2, 3],
-    "dim_reds": [NaiveDimRed(), PCA()]
+    "dim_reds": [PCA2(), NaiveDimRed()]
 }
 
 pipe = QuantumClassifierWithDefaultRiemannianPipeline()
