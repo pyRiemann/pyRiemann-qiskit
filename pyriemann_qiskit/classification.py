@@ -507,7 +507,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
         self.two_local_reps = two_local_reps
 
         is_vqc = spsa_trials and two_local_reps
-        is_quantum = not shots
+        is_quantum = not shots is None
 
         feature_map = gen_zz_feature_map(feature_reps, feature_entanglement)
         # verbose is passed as an additional parameter to quantum classifiers.
