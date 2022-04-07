@@ -97,7 +97,7 @@ for dataset in datasets:
 overwrite = True  # set to True if we want to overwrite cached results
 
 pipelines = {}
-pipelines["Quantum+Riemannian"] = QuantumClassifierWithDefaultRiemannianPipeline()
+pipelines["Quantum+Riemannian"] = QuantumClassifierWithDefaultRiemannianPipeline(shots=None)
 
 evaluation = WithinSessionEvaluation(
     paradigm=paradigm, datasets=datasets, suffix="examples", overwrite=overwrite
