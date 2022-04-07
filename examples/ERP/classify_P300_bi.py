@@ -47,6 +47,8 @@ from pyriemann_qiskit.classification import QuantumClassifierWithDefaultRiemanni
 warnings.simplefilter(action="ignore", category=FutureWarning)
 warnings.simplefilter(action="ignore", category=RuntimeWarning)
 
+warnings.filterwarnings("ignore")
+
 moabb.set_log_level("info")
 
 ##############################################################################
@@ -88,18 +90,42 @@ paradigm = P300(resample=128)
 
 datasets = [bi2012()] #bi2012, bi2013a, bi2014a, bi2014b, bi2015a, bi2015b
 
-#dataset = bi2012()
-#dataset.subject_list = dataset.subject_list[1:2]
+#reduce the number of subjects
+for dataset in datasets:
+    dataset.subject_list = dataset.subject_list[0:2]
 
 overwrite = True  # set to True if we want to overwrite cached results
 
 pipelines = {}
 pipelines["Quantum+Riemannian"] = QuantumClassifierWithDefaultRiemannianPipeline()
 
-#pipelines = { QuantumClassifierWithDefaultRiemannianPipeline() }
-
 evaluation = WithinSessionEvaluation(
     paradigm=paradigm, datasets=datasets, suffix="examples", overwrite=overwrite
 )
 
 results = evaluation.process(pipelines)
+
+##############################################################################
+# Plot Results
+# ----------------
+#
+# Here we plot the results to compare the two pipelines
+
+fig, ax = plt.subplots(facecolor="white", figsize=[8, 4])
+
+sns.stripplot(
+    data=results,
+    y="score",
+    x="pipeline",
+    ax=ax,
+    jitter=True,
+    alpha=0.5,
+    zorder=1,
+    palette="Set1",
+)
+sns.pointplot(data=results, y="score", x="pipeline", ax=ax, zorder=1, palette="Set1")
+
+ax.set_ylabel("ROC AUC")
+ax.set_ylim(0.3, 1)
+
+fig.show()
