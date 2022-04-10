@@ -101,8 +101,10 @@ pipelines = {}
 
 #new experimental pipeline
 from sklearn.decomposition import PCA
-pipelines["Quantum+Riemannian"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=None, 
+
+pipelines["RG+Quantum"] = QuantumClassifierWithDefaultRiemannianPipeline(
+    shots=None, #'None' forces classic SVM
+    #gamma = 0.05,
     nfilter=2, 
     dim_red=PCA(n_components=10)
     )
@@ -115,12 +117,15 @@ pipelines["RG+LDA"] = make_pipeline(
         nfilter=2, classes=[labels_dict["Target"]], estimator="lwf", xdawn_estimator="scm"
     ),
     TangentSpace(),
+    PCA(n_components=10),
     LDA(solver="lsqr", shrinkage="auto"),
 )
 
 #standard pipeline 2
 pipelines["Xdw+LDA"] = make_pipeline(
-    Xdawn(nfilter=2, estimator="scm"), Vectorizer(), LDA(solver="lsqr", shrinkage="auto")
+    Xdawn(nfilter=2, estimator="scm"), 
+    Vectorizer(), 
+    LDA(solver="lsqr", shrinkage="auto")
 )
 
 print ("Total pipelines to evaluate: ", len(pipelines))
@@ -130,6 +135,9 @@ evaluation = WithinSessionEvaluation(
 )
 
 results = evaluation.process(pipelines)
+
+print("Aaveraging the session performance:")
+print(results.groupby('pipeline').mean('score')[['score', 'time']])
 
 ##############################################################################
 # Plot Results
