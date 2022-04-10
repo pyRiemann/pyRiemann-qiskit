@@ -34,7 +34,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
 
 import moabb
-#from moabb.datasets import BNCI2014009
+from moabb.datasets import BNCI2014009
 from moabb.datasets import bi2012, bi2013a, bi2014a, bi2014b, bi2015a, bi2015b
 
 from moabb.evaluations import WithinSessionEvaluation
@@ -88,16 +88,42 @@ class Vectorizer(BaseEstimator, TransformerMixin):
 
 paradigm = P300(resample=128)
 
-datasets = [bi2012()] #bi2012, bi2013a, bi2014a, bi2014b, bi2015a, bi2015b
+datasets = [bi2012()] #bi2012(), bi2013a(), bi2014a(), bi2014b(), bi2015a(), bi2015b(), BNCI2014009()
 
 #reduce the number of subjects
-for dataset in datasets:
-    dataset.subject_list = dataset.subject_list[0:2]
+# nsubjects = 10
+# for dataset in datasets:
+#     dataset.subject_list = dataset.subject_list[0:nsubjects]
 
 overwrite = True  # set to True if we want to overwrite cached results
 
 pipelines = {}
-pipelines["Quantum+Riemannian"] = QuantumClassifierWithDefaultRiemannianPipeline(shots=None)
+
+#new experimental pipeline
+from sklearn.decomposition import PCA
+pipelines["Quantum+Riemannian"] = QuantumClassifierWithDefaultRiemannianPipeline(
+    shots=None, 
+    nfilter=2, 
+    dim_red=PCA(n_components=10)
+    )
+
+labels_dict = {"Target": 1, "NonTarget": 0}
+
+#standard pipeline 1
+pipelines["RG+LDA"] = make_pipeline(
+    XdawnCovariances(
+        nfilter=2, classes=[labels_dict["Target"]], estimator="lwf", xdawn_estimator="scm"
+    ),
+    TangentSpace(),
+    LDA(solver="lsqr", shrinkage="auto"),
+)
+
+#standard pipeline 2
+pipelines["Xdw+LDA"] = make_pipeline(
+    Xdawn(nfilter=2, estimator="scm"), Vectorizer(), LDA(solver="lsqr", shrinkage="auto")
+)
+
+print ("Total pipelines to evaluate: ", len(pipelines))
 
 evaluation = WithinSessionEvaluation(
     paradigm=paradigm, datasets=datasets, suffix="examples", overwrite=overwrite
