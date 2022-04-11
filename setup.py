@@ -38,7 +38,8 @@ setup(name='pyriemann-qiskit',
                         'scipy==1.5.4; python_version < "3.7.0"',
                         'scipy==1.7.3; python_version >= "3.7.0"',
                         'docplex',
-                        'tqdm'
+                        'tqdm',
+                        'moabb>=0.4.6'
                         ],
       extras_require={'docs': ['sphinx-gallery', 'sphinx-bootstrap_theme', 'numpydoc', 'mne', 'seaborn'],
                       'tests': ['pytest', 'seaborn', 'flake8', 'mne', 'pooch', 'tqdm']},
