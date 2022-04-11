@@ -5,7 +5,8 @@ ERP EEG decoding with Quantum Classifier.
 
 It uses QuantumClassifierWithDefaultRiemannianPipeline. This pipeline uses Riemannian Geometry 
 and Tangent Space to generate features and a quantum SVM classifier. The classical SVM used when
-no real quantum computer is used is different from the Scikit Learn SVM implementation. 
+no real quantum computer is used is different from the Scikit Learn SVM implementation.
+It uses MOABB for the evaluation and compariosn with 2 other standard pipelines.
 
 """
 # Author: Anton Andreev
