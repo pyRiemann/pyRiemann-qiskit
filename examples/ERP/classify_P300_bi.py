@@ -3,8 +3,9 @@
 ERP EEG decoding with Quantum Classifier.
 ====================================================================
 
-It uses QuantumClassifierWithDefaultRiemannianPipeline on a number of
-datasets recorded using the BCI game Brain Invaders.
+It uses QuantumClassifierWithDefaultRiemannianPipeline. This pipeline uses Riemannian Geometry 
+and Tangent Space to generate features and a quantum SVM classifier. The classical SVM used when
+no real quantum computer is used is different from the Scikit Learn SVM implementation. 
 
 """
 # Author: Anton Andreev
@@ -40,6 +41,7 @@ from moabb.datasets import bi2012, bi2013a, bi2014a, bi2014b, bi2015a, bi2015b
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
 from pyriemann_qiskit.classification import QuantumClassifierWithDefaultRiemannianPipeline
+from sklearn.decomposition import PCA
 
 
 ##############################################################################
@@ -56,8 +58,6 @@ moabb.set_log_level("info")
 # structures in a pipeline For instance, in the case of an X with dimensions
 # Nt x Nc x Ns, one might be interested in a new data structure with
 # dimensions Nt x (Nc.Ns)
-
-
 class Vectorizer(BaseEstimator, TransformerMixin):
     def __init__(self):
         pass
@@ -77,14 +77,11 @@ class Vectorizer(BaseEstimator, TransformerMixin):
 #
 # Pipelines must be a dict of sklearn pipeline transformer.
 
-
-#pipelines = {}
-
 ##############################################################################
 # We have to do this because the classes are called 'Target' and 'NonTarget'
 # but the evaluation function uses a LabelEncoder, transforming them
 # to 0 and 1
-#labels_dict = {"Target": 1, "NonTarget": 0}
+labels_dict = {"Target": 1, "NonTarget": 0}
 
 paradigm = P300(resample=128)
 
@@ -99,18 +96,15 @@ overwrite = True  # set to True if we want to overwrite cached results
 
 pipelines = {}
 
-#new experimental pipeline
-from sklearn.decomposition import PCA
-
+#new pipeline provided by pyRiemann-qiskit
 pipelines["RG+Quantum"] = QuantumClassifierWithDefaultRiemannianPipeline(
     shots=None, #'None' forces classic SVM
-    #gamma = 0.05,
-    nfilter=2, 
-    dim_red=PCA(n_components=10)
+    nfilter=2, #default 2
+    dim_red=PCA(n_components=10) #default 10, higher values render better performance with the SVM version used in qiskit
     )
 
-labels_dict = {"Target": 1, "NonTarget": 0}
-
+#Here we provide two pipelines for comparison:
+    
 #standard pipeline 1
 pipelines["RG+LDA"] = make_pipeline(
     XdawnCovariances(
