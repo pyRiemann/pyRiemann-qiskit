@@ -25,7 +25,8 @@ from pyriemann.estimation import Xdawn
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 # bi2012,bi2013a, bi2014a, bi2014b, bi2015a, bi2015b, BNCI2014009
-import moabb from moabb.datasets import bi2012 
+import moabb 
+from moabb.datasets import bi2012 
 
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
