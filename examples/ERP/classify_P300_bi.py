@@ -3,10 +3,10 @@
 ERP EEG decoding with Quantum Classifier.
 ====================================================================
 
-It uses QuantumClassifierWithDefaultRiemannianPipeline. This pipeline uses 
-Riemannian Geometry and Tangent Space to generate features and a quantum SVM 
-classifier. The classical SVM used when no real quantum computer is used is 
-different from the Scikit Learn SVM implementation. It uses MOABB for the 
+It uses QuantumClassifierWithDefaultRiemannianPipeline. This pipeline uses
+Riemannian Geometry and Tangent Space to generate features and a quantum SVM
+classifier. The classical SVM used when no real quantum computer is used is
+different from the Scikit Learn SVM implementation. It uses MOABB for the
 evaluation and compariosn with 2 other standard pipelines.
 
 """
@@ -16,28 +16,16 @@ evaluation and compariosn with 2 other standard pipelines.
 
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
-#from pyriemann_qiskit.classification import QuanticSVM
-#from pyriemann_qiskit.utils.filtering import NaiveDimRed
-#from pyriemann_qiskit.datasets import get_mne_sample
 from sklearn.pipeline import make_pipeline
-#from sklearn.model_selection import train_test_split
-#from sklearn.metrics import (confusion_matrix, ConfusionMatrixDisplay,
-#                            balanced_accuracy_score)
 from matplotlib import pyplot as plt
-
 import warnings
-
-#import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 from pyriemann.estimation import Xdawn
-#from pyriemann.tangentspace import TangentSpace
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-#from sklearn.pipeline import make_pipeline
-
-import moabb
-from moabb.datasets import bi2012 #, bi2013a, bi2014a, bi2014b, bi2015a, bi2015b, BNCI2014009
+# bi2012,bi2013a, bi2014a, bi2014b, bi2015a, bi2015b, BNCI2014009
+import moabb from moabb.datasets import bi2012 
 
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
@@ -86,7 +74,8 @@ labels_dict = {"Target": 1, "NonTarget": 0}
 
 paradigm = P300(resample=128)
 
-datasets = [bi2012()]  #bi2012(), bi2013a(), bi2014a(), bi2014b(), bi2015a(), bi2015b(), BNCI2014009()
+# bi2012(), bi2013a(), bi2014a(), bi2014b(), bi2015a(), bi2015b(), BNCI2014009()
+datasets = [bi2012()]  
 
 # reduce the number of subjects
 # nsubjects = 10
@@ -101,7 +90,7 @@ pipelines = {}
 pipelines["RG+Quantum"] = QuantumClassifierWithDefaultRiemannianPipeline(
     shots=None,  #'None' forces classic SVM
     nfilter=2,  #default 2
-    dim_red=PCA(n_components=10)  #default 10, higher values render better performance with the SVM version used in qiskit
+    dim_red=PCA(n_components=10) #default 10, higher values render better performance with the SVM version used in qiskit
     )
 
 # Here we provide two pipelines for comparison:
