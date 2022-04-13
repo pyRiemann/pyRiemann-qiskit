@@ -3,10 +3,11 @@
 ERP EEG decoding with Quantum Classifier.
 ====================================================================
 
-It uses QuantumClassifierWithDefaultRiemannianPipeline. This pipeline uses Riemannian Geometry 
-and Tangent Space to generate features and a quantum SVM classifier. The classical SVM used when
-no real quantum computer is used is different from the Scikit Learn SVM implementation.
-It uses MOABB for the evaluation and compariosn with 2 other standard pipelines.
+It uses QuantumClassifierWithDefaultRiemannianPipeline. This pipeline uses 
+Riemannian Geometry and Tangent Space to generate features and a quantum SVM 
+classifier. The classical SVM used when no real quantum computer is used is 
+different from the Scikit Learn SVM implementation. It uses MOABB for the 
+evaluation and compariosn with 2 other standard pipelines.
 
 """
 # Author: Anton Andreev
@@ -15,29 +16,28 @@ It uses MOABB for the evaluation and compariosn with 2 other standard pipelines.
 
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
-from pyriemann_qiskit.classification import QuanticSVM
-from pyriemann_qiskit.utils.filtering import NaiveDimRed
-from pyriemann_qiskit.datasets import get_mne_sample
+#from pyriemann_qiskit.classification import QuanticSVM
+#from pyriemann_qiskit.utils.filtering import NaiveDimRed
+#from pyriemann_qiskit.datasets import get_mne_sample
 from sklearn.pipeline import make_pipeline
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import (confusion_matrix, ConfusionMatrixDisplay,
-                             balanced_accuracy_score)
+#from sklearn.model_selection import train_test_split
+#from sklearn.metrics import (confusion_matrix, ConfusionMatrixDisplay,
+#                            balanced_accuracy_score)
 from matplotlib import pyplot as plt
 
 import warnings
 
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-from pyriemann.estimation import Xdawn, XdawnCovariances
-from pyriemann.tangentspace import TangentSpace
+from pyriemann.estimation import Xdawn
+#from pyriemann.tangentspace import TangentSpace
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from sklearn.pipeline import make_pipeline
+#from sklearn.pipeline import make_pipeline
 
 import moabb
-from moabb.datasets import BNCI2014009
-from moabb.datasets import bi2012, bi2013a, bi2014a, bi2014b, bi2015a, bi2015b
+from moabb.datasets import bi2012 #, bi2013a, bi2014a, bi2014b, bi2015a, bi2015b, BNCI2014009
 
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
@@ -86,9 +86,9 @@ labels_dict = {"Target": 1, "NonTarget": 0}
 
 paradigm = P300(resample=128)
 
-datasets = [bi2012()] #bi2012(), bi2013a(), bi2014a(), bi2014b(), bi2015a(), bi2015b(), BNCI2014009()
+datasets = [bi2012()]  #bi2012(), bi2013a(), bi2014a(), bi2014b(), bi2015a(), bi2015b(), BNCI2014009()
 
-#reduce the number of subjects
+# reduce the number of subjects
 # nsubjects = 10
 # for dataset in datasets:
 #     dataset.subject_list = dataset.subject_list[0:nsubjects]
@@ -97,16 +97,16 @@ overwrite = True  # set to True if we want to overwrite cached results
 
 pipelines = {}
 
-#new pipeline provided by pyRiemann-qiskit
+# new pipeline provided by pyRiemann-qiskit
 pipelines["RG+Quantum"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=None, #'None' forces classic SVM
-    nfilter=2, #default 2
-    dim_red=PCA(n_components=10) #default 10, higher values render better performance with the SVM version used in qiskit
+    shots=None,  #'None' forces classic SVM
+    nfilter=2,  #default 2
+    dim_red=PCA(n_components=10)  #default 10, higher values render better performance with the SVM version used in qiskit
     )
 
-#Here we provide two pipelines for comparison:
-    
-#standard pipeline 1
+# Here we provide two pipelines for comparison:
+
+# standard pipeline 1
 pipelines["RG+LDA"] = make_pipeline(
     XdawnCovariances(
         nfilter=2, classes=[labels_dict["Target"]], estimator="lwf", xdawn_estimator="scm"
@@ -116,7 +116,7 @@ pipelines["RG+LDA"] = make_pipeline(
     LDA(solver="lsqr", shrinkage="auto"),
 )
 
-#standard pipeline 2
+# standard pipeline 2
 pipelines["Xdw+LDA"] = make_pipeline(
     Xdawn(nfilter=2, estimator="scm"), 
     Vectorizer(), 
@@ -152,7 +152,9 @@ sns.stripplot(
     zorder=1,
     palette="Set1",
 )
-sns.pointplot(data=results, y="score", x="pipeline", ax=ax, zorder=1, palette="Set1")
+sns.pointplot(data=results, y="score", x="pipeline", 
+              ax=ax, zorder=1, 
+              palette="Set1")
 
 ax.set_ylabel("ROC AUC")
 ax.set_ylim(0.3, 1)
