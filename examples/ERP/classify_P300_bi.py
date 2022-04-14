@@ -80,31 +80,42 @@ labels_dict = {"Target": 1, "NonTarget": 0}
 
 paradigm = P300(resample=128)
 
-# bi2012(), bi2013a(), bi2014a(), bi2014b(), bi2015a(), bi2015b(), BNCI2014009()
+# bi2012(),bi2013a(),bi2014a(),bi2014b(),bi2015a(),bi2015b(),BNCI2014009()
 datasets = [bi2012()]  
 
-# reduce the number of subjects
-# nsubjects = 10
-# for dataset in datasets:
-#     dataset.subject_list = dataset.subject_list[0:nsubjects]
+# reduce the number of subjects, the Quantum pipeline takes a lot of time
+# if executed on the entire dataset
+n_subjects = 5
+for dataset in datasets:
+    dataset.subject_list = dataset.subject_list[0:n_subjects]
 
-overwrite = True  # set to True if we want to overwrite cached results
+overwrite = True # set to True if we want to overwrite cached results
 
 pipelines = {}
 
 # new pipeline provided by pyRiemann-qiskit
-pipelines["RG+Quantum"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=None,  #'None' forces classic SVM
-    nfilter=2,  #default 2
-    dim_red=PCA(n_components=10), #default 10, higher values render better performance with the SVM version used in qiskit
-    #q_account_token="" #IBM Quantum TOKEN
+pipelines["RG+QuantumSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
+    shots=None,  # 'None' forces classic SVM
+    nfilter=2,  # default 2
+    # default n_components=10, a higher value renders better performance with
+    # the SVM version used in qiskit
+    dim_red=PCA(n_components=10), 
+    # q_account_token='' #IBM Quantum TOKEN
     )
 
-# Here we provide two pipelines for comparison:
+# Here we provide some pipelines for comparison:
 
+# Standard SVM on raw data
+from sklearn import svm
+pipelines["SVM"] = make_pipeline(
+    Vectorizer(),
+    svm.SVC()
+    )
+    
 # standard pipeline 1
 pipelines["RG+LDA"] = make_pipeline(
-    XdawnCovariances(
+    XdawnCovariances #applies XDawn and calculates the convariance matrice, output it matrices
+    ( 
         nfilter=2, classes=[labels_dict["Target"]], estimator="lwf", xdawn_estimator="scm"
     ),
     TangentSpace(),
@@ -114,10 +125,10 @@ pipelines["RG+LDA"] = make_pipeline(
 
 # standard pipeline 2
 pipelines["Xdw+LDA"] = make_pipeline(
-    Xdawn(nfilter=2, estimator="scm"), 
+    Xdawn(nfilter=2, estimator="scm"),
     Vectorizer(), 
     LDA(solver="lsqr", shrinkage="auto")
-)
+    )
 
 print ("Total pipelines to evaluate: ", len(pipelines))
 
