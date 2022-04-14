@@ -37,6 +37,8 @@ from sklearn.decomposition import PCA
 from pyriemann_qiskit.utils.filtering import Vectorizer
 from sklearn import svm
 
+print(__doc__)
+
 ##############################################################################
 # getting rid of the warnings about the future
 warnings.simplefilter(action="ignore", category=FutureWarning)
