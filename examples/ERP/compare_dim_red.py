@@ -25,7 +25,7 @@ from sklearn.metrics import balanced_accuracy_score
 
 print(__doc__)
 
-X, y = get_mne_sample(n_trials=-1)
+X, y = get_mne_sample(n_trials=50)
 
 nfilters = [1, 2]
 len_nfilters = len(nfilters)
@@ -39,9 +39,9 @@ class PCA2(PCA):
 default = {
     "gamma": [0.01],
     "shots": [1024],
-    "feature_entanglement": ['linear', 'sca'],
-    "reps": [2, 3],
-    "dim_reds": [PCA2(), NaiveDimRed()]
+    "feature_entanglement": ['linear'],#['linear', 'sca'],
+    "reps": [2], #[2, 3],
+    "dim_reds": [PCA(n_components=10), NaiveDimRed()]
 }
 
 pipe = QuantumClassifierWithDefaultRiemannianPipeline()
@@ -64,7 +64,7 @@ def get_grid_search(idx, title, a_gamma, a_spsa_trials=[None],
         "spsa_trials": a_spsa_trials,
         "two_local_reps": a_two_local_reps
     }
-    grid = GridSearchCV(pipe, params, scoring='balanced_accuracy',n_jobs=3, cv=StratifiedKFold())
+    grid = GridSearchCV(pipe, params, scoring='balanced_accuracy',n_jobs=-1, cv=StratifiedKFold())
     search = grid.fit(X, y)
     filters = search.cv_results_["param_nfilter"]
     scores = search.cv_results_["mean_test_score"]
