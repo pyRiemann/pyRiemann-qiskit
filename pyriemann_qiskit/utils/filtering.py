@@ -1,6 +1,7 @@
 from sklearn.base import BaseEstimator, TransformerMixin
 import numpy as np
 
+
 class NoDimRed(TransformerMixin):
     """No dimensional reduction.
 
@@ -116,17 +117,17 @@ class NaiveDimRed(TransformerMixin):
 
 class Vectorizer(BaseEstimator, TransformerMixin):
     """This is an auxiliary transformer that allows one to vectorize data
-       structures in a pipeline For instance, in the case of an X with dimensions
-       Nt x Nc x Ns, one might be interested in a new data structure with
-       dimensions Nt x (Nc.Ns)
+       structures in a pipeline For instance, in the case of an X with
+       dimensions Nt x Nc x Ns, one might be interested in a new data
+       structure with dimensions Nt x (Nc.Ns)
     """
     def __init__(self):
         pass
-    
+
     def fit(self, X, y):
         """fit."""
         return self
-    
+
     def transform(self, X):
         """transform. """
         return np.reshape(X, (X.shape[0], -1))
