@@ -5,8 +5,8 @@ ERP EEG decoding with Quantum Classifier.
 
 It uses QuantumClassifierWithDefaultRiemannianPipeline. This pipeline uses
 Riemannian Geometry and Tangent Space to generate features and a quantum SVM
-classifier. It uses MOABB for the evaluation and compariosn with 2 other
-standard pipelines.
+classifier. It uses MOABB for the evaluation and comparison with other
+classifiers.
 
 In QuantumClassifierWithDefaultRiemannianPipeline():
 If parameter "shots" is None then a classical SVM is used similar to the one
@@ -24,20 +24,18 @@ from pyriemann.tangentspace import TangentSpace
 from sklearn.pipeline import make_pipeline
 from matplotlib import pyplot as plt
 import warnings
-import numpy as np
 import seaborn as sns
 from pyriemann.estimation import Xdawn
-from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 # bi2012,bi2013a, bi2014a, bi2014b, bi2015a, bi2015b, BNCI2014009
-import moabb 
+from moabb import set_log_level
 from moabb.datasets import bi2012 
-
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
 from pyriemann_qiskit.classification import QuantumClassifierWithDefaultRiemannianPipeline
 from sklearn.decomposition import PCA
-
+from pyriemann_qiskit.utils.filtering import Vectorizer
+from sklearn import svm
 
 ##############################################################################
 # getting rid of the warnings about the future
@@ -46,25 +44,7 @@ warnings.simplefilter(action="ignore", category=RuntimeWarning)
 
 warnings.filterwarnings("ignore")
 
-moabb.set_log_level("info")
-
-##############################################################################
-# This is an auxiliary transformer that allows one to vectorize data
-# structures in a pipeline For instance, in the case of an X with dimensions
-# Nt x Nc x Ns, one might be interested in a new data structure with
-# dimensions Nt x (Nc.Ns)
-class Vectorizer(BaseEstimator, TransformerMixin):
-    def __init__(self):
-        pass
-
-    def fit(self, X, y):
-        """fit."""
-        return self
-
-    def transform(self, X):
-        """transform. """
-        return np.reshape(X, (X.shape[0], -1))
-
+set_log_level("info")
 
 ##############################################################################
 # Create Pipelines
@@ -94,25 +74,21 @@ overwrite = True # set to True if we want to overwrite cached results
 pipelines = {}
 
 # new pipeline provided by pyRiemann-qiskit
+# you can choose between classical SVM and Quantum SVM
 pipelines["RG+QuantumSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
     shots=None,  # 'None' forces classic SVM
     nfilter=2,  # default 2
     # default n_components=10, a higher value renders better performance with
     # the SVM version used in qiskit
     dim_red=PCA(n_components=10), 
-    # q_account_token='' #IBM Quantum TOKEN
+    #q_account_token='' #IBM Quantum TOKEN
     )
 
-# Here we provide some pipelines for comparison:
+# Here we provide a pipeline for comparison:
 
-# Standard SVM on raw data
-from sklearn import svm
-pipelines["SVM"] = make_pipeline(
-    Vectorizer(),
-    svm.SVC()
-    )
-    
-# standard pipeline 1
+# This is a standard pipeline similar to
+# QuantumClassifierWithDefaultRiemannianPipeline, but with LDA classifier
+# instead.
 pipelines["RG+LDA"] = make_pipeline(
     XdawnCovariances #applies XDawn and calculates the convariance matrice, output it matrices
     ( 
@@ -122,13 +98,6 @@ pipelines["RG+LDA"] = make_pipeline(
     PCA(n_components=10),
     LDA(solver="lsqr", shrinkage="auto"),
 )
-
-# standard pipeline 2
-pipelines["Xdw+LDA"] = make_pipeline(
-    Xdawn(nfilter=2, estimator="scm"),
-    Vectorizer(), 
-    LDA(solver="lsqr", shrinkage="auto")
-    )
 
 print ("Total pipelines to evaluate: ", len(pipelines))
 
