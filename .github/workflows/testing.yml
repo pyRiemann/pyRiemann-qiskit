@@ -30,7 +30,7 @@ jobs:
         python -m pip install --upgrade pip
     - name: Install package
       run: |
-        python -m pip install .[tests]
+        python -m pip install --ignore-requires-python .[tests]
     - name: Lint with flake8
       run: |
         flake8 examples tests pyriemann_qiskit
