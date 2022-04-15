@@ -117,17 +117,49 @@ class NaiveDimRed(TransformerMixin):
 
 class Vectorizer(BaseEstimator, TransformerMixin):
     """This is an auxiliary transformer that allows one to vectorize data
-       structures in a pipeline For instance, in the case of an X with
-       dimensions Nt x Nc x Ns, one might be interested in a new data
-       structure with dimensions Nt x (Nc.Ns)
+    structures in a pipeline For instance, in the case of an X with
+    dimensions (n_samples, n_features, n_channels),
+    one might be interested in a new data structure with dimensions
+    (n_samples, n_features x n_channels)
+
+    Notes
+    -----
+    .. versionadded:: 0.0.1
+
     """
     def __init__(self):
         pass
 
     def fit(self, X, y):
-        """fit."""
+        """Fit the training data.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_samples, n_features)
+            Training vector, where `n_samples` is the number of samples and
+            `n_features` is the number of features.
+        y : ndarray, shape (n_samples,) (default: None)
+            Target vector relative to X.
+            In practice, never used.
+
+        Returns
+        -------
+        self : Vectorizer instance
+            The Vectorizer instance.
+        """
         return self
 
     def transform(self, X):
-        """transform. """
+        """Vectorize matrices.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_samples, n_features, n_channels)
+            ndarray of feature vectors.
+
+        Returns
+        -------
+        X : ndarray, shape (n_samples, n_features x n_channels)
+            The vectorized matrices.
+        """
         return np.reshape(X, (X.shape[0], -1))
