@@ -88,7 +88,7 @@ pipelines["RG+QuantumSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
 # QuantumClassifierWithDefaultRiemannianPipeline, but with LDA classifier
 # instead.
 pipelines["RG+LDA"] = make_pipeline(
-    # applies XDawn and calculates the convariance matrice, output it matrices
+    # applies XDawn and calculates the covariance matrix, output it matrices
     XdawnCovariances(
         nfilter=2,
         classes=[labels_dict["Target"]],
