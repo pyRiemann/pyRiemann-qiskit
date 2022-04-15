@@ -25,10 +25,10 @@ from sklearn.metrics import balanced_accuracy_score
 
 print(__doc__)
 
-X, y = get_mne_sample(n_trials=50)
+X, y = get_mne_sample(n_trials=-1)
 
-nfilters = [1, 2]
-len_nfilters = len(nfilters)
+dim_reds = [PCA(n_components=10), NaiveDimRed()]
+n_dim_reds = len(dim_reds)
 
 
 class PCA2(PCA):
@@ -37,11 +37,12 @@ class PCA2(PCA):
         super().fit(X, y)
 
 default = {
-    "gamma": [0.01],
+    "nfilter": [2],
+    "gamma": [None],
     "shots": [1024],
     "feature_entanglement": ['linear'],#['linear', 'sca'],
     "reps": [2], #[2, 3],
-    "dim_reds": [PCA(n_components=10), NaiveDimRed()]
+    "dim_reds": dim_reds
 }
 
 pipe = QuantumClassifierWithDefaultRiemannianPipeline()
@@ -55,7 +56,7 @@ def print_score(data, nfilter):
 def get_grid_search(idx, title, a_gamma, a_spsa_trials=[None],
                     a_two_local_reps=[None], a_shots=default["shots"]):
     params = {
-        "nfilter": nfilters,
+        "nfilter": default["nfilter"],
         "gamma": a_gamma,
         "dim_red": default["dim_reds"],
         "shots": a_shots,
@@ -64,34 +65,41 @@ def get_grid_search(idx, title, a_gamma, a_spsa_trials=[None],
         "spsa_trials": a_spsa_trials,
         "two_local_reps": a_two_local_reps
     }
-    grid = GridSearchCV(pipe, params, scoring='balanced_accuracy',n_jobs=-1, cv=StratifiedKFold())
+    grid = GridSearchCV(pipe, params, scoring='balanced_accuracy',n_jobs=-1, cv=StratifiedKFold(n_splits=2))
     search = grid.fit(X, y)
-    filters = search.cv_results_["param_nfilter"]
+    # seargrid.score(X)
+    # search = grid.score(X, y)
+    print(search.cv_results_)
+    print(search.best_score_)
+    
+    param_dim_red = search.cv_results_["param_dim_red"]
     scores = search.cv_results_["mean_test_score"]
     test_params = search.cv_results_["params"]
 
-    i_best_score_1 = np.where(scores == max(scores[filters == 1]))
-    i_best_score_2 = np.where(scores == max(scores[filters == 2]))
-    i_best_score_1 = i_best_score_1[0][0]
-    i_best_score_2 = i_best_score_2[0][0]
+    best_params = []
+    best_score = []
+    for i in range(n_dim_reds):
+        i_best_score = np.where(scores == max(scores[param_dim_red == dim_reds[i]]))
+        i_best_score = i_best_score[0][0]
+        best_params.append(test_params[i_best_score])
+        best_score.append(scores[i_best_score])
 
     return {
         "idx": idx,
         "title": title,
-        "best_params": [test_params[i_best_score_1], test_params[i_best_score_2]],
-        "best_score": [scores[i_best_score_1], scores[i_best_score_2]]
-
+        "best_params": best_params,
+        "best_score": best_score
     }
 
 SVC = get_grid_search(2, "SVC", default["gamma"], [None], [None], [None])
-
+exit(0)
 QSVC = get_grid_search(0, "QSVC", default["gamma"])
 
 VQC = get_grid_search(1, "VQC", [None], [40], default["reps"])
 
-_, axes = plt.subplots(len_nfilters, 1, figsize=(10,7))
+_, axes = plt.subplots(n_dim_reds, 1, figsize=(10,7))
 
-for i in range(len_nfilters):
+for i in range(n_dim_reds):
     scores = [0] * 3
     titles = [""] * 3
     axe = axes[i]
@@ -102,7 +110,7 @@ for i in range(len_nfilters):
         scores[n] = classif["best_score"][i]
         print_score(classif, i)
     axe.bar(titles, scores)
-    axe.set_title("Balanced accuracies (nfilter=%i)" % (i + 1))
+    axe.set_title("Balanced accuracies (dimred=%s)" % str(dim_reds[i]))
     
 
 plt.show()
