@@ -1,116 +1,94 @@
 """
 ====================================================================
-TODO
+Determine best dimension reduction technics
 ====================================================================
 
-TODO
+Fine tune quantum pipeline, by determining the best dimension
+reduction technics for diminishing the size of the feature vectors.
+
+To achieve this goal, we used a sample set from MNE and
+GridSearchCV from the sklearn library.
+
+Although only a limited number of parameter combination was used in
+this example (in order to limit computation time), a similar approach
+can be used to fine-tuned other hyper parameters such as the feature
+entanglement or the number of shots.
 
 """
+
 # Author: Gregoire Cattan
-# Modified from plot_classify_EEG_tangentspace.py
 # License: BSD (3-clause)
 
-from typing import Dict
-import numpy as np
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.classification import \
     QuantumClassifierWithDefaultRiemannianPipeline
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.decomposition import PCA
-from matplotlib import pyplot as plt
-from sklearn.model_selection import StratifiedKFold, GridSearchCV, \
-    cross_val_predict
-from sklearn.metrics import balanced_accuracy_score
+from sklearn.model_selection import StratifiedKFold, GridSearchCV
 
 print(__doc__)
 
-X, y = get_mne_sample(n_trials=-1)
+X, y = get_mne_sample(n_trials=10)
 
-dim_reds = [PCA(n_components=10), NaiveDimRed()]
-n_dim_reds = len(dim_reds)
-
-
-class PCA2(PCA):
-    def fit(self, X, y):
-        super().n_components = min(X.shape) / 2
-        super().fit(X, y)
-
-default = {
-    "nfilter": [2],
-    "gamma": [None],
-    "shots": [1024],
-    "feature_entanglement": ['linear'],#['linear', 'sca'],
-    "reps": [2], #[2, 3],
-    "dim_reds": dim_reds
+default_params = {
+    # size of the xdawn filter
+    "nfilter": [2],  # [1, 2, 3]
+    # hyperparameter for the SVC classifier
+    "gamma": [None],  # [None, 0.05, 0.1, 0.15]
+    # Determine the number of "run" on the quantum machine (simulated or real)
+    # the higher is this number, the lower the variability.
+    "shots": [1024],  # [512, 1024, 2048]
+    # This defines how we entangle the data into a quantum state
+    # the more complex is the kernel, the more outcomes we can expect from
+    # a quantum vs classical classifier.
+    "feature_entanglement": ['linear'],  # ['linear', 'sca', 'full'],
+    # This parameter change the depth of the circuit when entangling data.
+    # There is a trade-off between accuracy and noise when the depth of the
+    # circuit increases.
+    "feature_reps": [2],  # [2, 3, 4]
+    # These parameters set-up the optimizer when using VQC.
+    "spsa_trials": [None],  # [40]
+    "two_local_reps": [None],  # [2, 3, 4]
+    # After the data are projected into the tangentspace,
+    # we can reduce the size of the resulting vector.
+    # Computational time tends to increases with the dimension of the feature,
+    # especially when using a simulated quantum machine.
+    # A quantum simulator is also limited to only 24qbits
+    # (and so is the size of the feature).
+    "dim_red": [PCA(n_components=10), NaiveDimRed()]
 }
 
 pipe = QuantumClassifierWithDefaultRiemannianPipeline()
 
-def print_score(data, nfilter):
-    title = data["title"]
-    scores = data["best_score"]
-    print("Best %s parameter (nfilter=%i, score=%0.3f):"
-            % (title, nfilter + 1, scores[nfilter]), data["best_params"][nfilter])
 
-def get_grid_search(idx, title, a_gamma, a_spsa_trials=[None],
-                    a_two_local_reps=[None], a_shots=default["shots"]):
-    params = {
-        "nfilter": default["nfilter"],
-        "gamma": a_gamma,
-        "dim_red": default["dim_reds"],
-        "shots": a_shots,
-        "feature_entanglement": default["feature_entanglement"],
-        "feature_reps": default["reps"],
-        "spsa_trials": a_spsa_trials,
-        "two_local_reps": a_two_local_reps
-    }
-    grid = GridSearchCV(pipe, params, scoring='balanced_accuracy',n_jobs=-1, cv=StratifiedKFold(n_splits=2))
-    search = grid.fit(X, y)
-    # seargrid.score(X)
-    # search = grid.score(X, y)
-    print(search.cv_results_)
-    print(search.best_score_)
-    
-    param_dim_red = search.cv_results_["param_dim_red"]
-    scores = search.cv_results_["mean_test_score"]
-    test_params = search.cv_results_["params"]
+def customize(custom_params: dict):
+    new_params = {}
+    for key in default_params:
+        new_params[key] = custom_params[key] if key in custom_params \
+            else default_params[key]
+    return new_params
 
+
+def search(params: dict):
+    grid = GridSearchCV(pipe, params, scoring='balanced_accuracy',
+                        n_jobs=-1, cv=StratifiedKFold(n_splits=2))
+    grid.fit(X, y)
+    return grid.best_params_
+
+
+def analyze_multiple(l_params: list[dict]):
     best_params = []
-    best_score = []
-    for i in range(n_dim_reds):
-        i_best_score = np.where(scores == max(scores[param_dim_red == dim_reds[i]]))
-        i_best_score = i_best_score[0][0]
-        best_params.append(test_params[i_best_score])
-        best_score.append(scores[i_best_score])
+    for params in l_params:
+        params_space = customize(params)
+        best_params.append(search(params_space))
+    print(best_params)
 
-    return {
-        "idx": idx,
-        "title": title,
-        "best_params": best_params,
-        "best_score": best_score
-    }
 
-SVC = get_grid_search(2, "SVC", default["gamma"], [None], [None], [None])
-exit(0)
-QSVC = get_grid_search(0, "QSVC", default["gamma"])
+SVC = {"shots": [None]}
+QSVC = {}
+VQC = {
+    "spsa_trials": [40],
+    "two_local_reps": [2]
+}
 
-VQC = get_grid_search(1, "VQC", [None], [40], default["reps"])
-
-_, axes = plt.subplots(n_dim_reds, 1, figsize=(10,7))
-
-for i in range(n_dim_reds):
-    scores = [0] * 3
-    titles = [""] * 3
-    axe = axes[i]
-    for classif in [SVC, QSVC, VQC]: 
-        params = classif["best_params"][i]
-        n = classif["idx"]
-        titles[n] = classif["title"]
-        scores[n] = classif["best_score"][i]
-        print_score(classif, i)
-    axe.bar(titles, scores)
-    axe.set_title("Balanced accuracies (dimred=%s)" % str(dim_reds[i]))
-    
-
-plt.show()
+analyze_multiple([SVC, QSVC, VQC])
