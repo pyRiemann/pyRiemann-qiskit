@@ -84,11 +84,13 @@ def analyze_multiple(l_params: list[dict]):
     print(best_params)
 
 
-SVC = {"shots": [None]}
+SVC = {
+    "shots": [None]
+    }
 QSVC = {}
 VQC = {
     "spsa_trials": [40],
     "two_local_reps": [2]
-}
+    }
 
 analyze_multiple([SVC, QSVC, VQC])
