@@ -3,10 +3,10 @@
 ERP EEG decoding with Quantum Classifier.
 ====================================================================
 
-It uses QuantumClassifierWithDefaultRiemannianPipeline. This pipeline uses
-Riemannian Geometry and Tangent Space to generate features and a quantum SVM
-classifier. It uses MOABB for the evaluation and comparison with other
-classifiers.
+It demonstrates the QuantumClassifierWithDefaultRiemannianPipeline(). This
+pipeline uses Riemannian Geometry, Tangent Space and a quantum SVM
+classifier. MOABB is used to access many EEG datasets and also for the
+evaluation and comparison with other classifiers.
 
 In QuantumClassifierWithDefaultRiemannianPipeline():
 If parameter "shots" is None then a classical SVM is used similar to the one
@@ -59,7 +59,7 @@ labels_dict = {"Target": 1, "NonTarget": 0}
 
 paradigm = P300(resample=128)
 
-datasets = [bi2012()]
+datasets = [bi2012()] #MOABB provides several other P300 datasets
 
 # reduce the number of subjects, the Quantum pipeline takes a lot of time
 # if executed on the entire dataset
@@ -71,13 +71,13 @@ overwrite = True  # set to True if we want to overwrite cached results
 
 pipelines = {}
 
-# new pipeline provided by pyRiemann-qiskit
-# you can choose between classical SVM and Quantum SVM
+# A Riemannian Quantum pipeline provided by pyRiemann-qiskit
+# You can choose between classical SVM and Quantum SVM.
 pipelines["RG+QuantumSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
     shots=None,  # 'None' forces classic SVM
     nfilter=2,  # default 2
     # default n_components=10, a higher value renders better performance with
-    # the SVM version used in qiskit
+    # the SVM version used in quiskit
     dim_red=PCA(n_components=10),
     # q_account_token='' #IBM Quantum TOKEN
     )
@@ -97,7 +97,7 @@ pipelines["RG+LDA"] = make_pipeline(
     ),
     TangentSpace(),
     PCA(n_components=10),
-    LDA(solver="lsqr", shrinkage="auto"),
+    LDA(solver="lsqr", shrinkage="auto"), # you can use other classifiers
 )
 
 print("Total pipelines to evaluate: ", len(pipelines))
