@@ -1,6 +1,6 @@
 """
 ====================================================================
-ERP EEG decoding with Quantum Classifier.
+Classification of P300 datasets from MOABB
 ====================================================================
 
 It demonstrates the QuantumClassifierWithDefaultRiemannianPipeline(). This
@@ -141,4 +141,4 @@ sns.pointplot(data=results,
 ax.set_ylabel("ROC AUC")
 ax.set_ylim(0.3, 1)
 
-fig.show()
+plt.show()
