@@ -13,6 +13,9 @@ If parameter "shots" is None then a classical SVM is used similar to the one
 in scikit learn.
 If "shots" is not None and IBM Qunatum token is provided with "q_account_token"
 then a real Quantum computer will be used.
+You also need to adjust the "n_components" in the PCA procedure to the number
+of qubits supported by the real quantum computer you are going to use.
+A list of real quantum  computers is available in your IBM quantum account.
 
 """
 # Author: Anton Andreev
@@ -77,8 +80,9 @@ pipelines["RG+QuantumSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
     shots=None,  # 'None' forces classic SVM
     nfilter=2,  # default 2
     # default n_components=10, a higher value renders better performance with
-    # the SVM version used in quiskit
-    dim_red=PCA(n_components=10),
+    # the non-qunatum SVM version used in qiskit
+    # On a real Quantum computer (n_components = qubits)
+    dim_red=PCA(n_components=5), 
     # q_account_token='' #IBM Quantum TOKEN
     )
 
