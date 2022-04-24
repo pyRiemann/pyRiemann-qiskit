@@ -115,7 +115,7 @@ evaluation = WithinSessionEvaluation(
 
 results = evaluation.process(pipelines)
 
-print("Aaveraging the session performance:")
+print("Averaging the session performance:")
 print(results.groupby('pipeline').mean('score')[['score', 'time']])
 
 ##############################################################################
