@@ -91,6 +91,6 @@ QSVC = {}
 VQC = {
     "spsa_trials": [40],
     "two_local_reps": [2]
-    }
+}
 
 analyze_multiple([SVC, QSVC, VQC])
