@@ -25,7 +25,7 @@ def get_mne_sample(n_trials=10):
     ----------
     n_trials : int (default:10)
         Number of trials to return.
-        if -1, then all trials are returned.
+        If -1, then all trials are returned.
 
     Returns
     -------
