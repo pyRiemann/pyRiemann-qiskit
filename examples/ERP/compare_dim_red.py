@@ -86,7 +86,7 @@ def analyze_multiple(l_params: list[dict]):
 
 SVC = {
     "shots": [None]
-    }
+}
 QSVC = {}
 VQC = {
     "spsa_trials": [40],
