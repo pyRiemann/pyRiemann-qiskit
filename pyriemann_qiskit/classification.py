@@ -470,7 +470,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
         Maximum number of iterations to perform using SPSA optimizer.
     two_local_reps : int (default: 3)
         The number of repetition for the two-local cricuit.
-    params: Dict (default: None)
+    params: Dict (default: {})
         Additional parameters to pass to the nested instance
         of the quantum classifier.
         See QuanticClassifierBase, QuanticVQC and QuanticSVM for
@@ -504,7 +504,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
     def __init__(self, nfilter=1, dim_red=PCA(),
                  gamma=None, shots=1024, feature_entanglement='full',
                  feature_reps=2, spsa_trials=None, two_local_reps=None,
-                 params=None):
+                 params={}):
 
         self.nfilter = nfilter
         self.dim_red = dim_red
