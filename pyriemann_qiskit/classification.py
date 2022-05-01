@@ -46,7 +46,9 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         - If false, will perform classical computing instead
     q_account_token : string (default:None)
         If quantum==True and q_account_token provided,
-        the classification task will be running on a IBM quantum backend
+        the classification task will be running on a IBM quantum backend.
+        If `load_account` is provided, the classifier will use the previous
+        token saved with `IBMQ.save_account()`.
     verbose : bool (default:True)
         If true will output all intermediate results and logs
     shots : int (default:1024)
@@ -94,8 +96,9 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
             self._log("seed = ", aqua_globals.random_seed)
             if self.q_account_token:
                 self._log("Real quantum computation will be performed")
-                IBMQ.delete_account()
-                IBMQ.save_account(self.q_account_token)
+                if not self.q_account_token == "load_account":
+                    IBMQ.delete_account()
+                    IBMQ.save_account(self.q_account_token)
                 IBMQ.load_account()
                 self._log("Getting provider...")
                 self._provider = IBMQ.get_provider(hub='ibm-q')
@@ -467,6 +470,11 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
         Maximum number of iterations to perform using SPSA optimizer.
     two_local_reps : int (default: 3)
         The number of repetition for the two-local cricuit.
+    params: Dict (default: None)
+        Additional parameters to pass to the nested instance
+        of the quantum classifier.
+        See QuanticClassifierBase, QuanticVQC and QuanticSVM for
+        a complete list of the parameters.
 
     Notes
     -----
@@ -481,6 +489,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
     get_spsa
     QuanticVQC
     QuanticSVM
+    QuanticClassifierBase
 
     References
     ----------
@@ -495,7 +504,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
     def __init__(self, nfilter=1, dim_red=PCA(),
                  gamma=None, shots=1024, feature_entanglement='full',
                  feature_reps=2, spsa_trials=None, two_local_reps=None,
-                 **params):
+                 params=None):
 
         self.nfilter = nfilter
         self.dim_red = dim_red
@@ -505,6 +514,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
         self.feature_reps = feature_reps
         self.spsa_trials = spsa_trials
         self.two_local_reps = two_local_reps
+        self.params = params
 
         is_vqc = spsa_trials and two_local_reps
         is_quantum = shots is not None
