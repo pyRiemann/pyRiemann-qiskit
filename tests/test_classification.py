@@ -182,7 +182,9 @@ class TestQuantumClassifierWithDefaultRiemannianPipeline(BinaryFVT):
     """Functional testing for riemann quantum classifier."""
     def get_params(self):
         quantum_instance = \
-            QuantumClassifierWithDefaultRiemannianPipeline(verbose=False)
+            QuantumClassifierWithDefaultRiemannianPipeline(
+                params={"verbose": False}
+            )
         return {
             "n_samples": 4,
             "n_features": 4,
