@@ -83,7 +83,7 @@ pipelines["RG+QuantumSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
     # the non-qunatum SVM version used in qiskit
     # On a real Quantum computer (n_components = qubits)
     dim_red=PCA(n_components=5),
-    # q_account_token='' #IBM Quantum TOKEN
+    # params={'q_account_token': '<IBM Quantum TOKEN>'}
     )
 
 # Here we provide a pipeline for comparison:
