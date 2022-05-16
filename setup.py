@@ -40,7 +40,7 @@ setup(name='pyriemann-qiskit',
                         'docplex',
                         'tqdm'
                         ],
-      extras_require={'docs': ['sphinx-gallery', 'sphinx-bootstrap_theme', 'numpydoc', 'mne', 'seaborn'],
+      extras_require={'docs': ['sphinx-gallery', 'sphinx-bootstrap_theme', 'numpydoc', 'mne', 'seaborn', 'moabb>=0.4.6'],
                       'tests': ['pytest', 'seaborn', 'flake8', 'mne', 'pooch', 'tqdm']},
       zip_safe=False,
 )
