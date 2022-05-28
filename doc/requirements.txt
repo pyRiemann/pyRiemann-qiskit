@@ -8,6 +8,7 @@ scikit-learn
 joblib
 pandas
 cvxpy==1.1.12
+qiskit_machine_learning==0.4.0
 qiskit==0.20.0
 scipy==1.7.3
 moabb>=0.4.6
