@@ -1,5 +1,4 @@
 cython
 git+https://github.com/pyRiemann/pyRiemann#egg=pyriemann
 qiskit_machine_learning==0.4.0
-qiskit==0.20.0
 cvxpy==1.1.12
