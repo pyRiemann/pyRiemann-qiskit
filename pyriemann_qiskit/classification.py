@@ -4,10 +4,10 @@ from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.decomposition import PCA
 from sklearn.pipeline import make_pipeline
 from qiskit import BasicAer, IBMQ
-from qiskit.aqua import QuantumInstance, aqua_globals
-from qiskit.aqua.quantum_instance import logger
+from qiskit.utils import QuantumInstance, algorithm_globals
+from qiskit.utils.quantum_instance import logger
+from qiskit_machine_learning.datasets import get_feature_dimension
 from qiskit.aqua.algorithms import QSVM, SklearnSVM, VQC
-from qiskit.aqua.utils import get_feature_dimension
 from qiskit.providers.ibmq import least_busy
 from datetime import datetime
 import logging
@@ -92,8 +92,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     def _init_quantum(self):
         if self.quantum:
-            aqua_globals.random_seed = datetime.now().microsecond
-            self._log("seed = ", aqua_globals.random_seed)
+            algorithm_globals.random_seed = datetime.now().microsecond
+            self._log("seed = ", algorithm_globals.random_seed)
             if self.q_account_token:
                 self._log("Real quantum computation will be performed")
                 if not self.q_account_token == "load_account":
@@ -183,8 +183,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                     self._log("Devices are all busy. Getting the first one...")
                     self._backend = devices[0]
                 self._log("Quantum backend = ", self._backend)
-            seed_sim = aqua_globals.random_seed
-            seed_trs = aqua_globals.random_seed
+            seed_sim = algorithm_globals.random_seed
+            seed_trs = algorithm_globals.random_seed
             self._quantum_instance = QuantumInstance(self._backend,
                                                      shots=self.shots,
                                                      seed_simulator=seed_sim,
