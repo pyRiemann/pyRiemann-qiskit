@@ -6,7 +6,7 @@ from sklearn.pipeline import make_pipeline
 from qiskit import BasicAer, IBMQ
 from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit.utils.quantum_instance import logger
-from qiskit_machine_learning.datasets import get_feature_dimension
+from pyriemann_qiskit.datasets import get_feature_dimension
 from qiskit.aqua.algorithms import QSVM, SklearnSVM, VQC
 from qiskit.providers.ibmq import least_busy
 from datetime import datetime
