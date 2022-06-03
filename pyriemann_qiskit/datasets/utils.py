@@ -132,8 +132,9 @@ def get_feature_dimension(dataset):
     # (C) Copyright IBM 2018, 2021.
     #
     # This code is licensed under the Apache License, Version 2.0. You may
-    # obtain a copy of this license in the LICENSE.txt file in the root directory
-    # of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+    # obtain a copy of this license in the LICENSE.txt file
+    # in the root directory of this source tree or at
+    # http://www.apache.org/licenses/LICENSE-2.0.
     #
     # Any modifications or derivative works of this code must retain this
     # copyright notice, and modified files need to carry a notice indicating
@@ -146,16 +147,14 @@ def get_feature_dimension(dataset):
     dataset : dict
         key is the class name and value is the data.
 
-    Args:
-        dataset(dict): 
-
     Returns
     -------
         feature_dim: The feature dimension, -1 denotes no data in the dataset.
 
     Raises
     -------
-        TypeError: invalid data set
+    TypeError
+        invalid data set
 
     """
     if not isinstance(dataset, dict):
