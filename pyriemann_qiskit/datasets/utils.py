@@ -149,7 +149,8 @@ def get_feature_dimension(dataset):
 
     Returns
     -------
-        feature_dim: The feature dimension, -1 denotes no data in the dataset.
+        n_features : int
+            The feature dimension, -1 denotes no data in the dataset.
 
     Raises
     -------
