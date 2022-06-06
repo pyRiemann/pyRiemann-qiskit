@@ -161,10 +161,9 @@ def get_feature_dimension(dataset):
     if not isinstance(dataset, dict):
         raise TypeError("Dataset is not formatted as a dict. Please check it.")
 
-    feature_dim = -1
     for v in dataset.values():
         if not isinstance(v, np.ndarray):
             v = np.asarray(v)
         return v.shape[1]
 
-    return feature_dim
+    return -1
