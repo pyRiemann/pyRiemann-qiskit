@@ -7,7 +7,6 @@ from qiskit import BasicAer, IBMQ
 from qiskit.aqua import QuantumInstance, aqua_globals
 from qiskit.aqua.quantum_instance import logger
 from qiskit.aqua.algorithms import QSVM, SklearnSVM, VQC
-from qiskit.aqua.utils import get_feature_dimension
 from qiskit.providers.ibmq import least_busy
 from datetime import datetime
 import logging
@@ -16,6 +15,7 @@ from .utils.hyper_params_factory import (gen_zz_feature_map,
                                          get_spsa)
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
+from pyriemann_qiskit.datasets import get_feature_dimension
 
 logger.level = logging.INFO
 
