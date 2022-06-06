@@ -140,7 +140,7 @@ def get_feature_dimension(dataset):
     # copyright notice, and modified files need to carry a notice indicating
     # that they have been altered from the originals.
     """
-    Check feature dimension of a given dataset.
+    Return the feature dimension of a given dataset.
 
     Parameters
     ----------
