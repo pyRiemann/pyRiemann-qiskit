@@ -1,5 +1,5 @@
 from qiskit.circuit.library import ZZFeatureMap
-from qiskit.aqua.components.optimizers import SPSA
+from qiskit.algorithms.optimizers import SPSA
 from qiskit.circuit.library import TwoLocal
 
 
