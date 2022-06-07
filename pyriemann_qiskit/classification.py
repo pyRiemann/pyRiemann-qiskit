@@ -3,11 +3,12 @@ import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.decomposition import PCA
 from sklearn.pipeline import make_pipeline
+from sklearn.svm import SVC
 from qiskit import BasicAer, IBMQ
 from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit.utils.quantum_instance import logger
 from qiskit.providers.ibmq import least_busy
-from qiskit.aqua.algorithms import QSVM, SklearnSVM, VQC
+from qiskit_machine_learning.algorithms import QSVC, VQC
 from datetime import datetime
 import logging
 from .utils.hyper_params_factory import (gen_zz_feature_map,
@@ -282,9 +283,9 @@ class QuanticSVM(QuanticClassifierBase):
         # training_input are required by Qiskit library.
         self._log("SVM initiating algorithm")
         if self.quantum:
-            classifier = QSVM(self._feature_map, self._training_input)
+            classifier = QSVC(self._feature_map, self._training_input)
         else:
-            classifier = SklearnSVM(self._training_input, gamma=self.gamma)
+            classifier = SVC(self._training_input, gamma=self.gamma)
         return classifier
 
     def predict_proba(self, X):
