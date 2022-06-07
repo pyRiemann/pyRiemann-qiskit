@@ -1,7 +1,7 @@
 import numpy as np
 from mne import io, read_events, pick_types, Epochs
 from mne.datasets import sample
-from qiskit_machine_learning.datasets import ad_hoc_data
+from qiskit.ml.datasets import ad_hoc_data
 from sklearn.datasets import make_classification
 
 
@@ -132,39 +132,38 @@ def get_feature_dimension(dataset):
     # (C) Copyright IBM 2018, 2021.
     #
     # This code is licensed under the Apache License, Version 2.0. You may
-    # obtain a copy of this license in the LICENSE.txt file in the root directory
-    # of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+    # obtain a copy of this license in the LICENSE.txt file
+    # in the root directory of this source tree or at
+    # http://www.apache.org/licenses/LICENSE-2.0.
     #
     # Any modifications or derivative works of this code must retain this
     # copyright notice, and modified files need to carry a notice indicating
     # that they have been altered from the originals.
     """
-    Check feature dimension of a given dataset.
+    Return the feature dimension of a given dataset.
 
     Parameters
     ----------
     dataset : dict
         key is the class name and value is the data.
 
-    Args:
-        dataset(dict): 
-
     Returns
     -------
-        feature_dim: The feature dimension, -1 denotes no data in the dataset.
+        n_features : int
+            The feature dimension, -1 denotes no data in the dataset.
 
     Raises
     -------
-        TypeError: invalid data set
+    TypeError
+        invalid data set
 
     """
     if not isinstance(dataset, dict):
         raise TypeError("Dataset is not formatted as a dict. Please check it.")
 
-    feature_dim = -1
     for v in dataset.values():
         if not isinstance(v, np.ndarray):
             v = np.asarray(v)
         return v.shape[1]
 
-    return feature_dim
+    return -1

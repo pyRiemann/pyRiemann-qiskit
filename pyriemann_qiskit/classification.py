@@ -16,6 +16,7 @@ from .utils.hyper_params_factory import (gen_zz_feature_map,
                                          get_spsa)
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
+from pyriemann_qiskit.datasets import get_feature_dimension
 
 logger.level = logging.INFO
 
