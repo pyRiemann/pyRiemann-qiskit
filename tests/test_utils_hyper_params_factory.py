@@ -1,7 +1,8 @@
 import pytest
+from qiskit.circuit.parametertable import ParameterView
 from pyriemann_qiskit.utils.hyper_params_factory import (gen_zz_feature_map,
                                                          gen_two_local, gates,
-                                                         get_spsa)
+                                                         get_spsa, get_spsa_parameters)
 
 
 class TestGenZZFeatureMapParams:
@@ -14,7 +15,7 @@ class TestGenZZFeatureMapParams:
         """
         n_features = 2
         feature_map = gen_zz_feature_map(entanglement=entanglement)(n_features)
-        assert isinstance(feature_map.parameters, set)
+        assert isinstance(feature_map.parameters, ParameterView)
 
     def test_entangl_idx(self, get_pauli_z_linear_entangl_idx):
         """Test gen_zz_feature_map with valid indices value"""
@@ -23,14 +24,14 @@ class TestGenZZFeatureMapParams:
         feature_map_handle = gen_zz_feature_map(reps=reps,
                                                 entanglement=indices)
         feature_map = feature_map_handle(n_features)
-        assert isinstance(feature_map.parameters, set)
+        assert isinstance(feature_map.parameters, ParameterView)
 
     def test_entangl_handle(self, get_pauli_z_linear_entangl_handle):
         """Test gen_zz_feature_map with a valid callable"""
         n_features = 2
         indices = get_pauli_z_linear_entangl_handle(n_features)
         feature_map = gen_zz_feature_map(entanglement=indices)(n_features)
-        assert isinstance(feature_map.parameters, set)
+        assert isinstance(feature_map.parameters, ParameterView)
 
     def test_entangl_invalid_value(self):
         """Test gen_zz_feature_map with uncorrect value"""
@@ -92,27 +93,35 @@ class TestTwoLocalParams:
             gen_two_local(rotation_blocks=rotation_blocks,
                           entanglement_blocks=entanglement_blocks)
 
-
 class TestGetSPSAParams:
     def test_default(self):
         """Test to create spsa with default parameters"""
         spsa = get_spsa()
-        assert spsa._parameters[4] == 4.0
-        assert spsa._maxiter == 40
-        assert spsa._skip_calibration
+        parameters = get_spsa_parameters(spsa)
+        assert parameters[4] == 4.0
+        assert spsa.maxiter == 40
 
     def test_auto_calibration(self):
         """Test to create spsa with all none control parameters"""
         spsa = get_spsa(c=(None, None, None, None, None))
+        parameters = get_spsa_parameters(spsa)
         for i in range(5):
             # Should use qiskit default values
-            assert spsa._parameters[i] is not None
-        assert not spsa._skip_calibration
+            assert parameters[i] is not None
 
     def test_custom(self):
         """Test to create spsa with custom parameters"""
         spsa = get_spsa(max_trials=100, c=(0.0, 1.0, 2.0, 3.0, 4.0))
+        parameters = get_spsa_parameters(spsa)
         for i in range(5):
-            assert spsa._parameters[i] == i
-        assert spsa._skip_calibration
-        assert spsa._maxiter == 100
+            assert parameters[i] == i
+        assert spsa.maxiter == 100
+
+    def test_spsa_instances_have_different_calibrate_method(self):
+        """Test that the calibrate method is bound to an instance"""
+        spsa = get_spsa(max_trials=100, c=(None, None, None, None, 1.0))
+        spsa2 = get_spsa(max_trials=100, c=(None, None, None, None, 2.0))
+        params = get_spsa_parameters(spsa)
+        params2 = get_spsa_parameters(spsa2)
+        assert params[4] == 1.0
+        assert params2[4] == 2.0
