@@ -1,7 +1,7 @@
 import numpy as np
 from mne import io, read_events, pick_types, Epochs
 from mne.datasets import sample
-from qiskit_machine_learning.datasets import ad_hoc_data
+from qikit_machine_learning.datasetss import ad_hoc_data
 from sklearn.datasets import make_classification
 
 
@@ -92,7 +92,7 @@ def get_qiskit_dataset():
     """
 
     feature_dim = 2
-    _, inputs, _, _ = ad_hoc_data(
+    _, X, _, _ = ad_hoc_data(
         training_size=30,
         test_size=0,
         n=feature_dim,
@@ -100,7 +100,6 @@ def get_qiskit_dataset():
         plot_data=False
     )
 
-    X = np.concatenate((inputs['A'], inputs['B']))
     y = np.concatenate(([0] * 30, [1] * 30))
 
     return (X, y)
