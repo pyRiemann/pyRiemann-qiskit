@@ -161,9 +161,9 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         if len(self.classes_) != 2:
             raise Exception("Only binary classification \
                              is currently supported.")
-        y = self._map_classes_to_0_1(y)
 
         class1, class0 = self._split_classes(X, y)
+        y = self._map_classes_to_0_1(y)
 
         self._training_input[self.classes_[1]] = class1
         self._training_input[self.classes_[0]] = class0
@@ -222,14 +222,11 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         """
         y = self._map_classes_to_0_1(y)
         self._log("Testing...")
-        if self.quantum:
-            return self._classifier.test(X, y, self._quantum_instance)
-        else:
-            return self._classifier.test(X, y)
+        self._classifier.score(X, y)
 
     def _predict(self, X):
         self._log("Prediction: ", X.shape)
-        print(self._training_input)
+        # print(self._training_input)
         result = self._classifier.predict(X)
         self._log("Prediction finished.")
         return result
@@ -382,11 +379,24 @@ class QuanticVQC(QuanticClassifierBase):
     def _init_algo(self, n_features):
         self._log("VQC training...")
         var_form = self.gen_var_form(n_features)
-        # Although we do not train the classifier at this location
-        # training_input are required by Qiskit library.
-        vqc = VQC(self.optimizer, self._feature_map, var_form,
-                  self._training_input)
+        vqc = VQC(optimizer=self.optimizer,
+                  feature_map=self._feature_map,
+                  ansatz=var_form,
+                  quantum_instance=self._quantum_instance,
+                  num_qubits=n_features)
         return vqc
+    
+    def _map_classes_to_0_1(self, y):
+        y_copy = np.ndarray((y.shape[0], 2))
+        y_copy[y == self.classes_[0]] = [1, 0]
+        y_copy[y == self.classes_[1]] = [0, 1]
+        return y_copy
+
+    def _map_0_1_to_classes(self, y):
+        y_copy = np.ndarray((y.shape[0], 1))
+        y_copy[(y == [1, 0]).all()] = self.classes_[0]
+        y_copy[(y == [0, 1]).all()] = self.classes_[1]
+        return y_copy
 
     def predict_proba(self, X):
         """Returns the probabilities associated with predictions.
@@ -420,7 +430,7 @@ class QuanticVQC(QuanticClassifierBase):
         pred : array, shape (n_samples,)
             Class labels for samples in X.
         """
-        _, labels = self._predict(X)
+        labels = self._predict(X)
         return self._map_0_1_to_classes(labels)
 
 

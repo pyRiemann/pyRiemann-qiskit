@@ -169,7 +169,7 @@ def get_spsa(max_trials=40, c=(None, None, None, None, 4.0)):
         gamma = gamma,
         modelspace = False,
         max_evals_grouped = 1):
-        SPSA.calibrate(loss, initial_point, c, stability_constant, target_magnitude,
+        return SPSA.calibrate(loss, initial_point, c, stability_constant, target_magnitude,
             alpha, gamma, modelspace, max_evals_grouped)
 
     spsa.calibrate = calibrate
