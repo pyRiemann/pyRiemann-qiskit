@@ -363,7 +363,7 @@ class QuanticVQC(QuanticClassifierBase):
            doi: 10.1038/s41586-019-0980-2.
 
     .. [3] \
-        https://qiskit.org/documentation/stable/0.19/stubs/qiskit.aqua.algorithms.VQC.html
+        https://qiskit.org/documentation/machine-learning/stubs/qiskit_machine_learning.algorithms.VQC.html
 
     """
 
@@ -504,7 +504,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
         https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.rbf_kernel.html
 
     .. [2] \
-        https://qiskit.org/documentation/stable/0.19/stubs/qiskit.circuit.library.NLocal.html
+        https://qiskit.org/documentation/stable/0.36/stubs/qiskit.circuit.library.NLocal.html
 
     """
 
