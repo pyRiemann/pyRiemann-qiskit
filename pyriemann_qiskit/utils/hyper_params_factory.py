@@ -184,12 +184,15 @@ def get_spsa_parameters(spsa):
     spsa : SPSA
         The SPSA instance.
 
-
     Returns
     -------
     params : The default values of the control parameters for the calibrate methods,
         in this order: initial point, initial perturbation, alpha, gamma
         and stability constant.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.2
 
     References
     ----------
