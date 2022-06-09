@@ -9,6 +9,7 @@ from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit.utils.quantum_instance import logger
 from qiskit.providers.ibmq import least_busy
 from qiskit_machine_learning.algorithms import QSVC, VQC
+from qiskit_machine_learning.kernels.quantum_kernel import QuantumKernel
 from datetime import datetime
 import logging
 from .utils.hyper_params_factory import (gen_zz_feature_map,
@@ -199,10 +200,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     def _train(self, X, y):
         self._log("Training...")
-        if self.quantum:
-            self._classifier.train(X, y, self._quantum_instance)
-        else:
-            self._classifier.train(X, y)
+        self._classifier.fit(X, y)
 
     def score(self, X, y):
         """Returns the testing accuracy.
@@ -274,18 +272,16 @@ class QuanticSVM(QuanticClassifierBase):
 
     """
 
-    def __init__(self, gamma=None, **parameters):
+    def __init__(self, gamma='scale', **parameters):
         QuanticClassifierBase.__init__(self, **parameters)
         self.gamma = gamma
 
     def _init_algo(self, n_features):
-        # Although we do not train the classifier at this location
-        # training_input are required by Qiskit library.
         self._log("SVM initiating algorithm")
         if self.quantum:
-            classifier = QSVC(self._feature_map, self._training_input)
+            classifier = QSVC(quantum_kernel=QuantumKernel(feature_map=self._feature_map, quantum_instance=self._quantum_instance), gamma=self.gamma)
         else:
-            classifier = SVC(self._training_input, gamma=self.gamma)
+            classifier = SVC(gamma=self.gamma)
         return classifier
 
     def predict_proba(self, X):
@@ -503,7 +499,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
     """
 
     def __init__(self, nfilter=1, dim_red=PCA(),
-                 gamma=None, shots=1024, feature_entanglement='full',
+                 gamma='scale', shots=1024, feature_entanglement='full',
                  feature_reps=2, spsa_trials=None, two_local_reps=None,
                  params={}):
 
