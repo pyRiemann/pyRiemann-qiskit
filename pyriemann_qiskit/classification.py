@@ -226,7 +226,6 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     def _predict(self, X):
         self._log("Prediction: ", X.shape)
-        # print(self._training_input)
         result = self._classifier.predict(X)
         self._log("Prediction finished.")
         return result
@@ -276,7 +275,11 @@ class QuanticSVM(QuanticClassifierBase):
     def _init_algo(self, n_features):
         self._log("SVM initiating algorithm")
         if self.quantum:
-            classifier = QSVC(quantum_kernel=QuantumKernel(feature_map=self._feature_map, quantum_instance=self._quantum_instance), gamma=self.gamma)
+            quantum_kernel = \
+                QuantumKernel(feature_map=self._feature_map,
+                              quantum_instance=self._quantum_instance)
+            classifier = QSVC(quantum_kernel=quantum_kernel,
+                              gamma=self.gamma)
         else:
             classifier = SVC(gamma=self.gamma)
         return classifier
@@ -385,14 +388,16 @@ class QuanticVQC(QuanticClassifierBase):
                   quantum_instance=self._quantum_instance,
                   num_qubits=n_features)
         return vqc
-    
+
     def _map_classes_to_0_1(self, y):
+        # Label must be one-hot encoded for VQC
         y_copy = np.ndarray((y.shape[0], 2))
         y_copy[y == self.classes_[0]] = [1, 0]
         y_copy[y == self.classes_[1]] = [0, 1]
         return y_copy
 
     def _map_0_1_to_classes(self, y):
+        # Decode one-hot encoded labels
         y_copy = np.ndarray((y.shape[0], 1))
         y_copy[(y == [1, 0]).all()] = self.classes_[0]
         y_copy[(y == [0, 1]).all()] = self.classes_[1]

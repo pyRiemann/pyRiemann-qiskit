@@ -160,20 +160,20 @@ def get_spsa(max_trials=40, c=(None, None, None, None, 4.0)):
     alpha = c[2] if c[2] else 0.602
     gamma = c[3] if c[3] else 0.101
     stability_constant = c[4] if c[4] else 0
-    def calibrate(loss,
-        initial_point = initial_point,
-        c = initial_pertubation,
-        stability_constant = stability_constant,
-        target_magnitude = None,  # 2 pi / 10
-        alpha = alpha,
-        gamma = gamma,
-        modelspace = False,
-        max_evals_grouped = 1):
-        return SPSA.calibrate(loss, initial_point, c, stability_constant, target_magnitude,
-            alpha, gamma, modelspace, max_evals_grouped)
+
+    def calibrate(loss, initial_point=initial_point,
+                  c=initial_pertubation,
+                  stability_constant=stability_constant,
+                  target_magnitude=None,
+                  alpha=alpha, gamma=gamma,
+                  modelspace=False, max_evals_grouped=1):
+        return SPSA.calibrate(loss, initial_point, c,
+                              stability_constant, target_magnitude,
+                              alpha, gamma, modelspace, max_evals_grouped)
 
     spsa.calibrate = calibrate
     return spsa
+
 
 def get_spsa_parameters(spsa):
     """Return the default values of the `calibrate` method of
@@ -186,9 +186,10 @@ def get_spsa_parameters(spsa):
 
     Returns
     -------
-    params : The default values of the control parameters for the calibrate methods,
-        in this order: initial point, initial perturbation, alpha, gamma
-        and stability constant.
+    params : The default values of the control parameters for
+        the calibrate method in this order:
+        initial point, initial perturbation, alpha,
+        gamma and stability constant.
 
     Notes
     -----
@@ -201,7 +202,7 @@ def get_spsa_parameters(spsa):
     """
     signature = inspect.signature(spsa.calibrate)
     return (signature.parameters["initial_point"].default[0],
-        signature.parameters["c"].default,
-        signature.parameters["alpha"].default,
-        signature.parameters["gamma"].default,
-        signature.parameters["stability_constant"].default)
+            signature.parameters["c"].default,
+            signature.parameters["alpha"].default,
+            signature.parameters["gamma"].default,
+            signature.parameters["stability_constant"].default)

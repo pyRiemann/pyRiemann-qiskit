@@ -2,7 +2,8 @@ import pytest
 from qiskit.circuit.parametertable import ParameterView
 from pyriemann_qiskit.utils.hyper_params_factory import (gen_zz_feature_map,
                                                          gen_two_local, gates,
-                                                         get_spsa, get_spsa_parameters)
+                                                         get_spsa,
+                                                         get_spsa_parameters)
 
 
 class TestGenZZFeatureMapParams:
@@ -92,6 +93,7 @@ class TestTwoLocalParams:
         with pytest.raises(ValueError):
             gen_two_local(rotation_blocks=rotation_blocks,
                           entanglement_blocks=entanglement_blocks)
+
 
 class TestGetSPSAParams:
     def test_default(self):
