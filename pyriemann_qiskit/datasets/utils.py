@@ -1,7 +1,7 @@
 import numpy as np
 from mne import io, read_events, pick_types, Epochs
 from mne.datasets import sample
-from qikit_machine_learning.datasetss import ad_hoc_data
+from qiskit_machine_learning.datasets import ad_hoc_data
 from sklearn.datasets import make_classification
 
 
