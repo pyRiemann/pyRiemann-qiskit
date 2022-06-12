@@ -222,7 +222,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         """
         y = self._map_classes_to_0_1(y)
         self._log("Testing...")
-        self._classifier.score(X, y)
+        return self._classifier.score(X, y)
 
     def _predict(self, X):
         self._log("Prediction: ", X.shape)
