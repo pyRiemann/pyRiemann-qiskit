@@ -34,6 +34,7 @@ Hyper-parameters generation
     gen_zz_feature_map
     gen_two_local
     get_spsa
+    get_spsa_parameters
 
 Filtering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
