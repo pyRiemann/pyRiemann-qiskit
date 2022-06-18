@@ -47,6 +47,18 @@ Filtering
     NoDimRed
     NaiveDimRed
 
+Docplex
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _filtering_api:
+.. currentmodule:: pyriemann_qiskit.utils.docplex
+
+.. autosummary::
+    :toctree: generated/
+
+    covmat_cont_var
+    covmat_int_var
+    covmat_bin_var
+
 Datasets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. _datasets_api:
