@@ -19,8 +19,10 @@ def square_cont_mat_var(prob, channels,
 
     Returns
     -------
-    covmat : dict
+    square_mat : dict
         A square matrix of continuous decision variables.
+        Access element (i, j) with square_mat[(i, j)].
+        Indices start with 0.
 
     References
     ----------
@@ -50,8 +52,10 @@ def square_int_mat_var(prob, channels,
 
     Returns
     -------
-    covmat : dict
+    square_mat : dict
         A square matrix of integer decision variables.
+        Access element (i, j) with square_mat[(i, j)].
+        Indices start with 0.
 
     References
     ----------
@@ -81,8 +85,10 @@ def square_bin_mat_var(prob, channels,
 
     Returns
     -------
-    covmat : dict
+    square_mat : dict
         A square matrix of binary decision variables.
+        Access element (i, j) with square_mat[(i, j)].
+        Indices start with 0.
 
     References
     ----------
@@ -91,4 +97,4 @@ def square_bin_mat_var(prob, channels,
     """
     BinaryVarType.one_letter_symbol = lambda _: 'B'
     return prob.binary_var_matrix(keys1=channels, keys2=channels,
-                                  name=name, lb=-prob.infinity)
+                                  name=name)
