@@ -49,7 +49,7 @@ Filtering
 
 Docplex
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. _filtering_api:
+.. _docplex_api:
 .. currentmodule:: pyriemann_qiskit.utils.docplex
 
 .. autosummary::
