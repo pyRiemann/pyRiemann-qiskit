@@ -66,6 +66,8 @@ enabling a possible sandbox for researchers and engineers in the field.
 
 ## Installation
 
+_We recommend the use of [Anaconda](https://www.anaconda.com/) to manage python environements._ 
+
 As there is no stable version, you should clone this repository
 and install the package on your local machine using the `setup.py` script
 
@@ -80,3 +82,61 @@ import pyriemann_qiskit
 ```
 
 Full documentation, including API description, is available at <https://pyriemann-qiskit.readthedocs.io/>
+
+To run a specific example on your local machine, you should install first dependencies for the documentation:
+
+```
+pip install .[doc]
+```
+
+Then you can run the python example of your choice like:
+
+```
+python examples\ERP\classify_P300_bi.py
+```
+
+## Contributor Guidelines
+
+Everyone is welcomed to contribute to this repository. There are two types of contributions:
+
+- [Raise an issue](https://github.com/pyRiemann/pyRiemann-qiskit/issues/new) on the repository.
+Issues can be either a bug report or an enhancement proposal. Note that it is necessary to register on
+GitHub before. There is no special template which is expected but, if you raise a defect please  provide as much details as possible.
+
+- [Raise a pull request](https://github.com/pyRiemann/pyRiemann-qiskit/compare). Fork the repository and work on your own branch. Then raise a pull request with your branch against master. As much as possible, we ask you to:
+    - avoid merging master into your branch. Always prefer git rebase.
+    - always provide full documentation of public method.
+
+Code contribution (pull request) can be either on core functionalities, documentation or automation.
+
+- The core functionalies are based on `Python`, [pyRiemann](https://github.com/pyRiemann/pyRiemann), [Qiskit ML](https://github.com/Qiskit/qiskit-machine-learning) and follow the best practice from [scikit-learn](https://scikit-learn.org/stable/index.html). We use `flake8` for code formatting. `flake8` is installed with the testing dependencies (see below) or can be installed directly from `pip`:
+
+    ```
+    pip install flake8
+    ```
+
+    To execute `flake8`, just type `flake8` from the root repository, and correct all errors related to your changes.
+
+- The documentation is based on [Sphinx](https://www.sphinx-doc.org/en/master/).
+- Automation is based on `GitHub Action` and `pytest`. It consists in two automated workflows for running the example and the tests. To run the tests on your local machine, you should first install the dependencies for testing:
+
+    ```
+    pip install .[test]
+    ```
+
+    and then type `pytest` from the root repository. You can also specify a file like:
+
+    ```
+    pytest tests/test_classification.py 
+    ```
+
+    Workflows are automatically triggered when you push a commit. However, the worflow for example execution is only triggered when you modify one of the examples or the documentation as the execution take a lot of time. You can enable [Github Actions](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository) in your fork to see the result of the CI pipeline. Results are also indicated at the end of your pull request when raised. However note, that workflows in the pull request need approval from the maintainers before being executed.
+
+# Troubleshooting
+
+There is a known issue when you install `pyRiemann-qiskit` in an environement where there is already `pyRiemann` installed. In such case, the `pyRiemann` version is not updated. Therefore before installing or updating `pyRiemann-qiskit`, we recommend to install `pyRiemann` as it follows:
+
+```
+pip uninstall pyriemann
+pip install pyriemann@git+https://github.com/pyRiemann/pyRiemann#egg=pyriemann
+```
