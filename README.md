@@ -66,7 +66,7 @@ enabling a possible sandbox for researchers and engineers in the field.
 
 ## Installation
 
-_We recommand the use of [Anaconda](https://www.anaconda.com/) to manage python environements._ 
+_We recommend the use of [Anaconda](https://www.anaconda.com/) to manage python environements._ 
 
 As there is no stable version, you should clone this repository
 and install the package on your local machine using the `setup.py` script
@@ -134,7 +134,7 @@ Code contribution (pull request) can be either on core functionalities, document
 
 # Troubleshooting
 
-There is a known issue when you install `pyRiemann-qiskit` in an environement where there is already `pyRiemann` installed. In such case, the `pyRiemann` version is not updated. To prevent any furthur issues, we recommand to execute before installing or updating `pyRiemann-qiskit`:
+There is a known issue when you install `pyRiemann-qiskit` in an environement where there is already `pyRiemann` installed. In such case, the `pyRiemann` version is not updated. Therefore before installing or updating `pyRiemann-qiskit`, we recommend to install `pyRiemann` as it follows:
 
 ```
 pip uninstall pyriemann
