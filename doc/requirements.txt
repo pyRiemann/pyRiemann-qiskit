@@ -13,3 +13,4 @@ qiskit-ibmq-provider==0.19.1
 scipy==1.7.3
 moabb>=0.4.6
 git+https://github.com/pyRiemann/pyRiemann#egg=pyriemann
+docplex
