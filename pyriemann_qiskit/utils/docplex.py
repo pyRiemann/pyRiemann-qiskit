@@ -1,5 +1,11 @@
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
-
+from qiskit import BasicAer
+from qiskit.utils import QuantumInstance
+from qiskit.algorithms import QAOA
+from qiskit_optimization.algorithms import CobylaOptimizer, MinimumEigenOptimizer
+from qiskit_optimization.converters import IntegerToBinary
+from qiskit_optimization.problems import QuadraticProgram
+import numpy as np
 
 def square_cont_mat_var(prob, channels,
                         name='cont_covmat'):
@@ -98,3 +104,45 @@ def square_bin_mat_var(prob, channels,
     BinaryVarType.one_letter_symbol = lambda _: 'B'
     return prob.binary_var_matrix(keys1=channels, keys2=channels,
                                   name=name)
+
+
+class pyQiskitOptimizer():
+    def convert_covmat(self, covmat, precision=None):
+        return covmat
+
+    def covmat_var(self, prob, channels, name):
+        raise NotImplementedError()
+
+    def _solve_qp(self, qp):
+        raise NotImplementedError()
+
+    def solve(self, prob):
+        qp = QuadraticProgram()
+        qp.from_docplex(prob)
+        return self._solve_qp(qp)
+
+
+class ClassicalOptimizer(pyQiskitOptimizer):
+    def covmat_var(self, prob, channels, name):
+        return square_cont_mat_var(prob, channels)
+
+    def _solve_qp(self, qp):
+        return CobylaOptimizer(rhobeg=0.01, rhoend=0.0001).solve(qp)
+
+
+class NaiveQAOAOptimizer(pyQiskitOptimizer):
+    def convert_covmat(self, covmat, precision=10**4):
+        return np.round(covmat * precision, 0)
+
+    def covmat_var(self, prob, channels, name):
+        return square_int_mat_var(prob, channels)
+
+    def _solve_qp(self, qp):
+        conv = IntegerToBinary()
+        qubo = conv.convert(qp)
+        backend = BasicAer.get_backend('statevector_simulator')
+        quantum_instance = QuantumInstance(backend)
+        qaoa_mes = QAOA(quantum_instance=quantum_instance,
+                        initial_point=[0., 0.])
+        qaoa = MinimumEigenOptimizer(qaoa_mes)
+        return qaoa.solve(qubo)
