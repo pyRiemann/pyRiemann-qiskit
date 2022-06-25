@@ -4,3 +4,4 @@ qiskit_machine_learning==0.4.0
 qiskit-ibmq-provider==0.19.1
 qiskit-optimization==0.3.2
 cvxpy==1.1.12
+docplex>=2.21.207
