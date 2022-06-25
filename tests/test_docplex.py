@@ -3,7 +3,9 @@ from docplex.mp.model import Model
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
 from pyriemann_qiskit.utils import (square_cont_mat_var,
                                     square_int_mat_var,
-                                    square_bin_mat_var)
+                                    square_bin_mat_var,
+                                    ClassicalOptimizer,
+                                    NaiveQAOAOptimizer)
 
 
 @pytest.mark.parametrize('square_mat_var',
@@ -20,3 +22,10 @@ def test_get_square_cont_var(square_mat_var):
     first_element = mat[(0, 0)]
     assert len(mat) == n * n
     assert type(first_element.vartype) is expected_result_type
+
+
+@pytest.mark.parametrize('optimizer',
+                         [ClassicalOptimizer,
+                          NaiveQAOAOptimizer])
+def test_optimizer_creation(optimizer):
+    assert optimizer()
