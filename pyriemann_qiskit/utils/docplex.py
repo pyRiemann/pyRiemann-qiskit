@@ -2,10 +2,12 @@ from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
 from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
 from qiskit.algorithms import QAOA
-from qiskit_optimization.algorithms import CobylaOptimizer, MinimumEigenOptimizer
+from qiskit_optimization.algorithms import (CobylaOptimizer,
+                                            MinimumEigenOptimizer)
 from qiskit_optimization.converters import IntegerToBinary
 from qiskit_optimization.problems import QuadraticProgram
 import numpy as np
+
 
 def square_cont_mat_var(prob, channels,
                         name='cont_covmat'):
@@ -300,7 +302,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         pass
 
     """Transform all values in the covariance matrix
-    to integers. 
+    to integers.
 
     Example:
     0.123 -> 1230
