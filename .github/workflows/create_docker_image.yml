@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-        run: |
-            docker build . --file Dockerfile --tag pyriemann-qiskit:$(date +%s) |
-            docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-            docker push pyriemann-qiskit:$(date +%s
+      run: |
+        docker build . --file Dockerfile --tag pyriemann-qiskit:$(date +%s) |
+        docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+        docker push pyriemann-qiskit:$(date +%s
