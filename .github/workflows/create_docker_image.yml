@@ -12,7 +12,7 @@ jobs:
 
     runs-on: ubuntu-latest
     env:
-      tag: ${{ github.ref }}
+      tag: ${{ github.event.pull_request.number }}
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
