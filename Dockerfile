@@ -8,6 +8,6 @@ RUN apt-get update
 RUN apt-get -y install git
 
 RUN python setup.py develop
-RUN pip install .[doc]
+RUN pip install -r doc/requirements.txt
 
 ENTRYPOINT [ "python", "/examples/ERP/classify_P300_bi.py" ]
