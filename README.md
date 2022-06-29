@@ -158,6 +158,10 @@ Here we will provide the steps with the Google Cloud Plateform (other cloud prov
 Make sure that the `create_docker_image` workflow pass.
 2. Open an account on Google Cloud (it required a billing account, but you will not be charged until you upgrade your account).
 3. Create a [Cloud Run Service](https://console.cloud.google.com/run/create?project=pyriemann-qiskit) called `pyriemmann-qiskit`.
+For the moment use the default configuration, although you may want to already indicate the physical ressources:
+
+![image](https://user-images.githubusercontent.com/6229031/176449146-d3c3da37-0382-46e6-a20b-1b963ce6c12a.png)
+
 4. Create an [artifactory repository](https://console.cloud.google.com/artifacts/create-repo?project=pyriemann-qiskit), following
 the `Create a Docker repository in Artifactory` tutorial. Tutorials are displayed in the right side panel of the plateform.
 Make sure to indicate `pyriemann-qiskit` as a project.
@@ -165,10 +169,17 @@ Make sure to indicate `pyriemann-qiskit` as a project.
 6. Under `Configuration>Type`, select `Dockerfile`. 
 7. Under `Configuration>Location`, select `Repository` and type `Dockerfile` in the input box `Dockerfile name`.
 8. Under `Configuration>Location` provide a value for the image name.
-It should be in the form: `<XXX>-docker.pkg.dev/<name of your cloud run service>/<name of your docker repo>/<custom image name>:$COMMIT_SHA`
+It should be in the form: `<XXX>-docker.pkg.dev/<name of your cloud run service>/<name of your docker repo>/<custom image name>:$COMMIT_SHA`.
+You can copy the first part of this URL (except the image name) from your artifact repository settings:
+
+![image](https://user-images.githubusercontent.com/6229031/176449496-daf5f263-3bb9-4eb9-aad3-7bcf289b8f59.png)
+
 9. Validate the trigger, and run it. Check everything pass.
 10. Edit the service you created in step `3`, and select a `Container Image URL`. If everything went well,
-a new image should have been pushed in your artifact repository.
+a new image should have been pushed in your artifact repository. It is also possible to specify a different entrypoint that the one provided in setp `1`
+
+![image](https://user-images.githubusercontent.com/6229031/176448796-8d2472c5-5662-4b69-8d47-c31ebbe9a7e5.png)
+
 11. Validate the service and click on log to see the output.
 
 # Troubleshooting
