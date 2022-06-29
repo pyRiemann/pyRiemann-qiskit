@@ -95,6 +95,22 @@ Then you can run the python example of your choice like:
 python examples\ERP\classify_P300_bi.py
 ```
 
+### Installation with docker
+
+We also offer the possibility to set up the dev environment within docker.
+To this end, we recommand to use `vscode` with the `Remote Containers` extension
+from Microsoft. 
+
+Once the installation is succesfull, just open the project in `vscode` and enter `F1`.
+In the search bar that opens, type `Rebuild and Reopen Container`.
+
+Wait for the container to built, and open a python shell within the container.
+Then ensure everything went smoothly by typing:
+
+```
+import pyriemann_qiskit
+```
+
 ## Contributor Guidelines
 
 Everyone is welcomed to contribute to this repository. There are two types of contributions:
@@ -134,6 +150,7 @@ Code contribution (pull request) can be either on core functionalities, document
 
 # Troubleshooting
 
+## Version of pyRiemann not updated
 There is a known issue when you install `pyRiemann-qiskit` in an environement where there is already `pyRiemann` installed. In such case, the `pyRiemann` version is not updated. Therefore before installing or updating `pyRiemann-qiskit`, we recommend to install `pyRiemann` as it follows:
 
 ```
