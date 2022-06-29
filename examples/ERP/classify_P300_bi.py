@@ -30,7 +30,7 @@ import warnings
 import seaborn as sns
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from moabb import set_log_level
-from moabb.datasets import bi2012
+from moabb.datasets import bi2012, bi2013a
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
 from pyriemann_qiskit.classification import \
@@ -62,7 +62,7 @@ labels_dict = {"Target": 1, "NonTarget": 0}
 
 paradigm = P300(resample=128)
 
-datasets = [bi2012()]  # MOABB provides several other P300 datasets
+datasets = [bi2012(), bi2013a()]  # MOABB provides several other P300 datasets
 
 # reduce the number of subjects, the Quantum pipeline takes a lot of time
 # if executed on the entire dataset
@@ -74,35 +74,25 @@ overwrite = True  # set to True if we want to overwrite cached results
 
 pipelines = {}
 
-# A Riemannian Quantum pipeline provided by pyRiemann-qiskit
-# You can choose between classical SVM and Quantum SVM.
-pipelines["RG+QuantumSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=None,  # 'None' forces classic SVM
-    nfilter=2,  # default 2
-    # default n_components=10, a higher value renders better performance with
-    # the non-qunatum SVM version used in qiskit
-    # On a real Quantum computer (n_components = qubits)
-    dim_red=PCA(n_components=5),
-    # params={'q_account_token': '<IBM Quantum TOKEN>'}
-    )
 
 # Here we provide a pipeline for comparison:
 
 # This is a standard pipeline similar to
 # QuantumClassifierWithDefaultRiemannianPipeline, but with LDA classifier
 # instead.
-pipelines["RG+LDA"] = make_pipeline(
-    # applies XDawn and calculates the covariance matrix, output it matrices
-    XdawnCovariances(
-        nfilter=2,
-        classes=[labels_dict["Target"]],
-        estimator="lwf",
-        xdawn_estimator="scm"
-    ),
-    TangentSpace(),
-    PCA(n_components=10),
-    LDA(solver="lsqr", shrinkage="auto"),  # you can use other classifiers
-)
+pipelines["RG+SVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
+    shots=None,  # 'None' forces classic SVM
+    nfilter=2,  # default 2
+    dim_red=PCA(n_components=5),
+    )
+
+# A Riemannian Quantum pipeline provided by pyRiemann-qiskit
+# You can choose between classical SVM and Quantum SVM.
+pipelines["RG+QuantumSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
+    shots=1024,  # 'None' forces classic SVM
+    nfilter=2,  # default 2
+    dim_red=PCA(n_components=5),
+    )
 
 print("Total pipelines to evaluate: ", len(pipelines))
 
