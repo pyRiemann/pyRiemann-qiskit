@@ -148,6 +148,29 @@ Code contribution (pull request) can be either on core functionalities, document
 
     Workflows are automatically triggered when you push a commit. However, the worflow for example execution is only triggered when you modify one of the examples or the documentation as the execution take a lot of time. You can enable [Github Actions](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository) in your fork to see the result of the CI pipeline. Results are also indicated at the end of your pull request when raised. However note, that workflows in the pull request need approval from the maintainers before being executed.
 
+## Deploy an example on the cloud
+
+When creating an example, your local computer may be limited in terms of ressources to emulate a quantum computer.
+Instead, you might want to use a cloud provider to run the example.
+Here we will provide the steps with the Google Cloud Plateform (other cloud provisionners offer similar functionnality):
+
+1. Create a new branch with you example. Modify the `/Dockerfile` to redirect the `entrypoint` to your example.
+Make sure that the `create_docker_image` workflow pass.
+2. Open an account on Google Cloud (it required a billing account, but you will not be charged until you upgrade your account).
+3. Create a [Cloud Run Service](https://console.cloud.google.com/run/create?project=pyriemann-qiskit) called `pyriemmann-qiskit`.
+4. Create an [artifactory repository](https://console.cloud.google.com/artifacts/create-repo?project=pyriemann-qiskit), following
+the `Create a Docker repository in Artifactory` tutorial. Tutorials are displayed in the right side panel of the plateform.
+Make sure to indicate `pyriemann-qiskit` as a project.
+5. Create a new [Cloud Build Trigger](https://console.cloud.google.com/cloud-build/triggers?project=pyriemann-qiskit).
+6. Under `Configuration>Type`, select `Dockerfile`. 
+7. Under `Configuration>Location`, select `Repository` and type `Dockerfile` in the input box `Dockerfile name`.
+8. Under `Configuration>Location` provide a value for the image name.
+It should be in the form: `<XXX>-docker.pkg.dev/<name of your cloud run service>/<name of your docker repo>/<custom image name>:$COMMIT_SHA`
+9. Validate the trigger, and run it. Check everything pass.
+10. Edit the service you created in step `3`, and select a `Container Image URL`. If everything went well,
+a new image should have been pushed in your artifact repository.
+11. Validate the service and click on log to see the output.
+
 # Troubleshooting
 
 ## Version of pyRiemann not updated
