@@ -48,6 +48,8 @@ def get_covmats_params(rndstate):
 
 
 def _get_labels(n_matrices, n_classes):
+    # Warning: this implementation only works
+    # if n_classes is a divider of n_matrices.
     return np.arange(n_classes).repeat(n_matrices // n_classes)
 
 

@@ -3,12 +3,13 @@ import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.decomposition import PCA
 from sklearn.pipeline import make_pipeline
+from sklearn.svm import SVC
 from qiskit import BasicAer, IBMQ
-from qiskit.aqua import QuantumInstance, aqua_globals
-from qiskit.aqua.quantum_instance import logger
-from qiskit.aqua.algorithms import QSVM, SklearnSVM, VQC
-from qiskit.aqua.utils import get_feature_dimension
+from qiskit.utils import QuantumInstance, algorithm_globals
+from qiskit.utils.quantum_instance import logger
 from qiskit.providers.ibmq import least_busy
+from qiskit_machine_learning.algorithms import QSVC, VQC
+from qiskit_machine_learning.kernels.quantum_kernel import QuantumKernel
 from datetime import datetime
 import logging
 from .utils.hyper_params_factory import (gen_zz_feature_map,
@@ -16,6 +17,7 @@ from .utils.hyper_params_factory import (gen_zz_feature_map,
                                          get_spsa)
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
+from pyriemann_qiskit.datasets import get_feature_dimension
 
 logger.level = logging.INFO
 
@@ -46,7 +48,9 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         - If false, will perform classical computing instead
     q_account_token : string (default:None)
         If quantum==True and q_account_token provided,
-        the classification task will be running on a IBM quantum backend
+        the classification task will be running on a IBM quantum backend.
+        If `load_account` is provided, the classifier will use the previous
+        token saved with `IBMQ.save_account()`.
     verbose : bool (default:True)
         If true will output all intermediate results and logs
     shots : int (default:1024)
@@ -90,12 +94,13 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     def _init_quantum(self):
         if self.quantum:
-            aqua_globals.random_seed = datetime.now().microsecond
-            self._log("seed = ", aqua_globals.random_seed)
+            algorithm_globals.random_seed = datetime.now().microsecond
+            self._log("seed = ", algorithm_globals.random_seed)
             if self.q_account_token:
                 self._log("Real quantum computation will be performed")
-                IBMQ.delete_account()
-                IBMQ.save_account(self.q_account_token)
+                if not self.q_account_token == "load_account":
+                    IBMQ.delete_account()
+                    IBMQ.save_account(self.q_account_token)
                 IBMQ.load_account()
                 self._log("Getting provider...")
                 self._provider = IBMQ.get_provider(hub='ibm-q')
@@ -156,9 +161,9 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         if len(self.classes_) != 2:
             raise Exception("Only binary classification \
                              is currently supported.")
-        y = self._map_classes_to_0_1(y)
 
         class1, class0 = self._split_classes(X, y)
+        y = self._map_classes_to_0_1(y)
 
         self._training_input[self.classes_[1]] = class1
         self._training_input[self.classes_[0]] = class0
@@ -180,8 +185,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                     self._log("Devices are all busy. Getting the first one...")
                     self._backend = devices[0]
                 self._log("Quantum backend = ", self._backend)
-            seed_sim = aqua_globals.random_seed
-            seed_trs = aqua_globals.random_seed
+            seed_sim = algorithm_globals.random_seed
+            seed_trs = algorithm_globals.random_seed
             self._quantum_instance = QuantumInstance(self._backend,
                                                      shots=self.shots,
                                                      seed_simulator=seed_sim,
@@ -195,10 +200,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     def _train(self, X, y):
         self._log("Training...")
-        if self.quantum:
-            self._classifier.train(X, y, self._quantum_instance)
-        else:
-            self._classifier.train(X, y)
+        self._classifier.fit(X, y)
 
     def score(self, X, y):
         """Returns the testing accuracy.
@@ -220,14 +222,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         """
         y = self._map_classes_to_0_1(y)
         self._log("Testing...")
-        if self.quantum:
-            return self._classifier.test(X, y, self._quantum_instance)
-        else:
-            return self._classifier.test(X, y)
+        return self._classifier.score(X, y)
 
     def _predict(self, X):
         self._log("Prediction: ", X.shape)
-        print(self._training_input)
         result = self._classifier.predict(X)
         self._log("Prediction finished.")
         return result
@@ -270,18 +268,20 @@ class QuanticSVM(QuanticClassifierBase):
 
     """
 
-    def __init__(self, gamma=None, **parameters):
+    def __init__(self, gamma='scale', **parameters):
         QuanticClassifierBase.__init__(self, **parameters)
         self.gamma = gamma
 
     def _init_algo(self, n_features):
-        # Although we do not train the classifier at this location
-        # training_input are required by Qiskit library.
         self._log("SVM initiating algorithm")
         if self.quantum:
-            classifier = QSVM(self._feature_map, self._training_input)
+            quantum_kernel = \
+                QuantumKernel(feature_map=self._feature_map,
+                              quantum_instance=self._quantum_instance)
+            classifier = QSVC(quantum_kernel=quantum_kernel,
+                              gamma=self.gamma)
         else:
-            classifier = SklearnSVM(self._training_input, gamma=self.gamma)
+            classifier = SVC(gamma=self.gamma)
         return classifier
 
     def predict_proba(self, X):
@@ -366,7 +366,7 @@ class QuanticVQC(QuanticClassifierBase):
            doi: 10.1038/s41586-019-0980-2.
 
     .. [3] \
-        https://qiskit.org/documentation/stable/0.19/stubs/qiskit.aqua.algorithms.VQC.html
+        https://qiskit.org/documentation/machine-learning/stubs/qiskit_machine_learning.algorithms.VQC.html
 
     """
 
@@ -382,11 +382,26 @@ class QuanticVQC(QuanticClassifierBase):
     def _init_algo(self, n_features):
         self._log("VQC training...")
         var_form = self.gen_var_form(n_features)
-        # Although we do not train the classifier at this location
-        # training_input are required by Qiskit library.
-        vqc = VQC(self.optimizer, self._feature_map, var_form,
-                  self._training_input)
+        vqc = VQC(optimizer=self.optimizer,
+                  feature_map=self._feature_map,
+                  ansatz=var_form,
+                  quantum_instance=self._quantum_instance,
+                  num_qubits=n_features)
         return vqc
+
+    def _map_classes_to_0_1(self, y):
+        # Label must be one-hot encoded for VQC
+        y_copy = np.ndarray((y.shape[0], 2))
+        y_copy[y == self.classes_[0]] = [1, 0]
+        y_copy[y == self.classes_[1]] = [0, 1]
+        return y_copy
+
+    def _map_0_1_to_classes(self, y):
+        # Decode one-hot encoded labels
+        y_copy = np.ndarray((y.shape[0], 1))
+        y_copy[(y == [1, 0]).all()] = self.classes_[0]
+        y_copy[(y == [0, 1]).all()] = self.classes_[1]
+        return y_copy
 
     def predict_proba(self, X):
         """Returns the probabilities associated with predictions.
@@ -420,7 +435,7 @@ class QuanticVQC(QuanticClassifierBase):
         pred : array, shape (n_samples,)
             Class labels for samples in X.
         """
-        _, labels = self._predict(X)
+        labels = self._predict(X)
         return self._map_0_1_to_classes(labels)
 
 
@@ -467,6 +482,11 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
         Maximum number of iterations to perform using SPSA optimizer.
     two_local_reps : int (default: 3)
         The number of repetition for the two-local cricuit.
+    params: Dict (default: {})
+        Additional parameters to pass to the nested instance
+        of the quantum classifier.
+        See QuanticClassifierBase, QuanticVQC and QuanticSVM for
+        a complete list of the parameters.
 
     Notes
     -----
@@ -481,6 +501,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
     get_spsa
     QuanticVQC
     QuanticSVM
+    QuanticClassifierBase
 
     References
     ----------
@@ -488,14 +509,14 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
         https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.rbf_kernel.html
 
     .. [2] \
-        https://qiskit.org/documentation/stable/0.19/stubs/qiskit.circuit.library.NLocal.html
+        https://qiskit.org/documentation/stable/0.36/stubs/qiskit.circuit.library.NLocal.html
 
     """
 
     def __init__(self, nfilter=1, dim_red=PCA(),
-                 gamma=None, shots=1024, feature_entanglement='full',
+                 gamma='scale', shots=1024, feature_entanglement='full',
                  feature_reps=2, spsa_trials=None, two_local_reps=None,
-                 **params):
+                 params={}):
 
         self.nfilter = nfilter
         self.dim_red = dim_red
@@ -505,9 +526,10 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
         self.feature_reps = feature_reps
         self.spsa_trials = spsa_trials
         self.two_local_reps = two_local_reps
+        self.params = params
 
         is_vqc = spsa_trials and two_local_reps
-        is_quantum = not shots
+        is_quantum = shots is not None
 
         feature_map = gen_zz_feature_map(feature_reps, feature_entanglement)
         # verbose is passed as an additional parameter to quantum classifiers.

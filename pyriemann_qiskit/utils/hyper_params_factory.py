@@ -1,6 +1,7 @@
 from qiskit.circuit.library import ZZFeatureMap
-from qiskit.aqua.components.optimizers import SPSA
+from qiskit.algorithms.optimizers import SPSA
 from qiskit.circuit.library import TwoLocal
+import inspect
 
 
 def gen_zz_feature_map(reps=2, entanglement='linear'):
@@ -120,10 +121,13 @@ def get_spsa(max_trials=40, c=(None, None, None, None, 4.0)):
     max_trials : int (default:40)
         Maximum number of iterations to perform.
     c : tuple[float | None] (default:(None, None, None, None, 4.0))
-        The 5 control parameters for SPSA algorithms.
-        See [3]_ for implementation details.
-        Auto calibration of SPSA will be skiped if one
-        of the parameters is different from None.
+        The 5 control parameters for SPSA algorithms, namely:
+        the initial point, the intial perturbation, alpha, gamma
+        and the stability constant.
+        See [3]_ for implementation details. This function set the
+        default value of the control parameters for the `calibrate` method of
+        the implementation.
+
 
     Returns
     -------
@@ -146,14 +150,59 @@ def get_spsa(max_trials=40, c=(None, None, None, None, 4.0)):
            Wiley, New York, vol. 20, pp. 529–542
 
     .. [3] \
-        https://qiskit.org/documentation/stable/0.19/stubs/qiskit.aqua.components.optimizers.SPSA.html
+        https://qiskit.org/documentation/stable/0.36/stubs/qiskit.algorithms.optimizers.SPSA.html
 
     .. [4] https://www.jhuapl.edu/SPSA/#Overview
     """
-    params = {}
-    for i in range(5):
-        if c[i] is not None:
-            params["c" + str(i)] = c[i]
-    if len(params) > 0:
-        params["skip_calibration"] = True
-    return SPSA(max_trials=max_trials, **params)
+    spsa = SPSA(maxiter=max_trials)
+    initial_point = [c[0]] if c[0] else [0]
+    initial_pertubation = c[1] if c[1] else 0.2
+    alpha = c[2] if c[2] else 0.602
+    gamma = c[3] if c[3] else 0.101
+    stability_constant = c[4] if c[4] else 0
+
+    def calibrate(loss, initial_point=initial_point,
+                  c=initial_pertubation,
+                  stability_constant=stability_constant,
+                  target_magnitude=None,
+                  alpha=alpha, gamma=gamma,
+                  modelspace=False, max_evals_grouped=1):
+        return SPSA.calibrate(loss, initial_point, c,
+                              stability_constant, target_magnitude,
+                              alpha, gamma, modelspace, max_evals_grouped)
+
+    spsa.calibrate = calibrate
+    return spsa
+
+
+def get_spsa_parameters(spsa):
+    """Return the default values of the `calibrate` method of
+    an SPSA instance. See [1]_ for implementation details.
+
+    Parameters
+    ----------
+    spsa : SPSA
+        The SPSA instance.
+
+    Returns
+    -------
+    params : The default values of the control parameters for
+        the calibrate method in this order:
+        initial point, initial perturbation, alpha,
+        gamma and stability constant.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.2
+
+    References
+    ----------
+    .. [1] \
+        https://qiskit.org/documentation/stable/0.36/stubs/qiskit.algorithms.optimizers.SPSA.calibrate.html
+    """
+    signature = inspect.signature(spsa.calibrate)
+    return (signature.parameters["initial_point"].default[0],
+            signature.parameters["c"].default,
+            signature.parameters["alpha"].default,
+            signature.parameters["gamma"].default,
+            signature.parameters["stability_constant"].default)

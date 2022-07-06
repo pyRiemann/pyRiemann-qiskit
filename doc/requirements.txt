@@ -8,6 +8,9 @@ scikit-learn
 joblib
 pandas
 cvxpy==1.1.12
-qiskit==0.20.0
+qiskit_machine_learning==0.4.0
+qiskit-ibmq-provider==0.19.1
 scipy==1.7.3
+moabb>=0.4.6
 git+https://github.com/pyRiemann/pyRiemann#egg=pyriemann
+docplex

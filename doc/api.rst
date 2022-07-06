@@ -34,6 +34,7 @@ Hyper-parameters generation
     gen_zz_feature_map
     gen_two_local
     get_spsa
+    get_spsa_parameters
 
 Filtering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,6 +47,18 @@ Filtering
     NoDimRed
     NaiveDimRed
 
+Docplex
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _docplex_api:
+.. currentmodule:: pyriemann_qiskit.utils.docplex
+
+.. autosummary::
+    :toctree: generated/
+
+    square_cont_mat_var
+    square_int_mat_var
+    square_bin_mat_var
+
 Datasets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. _datasets_api:
@@ -57,4 +70,5 @@ Datasets
     get_mne_sample
     get_linearly_separable_dataset
     get_qiskit_dataset
+    get_feature_dimension
 

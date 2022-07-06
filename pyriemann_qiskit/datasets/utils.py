@@ -1,7 +1,7 @@
 import numpy as np
 from mne import io, read_events, pick_types, Epochs
 from mne.datasets import sample
-from qiskit.ml.datasets import ad_hoc_data
+from qiskit_machine_learning.datasets import ad_hoc_data
 from sklearn.datasets import make_classification
 
 
@@ -25,6 +25,7 @@ def get_mne_sample(n_trials=10):
     ----------
     n_trials : int (default:10)
         Number of trials to return.
+        If -1, then all trials are returned.
 
     Returns
     -------
@@ -91,7 +92,7 @@ def get_qiskit_dataset():
     """
 
     feature_dim = 2
-    _, inputs, _, _ = ad_hoc_data(
+    _, X, _, _ = ad_hoc_data(
         training_size=30,
         test_size=0,
         n=feature_dim,
@@ -99,7 +100,6 @@ def get_qiskit_dataset():
         plot_data=False
     )
 
-    X = np.concatenate((inputs['A'], inputs['B']))
     y = np.concatenate(([0] * 30, [1] * 30))
 
     return (X, y)
@@ -123,3 +123,46 @@ def get_linearly_separable_dataset():
     X += 2 * rng.uniform(size=X.shape)
 
     return(X, y)
+
+
+def get_feature_dimension(dataset):
+    # This code is part of Qiskit.
+    #
+    # (C) Copyright IBM 2018, 2021.
+    #
+    # This code is licensed under the Apache License, Version 2.0. You may
+    # obtain a copy of this license in the LICENSE.txt file
+    # in the root directory of this source tree or at
+    # http://www.apache.org/licenses/LICENSE-2.0.
+    #
+    # Any modifications or derivative works of this code must retain this
+    # copyright notice, and modified files need to carry a notice indicating
+    # that they have been altered from the originals.
+    """
+    Return the feature dimension of a given dataset.
+
+    Parameters
+    ----------
+    dataset : dict
+        key is the class name and value is the data.
+
+    Returns
+    -------
+        n_features : int
+            The feature dimension, -1 denotes no data in the dataset.
+
+    Raises
+    -------
+    TypeError
+        invalid data set
+
+    """
+    if not isinstance(dataset, dict):
+        raise TypeError("Dataset is not formatted as a dict. Please check it.")
+
+    for v in dataset.values():
+        if not isinstance(v, np.ndarray):
+            v = np.asarray(v)
+        return v.shape[1]
+
+    return -1

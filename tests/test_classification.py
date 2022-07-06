@@ -166,7 +166,7 @@ class TestQuanticVQC(BinaryFVT):
         # To achieve testing in a reasonnable amount of time,
         # we will lower the size of the feature and the number of trials
         return {
-            "n_samples": 4,
+            "n_samples": 6,
             "n_features": 4,
             "quantum_instance": quantum_instance,
             "type": "rand"
@@ -182,7 +182,9 @@ class TestQuantumClassifierWithDefaultRiemannianPipeline(BinaryFVT):
     """Functional testing for riemann quantum classifier."""
     def get_params(self):
         quantum_instance = \
-            QuantumClassifierWithDefaultRiemannianPipeline(verbose=False)
+            QuantumClassifierWithDefaultRiemannianPipeline(
+                params={"verbose": False}
+            )
         return {
             "n_samples": 4,
             "n_features": 4,
