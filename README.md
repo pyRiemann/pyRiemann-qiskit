@@ -17,7 +17,8 @@ and varitional quantum classifier (VQC) [4]. These classifiers likely offer
 an advantage over classical SVM in situations where the classification task
 is complex. Task complexity is raised by the encoding of the data into a
 quantum state, the number of available data and the quality of the data. An initial 
-study is available in [5]. Although there is no study on this topic at the time of writting,
+study is available in [5], and it can be downloaded from [here](doc/Presentations/QuantumERPClassification.pdf).
+Although there is no study on this topic at the time of writting,
 this could be an interesting research direction to investigate BCI illiteracy.
 
 pyRiemann-qiskit implements a wrapper around QSVC and VQC, to use quantum
