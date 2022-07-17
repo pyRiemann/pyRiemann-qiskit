@@ -17,7 +17,7 @@ def test_get_square_cont_var(square_mat_var):
     Tests that:
       - square_cont_mat_var is returning a variable of type ContinuousVarType
       - square_cont_mat_var is returning a variable of type IntegerVarType
-      - square_bin_mat_var is returning a variable of type BinarayVarType
+      - square_bin_mat_var is returning a variable of type BinaryVarType
       - all returned variables are square matrices of size 'n' where 'n' is
       the (given) number of channels.
     """
