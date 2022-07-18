@@ -58,6 +58,9 @@ Docplex
     square_cont_mat_var
     square_int_mat_var
     square_bin_mat_var
+    pyQiskitOptimizer
+    ClassicalOptimizer
+    NaiveQAOAOptimizer
 
 Datasets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

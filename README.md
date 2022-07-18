@@ -92,7 +92,7 @@ Full documentation, including API description, is available at <https://pyrieman
 To run a specific example on your local machine, you should install first dependencies for the documentation:
 
 ```
-pip install .[doc]
+pip install .[docs]
 ```
 
 Then you can run the python example of your choice like:
@@ -143,7 +143,7 @@ Code contribution (pull request) can be either on core functionalities, document
 - Automation is based on `GitHub Action` and `pytest`. It consists in two automated workflows for running the example and the tests. To run the tests on your local machine, you should first install the dependencies for testing:
 
     ```
-    pip install .[test]
+    pip install .[tests]
     ```
 
     and then type `pytest` from the root repository. You can also specify a file like:
