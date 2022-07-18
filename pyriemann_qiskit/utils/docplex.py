@@ -1,3 +1,10 @@
+"""This module contains both classic and quantum optimizers, and some helper
+functions. The quantum optimizer allows an optimization problem with
+constraints (in the form of docplex model) to be run on a quantum computer.
+It is for example suitable for:
+- MDM optimization problem;
+- computation of matrices mean.
+"""
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
 from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
