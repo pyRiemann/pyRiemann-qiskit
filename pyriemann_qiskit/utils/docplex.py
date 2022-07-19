@@ -12,7 +12,7 @@ from qiskit.algorithms import QAOA
 from qiskit_optimization.algorithms import (CobylaOptimizer,
                                             MinimumEigenOptimizer)
 from qiskit_optimization.converters import IntegerToBinary
-from qiskit_optimization.problems import QuadraticProgram
+from qiskit_optimization.translators import from_docplex_mp
 import numpy as np
 
 
@@ -231,8 +231,7 @@ class pyQiskitOptimizer():
 
     """
     def solve(self, prob):
-        qp = QuadraticProgram()
-        qp.from_docplex(prob)
+        qp = from_docplex_mp(prob)
         return self._solve_qp(qp)
 
 
