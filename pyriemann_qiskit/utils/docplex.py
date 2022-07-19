@@ -378,4 +378,4 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         qaoa_mes = QAOA(quantum_instance=quantum_instance,
                         initial_point=[0., 0.])
         qaoa = MinimumEigenOptimizer(qaoa_mes)
-        return qaoa.solve(qubo)
+        return conv.interpret(qaoa.solve(qubo))

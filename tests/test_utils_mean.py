@@ -1,11 +1,14 @@
+import pytest
 import numpy as np
-from pyriemann_qiskit.utils.mean import fro_mean_convex
 from pyriemann.utils.mean import mean_euclid
 from pyriemann.utils.distance import distance_methods
 from pyriemann.classification import MDM
 from pyriemann.estimation import XdawnCovariances
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
+from pyriemann_qiskit.utils.mean import fro_mean_convex
+from pyriemann_qiskit.utils import (ClassicalOptimizer,
+                                    NaiveQAOAOptimizer)
 
 
 def test_performance(get_covmats, get_labels):
@@ -43,11 +46,14 @@ def test_mean_convex_shape(get_covmats):
     assert C.shape == (n_channels, n_channels)
 
 
-def test_mean_convex_all_zeros():
+@pytest.mark.parametrize('optimizer',
+                         [ClassicalOptimizer(),
+                          NaiveQAOAOptimizer()])
+def test_mean_convex_all_zeros(optimizer):
     """Test the shape of mean"""
     n_trials, n_channels = 5, 2
     covmats = np.zeros((n_trials, n_channels, n_channels))
-    C = fro_mean_convex(covmats)
+    C = fro_mean_convex(covmats, optimizer=optimizer)
     assert np.allclose(covmats[0], C, atol=0.0001)
 
 
