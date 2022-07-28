@@ -1,4 +1,3 @@
-import numpy as np
 from docplex.mp.model import Model
 from pyriemann.utils.mean import mean_methods
 from pyriemann_qiskit.utils.docplex import ClassicalOptimizer

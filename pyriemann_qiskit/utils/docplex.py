@@ -392,8 +392,8 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
 
 
 def cov_to_corr_matrix(covmat):
-        v = np.sqrt(np.diag(covmat))
-        outer_v = np.outer(v, v)
-        correlation = covmat / outer_v
-        correlation[covmat == 0] = 0
-        return correlation
+    v = np.sqrt(np.diag(covmat))
+    outer_v = np.outer(v, v)
+    correlation = covmat / outer_v
+    correlation[covmat == 0] = 0
+    return correlation
