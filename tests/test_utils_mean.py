@@ -26,11 +26,11 @@ def test_performance(get_covmats, get_labels):
     labels = get_labels(n_matrices, n_classes)
 
     score = cross_val_score(clf, covset, labels, cv=skf, scoring='roc_auc')
-    assert score.mean() == 0
+    assert score.mean() > 0
 
 
 def test_mean_convex_vs_euclid(get_covmats):
-    """Test the shape of mean"""
+    """Test that euclidian and convex mean returns close results"""
     n_trials, n_channels = 5, 3
     covmats = get_covmats(n_trials, n_channels)
     C = fro_mean_convex(covmats)
@@ -50,7 +50,8 @@ def test_mean_convex_shape(get_covmats):
                          [ClassicalOptimizer(),
                           NaiveQAOAOptimizer()])
 def test_mean_convex_all_zeros(optimizer):
-    """Test the shape of mean"""
+    """Test that the mean of covariance matrices containing zeros
+    is a matrix filled with zeros"""
     n_trials, n_channels = 5, 2
     covmats = np.zeros((n_trials, n_channels, n_channels))
     C = fro_mean_convex(covmats, optimizer=optimizer)
@@ -58,7 +59,8 @@ def test_mean_convex_all_zeros(optimizer):
 
 
 def test_mean_convex_all_ones():
-    """Test the shape of mean"""
+    """Test that the mean of covariance matrices containing ones
+    is a matrix filled with ones"""
     n_trials, n_channels = 5, 2
     covmats = np.ones((n_trials, n_channels, n_channels))
     C = fro_mean_convex(covmats)
@@ -66,7 +68,8 @@ def test_mean_convex_all_ones():
 
 
 def test_mean_convex_all_equals():
-    """Test the shape of mean"""
+    """Test that the mean of covariance matrices filled with the same value
+    is a matrix identical to the input"""
     n_trials, n_channels, value = 5, 2, 2.5
     covmats = np.full((n_trials, n_channels, n_channels), value)
     C = fro_mean_convex(covmats)
@@ -74,7 +77,8 @@ def test_mean_convex_all_equals():
 
 
 def test_mean_convex_mixed():
-    """Test the shape of mean"""
+    """Test that the mean of covariances matrices with zero and ones
+    is a matrix filled with 0.5"""
     n_trials, n_channels = 5, 2
     covmats_0 = np.zeros((n_trials, n_channels, n_channels))
     covmats_1 = np.ones((n_trials, n_channels, n_channels))

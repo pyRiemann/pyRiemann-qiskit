@@ -5,6 +5,7 @@ It is for example suitable for:
 - MDM optimization problem;
 - computation of matrices mean.
 """
+import math
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
 from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
@@ -56,7 +57,7 @@ def square_cont_mat_var(prob, channels,
                                       name=name, lb=-prob.infinity)
 
 
-def square_int_mat_var(prob, channels,
+def square_int_mat_var(prob, channels, upper_bound,
                        name='int_covmat'):
     """Creates a 2-dimensional dictionary of integer decision variables,
     indexed by pairs of key objects.
@@ -71,6 +72,8 @@ def square_int_mat_var(prob, channels,
     channels : list
         The list of channels. A channel can be any Python object,
         such as channels'name or number but None.
+    upper_bound : int
+        The upper bound of the integer docplex variables.
     name : string
         An custom name for the variable. The name is used internally by docplex
         and may appear if your print the model to a file for example.
@@ -93,7 +96,7 @@ def square_int_mat_var(prob, channels,
     """
     IntegerVarType.one_letter_symbol = lambda _: 'I'
     return prob.integer_var_matrix(keys1=channels, keys2=channels,
-                                   name=name, lb=-prob.infinity)
+                                   name=name, lb=0, ub=upper_bound)
 
 
 def square_bin_mat_var(prob, channels,
@@ -157,8 +160,6 @@ class pyQiskitOptimizer():
     ----------
     covmat : ndarray, shape (n_features, n_features)
         The covariance matrix.
-    precision : float
-        Additional parameter for the transformation.
 
     Returns
     -------
@@ -169,7 +170,7 @@ class pyQiskitOptimizer():
     -----
     .. versionadded:: 0.0.2
     """
-    def convert_covmat(self, covmat, precision=None):
+    def convert_covmat(self, covmat):
         return covmat
 
     """Helper to create a docplex representation of a
@@ -249,7 +250,7 @@ class ClassicalOptimizer(pyQiskitOptimizer):
 
     """
     def __init__(self):
-        pass
+        pyQiskitOptimizer.__init__(self)
 
     """Helper to create a docplex representation of a
     covariance matrix variable.
@@ -289,12 +290,19 @@ class ClassicalOptimizer(pyQiskitOptimizer):
         return square_cont_mat_var(prob, channels, name)
 
     def _solve_qp(self, qp):
-        return CobylaOptimizer(rhobeg=0.01, rhoend=0.0001).solve(qp)
+        result = CobylaOptimizer(rhobeg=0.01, rhoend=0.0001).solve(qp).x
+        n_channels = int(math.sqrt(result.shape[0]))
+        return np.reshape(result, (n_channels, n_channels))
 
 
 class NaiveQAOAOptimizer(pyQiskitOptimizer):
 
     """Wrapper for the quantum optimizer QAOA.
+
+    Attributes
+    ----------
+    upper_bound : int (default: 7)
+        The maximum integer value for matrix normalization.
 
     Notes
     -----
@@ -304,8 +312,9 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     --------
     pyQiskitOptimizer
     """
-    def __init__(self):
-        pass
+    def __init__(self, upper_bound=7):
+        pyQiskitOptimizer.__init__(self)
+        self.upper_bound = upper_bound
 
     """Transform all values in the covariance matrix
     to integers.
@@ -317,8 +326,6 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     ----------
     covmat : ndarray, shape (n_features, n_features)
         The covariance matrix.
-    precision : float (default: 10**4)
-        new_value = round(value * `precision`)
 
     Returns
     -------
@@ -330,8 +337,9 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     .. versionadded:: 0.0.2
 
     """
-    def convert_covmat(self, covmat, precision=10**4):
-        return np.round(covmat * precision, 0)
+    def convert_covmat(self, covmat):
+        corr = cov_to_corr_matrix(covmat)
+        return np.round(corr * self.upper_bound, 0)
 
     """Helper to create a docplex representation of a
     covariance matrix variable.
@@ -368,7 +376,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
 
     """
     def covmat_var(self, prob, channels, name):
-        return square_int_mat_var(prob, channels, name)
+        return square_int_mat_var(prob, channels, self.upper_bound, name)
 
     def _solve_qp(self, qp):
         conv = IntegerToBinary()
@@ -378,4 +386,14 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         qaoa_mes = QAOA(quantum_instance=quantum_instance,
                         initial_point=[0., 0.])
         qaoa = MinimumEigenOptimizer(qaoa_mes)
-        return conv.interpret(qaoa.solve(qubo))
+        result = conv.interpret(qaoa.solve(qubo))
+        n_channels = int(math.sqrt(result.shape[0]))
+        return np.reshape(result, (n_channels, n_channels))
+
+
+def cov_to_corr_matrix(covmat):
+        v = np.sqrt(np.diag(covmat))
+        outer_v = np.outer(v, v)
+        correlation = covmat / outer_v
+        correlation[covmat == 0] = 0
+        return correlation

@@ -26,7 +26,7 @@ def fro_mean_convex(covmats, sample_weight=None,
 
     result = optimizer.solve(prob)
 
-    return np.reshape(result.x, (n_channels, n_channels))
+    return result
 
 
 mean_methods["convex"] = fro_mean_convex
