@@ -57,7 +57,7 @@ def square_cont_mat_var(prob, channels,
                                       name=name, lb=-prob.infinity)
 
 
-def square_int_mat_var(prob, channels, upper_bound,
+def square_int_mat_var(prob, channels, upper_bound=7,
                        name='int_covmat'):
     """Creates a 2-dimensional dictionary of integer decision variables,
     indexed by pairs of key objects.
@@ -72,7 +72,7 @@ def square_int_mat_var(prob, channels, upper_bound,
     channels : list
         The list of channels. A channel can be any Python object,
         such as channels'name or number but None.
-    upper_bound : int
+    upper_bound : int (default: 7)
         The upper bound of the integer docplex variables.
     name : string
         An custom name for the variable. The name is used internally by docplex
