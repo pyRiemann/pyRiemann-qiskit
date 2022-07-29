@@ -6,6 +6,7 @@ It is for example suitable for:
 - computation of matrices mean.
 """
 import math
+import numpy as np
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
 from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
@@ -14,7 +15,7 @@ from qiskit_optimization.algorithms import (CobylaOptimizer,
                                             MinimumEigenOptimizer)
 from qiskit_optimization.converters import IntegerToBinary
 from qiskit_optimization.translators import from_docplex_mp
-import numpy as np
+from pyriemann_qiskit.utils import cov_to_corr_matrix
 
 
 def square_cont_mat_var(prob, channels,
@@ -389,11 +390,3 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         result = conv.interpret(qaoa.solve(qubo))
         n_channels = int(math.sqrt(result.shape[0]))
         return np.reshape(result, (n_channels, n_channels))
-
-
-def cov_to_corr_matrix(covmat):
-    v = np.sqrt(np.diag(covmat))
-    outer_v = np.outer(v, v)
-    correlation = covmat / outer_v
-    correlation[covmat == 0] = 0
-    return correlation
