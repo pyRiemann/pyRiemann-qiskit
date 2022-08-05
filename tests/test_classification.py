@@ -114,7 +114,7 @@ class BinaryFVT(BinaryTest):
     def additional_steps(self):
         self.quantum_instance.fit(self.samples, self.labels)
         self.prediction = self.quantum_instance.predict(self.samples)
-        print(self.samples, self.prediction)
+        print(self.labels, self.prediction)
 
 
 class TestClassicalSVM(BinaryFVT):
