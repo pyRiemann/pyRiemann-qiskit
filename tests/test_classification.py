@@ -163,17 +163,17 @@ class TestQuanticPegasosSVM(TestClassicalSVM):
         quantum_instance = QuanticSVM(quantum=True, verbose=False,
                                       pegasos=True)
         return {
-            "n_samples": 20,
+            "n_samples": 9,
             "n_features": 4,
             "quantum_instance": quantum_instance,
             "type": "bin"
         }
 
-    def additional_steps(self):
-        # Ensures compatibility with the rotation encoding.
-        self.samples = MinMaxScaler(feature_range=(0, np.pi))\
-            .fit_transform(self.samples)
-        return super().additional_steps()
+    # def additional_steps(self):
+    #     # Ensures compatibility with the rotation encoding.
+    #     self.samples = MinMaxScaler(feature_range=(0, np.pi))\
+    #         .fit_transform(self.samples)
+    #     return super().additional_steps()
 
 
 class TestQuanticVQC(BinaryFVT):
