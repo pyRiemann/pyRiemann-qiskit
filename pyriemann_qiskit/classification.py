@@ -243,7 +243,7 @@ class QuanticSVM(QuanticClassifierBase):
     -----
     .. versionadded:: 0.0.1
     .. versionchanged:: 0.0.2
-        Qiskit's Pegasos implementation.
+        Qiskit's Pegasos implementation [4, 5]_.
 
     Parameters
     ----------
@@ -269,6 +269,14 @@ class QuanticSVM(QuanticClassifierBase):
 
     .. [3] Available from: \
         https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.rbf_kernel.html
+
+    .. [4] G. Gentinetta, A. Thomsen, D. Sutter, and S. Woerner,
+        ‘The complexity of quantum support vector machines’, arXiv,
+        arXiv:2203.00031, Feb. 2022.
+        doi: 10.48550/arXiv.2203.00031
+
+    .. [5] S. Shalev-Shwartz, Y. Singer, and A. Cotter,
+        ‘Pegasos: Primal Estimated sub-GrAdient SOlver for SVM’
 
     """
 
