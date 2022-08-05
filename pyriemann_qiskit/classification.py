@@ -293,7 +293,7 @@ class QuanticSVM(QuanticClassifierBase):
                               quantum_instance=self._quantum_instance)
             if self.pegasos:
                 self._log("[Warning] `gamma` is not supported by PegasosQSVC")
-                classifier = PegasosQSVC(quantum_kernel=None, precomputed=True)
+                classifier = PegasosQSVC(quantum_kernel=quantum_kernel)
             else:
                 classifier = QSVC(quantum_kernel=quantum_kernel,
                                   gamma=self.gamma)

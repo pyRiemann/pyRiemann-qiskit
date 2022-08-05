@@ -162,7 +162,7 @@ class TestQuanticPegasosSVM(TestClassicalSVM):
         quantum_instance = QuanticSVM(quantum=True, verbose=False,
                                       pegasos=True)
         return {
-            "n_samples": 10,
+            "n_samples": 20,
             "n_features": 4,
             "quantum_instance": quantum_instance,
             "type": "bin"
