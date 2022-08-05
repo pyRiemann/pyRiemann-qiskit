@@ -73,6 +73,16 @@ Docplex
     ClassicalOptimizer
     NaiveQAOAOptimizer
 
+Math
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _math_api:
+.. currentmodule:: pyriemann_qiskit.utils.math
+
+.. autosummary::
+    :toctree: generated/
+
+    cov_to_corr_matrix
+
 Datasets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. _datasets_api:
