@@ -243,7 +243,7 @@ class QuanticSVM(QuanticClassifierBase):
     -----
     .. versionadded:: 0.0.1
     .. versionchanged:: 0.0.2
-        Qiskit's Pegasos implementation [4, 5]_.
+       Qiskit's Pegasos implementation [4, 5]_.
 
     Parameters
     ----------
@@ -271,12 +271,12 @@ class QuanticSVM(QuanticClassifierBase):
         https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.rbf_kernel.html
 
     .. [4] G. Gentinetta, A. Thomsen, D. Sutter, and S. Woerner,
-        ‘The complexity of quantum support vector machines’, arXiv,
-        arXiv:2203.00031, Feb. 2022.
-        doi: 10.48550/arXiv.2203.00031
+           ‘The complexity of quantum support vector machines’, arXiv,
+           arXiv:2203.00031, Feb. 2022.
+           doi: 10.48550/arXiv.2203.00031
 
     .. [5] S. Shalev-Shwartz, Y. Singer, and A. Cotter,
-        ‘Pegasos: Primal Estimated sub-GrAdient SOlver for SVM’
+           ‘Pegasos: Primal Estimated sub-GrAdient SOlver for SVM’
 
     """
 
@@ -291,9 +291,12 @@ class QuanticSVM(QuanticClassifierBase):
             quantum_kernel = \
                 QuantumKernel(feature_map=self._feature_map,
                               quantum_instance=self._quantum_instance)
-            classifier_template = PegasosQSVC if self.pegasos else QSVC
-            classifier = classifier_template(quantum_kernel=quantum_kernel,
-                                             gamma=self.gamma)
+            if self.pegasos:
+                self._log("[Warning] `gamma` is not supported by PegasosQSVC")
+                classifier = PegasosQSVC(quantum_kernel=quantum_kernel)
+            else:
+                classifier = QSVC(quantum_kernel=quantum_kernel,
+                                  gamma=self.gamma)
         else:
             classifier = SVC(gamma=self.gamma)
         return classifier
