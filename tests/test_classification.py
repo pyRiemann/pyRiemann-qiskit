@@ -1,3 +1,4 @@
+from sklearn.preprocessing import MinMaxScaler
 import pytest
 import numpy as np
 from pyriemann.classification import TangentSpace
@@ -167,6 +168,12 @@ class TestQuanticPegasosSVM(TestClassicalSVM):
             "quantum_instance": quantum_instance,
             "type": "bin"
         }
+
+    def additional_steps(self):
+        # Ensures compatibility with the rotation encoding.
+        self.samples = MinMaxScaler(feature_range=(0, np.pi))\
+            .fit_transform(self.samples)
+        return super().additional_steps()
 
 
 class TestQuanticVQC(BinaryFVT):
