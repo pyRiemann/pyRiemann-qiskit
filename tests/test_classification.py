@@ -136,7 +136,7 @@ class TestClassicalSVM(BinaryFVT):
                self.quantum_instance.classes_[1]
 
 
-class TestQuanticSVM(BinaryFVT):
+class TestQuanticSVM(TestClassicalSVM):
     """Perform SVC on a simulated quantum computer.
     This test can also be run on a real computer by providing a qAccountToken
     To do so, you need to use your own token, by registering on:
@@ -152,14 +152,8 @@ class TestQuanticSVM(BinaryFVT):
             "type": "bin"
         }
 
-    def check(self):
-        assert self.prediction[:self.class_len].all() == \
-               self.quantum_instance.classes_[0]
-        assert self.prediction[self.class_len:].all() == \
-               self.quantum_instance.classes_[1]
 
-
-class TestQuanticPegasosSVM(TestQuanticSVM):
+class TestQuanticPegasosSVM(TestClassicalSVM):
     """Same as TestQuanticSVM, expect it uses
     PegasosQSVC instead of QSVC implementation.
     """
