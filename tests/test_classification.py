@@ -159,6 +159,21 @@ class TestQuanticSVM(BinaryFVT):
                self.quantum_instance.classes_[1]
 
 
+class TestQuanticPegasosSVM(TestQuanticSVM):
+    """Same as TestQuanticSVM, expect it uses
+    PegasosQSVC instead of QSVC implementation.
+    """
+    def get_params(self):
+        quantum_instance = QuanticSVM(quantum=True, verbose=False,
+                                      pegasos=True)
+        return {
+            "n_samples": 10,
+            "n_features": 4,
+            "quantum_instance": quantum_instance,
+            "type": "bin"
+        }
+
+
 class TestQuanticVQC(BinaryFVT):
     """Perform VQC on a simulated quantum computer"""
     def get_params(self):
