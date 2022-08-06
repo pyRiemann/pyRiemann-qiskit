@@ -92,7 +92,7 @@ def get_qiskit_dataset():
     """
 
     feature_dim = 2
-    _, X, _, _ = ad_hoc_data(
+    X, _, _, _ = ad_hoc_data(
         training_size=30,
         test_size=0,
         n=feature_dim,
