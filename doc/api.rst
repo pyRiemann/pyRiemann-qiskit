@@ -16,6 +16,7 @@ Classification
     QuanticClassifierBase
     QuanticSVM
     QuanticVQC
+    QuantumClassifierWithDefaultRiemannianPipeline
 
 
 Utils function
@@ -47,6 +48,16 @@ Filtering
     NoDimRed
     NaiveDimRed
 
+Mean
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _mean_api:
+.. currentmodule:: pyriemann_qiskit.utils.mean
+
+.. autosummary::
+    :toctree: generated/
+
+    fro_mean_convex
+
 Docplex
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. _docplex_api:
@@ -61,6 +72,16 @@ Docplex
     pyQiskitOptimizer
     ClassicalOptimizer
     NaiveQAOAOptimizer
+
+Math
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _math_api:
+.. currentmodule:: pyriemann_qiskit.utils.math
+
+.. autosummary::
+    :toctree: generated/
+
+    cov_to_corr_matrix
 
 Datasets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
