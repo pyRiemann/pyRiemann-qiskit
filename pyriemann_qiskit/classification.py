@@ -8,7 +8,7 @@ from qiskit import BasicAer, IBMQ
 from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit.utils.quantum_instance import logger
 from qiskit.providers.ibmq import least_busy
-from qiskit_machine_learning.algorithms import QSVC, VQC
+from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
 from qiskit_machine_learning.kernels.quantum_kernel import QuantumKernel
 from datetime import datetime
 import logging
@@ -242,12 +242,16 @@ class QuanticSVM(QuanticClassifierBase):
     Notes
     -----
     .. versionadded:: 0.0.1
+    .. versionchanged:: 0.0.2
+       Qiskit's Pegasos implementation [4, 5]_.
 
     Parameters
     ----------
     gamma : float | None (default:None)
         Used as input for sklearn rbf_kernel which is used internally.
         See [3]_ for more information about gamma.
+    pegasos : boolean (default: False)
+        If true, uses Qiskit's PegasosQSVC instead of QSVC.
 
     See Also
     --------
@@ -266,11 +270,20 @@ class QuanticSVM(QuanticClassifierBase):
     .. [3] Available from: \
         https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.rbf_kernel.html
 
+    .. [4] G. Gentinetta, A. Thomsen, D. Sutter, and S. Woerner,
+           ‘The complexity of quantum support vector machines’, arXiv,
+           arXiv:2203.00031, Feb. 2022.
+           doi: 10.48550/arXiv.2203.00031
+
+    .. [5] S. Shalev-Shwartz, Y. Singer, and A. Cotter,
+           ‘Pegasos: Primal Estimated sub-GrAdient SOlver for SVM’
+
     """
 
-    def __init__(self, gamma='scale', **parameters):
+    def __init__(self, gamma='scale', pegasos=False, **parameters):
         QuanticClassifierBase.__init__(self, **parameters)
         self.gamma = gamma
+        self.pegasos = pegasos
 
     def _init_algo(self, n_features):
         self._log("SVM initiating algorithm")
@@ -278,8 +291,12 @@ class QuanticSVM(QuanticClassifierBase):
             quantum_kernel = \
                 QuantumKernel(feature_map=self._feature_map,
                               quantum_instance=self._quantum_instance)
-            classifier = QSVC(quantum_kernel=quantum_kernel,
-                              gamma=self.gamma)
+            if self.pegasos:
+                self._log("[Warning] `gamma` is not supported by PegasosQSVC")
+                classifier = PegasosQSVC(quantum_kernel=quantum_kernel)
+            else:
+                classifier = QSVC(quantum_kernel=quantum_kernel,
+                                  gamma=self.gamma)
         else:
             classifier = SVC(gamma=self.gamma)
         return classifier

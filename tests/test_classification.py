@@ -114,6 +114,7 @@ class BinaryFVT(BinaryTest):
     def additional_steps(self):
         self.quantum_instance.fit(self.samples, self.labels)
         self.prediction = self.quantum_instance.predict(self.samples)
+        print(self.labels, self.prediction)
 
 
 class TestClassicalSVM(BinaryFVT):
@@ -136,7 +137,7 @@ class TestClassicalSVM(BinaryFVT):
                self.quantum_instance.classes_[1]
 
 
-class TestQuanticSVM(BinaryFVT):
+class TestQuanticSVM(TestClassicalSVM):
     """Perform SVC on a simulated quantum computer.
     This test can also be run on a real computer by providing a qAccountToken
     To do so, you need to use your own token, by registering on:
@@ -152,11 +153,20 @@ class TestQuanticSVM(BinaryFVT):
             "type": "bin"
         }
 
-    def check(self):
-        assert self.prediction[:self.class_len].all() == \
-               self.quantum_instance.classes_[0]
-        assert self.prediction[self.class_len:].all() == \
-               self.quantum_instance.classes_[1]
+
+class TestQuanticPegasosSVM(TestClassicalSVM):
+    """Same as TestQuanticSVM, expect it uses
+    PegasosQSVC instead of QSVC implementation.
+    """
+    def get_params(self):
+        quantum_instance = QuanticSVM(quantum=True, verbose=False,
+                                      pegasos=True)
+        return {
+            "n_samples": 10,
+            "n_features": 4,
+            "quantum_instance": quantum_instance,
+            "type": "bin"
+        }
 
 
 class TestQuanticVQC(BinaryFVT):

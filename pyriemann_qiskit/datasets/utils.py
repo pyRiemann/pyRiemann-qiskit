@@ -92,7 +92,7 @@ def get_qiskit_dataset():
     """
 
     feature_dim = 2
-    _, X, _, _ = ad_hoc_data(
+    X, _, _, _ = ad_hoc_data(
         training_size=30,
         test_size=0,
         n=feature_dim,
@@ -122,7 +122,7 @@ def get_linearly_separable_dataset():
     rng = np.random.RandomState(2)
     X += 2 * rng.uniform(size=X.shape)
 
-    return(X, y)
+    return (X, y)
 
 
 def get_feature_dimension(dataset):
