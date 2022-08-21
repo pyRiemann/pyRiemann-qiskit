@@ -19,15 +19,16 @@ Qiskit implements a quantum version of support vector
 and varitional quantum classifier (VQC) [4]. These classifiers likely offer
 an advantage over classical SVM in situations where the classification task
 is complex. Task complexity is raised by the encoding of the data into a
-quantum state, the number of available data and the quality of the data.
+quantum state, the number of available data and the quality of the data. An initial 
+study is available in [5], and it can be downloaded from `here
+<https://github.com/pyRiemann/pyRiemann-qiskit/blob/main/doc/Presentations/QuantumERPClassification.pdf>`_.
 Although there is no study on this topic at the time of writting,
-this could be an interesting research direction to investigate illiteracy
-in the domain of brain computer interfaces.
+this could be an interesting research direction to investigate BCI illiteracy.
 
 pyRiemann-qiskit implements a wrapper around QSVC and VQC, to use quantum
-classification with riemanian geometry. A use case would be to use vectorized
+classification with Riemannian geometry. A use case would be to use vectorized
 covariance matrices in the TangentSpace as an input for these classifiers,
-enabling a possible sandbox for researchers and engineers in the field. 
+enabling a possible sandbox for researchers and engineers in the field.
 
 Quantum drawbacks
 ================================
@@ -68,3 +69,8 @@ References
     ‘Supervised learning with quantum-enhanced feature spaces’,
     Nature, vol. 567, no. 7747, pp. 209–212, Mar. 2019,
     doi: 10.1038/s41586-019-0980-2.
+
+[5] G. Cattan, A. Andreev,
+    First steps to the classification of ERPs using quantum computation,
+	NTB Berlin 2022 - International Forum on Neural Engineering & Brain Technologies, May 2022, Berlin, Germany,
+	hal: https://hal.archives-ouvertes.fr/hal-03672246/

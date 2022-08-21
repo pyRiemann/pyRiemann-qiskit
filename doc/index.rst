@@ -29,22 +29,22 @@ pyRiemann-qiskit: Qiskit wrapper for pyRiemann
       <div class="row">
        <a href="auto_examples/ERP/plot_classify_EEG_quantum.html">
          <div class="col-md-3 thumbnail">
-           <img src="_images/sphx_glr_plot_single_thumb.png">
+           <img src="_images/sphx_glr_plot_classify_EEG_quantum_thumb.png">
          </div>
        </a>
        <a href="auto_examples/ERP/classify_P300_bi.html">
          <div class="col-md-3 thumbnail">
-           <img src="_images/sphx_glr_plot_single_thumb.png">
+           <img src="_images/sphx_glr_classify_P300_bi_thumb.png">
          </div>
        </a>
        <a href="auto_examples/ERP/compare_dim_red.html">
          <div class="col-md-3 thumbnail">
-           <img src="_images/sphx_glr_plot_single_thumb.png">
+           <img src="_images/sphx_glr_compare_dim_red_thumb.png">
          </div>
        </a>
        <a href="auto_examples/toys_dataset/plot_classifier_comparison.html">
          <div class="col-md-3 thumbnail">
-           <img src="_images/sphx_glr_plot_classify_MEG_mdm_thumb.png">
+           <img src="_images/sphx_glr_plot_classifier_comparison_thumb.png">
          </div>
        </a>
      </div>
