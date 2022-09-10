@@ -71,7 +71,7 @@ However, note that, at the time of writting, the number of qubits (and therefore
 
 ## Support for convex optimization problem
 
-`pyRiemann-qiskit` supports [docplex](http://ibmdecisionoptimization.github.io/docplex-doc/mp/index.html) specification for the definition of convex optimization problem. In particular, this is usefull in the two situations:
+`pyRiemann-qiskit` supports [docplex](http://ibmdecisionoptimization.github.io/docplex-doc/mp/index.html) for the definition of convex optimization problem. In particular, this is usefull in these two situations:
 - computing the barycenter of covariance matrices, i.e the covariance matrix which is at minimum distances of all inputs. 
 - determing the class prototype which is at minimum distance of a trial, which we can define as a quadratic optimization problem [e.g. ]. 
 
@@ -83,27 +83,40 @@ The implementation is based on Qiskit's `IntegerToBinary`, a bounded-coefficient
 
 Complexity of the optimizer raise as a function of the matrix size and the bound coefficient, and hence it best adapt to covariance matrices having a limited number of channels, with naturally bounded and "differentiable" values.
 
-## Direct classification of covariance matrices 
-
-
-C = fro_mean_convex(covmats, optimizer=optimizer)
-
-QUBO
--> The integer to binary problem
--> not adapted to physical data. 
-Docplex model for mean
-
-Docplex model for MDM
-
-
-Future WORK //TODO
 
 ## Classification of vectorized covariances matrices
 
+To date, the classification of vectorized covariance matrices is the best solution for quantum. It relies on the so-called `TangentSpace` vectorization, which consist in the projection of the covariance matrices into the tangent spaces of the riemannian manifold. 
+The dimension of the resulting feature can then be reduced using a PCA for example, in order to match the number of available qbits.
 
-Graphics?
+The code snippet below demonstrate how we operate a dimension reduction of the epoch using Xdawn, applied the TangentSpace method and then diminish the feature of the feature to match the capability of the quantum backend in our quantum classifier (QuanticSVM)
 
-quantum=true/false
+```
+pipe = make_pipeline(XdawnCovariances(nfilter=2),
+                     TangentSpace(),
+                     PCA(),
+                     QuanticSVM())
+```
+
+For ease of use, the library provide the `QuantumClassifierWithDefaultRiemannianPipeline` class, which operates the pipeline above. 
+
+## Future work
+
+### Direct classification of covariance matrices 
+
+The MDM algorithm consists in finding the minimum distance between a trial and a class prototype and labelling the trial with the prototype which is the closest to the trial. 
+It is a decision optimization problem that can be solved using Qiskit's QAOA, at condition of 1) it is provided in the form of a docplex model, and 2) it is quadratic, unconstrained, and contains only binary variables.
+
+The MDM algoritm, based on Log-Euclidian metric for example has the following expression: 
+arg min w w> Dw − 2 Vec(logY) D , s.t. e>w = 1, w ≥ 0 , (22) where D = [Vec(log X1) · · · Vec(log XN)], e = [1 · · · 1]>.
+
+X are the class prototypes, Y is a trial
+
+We know it is a quadratic optimisation problem, however w is a vector that contains only continuous variables. Weights admit a lower bound, but no upper-bound, therefore utilization of the IntegerToBinary method is limited in practice. 
+
+### Multi-class classifications
+
+`pyRiemann-qiskit` only support binary classification for the moment. Futur work on the library include the implementation of `multi-class` classification.
 
 # Statement of need
 
