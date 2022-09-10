@@ -55,21 +55,32 @@ The code snippet below demonstrates how to instantiate VQC or QSVC classifier in
 vqc = QuanticVQC()
 qsvc = QuanticSVM()
 pegasos = QuanticSVM(pegasos=True)
+svc = QuanticSVM(quantum=False)
 ```
 
-By default, the backend will be a local quantum simulator. However, it is possible to register on IBM quantum and request a token to use one of the publicly available quantum computer. 
-All classifiers accept a `q_account_token` parameters, which if valid, 
+By default, the backend will be a local quantum simulator. However, it is possible to register on [IBM quantum](https://quantum-computing.ibm.com/) and request a token to use one of the publicly available quantum computer. 
+All classifiers accept a `q_account_token` parameters which, if valid, 
 will select an available quantum computer to run the classification.
 
 However, note that, at the time of writting, the number of qubits (and therefore the feature dimension) is limited to:
 
-- 24 on a local quantum simulator, and up to:
+- 36 on a local quantum simulator, and up to:
 - 5000 on a remote quantum simulator;
-- 5 on free real quantum computers, and up to:
-- 65 on exploratory quantum computers (not available for public use).
-// TO CHECK
+- 5-7 on free real quantum computers, and up to:
+- 127 on exploratory quantum computers (not available for public use).
 
 ## Support for convex optimization problem
+
+`pyRiemann-qiskit` supports [docplex](http://ibmdecisionoptimization.github.io/docplex-doc/mp/index.html) specification for the definition of convex optimization problem. In particular, this is usefull in the two situations:
+- computing the barycenter of covariance matrices, i.e the covariance matrix which is at minimum distances of all inputs. 
+- determing the class prototype which is at minimum distance of a trial, which we can define as a quadratic optimization problem [e.g. ]. 
+
+The library relies on `Qiskit` implementation of `QAOA` (Quantum Approximate Optimization Algorithm) which is limited to the solving of
+QUBO problem, that is, problems with unconstrained and binary variables only.
+
+A wrapper around QAOA optimizer, to help into converting...
+
+C = fro_mean_convex(covmats, optimizer=optimizer)
 
 QUBO
 -> The integer to binary problem
@@ -92,7 +103,7 @@ Future WORK //TODO
 
 # Statement of need
 
-pyRiemann-qiskit is a sandbox to test quantum computing with RG. It unifies within a same library quantum and RG tools to seamingless integrate quantum classification with RG, a ubiquitous framework in the domain of Brain-Computer Interfaces (BCI). Therefore, the primary audience we target are practitioners coming from the BCI field, willing to experiment quantum computing for the classification of electroencephalography (EEG) or magnetoencephalography signals. An initial study on this topic is available in [@cattan_first_2022], and it can be downloaded from [pyRiemann-qiskit](https://github.com/pyRiemann/pyRiemann-qiskit/blob/main/doc/Presentations/QuantumERPClassification.pdf). However note that the tools provided by the library are also relevant for others domains, such as classification of other biometrical signals, image recognition or detection of fraud transaction (e.g. [@grossi_mixed_2022]).
+`pyRiemann-qiskit` is a sandbox to test quantum computing with RG. It unifies within a same library quantum and RG tools to seamingless integrate quantum classification with RG, a ubiquitous framework in the domain of Brain-Computer Interfaces (BCI). Therefore, the primary audience we target are practitioners coming from the BCI field, willing to experiment quantum computing for the classification of electroencephalography (EEG) or magnetoencephalography signals. An initial study on this topic is available in [@cattan_first_2022], and it can be downloaded from [pyRiemann-qiskit](https://github.com/pyRiemann/pyRiemann-qiskit/blob/main/doc/Presentations/QuantumERPClassification.pdf). However note that the tools provided by the library are also relevant for others domains, such as classification of other biometrical signals, image recognition or detection of fraud transaction (e.g. @grossi_mixed_2022).
 
 In brief, we hope this library will furthur the acceptance of quantum and RG technologies for concrete applications, opening new and interesting research fields. For example, this could be an interesting research direction to investigate BCI illiteracy, a situation in which classical classifiers usually fails to generalize the appropriate EEG signal from the data.
 
