@@ -76,9 +76,15 @@ However, note that, at the time of writting, the number of qubits (and therefore
 - determing the class prototype which is at minimum distance of a trial, which we can define as a quadratic optimization problem [e.g. ]. 
 
 The library relies on `Qiskit` implementation of `QAOA` (Quantum Approximate Optimization Algorithm) which is limited to the solving of
-QUBO problem, that is, problems with unconstrained and binary variables only.
+QUBO problems, that is, problems with unconstrained and binary variables only.
 
-A wrapper around QAOA optimizer, to help into converting...
+We provide a convex model for the first situation based on frobenius distance (method `fro_mean_convex`), as well as a wrapper around QAOA optimizer (class `NaiveQAOAOptimizer`) that round covariance matrices to a certain precision and convert each resulting integer to binary. 
+The implementation is based on Qiskit's `IntegerToBinary`, a bounded-coefficient encoding method.
+
+Complexity of the optimizer raise as a function of the matrix size and the bound coefficient, and hence it best adapt to covariance matrices having a limited number of channels, with naturally bounded and "differentiable" values.
+
+## Direct classification of covariance matrices 
+
 
 C = fro_mean_convex(covmats, optimizer=optimizer)
 
@@ -87,19 +93,17 @@ QUBO
 -> not adapted to physical data. 
 Docplex model for mean
 
+Docplex model for MDM
+
+
+Future WORK //TODO
+
 ## Classification of vectorized covariances matrices
 
 
 Graphics?
 
 quantum=true/false
-
-## Direct classification of covariance matrices 
-
-Docplex model for MDM
-
-
-Future WORK //TODO
 
 # Statement of need
 
