@@ -110,9 +110,13 @@ It is a decision optimization problem that can be solved using Qiskit's QAOA, at
 
 The MDM algoritm, based on Log-Euclidian metric for example has the following expression [zhao_convex_2019]: 
 
-arg min w w> Dw − 2 Vec(logY) D , s.t. e>w = 1, w ≥ 0 , (22) where D = [Vec(log X1) · · · Vec(log XN)], e = [1 · · · 1]>.
+$$\arg \min w^{T}Dw - 2 Vec(\log Y) D$$
 
-X are the class prototypes, Y is a trial
+with $\sum w_i = 1, w_i >= 0 \forall i$,
+
+and $D=[Vec(\log X_1)...Vec(\log X_N)]$
+
+$Y$ being the trial and $X_i$ a class. 
 
 The above is a quadratic optimisation problem, however `w` in the equation is a vector that contains only continuous variables. In fact, weights admit a lower bound but no upper-bound, thus complicating the use of the `IntegerToBinary` method.
 
