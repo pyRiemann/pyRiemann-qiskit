@@ -90,7 +90,7 @@ Therefore, complexity of the optimizer raises as a function of the matrix size a
 To date, the classification of vectorized covariance matrices is the best solution for quantum. It relies on the so-called `TangentSpace` vectorization, which consist in the projection of the covariance matrices into the tangent space of the Riemannian manifold. 
 The dimension of the resulting feature can then be reduced using a PCA for example, in order to match the number of available qubits.
 
-The code snippet below demonstrates how we operate a dimension reduction of the epoch using Xdawn [REF], applied the TangentSpace method and then diminish the size of the feature to match the capability of the quantum backend in our quantum classifier (here `QuanticSVM`)
+The code snippet below demonstrates how we operate a dimension reduction of the epoch using Xdawn [@rivet_optimal_2013], applied the TangentSpace method and then diminish the size of the feature to match the capability of the quantum backend in our quantum classifier (here `QuanticSVM`)
 
 ```
 pipe = make_pipeline(XdawnCovariances(nfilter=2),
@@ -105,20 +105,16 @@ For ease of use, the library provides the `QuantumClassifierWithDefaultRiemannia
 
 ### Direct classification of covariance matrices 
 
-The MDM algorithm [barachant_multiclass_2012] consists in finding the minimum distance between a trial and a class prototype before labelling the trial with the prototype which is the closest to the trial. 
+The MDM algorithm [@barachant_multiclass_2012] consists in finding the minimum distance between a trial and a class prototype before labelling the trial with the prototype which is the closest to the trial. 
 It is a decision optimization problem that can be solved using Qiskit's QAOA, at condition of 1) it is provided in the form of a docplex model and, 2) it is quadratic, unconstrained and, contains only binary variables.
 
-The MDM algoritm, based on Log-Euclidian metric for example has the following expression [zhao_convex_2019]: 
+The MDM algoritm, based on Log-Euclidian metric for example has the following expression [@zhao_convex_2019]: 
 
 $$\arg \min w^{T}Dw - 2 Vec(\log Y) D$$
 
-with $\sum w_i = 1, w_i >= 0 \forall i$,
+with $\sum w_i = 1, w_i >= 0 \forall i$ and $D=[Vec(\log X_1)...Vec(\log X_N)]$, $Y$ being the trial and $X_i$ a class. 
 
-and $D=[Vec(\log X_1)...Vec(\log X_N)]$
-
-$Y$ being the trial and $X_i$ a class. 
-
-The above is a quadratic optimisation problem, however `w` in the equation is a vector that contains only constrained continuous variables, thus complicating the use of the `IntegerToBinary` method.
+The above is a quadratic optimisation problem, however weight in the `w` vector are constrainted continuous variables, thus complicating the use of the `IntegerToBinary` method.
 
 ### Multi-class classifications
 
