@@ -118,7 +118,7 @@ and $D=[Vec(\log X_1)...Vec(\log X_N)]$
 
 $Y$ being the trial and $X_i$ a class. 
 
-The above is a quadratic optimisation problem, however `w` in the equation is a vector that contains only continuous variables. In fact, weights admit a lower bound but no upper-bound, thus complicating the use of the `IntegerToBinary` method.
+The above is a quadratic optimisation problem, however `w` in the equation is a vector that contains only constrained continuous variables, thus complicating the use of the `IntegerToBinary` method.
 
 ### Multi-class classifications
 
