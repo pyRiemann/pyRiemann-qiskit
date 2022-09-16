@@ -74,6 +74,8 @@ enabling a possible sandbox for researchers and engineers in the field.
 
 _We recommend the use of [Anaconda](https://www.anaconda.com/) to manage python environements._ 
 
+`pyRiemann-qiskit` currently supports Windows, Mac and Linux OS with Python 3.7, 3.8 and 3.9.
+
 As there is no stable version, you should clone this repository
 and install the package on your local machine using the `setup.py` script
 
