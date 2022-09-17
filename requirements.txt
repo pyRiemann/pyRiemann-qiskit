@@ -3,5 +3,5 @@ git+https://github.com/pyRiemann/pyRiemann#egg=pyriemann
 git+https://github.com/Qiskit/qiskit-machine-learning#egg=qiskit_machine_learning
 qiskit-ibmq-provider==0.19.2
 qiskit-optimization==0.4.0
-cvxpy==1.1.12
+cvxpy==1.2.1
 docplex>=2.21.207
