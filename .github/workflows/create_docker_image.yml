@@ -15,6 +15,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build the Docker image
       run: |
-        docker build . --file Dockerfile --tag ghcr.io/${{ github.actor }}/pyriemann-qiskit:$tag
+        export actor=$(echo ${{ github.actor }} | sed 's|[<>,]||g')
+        docker build . --file Dockerfile --tag ghcr.io/${actor}/pyriemann-qiskit:$tag
 #        docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
 #        docker push ghcr.io/${{ github.actor }}/pyriemann-qiskit:$tag
