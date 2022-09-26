@@ -72,18 +72,39 @@ However, note that, at the time of writting, the number of qubits (and therefore
 
 ## Support for convex optimization problem
 
+The MDM algorithm [@barachant_multiclass_2012] consists in finding the minimum distance between a trial and a class prototype before labelling the trial with the prototype which is the closest to the trial. 
+
 `pyRiemann-qiskit` supports docplex for the definition of convex optimization problems. In particular, this is useful in these two situations:
-- computing the barycenter of covariance matrices, i.e a matrix being at minimum distances of all matrices. 
+- computing the barycenter of covariance matrices (class prototype), i.e a matrix being at minimum distances of all matrices. 
 - determining the class prototype at minimum distance of a trial - that is, a quadratic optimization problem [@zhao_convex_2019]. 
 
-The library relies on `Qiskit` implementation of `QAOA` (Quantum Approximate Optimization Algorithm) which is limited to the solving of
-QUBO problems, that is, problems with unconstrained and binary variables only.
+To calculate the mean we need to select a "distance" and provide an optimizer. For the distance we provide a convex model based on frobenius distance (python method fro_mean_convex). For the optimizer pyRiemann-qiskit relies on Qiskit implementation of QAOA (Quantum Approximate Optimization Algorithm). To test the convex model, we also provide a wrapper on a classical optimizer (CobylaOptimizer, also included within Qiskit).
 
-We provide a convex model for the first situation based on frobenius distance (method `fro_mean_convex`), as well as a wrapper around QAOA optimizer (class `NaiveQAOAOptimizer`) that round covariance matrices to a certain precision and convert each resulting integer to binary. 
-The implementation is based on Qiskit's `IntegerToBinary`, a bounded-coefficient encoding method.
+pyRiemann-qiskit uses a wrapper around QAOA optimizer (class NaiveQAOAOptimizer) that rounds covariance matrices to a certain precision and converts each resulting integer to binary. The implementation is based on Qiskit’s IntegerToBinary, a bounded-coefficient encoding method. However, QAOA is limited to te solving of QUBO problems, that is, problems with unconstrained and binary variables only. Binary variables means that a matrix can contain only 0 and 1 as values.
 
-Therefore, complexity of the optimizer raises as a function of the matrix size and the coefficient, and hence it best adapt to covariance matrices having a limited number of channels, with naturally bounded and "differentiable" values.
+The complexity of the QAOA optimizer raises as a function of the size of covariance matrices and the upper-bound coefficient. The size of the covariance matrices depends on the number of input channels in the input time epoch, as well as the dimension reduction method which is in place. The upper-bound coefficient also has an impact on the final size of the covariance matrices. If all variables inside a matrix are integers that can take only 4 values, they can be represented by only 2 bits. The size of the matrix will only be twice larger. However, a high upper bound implies a higher number of qubits to hold the variables inside a matrix (and therefore the final size of the binary matrix will be impacted).
 
+Here is an example code:
+
+```
+metric = {
+'mean': "convex",
+'distance': "convex"
+}
+
+distance_methods["convex"] = lambda A, B: np.linalg.norm(A - B, ord='fro')
+
+clf = make_pipeline(XdawnCovariances(), MDM(metric=metric))
+skf = StratifiedKFold(n_splits=5)
+n_matrices, n_channels, n_classes = 100, 3, 2
+covset = get_covmats(n_matrices, n_channels)
+labels = get_labels(n_matrices, n_classes)
+
+score = cross_val_score(clf, covset, labels, cv=skf, scoring='roc_auc')
+assert score.mean() > 0
+```
+
+If the MDM method is supplied with "convex" metric it will automatically use the fro_mean_convex method for computing the mean. The default optimizer for the fro_mean_convex method is the Cobyla optimizer.
 
 ## Classification of vectorized covariances matrices
 
@@ -105,16 +126,17 @@ For ease of use, the library provides the `QuantumClassifierWithDefaultRiemannia
 
 ### Direct classification of covariance matrices 
 
-The MDM algorithm [@barachant_multiclass_2012] consists in finding the minimum distance between a trial and a class prototype before labelling the trial with the prototype which is the closest to the trial. 
-It is a decision optimization problem that can be solved using Qiskit's QAOA, at condition of 1) it is provided in the form of a docplex model and, 2) it is quadratic, unconstrained and, contains only binary variables.
+The MDM algorithm is a decision optimization problem that can be solved using Qiskit's QAOA, at condition of 1) it is provided in the form of a docplex model and, 2) it is quadratic, unconstrained and, contains only binary variables.
 
-The MDM algoritm, based on Log-Euclidian metric for example has the following expression [@zhao_convex_2019]: 
+For instance, MDM based on Log-Euclidian metric has the following expression [@zhao_convex_2019]: 
 
 $$\arg \min w^{T}Dw - 2 Vec(\log Y) D$$
 
-with $\sum w_i = 1, w_i >= 0 \forall i$ and $D=[Vec(\log X_1)...Vec(\log X_N)]$, $Y$ being the trial and $X_i$ a class. 
+with $\sum w_i = 1, w_i >= 0 \forall i$ and $D=[Vec(\log X_1)...Vec(\log X_N)]$, $Y$ being the trial and $X_i$ a class. The classes are built during training using the mean covariance matrices, and therefore this approach is compatible with the `fro_mean_convex` method previously introduced.
 
-The above is a quadratic optimisation problem, however weight in the `w` vector are constrainted continuous variables, thus complicating the use of the `IntegerToBinary` method.
+Note that the equation above is a quadratic optimization problem. However, weights in the w vector are constrained continuous variables, thus complicating the use of the IntegerToBinary method.
+
+In addition, the equation must be solved for each new trial that needs to be classified. The complexity of determining the correct weight to minimize the equation varies as a function of the number of classes and the upper bound coefficient which is used for the `IntegerToBinary method` (the higher this coefficient, the higher the complexity). While potentially slower, this quantum-optimized version of the MDM algorithm _could_ produce better results, especially in cases where classical computation fails.
 
 ### Multi-class classifications
 
