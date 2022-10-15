@@ -247,9 +247,14 @@ class QuanticSVM(QuanticClassifierBase):
 
     Parameters
     ----------
-    gamma : float | None (default:None)
+    gamma : float | None (default: None)
         Used as input for sklearn rbf_kernel which is used internally.
         See [3]_ for more information about gamma.
+    C : float (default: 1.0)
+        Regularization parameter. The strength of the regularization is
+        inversely proportional to C. Must be strictly positive.
+        Note, if pegasos is enabled you may want to consider
+        larger values of C.
     pegasos : boolean (default: False)
         If true, uses Qiskit's PegasosQSVC instead of QSVC.
 
@@ -280,9 +285,10 @@ class QuanticSVM(QuanticClassifierBase):
 
     """
 
-    def __init__(self, gamma='scale', pegasos=False, **parameters):
+    def __init__(self, gamma='scale', C=1.0, pegasos=False, **parameters):
         QuanticClassifierBase.__init__(self, **parameters)
         self.gamma = gamma
+        self.C = C
         self.pegasos = pegasos
 
     def _init_algo(self, n_features):
@@ -293,12 +299,13 @@ class QuanticSVM(QuanticClassifierBase):
                               quantum_instance=self._quantum_instance)
             if self.pegasos:
                 self._log("[Warning] `gamma` is not supported by PegasosQSVC")
-                classifier = PegasosQSVC(quantum_kernel=quantum_kernel)
+                classifier = PegasosQSVC(quantum_kernel=quantum_kernel,
+                                         C=self.C)
             else:
                 classifier = QSVC(quantum_kernel=quantum_kernel,
-                                  gamma=self.gamma)
+                                  gamma=self.gamma, C=self.C)
         else:
-            classifier = SVC(gamma=self.gamma)
+            classifier = SVC(gamma=self.gamma, C=self.C)
         return classifier
 
     def predict_proba(self, X):
@@ -484,6 +491,11 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
     gamma : float | None (default:None)
         Used as input for sklearn rbf_kernel which is used internally.
         See [1]_ for more information about gamma.
+    C : float (default: 1.0)
+        Regularization parameter. The strength of the regularization is
+        inversely proportional to C. Must be strictly positive.
+        Note, if pegasos is enabled you may want to consider
+        larger values of C.
     shots : int (default:1024)
         Number of repetitions of each circuit, for sampling.
     feature_entanglement : str | list[list[list[int]]] | \
@@ -531,13 +543,14 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
     """
 
     def __init__(self, nfilter=1, dim_red=PCA(),
-                 gamma='scale', shots=1024, feature_entanglement='full',
+                 gamma='scale', C=1.0, shots=1024, feature_entanglement='full',
                  feature_reps=2, spsa_trials=None, two_local_reps=None,
                  params={}):
 
         self.nfilter = nfilter
         self.dim_red = dim_red
         self.gamma = gamma
+        self.C = C
         self.shots = shots
         self.feature_entanglement = feature_entanglement
         self.feature_reps = feature_reps
@@ -561,7 +574,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
                              **params)
         else:
             self._log("QuanticSVM chosen.")
-            clf = QuanticSVM(quantum=is_quantum, gamma=gamma,
+            clf = QuanticSVM(quantum=is_quantum, gamma=gamma, C=C,
                              gen_feature_map=feature_map,
                              shots=shots, **params)
 
