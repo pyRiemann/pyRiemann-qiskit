@@ -255,6 +255,11 @@ class QuanticSVM(QuanticClassifierBase):
         inversely proportional to C. Must be strictly positive.
         Note, if pegasos is enabled you may want to consider
         larger values of C.
+    max_iter: int | None (default: None)
+        number of steps in Pegasos or (Q)SVC.
+        If None, respective default values for Pegasos and SVC
+        are used. The default value for Pegasos is 1000.
+        For (Q)SVC it is -1 (that is not limit).
     pegasos : boolean (default: False)
         If true, uses Qiskit's PegasosQSVC instead of QSVC.
 
@@ -285,10 +290,12 @@ class QuanticSVM(QuanticClassifierBase):
 
     """
 
-    def __init__(self, gamma='scale', C=1.0, pegasos=False, **parameters):
+    def __init__(self, gamma='scale', C=1.0, max_iter=None,
+                 pegasos=False, **parameters):
         QuanticClassifierBase.__init__(self, **parameters)
         self.gamma = gamma
         self.C = C
+        self.max_iter = max_iter
         self.pegasos = pegasos
 
     def _init_algo(self, n_features):
@@ -299,13 +306,18 @@ class QuanticSVM(QuanticClassifierBase):
                               quantum_instance=self._quantum_instance)
             if self.pegasos:
                 self._log("[Warning] `gamma` is not supported by PegasosQSVC")
+                num_steps = 1000 if self.max_iter is None else self.max_iter
                 classifier = PegasosQSVC(quantum_kernel=quantum_kernel,
-                                         C=self.C)
+                                         C=self.C,
+                                         num_steps=num_steps)
             else:
+                max_iter = -1 if self.max_iter is None else self.max_iter
                 classifier = QSVC(quantum_kernel=quantum_kernel,
-                                  gamma=self.gamma, C=self.C)
+                                  gamma=self.gamma, C=self.C,
+                                  max_iter=max_iter)
         else:
-            classifier = SVC(gamma=self.gamma, C=self.C)
+            max_iter = -1 if self.max_iter is None else self.max_iter
+            classifier = SVC(gamma=self.gamma, C=self.C, max_iter=max_iter)
         return classifier
 
     def predict_proba(self, X):
@@ -496,6 +508,11 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
         inversely proportional to C. Must be strictly positive.
         Note, if pegasos is enabled you may want to consider
         larger values of C.
+    max_iter: int | None (default: None)
+        number of steps in Pegasos or SVC.
+        If None, respective default values for Pegasos and (Q)SVC
+        are used. The default value for Pegasos is 1000.
+        For (Q)SVC it is -1 (that is not limit).
     shots : int (default:1024)
         Number of repetitions of each circuit, for sampling.
     feature_entanglement : str | list[list[list[int]]] | \
@@ -543,7 +560,8 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
     """
 
     def __init__(self, nfilter=1, dim_red=PCA(),
-                 gamma='scale', C=1.0, shots=1024, feature_entanglement='full',
+                 gamma='scale', C=1.0, max_iter=None,
+                 shots=1024, feature_entanglement='full',
                  feature_reps=2, spsa_trials=None, two_local_reps=None,
                  params={}):
 
@@ -551,6 +569,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
         self.dim_red = dim_red
         self.gamma = gamma
         self.C = C
+        self.max_iter = max_iter
         self.shots = shots
         self.feature_entanglement = feature_entanglement
         self.feature_reps = feature_reps
@@ -575,6 +594,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
         else:
             self._log("QuanticSVM chosen.")
             clf = QuanticSVM(quantum=is_quantum, gamma=gamma, C=C,
+                             max_iter=max_iter,
                              gen_feature_map=feature_map,
                              shots=shots, **params)
 
