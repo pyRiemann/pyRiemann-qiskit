@@ -83,6 +83,16 @@ Math
 
     cov_to_corr_matrix
 
+Firebase
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _firebase_api:
+.. currentmodule:: pyriemann_qiskit.utils.firebase_connector
+
+.. autosummary::
+    :toctree: generated/
+
+    FirebaseConnector
+
 Datasets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. _datasets_api:
