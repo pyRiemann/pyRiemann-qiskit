@@ -20,7 +20,7 @@ class FirebaseConnector():
         try:
             cred = credentials.Certificate(certificate)
         except Exception:
-            env_certificate = os.environ("FIREBASE_CERTIFICATE")
+            env_certificate = os.environ["FIREBASE_CERTIFICATE"]
             cred = credentials.Certificate(env_certificate)
         cred = credentials.Certificate(certificate)
         firebase_admin.initialize_app(cred)
