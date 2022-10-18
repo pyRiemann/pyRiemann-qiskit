@@ -3,8 +3,9 @@ import os
 from firebase_admin import credentials, firestore
 from firebase_cert import certificate
 
+
 class FirebaseConnector():
-    def __init__(self, mock_data = None) -> None:
+    def __init__(self, mock_data=None) -> None:
         self._db = None
         self._datasets = {}
         self._collection = None
@@ -18,13 +19,13 @@ class FirebaseConnector():
         cred = None
         try:
             cred = credentials.Certificate(certificate)
-        except:
+        except Exception:
             env_certificate = os.environ("FIREBASE_CERTIFICATE")
             cred = credentials.Certificate(env_certificate)
         cred = credentials.Certificate(certificate)
         firebase_admin.initialize_app(cred)
         self._db = firestore.client()
-    
+
     def _read_stream(self):
         if self.mock_data:
             self._datasets = self.mock_data
@@ -33,16 +34,20 @@ class FirebaseConnector():
         stream = self._collection.stream()
         for dataset in stream:
             self._datasets[dataset.id] = dataset.to_dict()
-    
-    def add(self, dataset: str, subject: str, pipeline: str, true_labels: list, predicted_labels: list):
-        if not dataset in self.datasets:
+
+    def add(self, dataset: str, subject: str, pipeline: str,
+            true_labels: list, predicted_labels: list):
+        if dataset not in self.datasets:
             self._datasets[dataset] = {}
-        dataset_dict = self._datasets[dataset]; 
-        if not subject in dataset_dict:
+        dataset_dict = self._datasets[dataset]
+        if subject not in dataset_dict:
             dataset_dict[subject] = {}
         subject_dict = dataset_dict[subject]
         if pipeline in subject_dict:
-            raise KeyError(dataset + '.' + subject + '.' + pipeline + " already exists.")
+            raise KeyError(dataset +
+                           '.' + subject +
+                           '.' + pipeline +
+                           " already exists.")
         else:
             subject_dict[pipeline] = {}
             pipeline_dict = subject_dict[pipeline]
@@ -51,14 +56,6 @@ class FirebaseConnector():
         if not self.mock_data:
             self._collection.document(dataset).set(dataset_dict)
 
-
     @property
     def datasets(self):
         return self._datasets
-    
-
-connector = FirebaseConnector()
-print(connector.datasets)
-# connector.add('py.BI.EEG.2012-GIPSA', 'subject_01', 'TS+QuanticSVM2', [1, 0], [0, 1])
-# print(connector.datasets)
-
