@@ -1,7 +1,7 @@
 import firebase_admin
 import os
 from firebase_admin import credentials, firestore
-from firebase_cert import certificate
+from .firebase_cert import certificate
 
 
 class FirebaseConnector():
