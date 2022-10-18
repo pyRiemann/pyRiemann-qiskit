@@ -1,7 +1,7 @@
 import firebase_admin
+import os
 from firebase_admin import credentials, firestore
-
-cert = {}
+from firebase_cert import certificate
 
 class FirebaseConnector():
     def __init__(self, mock_data = None) -> None:
@@ -15,7 +15,13 @@ class FirebaseConnector():
     def _connect(self):
         if self.mock_data:
             return
-        cred = credentials.Certificate(cert)
+        cred = None
+        try:
+            cred = credentials.Certificate(certificate)
+        except:
+            env_certificate = os.environ("FIREBASE_CERTIFICATE")
+            cred = credentials.Certificate(env_certificate)
+        cred = credentials.Certificate(certificate)
         firebase_admin.initialize_app(cred)
         self._db = firestore.client()
     
@@ -51,8 +57,8 @@ class FirebaseConnector():
         return self._datasets
     
 
-connector = FirebaseConnector(mock_data = {'py.BI': 0})
+connector = FirebaseConnector()
 print(connector.datasets)
-connector.add('py.BI.EEG.2012-GIPSA', 'subject_01', 'TS+QuanticSVM2', [1, 0], [0, 1])
-print(connector.datasets)
+# connector.add('py.BI.EEG.2012-GIPSA', 'subject_01', 'TS+QuanticSVM2', [1, 0], [0, 1])
+# print(connector.datasets)
 
