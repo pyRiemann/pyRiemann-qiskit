@@ -1,5 +1,6 @@
 import firebase_admin
 import os
+import ast
 from firebase_admin import credentials, firestore
 from .firebase_cert import certificate
 
@@ -20,7 +21,8 @@ class FirebaseConnector():
         try:
             cred = credentials.Certificate(certificate)
         except Exception:
-            env_certificate = os.environ["FIREBASE_CERTIFICATE"]
+            env_certificate = \
+                ast.literal_eval(os.environ["FIREBASE_CERTIFICATE"])
             cred = credentials.Certificate(env_certificate)
         cred = credentials.Certificate(certificate)
         firebase_admin.initialize_app(cred)
