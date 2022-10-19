@@ -6,6 +6,38 @@ from .firebase_cert import certificate
 
 
 class FirebaseConnector():
+    """
+    A connector to Firebase.
+    It gets/adds data to Firestore
+    (noSql database)
+
+    Format of the data is as follows:
+    
+    ```
+    datasets: {
+        bi2012: {
+            subject_01: {
+                pipeline1: {
+                    true_labels: [...],
+                    predicted_labels: [...]
+                }
+            }
+        }
+    }
+    ```
+
+    Parameters
+    ----------
+    mock_data : Dict (default: None)
+        If provided, it will skip the connection to firestore
+        and use these data instead.
+        It is useful for testing or
+        for working with a local instance of a database.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.3
+    """
     def __init__(self, mock_data=None) -> None:
         self._db = None
         self._datasets = {}
@@ -38,6 +70,22 @@ class FirebaseConnector():
 
     def add(self, dataset: str, subject: str, pipeline: str,
             true_labels: list, predicted_labels: list):
+        """
+        Add a data to firestore (or to the mock data if provided)
+
+        Parameters
+        ----------
+        dataset : str
+            The name of the dataset
+        subject: str
+            The name of the subject
+        pipeline: str
+            A string representation of the pipeline
+        true_labels: list[str]
+            The list of true labels provided to the pipeline
+        predicted_labels: list[str]
+            The list of predicted labels returned by the pipeline
+        """
         if dataset not in self.datasets:
             self._datasets[dataset] = {}
         dataset_dict = self._datasets[dataset]
@@ -59,4 +107,15 @@ class FirebaseConnector():
 
     @property
     def datasets(self):
+        """
+        Get the data from Firestore
+        (or the mock data if provided).
+        Data are readonly.
+
+        Format of the data is as follows:
+
+        Returns
+        -------
+        self : A representation of the database
+        """
         return self._datasets
