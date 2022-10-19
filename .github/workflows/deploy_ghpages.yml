@@ -16,7 +16,7 @@ jobs:
   build_docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Generate HTML docs
         uses: ammaraskar/sphinx-action@master
         with:
@@ -28,7 +28,7 @@ jobs:
             apt-get -y install build-essential
             pip install -r doc/requirements.txt
       - name:  Upload generated HTML as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: DocHTML
           path: doc/build/html/
@@ -39,7 +39,7 @@ jobs:
   #     build_docs
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - uses: actions/checkout@v2
+  #     - uses: actions/checkout@v3
   #     - name: Download artifacts
   #       uses: actions/download-artifact@v2
   #       with:

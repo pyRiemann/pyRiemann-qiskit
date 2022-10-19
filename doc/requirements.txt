@@ -7,9 +7,9 @@ seaborn
 scikit-learn
 joblib
 pandas
-cvxpy==1.1.12
+cvxpy==1.2.1
 git+https://github.com/Qiskit/qiskit-machine-learning#egg=qiskit_machine_learning
-qiskit-ibmq-provider==0.19.1
+qiskit-ibmq-provider==0.19.2
 qiskit-optimization==0.4.0
 scipy==1.7.3
 moabb>=0.4.6
