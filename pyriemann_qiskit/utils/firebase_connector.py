@@ -20,7 +20,7 @@ class FirebaseConnector():
         cred = None
         try:
             cred = credentials.Certificate(certificate)
-        except Exception:
+        except ValueError:
             env_certificate = \
                 eval(os.environ["FIREBASE_CERTIFICATE"])
             cred = credentials.Certificate(env_certificate)
