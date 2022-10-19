@@ -12,7 +12,7 @@ class FirebaseConnector():
     (noSql database)
 
     Format of the data is as follows:
-    
+
     ```
     datasets: {
         bi2012: {
