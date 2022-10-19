@@ -24,7 +24,6 @@ class FirebaseConnector():
             env_certificate = \
                 eval(os.environ["FIREBASE_CERTIFICATE"])
             cred = credentials.Certificate(env_certificate)
-        cred = credentials.Certificate(certificate)
         firebase_admin.initialize_app(cred)
         self._db = firestore.client()
 
