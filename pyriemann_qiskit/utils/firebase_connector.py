@@ -3,8 +3,9 @@ import os
 from warnings import warn
 try:
     from firebase_admin import credentials, firestore
-except:
-    warn("No firebase_admin found. Firebase connector can only run with mock data.")
+except Exception:
+    warn("""No firebase_admin found. Firebase connector \
+         can only run with mock data.""")
 from .firebase_cert import certificate
 
 
@@ -131,13 +132,17 @@ class Cache():
         self._pipeline = pipeline
         self._connector = FirebaseConnector(mock_data=mock_data)
 
-    def _get_pipeline_dict(self):
+    def _get_pipeline_dict(self, subject):
         key = str(self._pipeline)
-        return self._connector.datasets[self._dataset.code][key]
+        return self._connector.datasets[self._dataset.code][subject][key]
 
     def add(self, subject, true_labels, predicted_labels):
-        self._connector.add(self._dataset.code, str(self._pipeline),
-                            subject, true_labels, predicted_labels)
+        self._connector.add(self._dataset.code, subject, str(self._pipeline),
+                            true_labels, predicted_labels)
 
     def get_result(self, subject):
-        return self._get_pipeline_dict()[subject]
+        results = self._get_pipeline_dict(subject)
+        return results["true_labels"], results["predicted_labels"]
+
+    def data(self):
+        return self._connector.datasets

@@ -1,9 +1,8 @@
-from warnings import warn
 from pyriemann_qiskit.utils import FirebaseConnector, Cache
-from pyriemann_qiskit.classification import \
-    QuantumClassifierWithDefaultRiemannianPipeline
 from sklearn.metrics import balanced_accuracy_score
-import time
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
 
 
 def test_firebase_connection():
@@ -32,49 +31,37 @@ def test_firebase_connector():
 
 
 class MockDataset():
-    def __init__(self):
+    def __init__(self, dataset_gen, n_subjects: int):
         self.code = "MockDataset"
-        self.subjects = [1, 2]
-        self.data = {
-            1: {
-                "X": [100] * 10,
-                "y": [0] * 10
-            },
-            2: {
-                "X": [1000] * 10,
-                "y": [1] * 10
-            }
-        }
+        self.subjects = range(n_subjects)
+        self.data = {}
+        for subject in self.subjects:
+            self.data[subject] = dataset_gen()
 
     def get_data(self, subject):
-        data = self.data[subject]
-        return data["X"], data["y"]
+        return self.data[subject]
 
 
-def test_cache():
-    dataset = MockDataset()
-    pipeline = QuantumClassifierWithDefaultRiemannianPipeline(shots=None)
-    cache = Cache(dataset, pipeline, {})
+def test_cache(get_dataset):
+    def dataset_gen():
+        return get_dataset(n_samples=10, n_features=5,
+                           n_classes=2, type="rand")
+
+    dataset = MockDataset(dataset_gen, n_subjects=3)
+    pipeline = make_pipeline(StandardScaler(), SVC(C=3.0))
+    cache = Cache(dataset, pipeline, mock_data={})
     scores = {}
-    times = {}
-    for subject in dataset.subjects:
 
-        start = time.time()
+    for subject in dataset.subjects:
         X, y = dataset.get_data(subject)
-        print(X, y)
         pipeline.fit(X, y)
         y_pred = pipeline.predict(X)
-        end = time.time()
 
-        times[subject] = end - start
         cache.add(subject, y, y_pred)
         score = balanced_accuracy_score(y, y_pred)
         scores[subject] = score
 
     for subject in dataset.subjects:
-        start = time.time()
         y, y_pred = cache.get_result(subject)
-        end = time.time()
         score = balanced_accuracy_score(y, y_pred)
         assert score == scores[subject]
-        assert times[subject] > end - start
