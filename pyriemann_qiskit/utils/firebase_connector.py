@@ -1,7 +1,10 @@
 import firebase_admin
 import os
-# import ast
-from firebase_admin import credentials, firestore
+from warnings import warn
+try:
+    from firebase_admin import credentials, firestore
+except:
+    warn("No firebase_admin found. Firebase connector can only run with mock data.")
 from .firebase_cert import certificate
 
 
@@ -47,7 +50,7 @@ class FirebaseConnector():
         self._read_stream()
 
     def _connect(self):
-        if self.mock_data:
+        if self.mock_data is not None:
             return
         cred = None
         try:
@@ -60,7 +63,7 @@ class FirebaseConnector():
         self._db = firestore.client()
 
     def _read_stream(self):
-        if self.mock_data:
+        if self.mock_data is not None:
             self._datasets = self.mock_data
             return
         self._collection = self._db.collection(u'datasets')
@@ -121,12 +124,12 @@ class FirebaseConnector():
         return self._datasets
 
 
-def Cache():
+class Cache():
 
-    def __init__(self, dataset, pipeline):
+    def __init__(self, dataset, pipeline, mock_data=None) -> None:
         self._dataset = dataset
         self._pipeline = pipeline
-        self._connector = FirebaseConnector()
+        self._connector = FirebaseConnector(mock_data=mock_data)
 
     def _get_pipeline_dict(self):
         key = str(self._pipeline)

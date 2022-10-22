@@ -1,7 +1,7 @@
-from pyriemann_qiskit.utils import FirebaseConnector
+from warnings import warn
+from pyriemann_qiskit.utils import FirebaseConnector, Cache
 from pyriemann_qiskit.classification import \
     QuantumClassifierWithDefaultRiemannianPipeline
-from pyriemann_qiskit.utils.firebase_connector import Cache
 from sklearn.metrics import balanced_accuracy_score
 import time
 
@@ -47,20 +47,22 @@ class MockDataset():
         }
 
     def get_data(self, subject):
-        return self.data[subject]
+        data = self.data[subject]
+        return data["X"], data["y"]
 
 
 def test_cache():
     dataset = MockDataset()
     pipeline = QuantumClassifierWithDefaultRiemannianPipeline(shots=None)
-    cache = Cache(dataset, pipeline)
+    cache = Cache(dataset, pipeline, {})
     scores = {}
     times = {}
     for subject in dataset.subjects:
 
         start = time.time()
         X, y = dataset.get_data(subject)
-        pipeline.fit(X)
+        print(X, y)
+        pipeline.fit(X, y)
         y_pred = pipeline.predict(X)
         end = time.time()
 
