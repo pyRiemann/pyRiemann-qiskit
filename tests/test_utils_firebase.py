@@ -1,8 +1,10 @@
 from pyriemann_qiskit.utils import FirebaseConnector
-from pyriemann_qiskit.classification import QuantumClassifierWithDefaultRiemannianPipeline
+from pyriemann_qiskit.classification import \
+    QuantumClassifierWithDefaultRiemannianPipeline
 from pyriemann_qiskit.utils.firebase_connector import Cache
 from sklearn.metrics import balanced_accuracy_score
 import time
+
 
 def test_firebase_connection():
     # Should retrieve correct certificate
@@ -28,6 +30,7 @@ def test_firebase_connector():
     assert pipeline_result['true_labels'][0] == 1
     assert pipeline_result['predicted_labels'][0] == 0
 
+
 class MockDataset():
     def __init__(self):
         self.code = "MockDataset"
@@ -42,7 +45,7 @@ class MockDataset():
                 "y": [1] * 10
             }
         }
-    
+
     def get_data(self, subject):
         return self.data[subject]
 
@@ -65,7 +68,6 @@ def test_cache():
         cache.add(subject, y, y_pred)
         score = balanced_accuracy_score(y, y_pred)
         scores[subject] = score
-
 
     for subject in dataset.subjects:
         start = time.time()

@@ -92,6 +92,7 @@ Firebase
     :toctree: generated/
 
     FirebaseConnector
+    Cache
 
 Datasets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
