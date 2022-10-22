@@ -195,7 +195,7 @@ class MockDataset():
     Parameters
     ----------
     dataset_gen : Callable[[], (List, List)]
-        A function to generate dataset.
+        A function to generate datasets.
         The function accepts no parameters an returns a pair of lists.
         The first list are the samples. The second list are the labels.
     n_subjects: int
@@ -249,7 +249,6 @@ class MockDataset():
         Notes
         -----
         .. versionadded:: 0.0.3
-
         """
         return self.data_[subject]
 

@@ -12,8 +12,8 @@ from .firebase_cert import certificate
 class FirebaseConnector():
     """
     A connector to Firebase.
-    It gets/adds data to Firestore
-    (noSql database)
+    It gets/adds data to Firestore.
+    (noSql database).
 
     Format of the data is as follows:
 
@@ -75,7 +75,7 @@ class FirebaseConnector():
     def add(self, dataset: str, subject: str, pipeline: str,
             true_labels: list, predicted_labels: list):
         """
-        Add a data to firestore (or to the mock data if provided)
+        Add a data to firestore (or to the mock data if provided).
 
         Parameters
         ----------
@@ -93,7 +93,7 @@ class FirebaseConnector():
         Raises
         ------
         KeyError
-            Raised if there is already an entry stores for this
+            Raised if there is already an entry for this
             combination of subject and pipeline.
 
         Notes
@@ -137,18 +137,18 @@ class FirebaseConnector():
 
 class Cache():
     """
-    Layer of abstraction on FirebaseConnector.
-    It facilitates adding/removing of the data
+    Layer of abstraction over FirebaseConnector.
+    It facilitates adding/removing data
     for a particular dataset and pipeline.
 
     Parameters
     ----------
     dataset_name: str
-        The name of the dataset
-    pipeline: sklearn.Pipeline
-        The sklearn pipeline use for the analysis of the dataset
+        The name of the dataset.
+    pipeline: Pipeline
+        The sklearn pipeline use for the analysis of the dataset.
     mock_data: Dict (default: None)
-        Mock data that can be passed to the FirebaseConnector
+        Mock data that can be passed to the FirebaseConnector.
 
     See Also
     --------
@@ -192,12 +192,13 @@ class Cache():
 
     def get_result(self, subject):
         """
-        Get a subject predicted labels.
+        Get a subject's predicted labels obtain
+        with the pipeline pass as a parameter in the constructor.
 
         Parameters
         ----------
         subject: int|str
-            A subject.
+            A subject in the dataset.
 
         Return
         --------
@@ -205,7 +206,7 @@ class Cache():
             The true labels.
         predicted_labels: List
             The predicted labels obtained for this subject
-            with pipeline pass a a parameter in the constructor.
+            with the pipeline passed a a parameter in the constructor.
 
         Notes
         -----
