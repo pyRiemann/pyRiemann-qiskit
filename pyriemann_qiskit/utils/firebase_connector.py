@@ -119,3 +119,20 @@ class FirebaseConnector():
         self : A representation of the database
         """
         return self._datasets
+
+def Cache():
+
+    def __init__(self, dataset, pipeline):
+        self._dataset = dataset
+        self._pipeline = pipeline
+        self._connector = FirebaseConnector()
+    
+    def _get_pipeline_dict(self):
+        key = str(self._pipeline)
+        return self._connector.datasets[self._dataset.code][key]
+
+    def add(self, subject, true_labels, predicted_labels):
+        self._connector.add(self._dataset.code, str(self._pipeline), subject, true_labels, predicted_labels)
+
+    def get_result(self, subject):
+        return self._get_pipeline_dict()[subject]
