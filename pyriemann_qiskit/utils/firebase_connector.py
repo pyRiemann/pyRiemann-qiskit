@@ -89,6 +89,16 @@ class FirebaseConnector():
             The list of true labels provided to the pipeline
         predicted_labels: list[str]
             The list of predicted labels returned by the pipeline
+
+        Raises
+        ------
+        KeyError
+            Raised if there is already an entry stores for this
+            combination of subject and pipeline.
+
+        Notes
+        -----
+        .. versionadded:: 0.0.3
         """
         if dataset not in self.datasets:
             self._datasets[dataset] = {}
@@ -126,7 +136,28 @@ class FirebaseConnector():
 
 
 class Cache():
+    """
+    Layer of abstraction on FirebaseConnector.
+    It facilitates adding/removing of the data
+    for a particular dataset and pipeline.
 
+    Parameters
+    ----------
+    dataset_name: str
+        The name of the dataset
+    pipeline: sklearn.Pipeline
+        The sklearn pipeline use for the analysis of the dataset
+    mock_data: Dict (default: None)
+        Mock data that can be passed to the FirebaseConnector
+
+    See Also
+    --------
+    FirebaseConnector
+
+    Notes
+    -----
+    .. versionadded:: 0.0.3
+    """
     def __init__(self, dataset_name: str, pipeline, mock_data=None) -> None:
         self._dataset_name = dataset_name
         self._pipeline = pipeline
@@ -137,10 +168,49 @@ class Cache():
         return self._connector.datasets[self._dataset_name][subject][key]
 
     def add(self, subject, true_labels, predicted_labels):
+        """
+        Add the prediction of the pipeline to the dataset.
+
+        Parameters
+        ----------
+        subject: int|str
+            The subject whom data were used for prediction.
+        true_labels: List
+            The true labels
+        predicted_labels: The predicted labels
+
+        See Also
+        --------
+        FirebaseConnector
+
+        Notes
+        -----
+        .. versionadded:: 0.0.3
+        """
         self._connector.add(self._dataset_name, subject, str(self._pipeline),
                             true_labels, predicted_labels)
 
     def get_result(self, subject):
+        """
+        Get a subject predicted labels.
+
+        Parameters
+        ----------
+        subject: int|str
+            A subject.
+
+        Return
+        --------
+        true_labels: List
+            The true labels.
+        predicted_labels: List
+            The predicted labels obtained for this subject
+            with pipeline pass a a parameter in the constructor.
+
+        Notes
+        -----
+        .. versionadded:: 0.0.3
+        """
         results = self._get_pipeline_dict(subject)
         return results["true_labels"], results["predicted_labels"]
 

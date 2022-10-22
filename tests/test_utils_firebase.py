@@ -1,3 +1,4 @@
+from pyriemann_qiskit.datasets import MockDataset
 from pyriemann_qiskit.utils import FirebaseConnector, Cache
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.pipeline import make_pipeline
@@ -30,18 +31,6 @@ def test_firebase_connector():
     assert pipeline_result['predicted_labels'][0] == 0
 
 
-class MockDataset():
-    def __init__(self, dataset_gen, n_subjects: int):
-        self.code = "MockDataset"
-        self.subjects = range(n_subjects)
-        self.data = {}
-        for subject in self.subjects:
-            self.data[subject] = dataset_gen()
-
-    def get_data(self, subject):
-        return self.data[subject]
-
-
 def test_cache(get_dataset):
     def dataset_gen():
         return get_dataset(n_samples=10, n_features=5,
@@ -49,10 +38,10 @@ def test_cache(get_dataset):
 
     dataset = MockDataset(dataset_gen, n_subjects=3)
     pipeline = make_pipeline(StandardScaler(), SVC(C=3.0))
-    cache = Cache(dataset, pipeline, mock_data={})
+    cache = Cache(str(dataset), pipeline, mock_data={})
     scores = {}
 
-    for subject in dataset.subjects:
+    for subject in dataset.subjects_:
         X, y = dataset.get_data(subject)
         pipeline.fit(X, y)
         y_pred = pipeline.predict(X)
@@ -61,7 +50,7 @@ def test_cache(get_dataset):
         score = balanced_accuracy_score(y, y_pred)
         scores[subject] = score
 
-    for subject in dataset.subjects:
+    for subject in dataset.subjects_:
         y, y_pred = cache.get_result(subject)
         score = balanced_accuracy_score(y, y_pred)
         assert score == scores[subject]
