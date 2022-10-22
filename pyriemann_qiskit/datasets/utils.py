@@ -3,7 +3,7 @@ import numpy as np
 try:
     from mne import io, read_events, pick_types, Epochs
     from mne.datasets import sample
-except:
+except Exception:
     warn("mne not available. get_mne_sample will fail.")
 from qiskit_machine_learning.datasets import ad_hoc_data
 from sklearn.datasets import make_classification
@@ -37,6 +37,10 @@ def get_mne_sample(n_trials=10):
         ndarray of trials.
     y : ndarray, shape (n_trials,)
         Predicted target vector relative to X.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.1
 
     References
     ----------
@@ -85,6 +89,10 @@ def get_mne_sample(n_trials=10):
 def get_qiskit_dataset():
     """Return qiskit dataset.
 
+    Notes
+    -----
+    .. versionadded:: 0.0.1
+
     Returns
     -------
     X : ndarray, shape (n_samples, n_features)
@@ -111,6 +119,10 @@ def get_qiskit_dataset():
 
 def get_linearly_separable_dataset():
     """Return a linearly separable dataset.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.1
 
     Returns
     -------
@@ -155,6 +167,10 @@ def get_feature_dimension(dataset):
         n_features : int
             The feature dimension, -1 denotes no data in the dataset.
 
+    Notes
+    -----
+    .. versionadded:: 0.0.2
+
     Raises
     -------
     TypeError
@@ -170,3 +186,72 @@ def get_feature_dimension(dataset):
         return v.shape[1]
 
     return -1
+
+
+class MockDataset():
+    """
+    A dataset with mock data.
+
+    Parameters
+    ----------
+    dataset_gen : Callable[[], (List, List)]
+        A function to generate dataset.
+        The function accepts no parameters an returns a pair of lists.
+        The first list are the samples. The second list are the labels.
+    n_subjects: int
+        The number of subjects in the dataset.
+        A dataset will be generated for all subjects using the handler
+        `dataset_gen`.
+
+    Attributes
+    ----------
+    code_ : str
+        The code of the datasat.
+        The code of the dataset is also the string representation
+        of the dataset
+    data_: Dict
+        A dictionnary representing the dataset. Ex:
+        ```
+        {
+            subject1: (samples1, labels1),
+            subject2: (samples2, labels2),
+            ...
+        }
+        ```
+    subjects_: List[int]
+        The subjects of the dataset.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.3
+
+    """
+    def __init__(self, dataset_gen, n_subjects: int):
+        self.code_ = "MockDataset"
+        self.subjects_ = range(n_subjects)
+        self.data_ = {}
+        for subject in self.subjects_:
+            self.data_[subject] = dataset_gen()
+
+    def get_data(self, subject):
+        """
+        Returns the data of a subject.
+
+        Parameters
+        ----------
+        subject : int
+            A subject in the list of subjects `subjects_`.
+
+        Returns
+        -------
+        data : the subject's data.
+
+        Notes
+        -----
+        .. versionadded:: 0.0.3
+
+        """
+        return self.data_[subject]
+
+    def __str__(self) -> str:
+        return self.code_

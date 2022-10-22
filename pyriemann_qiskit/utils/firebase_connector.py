@@ -127,17 +127,17 @@ class FirebaseConnector():
 
 class Cache():
 
-    def __init__(self, dataset, pipeline, mock_data=None) -> None:
-        self._dataset = dataset
+    def __init__(self, dataset_name: str, pipeline, mock_data=None) -> None:
+        self._dataset_name = dataset_name
         self._pipeline = pipeline
         self._connector = FirebaseConnector(mock_data=mock_data)
 
     def _get_pipeline_dict(self, subject):
         key = str(self._pipeline)
-        return self._connector.datasets[self._dataset.code][subject][key]
+        return self._connector.datasets[self._dataset_name][subject][key]
 
     def add(self, subject, true_labels, predicted_labels):
-        self._connector.add(self._dataset.code, subject, str(self._pipeline),
+        self._connector.add(self._dataset_name, subject, str(self._pipeline),
                             true_labels, predicted_labels)
 
     def get_result(self, subject):
