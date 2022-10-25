@@ -6,9 +6,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
 
-def test_firebase_connection():
+#def test_firebase_connection():
     # Should retrieve correct certificate
-    assert not FirebaseConnector() is None
+#    assert not FirebaseConnector() is None
 
 
 def test_firebase_connector():
