@@ -57,8 +57,7 @@ class FirebaseConnector():
         try:
             cred = credentials.Certificate(certificate)
         except ValueError:
-            env_certificate = \
-                eval(os.environ["FIREBASE_CERTIFICATE"])
+            env_certificate = eval(os.environ["FIREBASE_CERTIFICATE"])
             cred = credentials.Certificate(env_certificate)
         firebase_admin.initialize_app(cred)
         self._db = firestore.client()
