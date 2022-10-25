@@ -110,11 +110,10 @@ class FirebaseConnector():
                            '.' + subject +
                            '.' + pipeline +
                            " already exists.")
-        else:
-            subject_dict[pipeline] = {}
-            pipeline_dict = subject_dict[pipeline]
-            pipeline_dict["true_labels"] = true_labels
-            pipeline_dict["predicted_labels"] = predicted_labels
+        subject_dict[pipeline] = {}
+        pipeline_dict = subject_dict[pipeline]
+        pipeline_dict["true_labels"] = true_labels
+        pipeline_dict["predicted_labels"] = predicted_labels
         if not self.mock_data:
             self._collection.document(dataset).set(dataset_dict)
 
