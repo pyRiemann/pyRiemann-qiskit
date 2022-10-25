@@ -189,16 +189,15 @@ def get_feature_dimension(dataset):
 
 
 class MockDataset():
-    """
-    A dataset with mock data.
+    """A dataset with mock data.
 
     Parameters
     ----------
     dataset_gen : Callable[[], (List, List)]
         A function to generate datasets.
-        The function accepts no parameters an returns a pair of lists.
-        The first list are the samples. The second list are the labels.
-    n_subjects: int
+        The function accepts no parameters and returns a pair of lists.
+        The first list contains the samples, the second one the labels.
+    n_subjects : int
         The number of subjects in the dataset.
         A dataset will be generated for all subjects using the handler
         `dataset_gen`.
@@ -206,10 +205,10 @@ class MockDataset():
     Attributes
     ----------
     code_ : str
-        The code of the datasat.
+        The code of the dataset.
         The code of the dataset is also the string representation
-        of the dataset
-    data_: Dict
+        of the dataset.
+    data_ : Dict
         A dictionnary representing the dataset. Ex:
         ```
         {
@@ -218,7 +217,7 @@ class MockDataset():
             ...
         }
         ```
-    subjects_: List[int]
+    subjects_ : List[int]
         The subjects of the dataset.
 
     Notes
