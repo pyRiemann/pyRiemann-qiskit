@@ -41,7 +41,7 @@ Qiskit implements a quantum version of support vector -like classifiers, known a
 
 
 `pyRiemann-qiskit` implements a wrapper around QSVC and VQC, enabling quantum classification for Riemannian Geometry (RG). It facilitates the creation and parametrization of the quantum backend, and is fully compliant with scikit-learn's transformers, estimators and classifiers so it becomes easy to integrate quantum classification in an existing pipeline. It also supports [docplex](http://ibmdecisionoptimization.github.io/docplex-doc/mp/index.html) for the specification of convex optimization problems, with the limitation of using binary and unconstrained variables.
-`pyRiemann-qiskit` is built on top of `pyRiemann`, a machine learning library based on RG, thereby enabling the manipulation of covariance matrices (and in a larger extent semi-positive definite matrices) within the Riemannian manifold such as whitenning, channel selection, projection of the matrices into the tangent space of the Riemanian manifold or classification of the matrices based on Riemannian distances to class prototypes.
+`pyRiemann-qiskit` is built on top of `pyRiemann` [@pyriemann_2015], a machine learning library based on RG, thereby enabling the manipulation of covariance matrices (and in a larger extent semi-positive definite matrices) within the Riemannian manifold such as whitenning, channel selection, projection of the matrices into the tangent space of the Riemanian manifold or classification of the matrices based on Riemannian distances to class prototypes.
 
 The library also includes several examples to guide practitioners, as well as a complete test suite. We will briefly describes below some of the functionalities enabled by the software.
 
