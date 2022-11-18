@@ -8,13 +8,13 @@ tags:
   - Event-Related Potential (ERP)
   - Brain-Computer Interface (BCI)
 authors:
+  - name: Anton Andreev
+    affiliation: 3
   - name: Grégoire H. Cattan
     orcid: 0000-0002-7515-0690
     affiliation: 1
   - name: Sylvain Chevallier
     affiliation: 2
-  - name: Anton Andreev
-    affiliation: 3
   - name: Quentin Barthélemy
     affiliation: 4
 affiliations:
