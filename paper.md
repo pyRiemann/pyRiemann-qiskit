@@ -9,21 +9,21 @@ tags:
   - Brain-Computer Interface (BCI)
 authors:
   - name: Anton Andreev
-    affiliation: 3
+    affiliation: 1
   - name: Grégoire H. Cattan
     orcid: 0000-0002-7515-0690
-    affiliation: 1
-  - name: Sylvain Chevallier
     affiliation: 2
+  - name: Sylvain Chevallier
+    affiliation: 3
   - name: Quentin Barthélemy
     affiliation: 4
 affiliations:
  - name: IBM Software, Data and AI, Poland
-   index: 1
- - name: LISV, University of Paris-Saclay, France
    index: 2
- - name: GIPSA-lab, CNRS, University of Grenoble-Alpes, France
+ - name: LISV, University of Paris-Saclay, France
    index: 3
+ - name: GIPSA-lab, CNRS, University of Grenoble-Alpes, France
+   index: 1
  - name: Foxstream, Vaulx-en-Velin, France
    index: 4
 date: 8 September 2022
