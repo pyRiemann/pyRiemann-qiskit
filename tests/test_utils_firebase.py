@@ -7,8 +7,13 @@ from sklearn.svm import SVC
 
 
 def test_firebase_connection():
-    # Should retrieve correct certificate
-    assert not FirebaseConnector() is None
+    try:
+        # Should retrieve correct certificate
+        assert not FirebaseConnector() is None
+    except SyntaxError:
+        raise Warning("Connection failed! \
+            Ignore this warning if you are running within a github action \
+            from a forked repository.")
 
 
 def test_firebase_connector():
