@@ -5,4 +5,3 @@ qiskit-ibmq-provider==0.19.2
 qiskit-optimization==0.4.0
 cvxpy==1.2.1
 docplex>=2.21.207
-firebase_admin==6.0.1

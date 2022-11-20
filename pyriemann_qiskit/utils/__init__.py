@@ -5,7 +5,6 @@ from .docplex import (square_cont_mat_var,
                       square_bin_mat_var,
                       ClassicalOptimizer,
                       NaiveQAOAOptimizer)
-from .firebase_connector import FirebaseConnector, Cache
 
 __all__ = [
     'hyper_params_factory',
@@ -15,7 +14,5 @@ __all__ = [
     'square_int_mat_var',
     'square_bin_mat_var',
     'ClassicalOptimizer',
-    'NaiveQAOAOptimizer',
-    'FirebaseConnector',
-    'Cache'
+    'NaiveQAOAOptimizer'
 ]

@@ -513,9 +513,8 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
         If None, respective default values for Pegasos and (Q)SVC
         are used. The default value for Pegasos is 1000.
         For (Q)SVC it is -1 (that is not limit).
-    shots : int | None (default: 1024)
+    shots : int (default:1024)
         Number of repetitions of each circuit, for sampling.
-        If None, classical computation will be performed.
     feature_entanglement : str | list[list[list[int]]] | \
                    Callable[int, list[list[list[int]]]]
         Specifies the entanglement structure for the ZZFeatureMap.
