@@ -12,6 +12,7 @@ RUN python -m pip install --upgrade pip
 RUN apt-get -y install --fix-missing git-core
 RUN apt-get -y install build-essential
 
+RUN pip install urllib==1.2.7
 RUN python setup.py develop
 RUN pip install .[docs]
 
