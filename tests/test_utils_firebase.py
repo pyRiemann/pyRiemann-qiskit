@@ -4,6 +4,7 @@ from sklearn.metrics import balanced_accuracy_score
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
+import warnings
 
 
 def test_firebase_connection():
@@ -11,9 +12,10 @@ def test_firebase_connection():
         # Should retrieve correct certificate
         assert not FirebaseConnector() is None
     except SyntaxError:
-        raise Warning("Connection failed! \
-            Ignore this warning if you are running within a github action \
-            from a forked repository.")
+        warnings.warn("""
+            Connection failed!
+            Ignore this warning if you are running within a github action
+            from a forked repository.""")
 
 
 def test_firebase_connector():
