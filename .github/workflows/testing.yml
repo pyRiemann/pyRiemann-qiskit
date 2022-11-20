@@ -35,6 +35,8 @@ jobs:
       run: |
         flake8 examples tests pyriemann_qiskit
     - name: Test with pytest
+      env:
+        FIREBASE_CERTIFICATE: ${{ secrets.FIREBASE_CERTIFICATE }}
       run: |
         pytest
 
