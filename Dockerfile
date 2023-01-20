@@ -16,7 +16,6 @@ RUN pip install urllib3==1.26.12
 RUN python setup.py develop
 RUN pip install .[docs]
 
-
 ## Creating folders for mne data
 RUN mkdir /root/mne_data
 RUN mkdir /home/mne_data
