@@ -13,7 +13,7 @@ RUN apt-get -y install --fix-missing git-core
 RUN apt-get -y install build-essential
 
 RUN pip install urllib3==1.26.12
-RUN pip install qiskit_terra=0.22.4
+RUN pip install qiskit_terra==0.22.4
 RUN python setup.py develop
 RUN pip install .[docs]
 
