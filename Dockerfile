@@ -19,7 +19,7 @@ RUN pip install .[docs]
 
 # WORKAROUNDS
 ## Qiskit problem in parsing version number
-RUN echo 0.22.4 > /usr/local/lib/python3.8/site-packages/qiskit_terra-0.22.4-py3.8-linux-x86_64.egg/qiskit/VERSION.txt
+RUN echo 0.22.4 > /usr/local/lib/python3.8/site-packages/qiskit_terra-0.22.4-cp38-cp38-manylinux_2_17_x86_64.egg/qiskit/VERSION.txt
 
 ## Creating folders for mne data
 RUN mkdir /root/mne_data
