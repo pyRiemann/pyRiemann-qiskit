@@ -7,7 +7,7 @@ What's new in the package
 
 A catalog of new features, improvements, and bug-fixes in each release.
 
-v0.0.1.dev
+v0.0.1
 ----------
 
 - Repository base architecture
@@ -25,7 +25,7 @@ Details:
 
 https://github.com/pyRiemann/pyRiemann-qiskit/releases/tag/v0.0.1-dev
 
-v0.0.2.dev
+v0.0.2
 ----------
 
 - Migrate from qiskit-aqua to qiskit-ml
