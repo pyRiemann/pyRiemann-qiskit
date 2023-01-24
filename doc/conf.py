@@ -84,9 +84,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pyRiemann-qiskit'
-copyright = u'2015-2021, pyRiemann Contributors'
-author = u'Gregoire Cattan'
-
+copyright = u'2021-2023, pyRiemann-qiskit Contributors'
+author = u'Gregoire Cattan \\and Anton Andreev \\and Sylvain Chevallier \\and Quentin Barthelemy'
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
