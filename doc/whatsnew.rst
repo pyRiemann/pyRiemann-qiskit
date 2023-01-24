@@ -36,3 +36,22 @@ v0.0.2
 Details:
 
 https://github.com/pyRiemann/pyRiemann-qiskit/releases/tag/v0.0.2-dev
+
+v0.0.3
+----------
+
+- Enable python 3.9
+- Bump cvxpy and qiskit-ibmq-provider
+- Expose C and max_iter parameters for QSVC, SVC and Pegasos QSVC.
+- Add support for Firebase
+- Improve Docker support
+- Fix deprecated api method in sphinx
+- Improve documentation:
+  - display of sphinx documentation
+  - Readme
+  - [Wiki](https://github.com/pyRiemann/pyRiemann-qiskit/wiki)
+  - Draft paper of the software
+
+Details:
+
+https://github.com/pyRiemann/pyRiemann-qiskit/releases/tag/v0.0.3
