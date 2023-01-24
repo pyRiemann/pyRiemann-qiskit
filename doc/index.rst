@@ -56,8 +56,10 @@ pyRiemann-qiskit: Qiskit wrapper for pyRiemann
      <div class="row">
        <div class="col-md-9">
 
-pyRiemann-qiskit is a Qiskit wrapper around pyRiemann. 
+pyRiemann-qiskit is a `Qiskit <https://github.com/Qiskit>`_ wrapper around
+`pyRiemann <https://github.com/pyRiemann/pyRiemann>`_.
 It allows to use quantum classification with Riemannian geometry.
+
 pyRiemann-qiskit provides through Qiskit:
 
 - a sandbox to experiments quantum computing;
@@ -70,7 +72,7 @@ pyRiemann-qiskit provides through Qiskit:
 
 
 A typical use case would be to use vectorized covariance matrices in
-TangentSpace as an input for quantum classifiers.
+tangent space as an input for quantum classifiers.
 
 For a brief introduction to the ideas behind the package, you can read the
 :ref:`introductory notes <introduction>`. More practical information is on the

@@ -59,7 +59,7 @@ References
     doi: 10.1007/JHEP02(2021)212.
 
 .. [2] P. Rebentrost, M. Mohseni, and S. Lloyd,
-   ‘Quantum Support Vector Machine for Big Data Classification’,
+    ‘Quantum Support Vector Machine for Big Data Classification’,
     Phys. Rev. Lett., vol. 113, no. 13, p. 130503, Sep. 2014,
     doi: 10.1103/PhysRevLett.113.130503.
 
