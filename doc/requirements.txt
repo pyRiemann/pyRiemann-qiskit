@@ -9,7 +9,7 @@ joblib
 pandas
 cvxpy==1.2.3
 git+https://github.com/Qiskit/qiskit-machine-learning#egg=qiskit_machine_learning
-qiskit-ibmq-provider==0.19.2
+qiskit-ibmq-provider==0.20.0
 qiskit-optimization==0.4.0
 scipy==1.7.3
 moabb>=0.4.6
