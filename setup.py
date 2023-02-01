@@ -38,7 +38,7 @@ setup(name='pyriemann-qiskit',
                         'qiskit-ibmq-provider==0.20.0',
                         'qiskit-optimization==0.5.0',
                         'cvxpy==1.3.0',
-                        'scipy==1.7.3',
+                        'scipy==1.10.0',
                         'docplex>=2.21.207',
                         'firebase_admin==6.0.1',
                         'tqdm'
