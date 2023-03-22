@@ -73,6 +73,9 @@ The repository also includes a [wiki](https://github.com/pyRiemann/pyRiemann-qis
 	NTB Berlin 2022 - International Forum on Neural Engineering & Brain Technologies, May 2022, Berlin, Germany,
 	hal: https://hal.archives-ouvertes.fr/hal-03672246/
 
+### How to cite?
+
+Anton Andreev, Grégoire Cattan, Sylvain Chevallier, and Quentin Barthélemy. ‘PyRiemann-Qiskit: A Sandbox for Quantum Classification Experiments with Riemannian Geometry’. Research Ideas and Outcomes 9 (20 March 2023). https://doi.org/10.3897/rio.9.e101006.
 
 ## Installation
 
