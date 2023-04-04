@@ -93,6 +93,10 @@ Firebase
 
     FirebaseConnector
     Cache
+    generate_caches
+    filter_subjects_with_all_results
+    add_moabb_dataframe_results_to_caches
+    convert_caches_to_dataframes
 
 Datasets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
