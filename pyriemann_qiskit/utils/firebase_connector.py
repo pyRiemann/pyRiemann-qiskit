@@ -62,7 +62,7 @@ class FirebaseConnector():
                 certificate["private_key"] = \
                     certificate["private_key"].replace("\\n", "\n")
                 cred = credentials.Certificate(certificate)
-        except ValueError:
+        except KeyError:
             env_certificate = eval(os.environ["FIREBASE_CERTIFICATE"])
             cred = credentials.Certificate(env_certificate)
         try:
