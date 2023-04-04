@@ -1,5 +1,6 @@
 import firebase_admin
 import os
+import pandas as pd
 from warnings import warn
 try:
     from firebase_admin import credentials, firestore
@@ -55,11 +56,19 @@ class FirebaseConnector():
             return
         cred = None
         try:
-            cred = credentials.Certificate(certificate)
+            try:
+                cred = credentials.Certificate(certificate)
+            except ValueError:
+                certificate["private_key"] = \
+                    certificate["private_key"].replace("\\n", "\n")
+                cred = credentials.Certificate(certificate)
         except ValueError:
             env_certificate = eval(os.environ["FIREBASE_CERTIFICATE"])
             cred = credentials.Certificate(env_certificate)
-        firebase_admin.initialize_app(cred)
+        try:
+            firebase_admin.initialize_app(cred)
+        except ValueError:
+            print("Firebase App already initialized. Skipping.")
         self._db = firestore.client()
 
     def _read_stream(self):
@@ -131,6 +140,12 @@ class FirebaseConnector():
         self : A representation of the database
         """
         return self._datasets
+
+    def __repr__(self) -> str:
+        return str(self.datasets)
+
+    def __str__(self) -> str:
+        return repr(self)
 
 
 class Cache():
@@ -215,3 +230,186 @@ class Cache():
 
     def data(self):
         return self._connector.datasets
+
+    def __repr__(self) -> str:
+        return str(self._connector)
+
+    def __str__(self) -> str:
+        return repr(self)
+
+
+def generate_caches(datasets: list, pipelines: list, mock_data=None):
+    """
+    Generate a cache for each combination dataset x pipeline.
+
+    Parameters
+    ----------
+    datasets: List
+        The datasets.
+    pipelines: List
+        The sklearn Pipelines.
+    mock_data: Dict (default: None)
+        Mock data that can be passed to the FirebaseConnector.
+
+    See Also
+    --------
+    FirebaseConnector
+
+    Return
+    --------
+    caches: Dict
+        A dictionnary containing all the generated caches, e.g.:
+        caches[datasetA][pipeline1]
+        contains the cache for the datasetA and the pipeline1.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.4
+    """
+    caches = {}
+    for dataset in datasets:
+        for pipeline in pipelines:
+            cache = Cache(dataset.code,
+                          pipeline,
+                          mock_data[dataset.code][pipeline]
+                          if mock_data is not None
+                          else None)
+            if (dataset.code not in caches):
+                caches[dataset.code] = {}
+            caches[dataset.code][pipeline] = cache
+    return caches
+
+
+def filter_subjects_with_all_results(caches, datasets: list,
+                                     pipelines: list):
+    """
+    Keep only subject with incomplete results in the datasets
+    (that is the reuslt for at least one pipeline is missing).
+
+    Parameters
+    ----------
+    caches: Dict
+        A dictionnary containing all the caches, e.g.:
+        caches[datasetA][pipeline1]
+        contains the cache for the datasetA and the pipeline1.
+    datasets: List
+        The datasets.
+    pipelines: List
+        The sklearn Pipelines.
+
+    Return
+    --------
+    results: Dict
+        A dictionnary of existing results.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.4
+    """
+    all_results = {}
+    for dataset in datasets:
+        subject_list: list = []
+        for subject in dataset.subject_list:
+            results = {}
+            for pipeline in pipelines:
+                cache = caches[dataset.code][pipeline]
+                try:
+                    result = cache.get_result(str(subject))
+                    results[subject] = \
+                        results[subject] if subject in results else {}
+                    results[subject][pipeline] = result
+                except Exception:
+                    if not subject_list.__contains__(subject):
+                        subject_list.append(subject)
+                    results = {}
+            if subject in results and \
+               len(results[subject]) == len(pipelines):
+                all_results[dataset.code] = all_results[dataset.code] \
+                    if dataset.code in all_results \
+                    else {}
+                all_results[dataset.code][subject] = results[subject]
+        dataset.subject_list = subject_list
+    return all_results
+
+
+def add_moabb_dataframe_results_to_caches(df_results, datasets: list,
+                                          pipelines: list, caches):
+    """
+    Add MOABB dataframe results, such as the one which
+    is returned by `WithinSessionEvaluation.process` to the caches.
+
+    Parameters
+    ----------
+    df_results: pandas.DataFrame
+        Dataframe results returned by Moabb after evaluation.
+    datasets: List
+        The datasets.
+    pipelines: List
+        The sklearn Pipelines.
+    caches: Dict
+        A dictionnary containing all the caches, e.g.:
+        caches[datasetA][pipeline1]
+        contains the cache for the datasetA and the pipeline1.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.4
+    """
+    for dataset in datasets:
+        for subject in dataset.subject_list:
+            for pipeline in pipelines:
+                cache: Cache = caches[dataset.code][pipeline]
+                record = df_results.where(
+                    (df_results["dataset"] == dataset.code) &
+                    (df_results["subject"] == str(subject)) &
+                    (df_results["pipeline"] == pipeline)).dropna()
+                try:
+                    cache.add(str(subject),
+                              record["time"].tolist()[0],
+                              record["score"].tolist()[0])
+                except KeyError:
+                    print("Key already existed. Skipping.")
+
+
+def convert_caches_to_dataframes(caches, datasets, pipelines):
+    """
+    Convert caches to a pandas DataFrame.
+
+    Parameters
+    ----------
+    caches: Dict
+        A dictionnary containing all the caches, e.g.:
+        caches[datasetA][pipeline1]
+        contains the cache for the datasetA and the pipeline1.
+    datasets: List
+        The datasets.
+    pipelines: List
+        The sklearn Pipelines.
+
+    Return
+    --------
+    results: pandas.DataFrame
+        Results extracted from the caches.
+        Headers of the DataFrame are:
+        `pipeline`, `dataset`, `subject`, `score` and `time`.
+        All columns contains string value except for `score` and `time`.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.4
+    """
+    rows_list = []
+    for d in datasets:
+        for p in pipelines:
+            for s in d.subject_list:
+                time, score = caches[d.code][p].get_result(str(s))
+                new_row = {
+                    'pipeline': p,
+                    'dataset': d.code,
+                    'subject': str(s),
+                    'score': score,
+                    'time': time
+                }
+                rows_list.append(new_row)
+    df = pd.DataFrame(rows_list)
+    return df
