@@ -240,7 +240,7 @@ class Cache():
 
 def generate_caches(datasets: list, pipelines: list, mock_data=None):
     """
-    Generate a cache for each combination dataset x pipeline.
+    Generate a cache for each combination of dataset x pipeline.
 
     Parameters
     ----------
@@ -283,8 +283,8 @@ def generate_caches(datasets: list, pipelines: list, mock_data=None):
 def filter_subjects_with_all_results(caches, datasets: list,
                                      pipelines: list):
     """
-    Keep only subject with incomplete results in the datasets
-    (that is the reuslt for at least one pipeline is missing).
+    Keep only subjects with incomplete results in the datasets
+    (that is results for at least one pipeline is missing).
 
     Parameters
     ----------
@@ -300,7 +300,8 @@ def filter_subjects_with_all_results(caches, datasets: list,
     Return
     --------
     results: Dict
-        A dictionnary of existing results.
+        A dictionnary of existing results, e.g.:
+        results[datasetA][subjectA]
 
     Notes
     -----
@@ -392,7 +393,7 @@ def convert_caches_to_dataframes(caches, datasets, pipelines):
         Results extracted from the caches.
         Headers of the DataFrame are:
         `pipeline`, `dataset`, `subject`, `score` and `time`.
-        All columns contains string value except for `score` and `time`.
+        All columns contain string values except for `score` and `time`.
 
     Notes
     -----
