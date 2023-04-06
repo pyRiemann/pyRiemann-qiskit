@@ -285,6 +285,7 @@ def filter_subjects_with_all_results(caches, datasets: list,
     """
     Keep only subjects with incomplete results in the datasets
     (that is results for at least one pipeline is missing).
+    The subject list of the datasets is modified by this function.
 
     Parameters
     ----------
