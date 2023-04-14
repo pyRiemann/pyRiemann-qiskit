@@ -280,7 +280,7 @@ def generate_caches(datasets: list, pipelines: list, mock_data=None):
     return caches
 
 
-def filter_subjects_with_all_results(caches, datasets: list,
+def filter_subjects_by_incomplete_results(caches, datasets: list,
                                      pipelines: list):
     """
     Keep only subjects with incomplete results in the datasets

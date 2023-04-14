@@ -94,7 +94,7 @@ Firebase
     FirebaseConnector
     Cache
     generate_caches
-    filter_subjects_with_all_results
+    filter_subjects_by_incomplete_results
     add_moabb_dataframe_results_to_caches
     convert_caches_to_dataframes
 

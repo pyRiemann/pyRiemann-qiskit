@@ -26,7 +26,7 @@ from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann_qiskit.utils import (
         generate_caches,
-        filter_subjects_with_all_results,
+        filter_subjects_by_incomplete_results,
         add_moabb_dataframe_results_to_caches,
         convert_caches_to_dataframes
     )
@@ -119,7 +119,7 @@ caches = generate_caches(datasets, pipelines)
 # This method remove a subject in a dataset if we already have evaluated
 # all pipelines for this subject.
 # Therefore we will use a copy of the original datasets.
-filter_subjects_with_all_results(caches, copy_datasets, pipelines)
+filter_subjects_by_incomplete_results(caches, copy_datasets, pipelines)
 
 print("Total pipelines to evaluate: ", len(pipelines))
 print("Subjects to evaluate",
