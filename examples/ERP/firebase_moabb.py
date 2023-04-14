@@ -24,6 +24,12 @@ A list of real quantum  computers is available in your IBM quantum account.
 
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
+from pyriemann_qiskit.utils import (
+        generate_caches,
+        filter_subjects_with_all_results,
+        add_moabb_dataframe_results_to_caches,
+        convert_caches_to_dataframes
+    )
 from sklearn.pipeline import make_pipeline
 from matplotlib import pyplot as plt
 import warnings
@@ -63,12 +69,14 @@ labels_dict = {"Target": 1, "NonTarget": 0}
 paradigm = P300(resample=128)
 
 datasets = [bi2012()]  # MOABB provides several other P300 datasets
+copy_datasets = [bi2012()]
 
 # reduce the number of subjects, the Quantum pipeline takes a lot of time
 # if executed on the entire dataset
 n_subjects = 5
-for dataset in datasets:
+for dataset, copy_dataset in zip(datasets, copy_datasets):
     dataset.subject_list = dataset.subject_list[0:n_subjects]
+    copy_dataset.subject_list = copy_dataset.subject_list[0:n_subjects]
 
 overwrite = True  # set to True if we want to overwrite cached results
 
@@ -104,19 +112,38 @@ pipelines["RG+LDA"] = make_pipeline(
     LDA(solver="lsqr", shrinkage="auto"),  # you can use other classifiers
 )
 
-print("Total pipelines to evaluate: ", len(pipelines))
+# We cache the results on Firebase.
+# But you can skip all cache functions bellow if you want.
+caches = generate_caches(datasets, pipelines)
 
+# This method remove a subject in a dataset if we already have evaluated
+# all pipelines for this subject.
+# Therefore we will use a copy of the original datasets.
+filter_subjects_with_all_results(caches, copy_datasets, pipelines)
+
+print("Total pipelines to evaluate: ", len(pipelines))
+print("Subjects to evaluate",
+      sum([len(dataset.subject_list) for dataset in copy_datasets]))
 evaluation = WithinSessionEvaluation(
     paradigm=paradigm,
-    datasets=datasets,
+    datasets=copy_datasets,
     suffix="examples",
     overwrite=overwrite
 )
 
-results = evaluation.process(pipelines)
+try:
+    results = evaluation.process(pipelines)
+    add_moabb_dataframe_results_to_caches(results,
+                                          copy_datasets,
+                                          pipelines,
+                                          caches)
+except ValueError:
+    print("No subjects left to evaluate.")
+
+df = convert_caches_to_dataframes(caches, datasets, pipelines)
 
 print("Averaging the session performance:")
-print(results.groupby('pipeline').mean('score')[['score', 'time']])
+print(df.groupby('pipeline').mean('score')[['score', 'time']])
 
 ##############################################################################
 # Plot Results
@@ -127,7 +154,7 @@ print(results.groupby('pipeline').mean('score')[['score', 'time']])
 fig, ax = plt.subplots(facecolor="white", figsize=[8, 4])
 
 sns.stripplot(
-    data=results,
+    data=df,
     y="score",
     x="pipeline",
     ax=ax,
@@ -136,10 +163,11 @@ sns.stripplot(
     zorder=1,
     palette="Set1",
 )
-sns.pointplot(data=results,
+
+sns.pointplot(data=df,
               y="score",
               x="pipeline",
-              ax=ax, zorder=1,
+              ax=ax,
               palette="Set1")
 
 ax.set_ylabel("ROC AUC")
