@@ -281,7 +281,7 @@ def generate_caches(datasets: list, pipelines: list, mock_data=None):
 
 
 def filter_subjects_by_incomplete_results(caches, datasets: list,
-                                     pipelines: list):
+                                          pipelines: list):
     """
     Keep only subjects with incomplete results in the datasets
     (that is results for at least one pipeline is missing).
