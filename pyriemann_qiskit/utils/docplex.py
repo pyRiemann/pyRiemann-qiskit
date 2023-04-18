@@ -8,7 +8,8 @@ It is for example suitable for:
 import math
 import numpy as np
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
-from qiskit import Aer, AerError
+from qiskit import Aer
+from qiskit_aer import AerError
 from qiskit.utils import QuantumInstance
 from qiskit.algorithms import QAOA
 from qiskit_optimization.algorithms import (CobylaOptimizer,

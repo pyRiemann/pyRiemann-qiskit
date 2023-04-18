@@ -4,7 +4,8 @@ from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.decomposition import PCA
 from sklearn.pipeline import make_pipeline
 from sklearn.svm import SVC
-from qiskit import Aer, AerError, IBMQ
+from qiskit import Aer, IBMQ
+from qiskit_aer import AerError
 from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit.utils.quantum_instance import logger
 from qiskit.providers.ibmq import least_busy
