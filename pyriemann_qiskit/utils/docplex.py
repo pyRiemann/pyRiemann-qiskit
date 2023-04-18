@@ -8,7 +8,7 @@ It is for example suitable for:
 import math
 import numpy as np
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
-from qiskit import BasicAer
+from qiskit import Aer
 from qiskit.utils import QuantumInstance
 from qiskit.algorithms import QAOA
 from qiskit_optimization.algorithms import (CobylaOptimizer,
@@ -382,7 +382,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     def _solve_qp(self, qp):
         conv = IntegerToBinary()
         qubo = conv.convert(qp)
-        backend = BasicAer.get_backend('statevector_simulator')
+        backend = Aer.get_backend('statevector_simulator')
         quantum_instance = QuantumInstance(backend)
         qaoa_mes = QAOA(quantum_instance=quantum_instance,
                         initial_point=[0., 0.])

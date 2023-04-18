@@ -4,7 +4,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.decomposition import PCA
 from sklearn.pipeline import make_pipeline
 from sklearn.svm import SVC
-from qiskit import BasicAer, IBMQ
+from qiskit import Aer, IBMQ
 from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit.utils.quantum_instance import logger
 from qiskit.providers.ibmq import least_busy
@@ -106,7 +106,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                 self._provider = IBMQ.get_provider(hub='ibm-q')
             else:
                 self._log("Quantum simulation will be performed")
-                self._backend = BasicAer.get_backend('qasm_simulator')
+                self._backend = Aer.get_backend('qasm_simulator')
         else:
             self._log("Classical SVM will be performed")
 
