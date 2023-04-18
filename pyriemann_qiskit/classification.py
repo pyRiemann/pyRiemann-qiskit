@@ -106,7 +106,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                 self._provider = IBMQ.get_provider(hub='ibm-q')
             else:
                 self._log("Quantum simulation will be performed")
-                self._backend = Aer.get_backend('qasm_simulator')
+                self._backend = Aer.get_backend('aer_simulator')
         else:
             self._log("Classical SVM will be performed")
 

@@ -382,7 +382,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     def _solve_qp(self, qp):
         conv = IntegerToBinary()
         qubo = conv.convert(qp)
-        backend = Aer.get_backend('statevector_simulator')
+        backend = Aer.get_backend('aer_simulator')
         quantum_instance = QuantumInstance(backend)
         qaoa_mes = QAOA(quantum_instance=quantum_instance,
                         initial_point=[0., 0.])
