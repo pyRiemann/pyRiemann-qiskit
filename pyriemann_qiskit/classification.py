@@ -15,6 +15,7 @@ import logging
 from .utils.hyper_params_factory import (gen_zz_feature_map,
                                          gen_two_local,
                                          get_spsa)
+from .utils import get_provider
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann_qiskit.datasets import get_feature_dimension
@@ -103,7 +104,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                     IBMProvider.save_account(self.q_account_token)
                 IBMProvider.load_account()
                 self._log("Getting provider...")
-                self._provider = IBMProvider.get_provider(hub='ibm-q')
+                self._provider = get_provider()
             else:
                 self._log("Quantum simulation will be performed")
                 self._backend = BasicAer.get_backend('qasm_simulator')
