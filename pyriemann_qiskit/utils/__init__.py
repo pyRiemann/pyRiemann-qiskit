@@ -1,4 +1,6 @@
 from . import hyper_params_factory, filtering
+from .quantum_provider import (get_provider,
+                               get_devices)
 from .math import cov_to_corr_matrix
 from .docplex import (square_cont_mat_var,
                       square_int_mat_var,
@@ -17,6 +19,8 @@ from .firebase_connector import (
 __all__ = [
     'hyper_params_factory',
     'filtering',
+    'get_provider',
+    'get_devices',
     'cov_to_corr_matrix',
     'square_cont_mat_var',
     'square_int_mat_var',
