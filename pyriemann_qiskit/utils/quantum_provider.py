@@ -1,4 +1,5 @@
-"""Module containing helpers for IBM quantum backends providers and simulators"""
+"""Module containing helpers for IBM quantum backends
+   providers and simulators."""
 
 from qiskit_ibm_provider import IBMProvider
 
@@ -16,6 +17,7 @@ def get_provider():
     .. versionadded:: 0.0.4
     """
     return IBMProvider.get_provider(hub='ibm-q')
+
 
 def get_devices(provider, min_qubits):
     """Returns all real remote quantum backends,
@@ -40,7 +42,8 @@ def get_devices(provider, min_qubits):
     """
     def filters(device):
         return (
-            device.configuration().n_qubits >= n_features
+            device.configuration().n_qubits >= min_qubits
             and not device.configuration().simulator
             and device.status().operational)
         devices = provider.backends(filters=filters)
+        return devices
