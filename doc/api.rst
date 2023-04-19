@@ -112,3 +112,14 @@ Datasets
     get_feature_dimension
     MockDataset
 
+Quantum Provider
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _quantum_provider_api:
+.. currentmodule:: pyriemann_qiskit.utils.quantum_provider
+
+.. autosummary::
+    :toctree: generated/
+
+    get_provider
+    get_devices
+
