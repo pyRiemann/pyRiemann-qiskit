@@ -382,7 +382,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     def _solve_qp(self, qp):
         conv = IntegerToBinary()
         qubo = conv.convert(qp)
-        backend = AerSimulator(method='statevector')
+        backend = AerSimulator(method='statevector', cuStateVec_enable=True)
         if 'GPU' in backend.available_devices():
             backend.set_options(device='GPU')
         else:
