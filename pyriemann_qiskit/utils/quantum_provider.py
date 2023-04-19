@@ -45,5 +45,5 @@ def get_devices(provider, min_qubits):
             device.configuration().n_qubits >= min_qubits
             and not device.configuration().simulator
             and device.status().operational)
-        devices = provider.backends(filters=filters)
-        return devices
+    devices = provider.backends(filters=filters)
+    return devices
