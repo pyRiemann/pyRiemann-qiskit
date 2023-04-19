@@ -107,9 +107,9 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                 self._provider = IBMQ.get_provider(hub='ibm-q')
             else:
                 self._log("Quantum simulation will be performed")
-                backend = AerSimulator(method='statevector')
-                if 'GPU' in backend.available_devices():
-                    backend.set_options(device='GPU')
+                self._backend = AerSimulator(method='statevector')
+                if 'GPU' in self._backend.available_devices():
+                    self._backend.set_options(device='GPU')
                 else:
                     print('GPU optimization disabled. No device found')
         else:
