@@ -15,7 +15,7 @@ import logging
 from .utils.hyper_params_factory import (gen_zz_feature_map,
                                          gen_two_local,
                                          get_spsa)
-from .utils import get_provider
+from .utils import get_provider, get_devices
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann_qiskit.datasets import get_feature_dimension
@@ -174,12 +174,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._feature_map = self.gen_feature_map(n_features)
         if self.quantum:
             if not hasattr(self, "_backend"):
-                def filters(device):
-                    return (
-                      device.configuration().n_qubits >= n_features
-                      and not device.configuration().simulator
-                      and device.status().operational)
-                devices = self._provider.backends(filters=filters)
+                devices = get_devices(self._provider, n_features)
                 try:
                     self._backend = least_busy(devices)
                 except Exception:

@@ -121,4 +121,5 @@ Quantum Provider
     :toctree: generated/
 
     get_provider
+    get_devices
 
