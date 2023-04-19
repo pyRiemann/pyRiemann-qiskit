@@ -4,7 +4,6 @@ from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.decomposition import PCA
 from sklearn.pipeline import make_pipeline
 from sklearn.svm import SVC
-from qiskit_aer import AerSimulator
 from qiskit_ibm_provider import IBMProvider, least_busy
 from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit.utils.quantum_instance import logger
@@ -15,7 +14,7 @@ import logging
 from .utils.hyper_params_factory import (gen_zz_feature_map,
                                          gen_two_local,
                                          get_spsa)
-from .utils import get_provider, get_devices
+from .utils import get_provider, get_devices, get_simulator
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann_qiskit.datasets import get_feature_dimension
@@ -107,12 +106,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                 self._provider = get_provider()
             else:
                 self._log("Quantum simulation will be performed")
-                self._backend = AerSimulator(method='statevector',
-                                             cuStateVec_enable=True)
-                if 'GPU' in self._backend.available_devices():
-                    self._backend.set_options(device='GPU')
-                else:
-                    print('GPU optimization disabled. No device found')
+                self._backend = get_simulator()
         else:
             self._log("Classical SVM will be performed")
 

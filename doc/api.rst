@@ -122,4 +122,5 @@ Quantum Provider
 
     get_provider
     get_devices
+    get_simulator
 
