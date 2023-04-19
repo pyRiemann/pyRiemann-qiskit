@@ -8,8 +8,7 @@ It is for example suitable for:
 import math
 import numpy as np
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
-from qiskit import Aer
-from qiskit_aer import AerError
+from qiskit_aer import AerSimulator
 from qiskit.utils import QuantumInstance
 from qiskit.algorithms import QAOA
 from qiskit_optimization.algorithms import (CobylaOptimizer,
@@ -383,10 +382,10 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     def _solve_qp(self, qp):
         conv = IntegerToBinary()
         qubo = conv.convert(qp)
-        backend = Aer.get_backend('aer_simulator')
-        try:
+        backend = AerSimulator(method='statevector')
+        if 'GPU' in backend.available_devices():
             backend.set_options(device='GPU')
-        except AerError:
+        else:
             print('GPU optimization disabled. No device found')
         quantum_instance = QuantumInstance(backend)
         qaoa_mes = QAOA(quantum_instance=quantum_instance,
