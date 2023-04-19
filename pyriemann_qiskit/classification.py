@@ -4,10 +4,10 @@ from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.decomposition import PCA
 from sklearn.pipeline import make_pipeline
 from sklearn.svm import SVC
-from qiskit import BasicAer, IBMQ
+from qiskit import BasicAer
+from qiskit_ibm_provider import IBMProvider, least_busy
 from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit.utils.quantum_instance import logger
-from qiskit.providers.ibmq import least_busy
 from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
 from qiskit_machine_learning.kernels.quantum_kernel import QuantumKernel
 from datetime import datetime
@@ -50,7 +50,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         If quantum==True and q_account_token provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
-        token saved with `IBMQ.save_account()`.
+        token saved with `IBMProvider.save_account()`.
     verbose : bool (default:True)
         If true will output all intermediate results and logs
     shots : int (default:1024)
@@ -99,11 +99,11 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
             if self.q_account_token:
                 self._log("Real quantum computation will be performed")
                 if not self.q_account_token == "load_account":
-                    IBMQ.delete_account()
-                    IBMQ.save_account(self.q_account_token)
-                IBMQ.load_account()
+                    IBMProvider.delete_account()
+                    IBMProvider.save_account(self.q_account_token)
+                IBMProvider.load_account()
                 self._log("Getting provider...")
-                self._provider = IBMQ.get_provider(hub='ibm-q')
+                self._provider = IBMProvider.get_provider(hub='ibm-q')
             else:
                 self._log("Quantum simulation will be performed")
                 self._backend = BasicAer.get_backend('qasm_simulator')
