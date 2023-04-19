@@ -47,6 +47,7 @@ Filtering
 
     NoDimRed
     NaiveDimRed
+    Vectorizer
 
 Mean
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
