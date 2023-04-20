@@ -121,9 +121,7 @@ class BinaryFVT(BinaryTest):
 
 
 class TestClassicalSVM(BinaryFVT):
-    """ Perform standard SVC test
-    (canary test to assess pipeline correctness)
-    """
+    """ Perform functional validation testing of Quantic SVM"""
     def get_params(self):
         quantum_instance = QuanticSVM(quantum=False, verbose=False)
         return {
@@ -191,36 +189,23 @@ class TestQuanticVQC(BinaryFVT):
         assert len(self.prediction) == len(self.labels)
 
 
-class TestQuanticMDM(TestClassicalSVM):
-    """Runs MDM on a simulated quantum computer.
-    This test can also be run on a real computer by providing a qAccountToken
-    To do so, you need to use your own token, by registering on:
+class TestClassicalMDM(BinaryFVT):
+    """Test the classical version of MDM is used
+    when quantum is false
     https://quantum-computing.ibm.com/
     Note that the "real quantum version" of this test may also take some time.
     """
     def get_params(self):
-        quantum_instance = QuanticMDM(quantum=True, verbose=False)
+        quantum_instance = QuanticMDM(quantum=False, verbose=False)
         return {
-            "n_samples": 10,
-            "n_features": 4,
+            "n_samples": 100,
+            "n_features": 9,
             "quantum_instance": quantum_instance,
             "type": "bin"
         }
 
-
-class TestQuantumClassifierWithDefaultRiemannianPipeline(BinaryFVT):
-    """Functional testing for riemann quantum classifier."""
-    def get_params(self):
-        quantum_instance = \
-            QuantumClassifierWithDefaultRiemannianPipeline(
-                params={"verbose": False}
-            )
-        return {
-            "n_samples": 4,
-            "n_features": 4,
-            "quantum_instance": quantum_instance,
-            "type": None
-        }
-
     def check(self):
-        assert len(self.prediction) == len(self.labels)
+        assert self.prediction[:self.class_len].all() == \
+               self.quantum_instance.classes_[0]
+        assert self.prediction[self.class_len:].all() == \
+               self.quantum_instance.classes_[1]

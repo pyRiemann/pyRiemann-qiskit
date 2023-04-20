@@ -1,11 +1,13 @@
 import pytest
+import numpy as np
 from docplex.mp.model import Model
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
 from pyriemann_qiskit.utils import (square_cont_mat_var,
                                     square_int_mat_var,
                                     square_bin_mat_var,
                                     ClassicalOptimizer,
-                                    NaiveQAOAOptimizer)
+                                    NaiveQAOAOptimizer,
+                                    mdm)
 
 
 @pytest.mark.parametrize('square_mat_var',
@@ -37,3 +39,11 @@ def test_get_square_cont_var(square_mat_var):
                           NaiveQAOAOptimizer])
 def test_optimizer_creation(optimizer):
     assert optimizer()
+
+
+def test_mdm():
+    X_0 = np.zeros((2,2))
+    X_1 = np.ones((2,2))
+    y = np.full((2,2), 0.3)
+    weight = mdm([X0, X1], y)
+    assert weight is None

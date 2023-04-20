@@ -6,7 +6,8 @@ from .docplex import (square_cont_mat_var,
                       square_int_mat_var,
                       square_bin_mat_var,
                       ClassicalOptimizer,
-                      NaiveQAOAOptimizer)
+                      NaiveQAOAOptimizer,
+                      mdm)
 from .firebase_connector import (
         FirebaseConnector,
         Cache,
@@ -27,6 +28,7 @@ __all__ = [
     'square_bin_mat_var',
     'ClassicalOptimizer',
     'NaiveQAOAOptimizer',
+    'mdm',
     'FirebaseConnector',
     'Cache',
     'generate_caches',

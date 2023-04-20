@@ -73,6 +73,7 @@ Docplex
     pyQiskitOptimizer
     ClassicalOptimizer
     NaiveQAOAOptimizer
+    mdm
 
 Math
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
