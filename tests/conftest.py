@@ -84,6 +84,7 @@ def _get_binary_square_matrices(n_samples, n_features):
     samples = np.concatenate((samples_0, samples_1), axis=0)
     return samples
 
+
 @pytest.fixture
 def get_dataset(rndstate):
     """Return a dataset with shape (n_samples, n_features).
