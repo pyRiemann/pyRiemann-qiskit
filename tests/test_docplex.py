@@ -44,6 +44,7 @@ def test_optimizer_creation(optimizer):
 def test_mdm():
     X_0 = np.zeros((2, 2))
     X_1 = np.ones((2, 2))
+    X = np.array([X_0, X_1])
     y = np.full((2, 2), 0.3)
-    weight = mdm([X_0, X_1], y)
+    weight = mdm(X, y)
     assert weight is None
