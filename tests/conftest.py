@@ -74,17 +74,6 @@ def _get_binary_feats(n_samples, n_features):
     return samples
 
 
-def _get_binary_square_matrices(n_samples, n_features):
-    """Generate a balanced binary set of n_features-dimensional
-     samples for test purpose, containing either 0 or 1"""
-    n_classes = 2
-    class_len = n_samples // n_classes  # balanced set
-    samples_0 = np.zeros((class_len, n_features, n_features))
-    samples_1 = np.ones((class_len, n_features, n_features))
-    samples = np.concatenate((samples_0, samples_1), axis=0)
-    return samples
-
-
 @pytest.fixture
 def get_dataset(rndstate):
     """Return a dataset with shape (n_samples, n_features).
@@ -103,7 +92,8 @@ def get_dataset(rndstate):
             samples = _get_binary_feats(n_samples, n_features)
             labels = _get_labels(n_samples, n_classes)
         elif type == "cov":
-            samples = get_covmats(0)(n_samples, n_features)
+            samples = make_covariances(n_samples, n_features, 0,
+                                       return_params=False)
             labels = _get_labels(n_samples, n_classes)
         else:
             samples, labels = get_mne_sample()
