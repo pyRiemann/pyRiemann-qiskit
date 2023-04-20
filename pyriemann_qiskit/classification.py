@@ -471,6 +471,136 @@ class QuanticVQC(QuanticClassifierBase):
         return self._map_0_1_to_classes(labels)
 
 
+class QuanticMDM(QuanticClassifierBase):
+
+    """Quantum-enhanced SVM classification.
+
+    This class implements SVC [1]_ on a quantum machine [2]_.
+    Note that if `quantum` parameter is set to `False`
+    then a classical SVC will be perfomed instead.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.1
+    .. versionchanged:: 0.0.2
+       Qiskit's Pegasos implementation [4, 5]_.
+
+    Parameters
+    ----------
+    gamma : float | None (default: None)
+        Used as input for sklearn rbf_kernel which is used internally.
+        See [3]_ for more information about gamma.
+    C : float (default: 1.0)
+        Regularization parameter. The strength of the regularization is
+        inversely proportional to C. Must be strictly positive.
+        Note, if pegasos is enabled you may want to consider
+        larger values of C.
+    max_iter: int | None (default: None)
+        number of steps in Pegasos or (Q)SVC.
+        If None, respective default values for Pegasos and SVC
+        are used. The default value for Pegasos is 1000.
+        For (Q)SVC it is -1 (that is not limit).
+    pegasos : boolean (default: False)
+        If true, uses Qiskit's PegasosQSVC instead of QSVC.
+
+    See Also
+    --------
+    QuanticClassifierBase
+
+    References
+    ----------
+    .. [1] Available from: \
+        https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html
+
+    .. [2] V. Havlíček et al.,
+           ‘Supervised learning with quantum-enhanced feature spaces’,
+           Nature, vol. 567, no. 7747, pp. 209–212, Mar. 2019,
+           doi: 10.1038/s41586-019-0980-2.
+
+    .. [3] Available from: \
+        https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.rbf_kernel.html
+
+    .. [4] G. Gentinetta, A. Thomsen, D. Sutter, and S. Woerner,
+           ‘The complexity of quantum support vector machines’, arXiv,
+           arXiv:2203.00031, Feb. 2022.
+           doi: 10.48550/arXiv.2203.00031
+
+    .. [5] S. Shalev-Shwartz, Y. Singer, and A. Cotter,
+           ‘Pegasos: Primal Estimated sub-GrAdient SOlver for SVM’
+
+    """
+
+    def __init__(self, gamma='scale', C=1.0, max_iter=None,
+                 pegasos=False, **parameters):
+        QuanticClassifierBase.__init__(self, **parameters)
+        self.gamma = gamma
+        self.C = C
+        self.max_iter = max_iter
+        self.pegasos = pegasos
+
+    def _init_algo(self, n_features):
+        self._log("SVM initiating algorithm")
+        if self.quantum:
+            quantum_kernel = \
+                QuantumKernel(feature_map=self._feature_map,
+                              quantum_instance=self._quantum_instance)
+            if self.pegasos:
+                self._log("[Warning] `gamma` is not supported by PegasosQSVC")
+                num_steps = 1000 if self.max_iter is None else self.max_iter
+                classifier = PegasosQSVC(quantum_kernel=quantum_kernel,
+                                         C=self.C,
+                                         num_steps=num_steps)
+            else:
+                max_iter = -1 if self.max_iter is None else self.max_iter
+                classifier = QSVC(quantum_kernel=quantum_kernel,
+                                  gamma=self.gamma, C=self.C,
+                                  max_iter=max_iter)
+        else:
+            max_iter = -1 if self.max_iter is None else self.max_iter
+            classifier = SVC(gamma=self.gamma, C=self.C, max_iter=max_iter)
+        return classifier
+
+    def predict_proba(self, X):
+        """This method is implemented for compatibility purpose
+           as SVM prediction probabilities are not available.
+           This method assigns a boolean value to each trial which
+           depends on whether the label was assigned to class 0 or 1
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_samples, n_features)
+            Input vector, where `n_samples` is the number of samples and
+            `n_features` is the number of features.
+
+        Returns
+        -------
+        prob : ndarray, shape (n_samples, n_classes)
+            prob[n, 0] == True if the nth sample is assigned to 1st class;
+            prob[n, 1] == True if the nth sample is assigned to 2nd class.
+        """
+        predicted_labels = self.predict(X)
+        ret = [np.array([c == self.classes_[0], c == self.classes_[1]])
+               for c in predicted_labels]
+        return np.array(ret)
+
+    def predict(self, X):
+        """Calculates the predictions.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_samples, n_features)
+            Input vector, where `n_samples` is the number of samples and
+            `n_features` is the number of features.
+
+        Returns
+        -------
+        pred : array, shape (n_samples,)
+            Class labels for samples in X.
+        """
+        labels = self._predict(X)
+        return self._map_0_1_to_classes(labels)
+
+
 class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
                                                      ClassifierMixin,
                                                      TransformerMixin):
