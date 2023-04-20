@@ -390,3 +390,56 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         result = conv.interpret(qaoa.solve(qubo))
         n_channels = int(math.sqrt(result.shape[0]))
         return np.reshape(result, (n_channels, n_channels))
+
+def mdm(X, y, optimizer=ClassicalOptimizer()):
+    """Convex formulation of the MDM algorithm
+    with log-euclidian metric.
+
+    Parameters
+    ----------
+    X : ndarray, shape (n_classes, n_channels, n_channels)
+        Set of SPD matrices.
+    y : ndarray, shape (n_channels, n_channels)
+        A trial
+
+    Returns
+    -------
+    docplex_covmat : dict
+        A square matrix of integer decision variables representing
+        our covariance matrix.
+
+    See Also
+    -----
+    square_int_mat_var
+
+    Notes
+    -----
+    .. versionadded:: 0.0.2
+
+    References
+    ----------
+    .. [1] \
+        http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+
+    """
+    n_classes, n_channels, _ = covmats.shape
+    channels = range(n_channels)
+
+    D = [np.flatten(np.log(x)) for x in X]
+
+    _2VecLogYD = 2 * np.flatten(np.log(y)) * D
+
+    prob = Model()
+
+    # should be part of the optimizer
+    w = prob.continuous_var_matrix(keys1=[1], keys2=channels,
+                                   name="weight", lb=-prob.infinity)
+
+    objectives = np.transpose(w) * D * w - _2VecLogYD
+
+    prob.set_objective("min", objectives)
+
+    result = optimizer.solve(prob)
+
+    return result
+

@@ -505,7 +505,7 @@ class QuanticMDM(QuanticClassifierBase):
         (LVA/ICA 2010), LNCS vol. 6365, 2010, p. 629-636.
     """
 
-    def __init__(self, placeholder, **parameters):
+    def __init__(self, placeholder=False, **parameters):
         QuanticClassifierBase.__init__(self, **parameters)
         self.placeholder = placeholder
 
