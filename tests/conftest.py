@@ -102,8 +102,8 @@ def get_dataset(rndstate):
         elif type == "bin":
             samples = _get_binary_feats(n_samples, n_features)
             labels = _get_labels(n_samples, n_classes)
-        elif type == "bin_square":
-            samples = _get_binary_square_matrices(n_samples, n_features)
+        elif type == "cov":
+            samples = get_covmats(0)(n_samples, n_features)
             labels = _get_labels(n_samples, n_classes)
         else:
             samples, labels = get_mne_sample()
