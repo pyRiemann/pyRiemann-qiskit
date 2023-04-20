@@ -427,9 +427,10 @@ def mdm(X, y, optimizer=ClassicalOptimizer()):
     n_classes, n_channels, _ = X.shape
     channels = range(n_channels)
 
-    D = [np.flatten(np.log(x)) for x in X]
+    vec = np.ndarray.flatten
+    D = [vec(np.log(x)) for x in X]
 
-    _2VecLogYD = 2 * np.flatten(np.log(y)) * D
+    _2VecLogYD = 2 * vec(np.log(y)) * D
 
     prob = Model()
 
