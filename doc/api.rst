@@ -16,6 +16,7 @@ Classification
     QuanticClassifierBase
     QuanticSVM
     QuanticVQC
+    QuanticMDM
     QuantumClassifierWithDefaultRiemannianPipeline
 
 
