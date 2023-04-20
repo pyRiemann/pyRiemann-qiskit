@@ -8,6 +8,7 @@ It is for example suitable for:
 import math
 import numpy as np
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
+from docplex.mp.model import Model
 from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
 from qiskit.algorithms import QAOA
@@ -391,6 +392,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         n_channels = int(math.sqrt(result.shape[0]))
         return np.reshape(result, (n_channels, n_channels))
 
+
 def mdm(X, y, optimizer=ClassicalOptimizer()):
     """Convex formulation of the MDM algorithm
     with log-euclidian metric.
@@ -422,7 +424,7 @@ def mdm(X, y, optimizer=ClassicalOptimizer()):
         http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
 
     """
-    n_classes, n_channels, _ = covmats.shape
+    n_classes, n_channels, _ = X.shape
     channels = range(n_channels)
 
     D = [np.flatten(np.log(x)) for x in X]
@@ -442,4 +444,3 @@ def mdm(X, y, optimizer=ClassicalOptimizer()):
     result = optimizer.solve(prob)
 
     return result
-
