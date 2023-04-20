@@ -5,6 +5,7 @@ from pyriemann.estimation import XdawnCovariances
 from pyriemann_qiskit.classification \
     import (QuanticSVM,
             QuanticVQC,
+            QuanticMDM,
             QuantumClassifierWithDefaultRiemannianPipeline)
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
@@ -17,6 +18,8 @@ from operator import itemgetter
                          [make_pipeline(XdawnCovariances(nfilter=1),
                                         TangentSpace(), NaiveDimRed(),
                                         QuanticSVM(quantum=False)),
+                          make_pipeline(XdawnCovariances(nfilter=1),
+                                        QuanticMDM(quantum=False)),
                           QuantumClassifierWithDefaultRiemannianPipeline(
                               nfilter=1,
                               shots=None)])
@@ -186,6 +189,23 @@ class TestQuanticVQC(BinaryFVT):
         # Considering the inputs, this probably make no sense to test accuracy.
         # Instead, we could consider this test as a canary test
         assert len(self.prediction) == len(self.labels)
+
+
+class TestQuanticMDM(TestClassicalSVM):
+    """Runs MDM on a simulated quantum computer.
+    This test can also be run on a real computer by providing a qAccountToken
+    To do so, you need to use your own token, by registering on:
+    https://quantum-computing.ibm.com/
+    Note that the "real quantum version" of this test may also take some time.
+    """
+    def get_params(self):
+        quantum_instance = QuanticMDM(quantum=True, verbose=False)
+        return {
+            "n_samples": 10,
+            "n_features": 4,
+            "quantum_instance": quantum_instance,
+            "type": "bin"
+        }
 
 
 class TestQuantumClassifierWithDefaultRiemannianPipeline(BinaryFVT):
