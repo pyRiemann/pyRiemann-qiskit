@@ -293,9 +293,10 @@ class ClassicalOptimizer(pyQiskitOptimizer):
 
     def _solve_qp(self, qp, reshape=True):
         result = CobylaOptimizer(rhobeg=0.01, rhoend=0.0001).solve(qp).x
-        n_channels = int(math.sqrt(result.shape[0]))
-        return np.reshape(result, (n_channels, n_channels)) if reshape else result
-
+        if reshape:
+            n_channels = int(math.sqrt(result.shape[0]))
+            return np.reshape(result, (n_channels, n_channels))
+        return result
 
 class NaiveQAOAOptimizer(pyQiskitOptimizer):
 
@@ -389,8 +390,10 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
                         initial_point=[0., 0.])
         qaoa = MinimumEigenOptimizer(qaoa_mes)
         result = conv.interpret(qaoa.solve(qubo))
-        n_channels = int(math.sqrt(result.shape[0]))
-        return np.reshape(result, (n_channels, n_channels)) if reshape else result
+        if reshape:
+            n_channels = int(math.sqrt(result.shape[0]))
+            return np.reshape(result, (n_channels, n_channels))
+        return result
 
 
 def mdm(X, y, optimizer=ClassicalOptimizer()):
@@ -427,13 +430,14 @@ def mdm(X, y, optimizer=ClassicalOptimizer()):
     n_classes, n_channels, _ = X.shape
     classes = range(n_classes)
 
-    f = lambda m1, m2: np.dot(m1.flatten(),m2.flatten())
-
+    def f(m1, m2):
+        return np.dot(m1.flatten(), m2.flatten())
 
     prob = Model()
 
     # should be part of the optimizer
-    w = prob.continuous_var_matrix(keys1=[1], keys2=classes, name="weight", lb=0, ub=1)
+    w = prob.continuous_var_matrix(keys1=[1], keys2=classes,
+                                   name="weight", lb=0, ub=1)
     w = np.array([w[key] for key in w])
 
     _2VecLogYD = 2 * prob.sum(w[i]*f(y, X[i]) for i in classes)
