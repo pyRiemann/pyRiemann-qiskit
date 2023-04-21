@@ -395,6 +395,12 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
             return np.reshape(result, (n_channels, n_channels))
         return result
 
+def cvx_distance(trials, centroid, optimizer=ClassicalOptimizer()):
+    dist = [mdm(np.array([centroid]), trial, optimizer)[0] for trial in trials]
+    return dist
+
+from pyriemann.utils.distance import distance_methods
+distance_methods['convex'] = cvx_distance
 
 def mdm(X, y, optimizer=ClassicalOptimizer()):
     """Convex formulation of the MDM algorithm
@@ -445,7 +451,6 @@ def mdm(X, y, optimizer=ClassicalOptimizer()):
     wtDw = prob.sum(w[i]*w[j]*f(X[i], X[j]) for i in classes for j in classes)
 
     objectives = wtDw - _2VecLogYD
-    print(objectives)
 
     prob.set_objective("min", objectives)
 

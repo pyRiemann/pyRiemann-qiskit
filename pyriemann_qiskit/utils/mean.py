@@ -5,6 +5,7 @@ from pyriemann_qiskit.utils.docplex import ClassicalOptimizer
 
 def fro_mean_convex(covmats, sample_weight=None,
                     optimizer=ClassicalOptimizer()):
+    """comment missing"""
     n_trials, n_channels, _ = covmats.shape
     channels = range(n_channels)
     trials = range(n_trials)

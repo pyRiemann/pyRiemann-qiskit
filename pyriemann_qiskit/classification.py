@@ -19,7 +19,11 @@ from .utils import get_provider, get_devices
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.classification import MDM
 from pyriemann.tangentspace import TangentSpace
+from pyriemann.utils.mean import mean_logeuclid
 from pyriemann_qiskit.datasets import get_feature_dimension
+from pyriemann_qiskit.utils import (ClassicalOptimizer,
+                                    NaiveQAOAOptimizer,
+                                    mdm)
 
 logger.level = logging.INFO
 
@@ -476,7 +480,11 @@ class QuanticMDM(QuanticClassifierBase):
 
     """Quantum-enhanced MDM
 
-    This class is a quantum implementation of the MDM [1]_.
+    # This class is a convex implementation of the MDM [1]_, 
+    # that can runs with quantum optimization.
+    # Only log-euclidian distance between trial and class prototypes
+    # is supported at the moment, but any type of metric 
+    # can be used for centroid estimation.
 
     Notes
     -----
@@ -484,8 +492,8 @@ class QuanticMDM(QuanticClassifierBase):
 
     Parameters
     ----------
-    placeholder : bool (default: True)
-        Placeholder parameter
+    metric : string | dic (default: 'logeuclid')
+        TODO
 
     See Also
     --------
@@ -505,17 +513,23 @@ class QuanticMDM(QuanticClassifierBase):
         (LVA/ICA 2010), LNCS vol. 6365, 2010, p. 629-636.
     """
 
-    def __init__(self, placeholder=False, **parameters):
+    def __init__(self, metric={"mean":'logeuclid', "distance": 'convex'}, **parameters):
         QuanticClassifierBase.__init__(self, **parameters)
-        self.placeholder = placeholder
+        self.metric = metric
 
     def _init_algo(self, n_features):
-        self._log("SVM initiating algorithm")
+        self._log("Convex MDM initiating algorithm")
+        classifier = MDM(metric=self.metric)
         if self.quantum:
-            self._log("[Warning] Quantum not implemented yet. Disabling.")
-            classifier = MDM()
+            # TODO: support execution on remote backedn
+            self._optimizer = NaiveQAOAOptimizer()
         else:
-            classifier = MDM()
+            self._optimizer = ClassicalOptimizer()
+        def predict_distances(instance, X):
+            print("X+shape", X.shape)
+            return np.array([mdm(np.array(instance.covmeans_), x) for x in X])
+
+        MDM._predict_distances = predict_distances
         return classifier
 
     def predict_proba(self, X):
@@ -523,7 +537,7 @@ class QuanticMDM(QuanticClassifierBase):
 
         Parameters
         ----------
-        X : ndarray, shape (n_trials, n_channels, n_times)
+        X : ndarray, shape (n_trials, n_channels, n_channels)
             ndarray of trials.
 
         Returns
@@ -532,7 +546,6 @@ class QuanticMDM(QuanticClassifierBase):
             prob[n, 0] == True if the nth sample is assigned to 1st class;
             prob[n, 1] == True if the nth sample is assigned to 2nd class.
         """
-
         return self._classifier.predict_proba(X)
 
     def predict(self, X):

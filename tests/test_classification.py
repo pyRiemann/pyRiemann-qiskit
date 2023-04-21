@@ -138,7 +138,7 @@ class TestClassicalSVM(BinaryFVT):
                self.quantum_instance.classes_[1]
 
 
-class TestQuanticSVM(TestClassicalSVM):
+class TetQuanticSVM(TestClassicalSVM):
     """Perform SVC on a simulated quantum computer.
     This test can also be run on a real computer by providing a qAccountToken
     To do so, you need to use your own token, by registering on:
@@ -155,7 +155,7 @@ class TestQuanticSVM(TestClassicalSVM):
         }
 
 
-class TestQuanticPegasosSVM(TestClassicalSVM):
+class TetQuanticPegasosSVM(TestClassicalSVM):
     """Same as TestQuanticSVM, expect it uses
     PegasosQSVC instead of QSVC implementation.
     """
@@ -170,7 +170,7 @@ class TestQuanticPegasosSVM(TestClassicalSVM):
         }
 
 
-class TestQuanticVQC(BinaryFVT):
+class TetQuanticVQC(BinaryFVT):
     """Perform VQC on a simulated quantum computer"""
     def get_params(self):
         quantum_instance = QuanticVQC(verbose=False)
