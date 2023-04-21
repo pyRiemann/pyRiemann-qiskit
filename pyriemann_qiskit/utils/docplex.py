@@ -208,7 +208,7 @@ class pyQiskitOptimizer():
     def covmat_var(self, prob, channels, name):
         raise NotImplementedError()
 
-    def _solve_qp(self, qp):
+    def _solve_qp(self, qp, reshape=True):
         raise NotImplementedError()
 
     """Solve the docplex problem.
@@ -233,9 +233,9 @@ class pyQiskitOptimizer():
         http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
 
     """
-    def solve(self, prob):
+    def solve(self, prob, reshape=True):
         qp = from_docplex_mp(prob)
-        return self._solve_qp(qp)
+        return self._solve_qp(qp, reshape)
 
 
 class ClassicalOptimizer(pyQiskitOptimizer):
@@ -291,10 +291,10 @@ class ClassicalOptimizer(pyQiskitOptimizer):
     def covmat_var(self, prob, channels, name):
         return square_cont_mat_var(prob, channels, name)
 
-    def _solve_qp(self, qp):
+    def _solve_qp(self, qp, reshape=True):
         result = CobylaOptimizer(rhobeg=0.01, rhoend=0.0001).solve(qp).x
         n_channels = int(math.sqrt(result.shape[0]))
-        return np.reshape(result, (n_channels, n_channels))
+        return np.reshape(result, (n_channels, n_channels)) if reshape else result
 
 
 class NaiveQAOAOptimizer(pyQiskitOptimizer):
@@ -380,7 +380,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     def covmat_var(self, prob, channels, name):
         return square_int_mat_var(prob, channels, self.upper_bound, name)
 
-    def _solve_qp(self, qp):
+    def _solve_qp(self, qp, reshape=True):
         conv = IntegerToBinary()
         qubo = conv.convert(qp)
         backend = BasicAer.get_backend('statevector_simulator')
@@ -390,7 +390,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         qaoa = MinimumEigenOptimizer(qaoa_mes)
         result = conv.interpret(qaoa.solve(qubo))
         n_channels = int(math.sqrt(result.shape[0]))
-        return np.reshape(result, (n_channels, n_channels))
+        return np.reshape(result, (n_channels, n_channels)) if reshape else result
 
 
 def mdm(X, y, optimizer=ClassicalOptimizer()):
@@ -425,23 +425,32 @@ def mdm(X, y, optimizer=ClassicalOptimizer()):
 
     """
     n_classes, n_channels, _ = X.shape
-    channels = range(n_channels)
+    classes = range(n_classes)
 
-    vec = np.ndarray.flatten
-    D = [vec(np.log(x)) for x in X]
+    f = lambda m1, m2: np.dot(m1.flatten(),m2.flatten())
 
-    _2VecLogYD = 2 * vec(np.log(y)) * D
 
     prob = Model()
 
     # should be part of the optimizer
-    w = prob.continuous_var_matrix(keys1=[1], keys2=channels,
-                                   name="weight", lb=-prob.infinity)
+    w = prob.continuous_var_matrix(keys1=[1], keys2=classes, name="weight", lb=-prob.infinity)
+    w = np.array([w[key] for key in w])
 
-    objectives = np.transpose(w) * D * w - _2VecLogYD
+    _2VecLogYD = 2 * prob.sum(w[i]*f(y, X[i]) for i in classes)
+
+    wtDw = prob.sum(w[i]*w[j]*f(X[i], X[j]) for i in classes for j in classes)
+    
+    # # _2VecLogYD = _2VecLogY @ D
+
+    # 
+    # w = w.reshape((n_channels, 1))
+
+    # objectives = w*D*w - _2VecLogYD
+    objectives = wtDw - _2VecLogYD
+    print(objectives)
 
     prob.set_objective("min", objectives)
 
-    result = optimizer.solve(prob)
+    result = optimizer.solve(prob, reshape=False)
 
     return result

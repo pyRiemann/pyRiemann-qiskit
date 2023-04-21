@@ -42,8 +42,8 @@ def test_optimizer_creation(optimizer):
 
 
 def test_mdm():
-    X_0 = np.zeros((2, 2))
-    X_1 = np.ones((2, 2))
+    X_0 = np.ones((2, 2))
+    X_1 = X_0 + 1
     X = np.stack((X_0, X_1))
     y = np.full((2, 2), 0.3)
     weight = mdm(X, y)
