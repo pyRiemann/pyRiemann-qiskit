@@ -47,4 +47,4 @@ def test_mdm():
     X = np.stack((X_0, X_1))
     y = np.full((2, 2), 0.3)
     weight = mdm(X, y)
-    assert weight is None
+    assert sum(weight) == 1

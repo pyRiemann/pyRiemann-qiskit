@@ -433,19 +433,13 @@ def mdm(X, y, optimizer=ClassicalOptimizer()):
     prob = Model()
 
     # should be part of the optimizer
-    w = prob.continuous_var_matrix(keys1=[1], keys2=classes, name="weight", lb=-prob.infinity)
+    w = prob.continuous_var_matrix(keys1=[1], keys2=classes, name="weight", lb=0, ub=1)
     w = np.array([w[key] for key in w])
 
     _2VecLogYD = 2 * prob.sum(w[i]*f(y, X[i]) for i in classes)
 
     wtDw = prob.sum(w[i]*w[j]*f(X[i], X[j]) for i in classes for j in classes)
-    
-    # # _2VecLogYD = _2VecLogY @ D
 
-    # 
-    # w = w.reshape((n_channels, 1))
-
-    # objectives = w*D*w - _2VecLogYD
     objectives = wtDw - _2VecLogYD
     print(objectives)
 
@@ -453,4 +447,4 @@ def mdm(X, y, optimizer=ClassicalOptimizer()):
 
     result = optimizer.solve(prob, reshape=False)
 
-    return result
+    return result / sum(result)
