@@ -201,7 +201,7 @@ class TestClassicalMDM(BinaryFVT):
             "n_samples": 100,
             "n_features": 9,
             "quantum_instance": quantum_instance,
-            "type": "cov"
+            "type": "bin_cov"
         }
 
     def check(self):

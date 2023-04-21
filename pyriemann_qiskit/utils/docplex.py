@@ -430,7 +430,7 @@ def mdm(X, y, optimizer=ClassicalOptimizer()):
     n_classes, n_channels, _ = X.shape
     classes = range(n_classes)
 
-    def f(m1, m2):
+    def f(m1, m2): #distance
         return np.dot(m1.flatten(), m2.flatten())
 
     prob = Model()
