@@ -17,6 +17,7 @@ from qiskit_optimization.algorithms import (CobylaOptimizer,
 from qiskit_optimization.converters import IntegerToBinary
 from qiskit_optimization.translators import from_docplex_mp
 from pyriemann_qiskit.utils import cov_to_corr_matrix
+from pyriemann.utils.distance import distance_logeuclid
 
 
 def square_cont_mat_var(prob, channels,
@@ -436,8 +437,23 @@ def mdm(X, y, optimizer=ClassicalOptimizer()):
     n_classes, n_channels, _ = X.shape
     classes = range(n_classes)
 
+    def vec(m):
+        ret = []
+        for i in range(n_classes):
+            for j in range(n_classes):
+                if i == j:
+                    ret.append(m[i, j])
+                if j > i:
+                    ret.append(np.sqrt(2) * m[i, j])
+        return ret
+
     def f(m1, m2): #distance
-        return np.dot(m1.flatten(), m2.flatten())
+        return distance_logeuclid(m1, m2)
+        lm1 = np.log(m1)
+        lm2 = np.log(m2)
+        print(lm1)
+        print(vec(lm1))
+        return np.dot(logm(lm1), logm(lm2))
 
     prob = Model()
 
