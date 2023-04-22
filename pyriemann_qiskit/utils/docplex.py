@@ -17,7 +17,6 @@ from qiskit_optimization.algorithms import (CobylaOptimizer,
 from qiskit_optimization.converters import IntegerToBinary
 from qiskit_optimization.translators import from_docplex_mp
 from pyriemann_qiskit.utils import cov_to_corr_matrix
-from pyriemann.utils.distance import distance_logeuclid
 
 
 def square_cont_mat_var(prob, channels,
@@ -395,81 +394,3 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
             n_channels = int(math.sqrt(result.shape[0]))
             return np.reshape(result, (n_channels, n_channels))
         return result
-
-def cvx_distance(trials, centroid, optimizer=ClassicalOptimizer()):
-    dist = [mdm(np.array([centroid]), trial, optimizer)[0] for trial in trials]
-    return dist
-
-from pyriemann.utils.distance import distance_methods
-distance_methods['convex'] = cvx_distance
-
-def mdm(X, y, optimizer=ClassicalOptimizer()):
-    """Convex formulation of the MDM algorithm
-    with log-euclidian metric.
-
-    Parameters
-    ----------
-    X : ndarray, shape (n_classes, n_channels, n_channels)
-        Set of SPD matrices.
-    y : ndarray, shape (n_channels, n_channels)
-        A trial
-
-    Returns
-    -------
-    docplex_covmat : dict
-        A square matrix of integer decision variables representing
-        our covariance matrix.
-
-    See Also
-    -----
-    square_int_mat_var
-
-    Notes
-    -----
-    .. versionadded:: 0.0.2
-
-    References
-    ----------
-    .. [1] \
-        http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
-
-    """
-    n_classes, n_channels, _ = X.shape
-    classes = range(n_classes)
-
-    def vec(m):
-        ret = []
-        for i in range(n_classes):
-            for j in range(n_classes):
-                if i == j:
-                    ret.append(m[i, j])
-                if j > i:
-                    ret.append(np.sqrt(2) * m[i, j])
-        return ret
-
-    def f(m1, m2): #distance
-        return distance_logeuclid(m1, m2)
-        lm1 = np.log(m1)
-        lm2 = np.log(m2)
-        print(lm1)
-        print(vec(lm1))
-        return np.dot(logm(lm1), logm(lm2))
-
-    prob = Model()
-
-    # should be part of the optimizer
-    w = prob.continuous_var_matrix(keys1=[1], keys2=classes,
-                                   name="weight", lb=0, ub=1)
-    w = np.array([w[key] for key in w])
-
-    _2VecLogYD = 2 * prob.sum(w[i]*f(y, X[i]) for i in classes)
-
-    wtDw = prob.sum(w[i]*w[j]*f(X[i], X[j]) for i in classes for j in classes)
-
-    objectives = wtDw - _2VecLogYD
-
-    prob.set_objective("min", objectives)
-
-    result = optimizer.solve(prob, reshape=False)
-
-    return result / sum(result)

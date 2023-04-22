@@ -19,11 +19,10 @@ from .utils import get_provider, get_devices
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.classification import MDM
 from pyriemann.tangentspace import TangentSpace
-from pyriemann.utils.mean import mean_logeuclid
 from pyriemann_qiskit.datasets import get_feature_dimension
 from pyriemann_qiskit.utils import (ClassicalOptimizer,
                                     NaiveQAOAOptimizer,
-                                    mdm)
+                                    logeucl_dist_convex)
 
 logger.level = logging.INFO
 
@@ -525,11 +524,13 @@ class QuanticMDM(QuanticClassifierBase):
             self._optimizer = NaiveQAOAOptimizer()
         else:
             self._optimizer = ClassicalOptimizer()
-        def predict_distances(instance, X):
+        def predict_distances(X):
+            # if metric == convex
+            # and also erase transform
             print("X+shape", X.shape)
-            return np.array([mdm(np.array(instance.covmeans_), x) for x in X])
+            return np.array([logeucl_dist_convex(np.array(classifier.covmeans_), x) for x in X])
 
-        MDM._predict_distances = predict_distances
+        classifier._predict_distances = predict_distances
         return classifier
 
     def predict_proba(self, X):
