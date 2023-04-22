@@ -6,8 +6,7 @@ from pyriemann_qiskit.utils import (square_cont_mat_var,
                                     square_int_mat_var,
                                     square_bin_mat_var,
                                     ClassicalOptimizer,
-                                    NaiveQAOAOptimizer,
-                                    logeucl_dist_convex)
+                                    NaiveQAOAOptimizer)
 
 
 @pytest.mark.parametrize('square_mat_var',
@@ -39,12 +38,3 @@ def test_get_square_cont_var(square_mat_var):
                           NaiveQAOAOptimizer])
 def test_optimizer_creation(optimizer):
     assert optimizer()
-
-
-def test_logeucl_dist_convex():
-    X_0 = np.ones((2, 2))
-    X_1 = X_0 + 1
-    X = np.stack((X_0, X_1))
-    y = np.full((2, 2), 0.3)
-    weight = logeucl_dist_convex(X, y)
-    assert sum(weight) == 1
