@@ -524,13 +524,6 @@ class QuanticMDM(QuanticClassifierBase):
             self._optimizer = NaiveQAOAOptimizer()
         else:
             self._optimizer = ClassicalOptimizer()
-        def predict_distances(X):
-            # if metric == convex
-            # and also erase transform
-            print("X+shape", X.shape)
-            return np.array([logeucl_dist_convex(np.array(classifier.covmeans_), x) for x in X])
-
-        classifier._predict_distances = predict_distances
         return classifier
 
     def predict_proba(self, X):
