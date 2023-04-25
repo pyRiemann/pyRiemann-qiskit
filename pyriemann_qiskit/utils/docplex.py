@@ -8,14 +8,13 @@ It is for example suitable for:
 import math
 import numpy as np
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
-from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
 from qiskit.algorithms import QAOA
 from qiskit_optimization.algorithms import (CobylaOptimizer,
                                             MinimumEigenOptimizer)
 from qiskit_optimization.converters import IntegerToBinary
 from qiskit_optimization.translators import from_docplex_mp
-from pyriemann_qiskit.utils import cov_to_corr_matrix
+from pyriemann_qiskit.utils import cov_to_corr_matrix, get_simulator
 
 
 def square_cont_mat_var(prob, channels,
@@ -382,7 +381,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     def _solve_qp(self, qp):
         conv = IntegerToBinary()
         qubo = conv.convert(qp)
-        backend = BasicAer.get_backend('statevector_simulator')
+        backend = get_simulator()
         quantum_instance = QuantumInstance(backend)
         qaoa_mes = QAOA(quantum_instance=quantum_instance,
                         initial_point=[0., 0.])
