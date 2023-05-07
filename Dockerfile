@@ -23,7 +23,7 @@ RUN mkdir /home/mne_data
 
 ## Workaround for firestore
 ### Missing __init__ file in protobuf
-RUN touch /usr/local/lib/python3.8/site-packages/protobuf-4.23.0rc2-py3.8-linux-x86_64.egg/google/__init__.py
+RUN touch /usr/local/lib/python3.8/site-packages/protobuf-4.23.0rc3-py3.8-linux-x86_64.egg/google/__init__.py
 ## google.cloud.location is never used in these files, and is missing in path.
 RUN sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.8/site-packages/google_cloud_firestore-2.11.0-py3.8.egg/google/cloud/firestore_v1/services/firestore/client.py'
 RUN sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.8/site-packages/google_cloud_firestore-2.11.0-py3.8.egg/google/cloud/firestore_v1/services/firestore/transports/base.py'
