@@ -2,6 +2,7 @@
    providers and simulators."""
 
 from qiskit_ibm_provider import IBMProvider
+from qiskit_aer import AerSimulator
 
 
 def get_provider():
@@ -17,6 +18,29 @@ def get_provider():
     .. versionadded:: 0.0.4
     """
     return IBMProvider.get_provider(hub='ibm-q')
+
+
+def get_simulator():
+    """Return a quantum simulator,
+    supporting GPU and NVIDIA's cuQuantum optimization
+    (if enabled).
+
+    Returns
+    -------
+    simulator : AerSimulator
+        A quantum simulator.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.4
+    """
+    backend = AerSimulator(method='statevector',
+                           cuStateVec_enable=True)
+    if 'GPU' in backend.available_devices():
+        backend.set_options(device='GPU')
+    else:
+        print('GPU optimization disabled. No device found.')
+    return backend
 
 
 def get_devices(provider, min_qubits):
