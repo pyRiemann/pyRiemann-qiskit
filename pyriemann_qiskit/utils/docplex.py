@@ -8,7 +8,6 @@ It is for example suitable for:
 import math
 import numpy as np
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
-from docplex.mp.model import Model
 from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
 from qiskit.algorithms import QAOA
@@ -260,7 +259,8 @@ class pyQiskitOptimizer():
 
     """
     def get_weights(self, prob, classes):
-        raise NotImplemented()
+        raise NotImplementedError()
+
 
 class ClassicalOptimizer(pyQiskitOptimizer):
 
@@ -322,7 +322,7 @@ class ClassicalOptimizer(pyQiskitOptimizer):
             n_channels = int(math.sqrt(result.shape[0]))
             return np.reshape(result, (n_channels, n_channels))
         return result
-    
+
     """Helper to create a docplex representation of a
     weight vector.
 
@@ -346,10 +346,11 @@ class ClassicalOptimizer(pyQiskitOptimizer):
     """
     def get_weights(self, prob, classes):
         w = prob.continuous_var_matrix(keys1=[1], keys2=classes,
-                                   name="weight"
-                                , lb=0, ub=1)
+                                       name="weight",
+                                       b=0, ub=1)
         w = np.array([w[key] for key in w])
         return w
+
 
 class NaiveQAOAOptimizer(pyQiskitOptimizer):
 
@@ -472,6 +473,6 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     """
     def get_weights(self, prob, classes):
         w = prob.integer_var_matrix(keys1=[1], keys2=classes,
-                                   name="weight", lb=0, ub=self.upper_bound)
+                                    name="weight", lb=0, ub=self.upper_bound)
         w = np.array([w[key] for key in w])
         return w
