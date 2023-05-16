@@ -226,6 +226,7 @@ class pyQiskitOptimizer():
     Notes
     -----
     .. versionadded:: 0.0.2
+    .. versionchanged:: 0.0.4
 
     References
     ----------
