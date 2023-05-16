@@ -14,6 +14,7 @@ RUN apt-get -y install build-essential
 
 RUN pip install urllib3==1.26.12
 RUN pip install protobuf==4.22.3
+RUN pip install google_cloud_firestore==2.11.0
 RUN python setup.py develop
 RUN pip install .[docs]
 RUN pip install .[tests]
