@@ -14,10 +14,8 @@ from pyriemann_qiskit.utils import (ClassicalOptimizer,
 def test_performance(get_covmats, get_labels):
     metric = {
         'mean': "convex",
-        'distance': "convex"
+        'distance': "logeuclid"
     }
-
-    distance_methods["convex"] = lambda A, B: np.linalg.norm(A - B, ord='fro')
 
     clf = make_pipeline(XdawnCovariances(), MDM(metric=metric))
     skf = StratifiedKFold(n_splits=5)

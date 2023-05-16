@@ -1,13 +1,15 @@
 import numpy as np
 from docplex.mp.model import Model
-from pyriemann_qiskit.utils.docplex import ClassicalOptimizer
+from pyriemann_qiskit.utils.docplex import ClassicalOptimizer, NaiveQAOAOptimizer
 from pyriemann.classification import MDM
 from pyriemann.utils.distance import (distance_logeuclid,
+                                      logm,
                                       distance_methods,
                                       distance)
 
+_optimizer = None
 
-def logeucl_dist_convex(X, y, optimizer=ClassicalOptimizer()):
+def logeucl_dist_convex(X, y, optimizer=NaiveQAOAOptimizer()):
     """Convex formulation of the MDM algorithm
     with log-euclidian metric.
 
@@ -44,9 +46,9 @@ def logeucl_dist_convex(X, y, optimizer=ClassicalOptimizer()):
     prob = Model()
 
     # should be part of the optimizer
-    w = prob.continuous_var_matrix(keys1=[1], keys2=classes,
-                                   name="weight", lb=0, ub=1)
-    w = np.array([w[key] for key in w])
+    w = optimizer.get_weights(prob, classes)
+
+    print(logm(X[0]), logm(X[1]))
 
     _2VecLogYD = 2 * prob.sum(w[i]*dist(y, X[i]) for i in classes)
 
@@ -66,7 +68,6 @@ def predict_distances(mdm, X):
     if mdm.metric_dist == 'convex':
         centroids = np.array(mdm.covmeans_)
         return np.array([logeucl_dist_convex(centroids, x) for x in X])
-        return np.array([distance(centroids, x, mdm.metric_dist) for x in X])
     else:
         return _mdm_predict_distances_original(mdm, X)
 

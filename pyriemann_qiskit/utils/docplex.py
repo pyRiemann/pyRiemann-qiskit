@@ -237,6 +237,8 @@ class pyQiskitOptimizer():
         qp = from_docplex_mp(prob)
         return self._solve_qp(qp, reshape)
 
+    def get_weights(self, prob, classes):
+        raise NotImplemented()
 
 class ClassicalOptimizer(pyQiskitOptimizer):
 
@@ -297,6 +299,13 @@ class ClassicalOptimizer(pyQiskitOptimizer):
             n_channels = int(math.sqrt(result.shape[0]))
             return np.reshape(result, (n_channels, n_channels))
         return result
+    
+    def get_weights(self, prob, classes):
+        w = prob.continuous_var_matrix(keys1=[1], keys2=classes,
+                                   name="weight"
+                                , lb=0, ub=1)
+        w = np.array([w[key] for key in w])
+        return w
 
 class NaiveQAOAOptimizer(pyQiskitOptimizer):
 
@@ -394,3 +403,9 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
             n_channels = int(math.sqrt(result.shape[0]))
             return np.reshape(result, (n_channels, n_channels))
         return result
+
+    def get_weights(self, prob, classes):
+        w = prob.integer_var_matrix(keys1=[1], keys2=classes,
+                                   name="weight", lb=0, ub=self.upper_bound)
+        w = np.array([w[key] for key in w])
+        return w
