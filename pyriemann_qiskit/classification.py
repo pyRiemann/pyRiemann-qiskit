@@ -4,7 +4,6 @@ from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.decomposition import PCA
 from sklearn.pipeline import make_pipeline
 from sklearn.svm import SVC
-from qiskit import BasicAer
 from qiskit_ibm_provider import IBMProvider, least_busy
 from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit.utils.quantum_instance import logger
@@ -15,7 +14,7 @@ import logging
 from .utils.hyper_params_factory import (gen_zz_feature_map,
                                          gen_two_local,
                                          get_spsa)
-from .utils import get_provider, get_devices
+from .utils import get_provider, get_devices, get_simulator
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.classification import MDM
 from pyriemann.tangentspace import TangentSpace
@@ -111,7 +110,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                 self._provider = get_provider()
             else:
                 self._log("Quantum simulation will be performed")
-                self._backend = BasicAer.get_backend('qasm_simulator')
+                self._backend = get_simulator()
         else:
             self._log("Classical SVM will be performed")
 

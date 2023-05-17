@@ -1,6 +1,7 @@
 from . import hyper_params_factory, filtering
 from .quantum_provider import (get_provider,
-                               get_devices)
+                               get_devices,
+                               get_simulator)
 from .math import cov_to_corr_matrix
 from .docplex import (square_cont_mat_var,
                       square_int_mat_var,
@@ -22,6 +23,7 @@ __all__ = [
     'filtering',
     'get_provider',
     'get_devices',
+    'get_simulator',
     'cov_to_corr_matrix',
     'square_cont_mat_var',
     'square_int_mat_var',

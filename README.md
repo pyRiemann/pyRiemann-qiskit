@@ -102,6 +102,15 @@ To check the installation, open a python shell and type:
 import pyriemann_qiskit
 ```
 
+To enable Qiskit GPU optimization when using quantum simulation, run:
+
+```
+pip install .[optim]
+```
+
+Note, Qiskit only provide binaries for Linux. For other platforms, or if you want to
+enable specific NVIDIA optimization for quantum, you need to build the binary [yourself](https://github.com/Qiskit/qiskit-aer/blob/main/CONTRIBUTING.md#building-with-gpu-support).
+
 To run a specific example on your local machine, you should install first dependencies for the documentation:
 
 ```
