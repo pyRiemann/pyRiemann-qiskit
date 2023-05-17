@@ -150,6 +150,7 @@ class pyQiskitOptimizer():
     Notes
     -----
     .. versionadded:: 0.0.2
+    .. versionchanged:: 0.0.4
     """
     def __init__(self):
         pass
@@ -206,7 +207,7 @@ class pyQiskitOptimizer():
     def covmat_var(self, prob, channels, name):
         raise NotImplementedError()
 
-    def _solve_qp(self, qp):
+    def _solve_qp(self, qp, reshape=True):
         raise NotImplementedError()
 
     """Solve the docplex problem.
@@ -224,6 +225,7 @@ class pyQiskitOptimizer():
     Notes
     -----
     .. versionadded:: 0.0.2
+    .. versionchanged:: 0.0.4
 
     References
     ----------
@@ -231,9 +233,33 @@ class pyQiskitOptimizer():
         http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
 
     """
-    def solve(self, prob):
+    def solve(self, prob, reshape=True):
         qp = from_docplex_mp(prob)
-        return self._solve_qp(qp)
+        return self._solve_qp(qp, reshape)
+
+    """Helper to create a docplex representation of a
+    weight vector.
+
+    Parameters
+    ----------
+    prob : Model
+        An instance of the docplex model [1]_
+    classes : list
+        The classes.
+
+    Returns
+    -------
+    docplex_weights : dict
+        A vector of decision variables representing
+        our weights.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.4
+
+    """
+    def get_weights(self, prob, classes):
+        raise NotImplementedError()
 
 
 class ClassicalOptimizer(pyQiskitOptimizer):
@@ -243,6 +269,7 @@ class ClassicalOptimizer(pyQiskitOptimizer):
     Notes
     -----
     .. versionadded:: 0.0.2
+    .. versionchanged:: 0.0.4
 
     See Also
     --------
@@ -289,10 +316,40 @@ class ClassicalOptimizer(pyQiskitOptimizer):
     def covmat_var(self, prob, channels, name):
         return square_cont_mat_var(prob, channels, name)
 
-    def _solve_qp(self, qp):
+    def _solve_qp(self, qp, reshape=True):
         result = CobylaOptimizer(rhobeg=0.01, rhoend=0.0001).solve(qp).x
-        n_channels = int(math.sqrt(result.shape[0]))
-        return np.reshape(result, (n_channels, n_channels))
+        if reshape:
+            n_channels = int(math.sqrt(result.shape[0]))
+            return np.reshape(result, (n_channels, n_channels))
+        return result
+
+    """Helper to create a docplex representation of a
+    weight vector.
+
+    Parameters
+    ----------
+    prob : Model
+        An instance of the docplex model [1]_
+    classes : list
+        The classes.
+
+    Returns
+    -------
+    docplex_weights : dict
+        A vector of continuous decision variables representing
+        our weights.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.4
+
+    """
+    def get_weights(self, prob, classes):
+        w = prob.continuous_var_matrix(keys1=[1], keys2=classes,
+                                       name="weight",
+                                       b=0, ub=1)
+        w = np.array([w[key] for key in w])
+        return w
 
 
 class NaiveQAOAOptimizer(pyQiskitOptimizer):
@@ -307,6 +364,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     Notes
     -----
     .. versionadded:: 0.0.2
+    .. versionchanged:: 0.0.4
 
     See Also
     --------
@@ -378,7 +436,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     def covmat_var(self, prob, channels, name):
         return square_int_mat_var(prob, channels, self.upper_bound, name)
 
-    def _solve_qp(self, qp):
+    def _solve_qp(self, qp, reshape=True):
         conv = IntegerToBinary()
         qubo = conv.convert(qp)
         backend = get_simulator()
@@ -387,5 +445,34 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
                         initial_point=[0., 0.])
         qaoa = MinimumEigenOptimizer(qaoa_mes)
         result = conv.interpret(qaoa.solve(qubo))
-        n_channels = int(math.sqrt(result.shape[0]))
-        return np.reshape(result, (n_channels, n_channels))
+        if reshape:
+            n_channels = int(math.sqrt(result.shape[0]))
+            return np.reshape(result, (n_channels, n_channels))
+        return result
+
+    """Helper to create a docplex representation of a
+    weight vector.
+
+    Parameters
+    ----------
+    prob : Model
+        An instance of the docplex model [1]_
+    classes : list
+        The classes.
+
+    Returns
+    -------
+    docplex_weights : dict
+        A vector of integer decision variables representing
+        our weights.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.4
+
+    """
+    def get_weights(self, prob, classes):
+        w = prob.integer_var_matrix(keys1=[1], keys2=classes,
+                                    name="weight", lb=0, ub=self.upper_bound)
+        w = np.array([w[key] for key in w])
+        return w
