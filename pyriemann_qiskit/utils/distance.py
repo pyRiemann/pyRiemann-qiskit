@@ -11,26 +11,33 @@ from pyriemann.utils.distance import (distance_logeuclid,
 def logeucl_dist_convex(X, y, optimizer=NaiveQAOAOptimizer()):
     """Convex formulation of the MDM algorithm
     with log-euclidian metric.
+
     Parameters
     ----------
     X : ndarray, shape (n_classes, n_channels, n_channels)
         Set of SPD matrices.
     y : ndarray, shape (n_channels, n_channels)
         A trial
+    optimizer: pyQiskitOptimizer
+      An instance of pyQiskitOptimizer.
+ 
     Returns
     -------
     weights : ndarray, shape (n_classes,)
         The weights associated with each class.
         Higher the weight, closer it is to the class prototype.
         Weights are not normalized.
+ 
     Notes
     -----
     .. versionadded:: 0.0.4
+ 
     References
     ----------
     .. [1] \
         http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
     """
+ 
     n_classes, _, _ = X.shape
     classes = range(n_classes)
 
