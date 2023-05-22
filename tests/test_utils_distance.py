@@ -35,4 +35,3 @@ def test_logeucl_dist_convex(optimizer):
     y = (X_0 + X_1) / 3
     weight = logeucl_dist_convex(X, y, optimizer=optimizer)
     assert weight.argmin() == 0
-
