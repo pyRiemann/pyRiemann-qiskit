@@ -24,7 +24,7 @@ def fro_mean_convex(covmats, sample_weight=None,
 
     Notes
     -----
-    .. versionadded:: 0.0.4
+    .. versionadded:: 0.0.3
 
     References
     ----------
