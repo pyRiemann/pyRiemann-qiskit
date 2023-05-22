@@ -19,10 +19,8 @@ def fro_mean_convex(covmats, sample_weight=None,
 
     Returns
     -------
-    weights : ndarray, shape (n_classes,)
-        The weights associated with each class.
-        Higher the weight, closer it is to the class prototype.
-        Weights are not normalized.
+    mean : ndarray, shape (n_channels, n_channels)
+        Convex-optimized forbenius mean.
 
     Notes
     -----
