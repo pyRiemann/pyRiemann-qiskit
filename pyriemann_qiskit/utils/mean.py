@@ -5,6 +5,35 @@ from pyriemann_qiskit.utils.docplex import ClassicalOptimizer
 
 def fro_mean_convex(covmats, sample_weight=None,
                     optimizer=ClassicalOptimizer()):
+    """Convex formulation of the mean
+    with frobenius distance.
+    Parameters
+    ----------
+    covmats: ndarray, shape (n_classes, n_channels, n_channels)
+        Set of SPD matrices.
+    sample_weights:  None | ndarray, shape (n_matrices,), default=None
+        Weights for each matrix. Never used in practice.
+        It is kept only for standardization with pyRiemann.
+    optimizer: pyQiskitOptimizer
+      An instance of pyQiskitOptimizer.
+
+    Returns
+    -------
+    weights : ndarray, shape (n_classes,)
+        The weights associated with each class.
+        Higher the weight, closer it is to the class prototype.
+        Weights are not normalized.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.4
+
+    References
+    ----------
+    .. [1] \
+        http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+    """
+
     n_trials, n_channels, _ = covmats.shape
     channels = range(n_channels)
     trials = range(n_trials)
