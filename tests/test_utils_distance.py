@@ -3,9 +3,6 @@ import numpy as np
 from pyriemann_qiskit.utils import (ClassicalOptimizer,
                                     NaiveQAOAOptimizer,
                                     logeucl_dist_convex)
-from pyriemann.classification import MDM
-from pyriemann.estimation import XdawnCovariances
-from sklearn.pipeline import make_pipeline
 
 
 @pytest.mark.parametrize('optimizer',
