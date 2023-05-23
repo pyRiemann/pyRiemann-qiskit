@@ -22,7 +22,7 @@ RUN mkdir /root/mne_data
 RUN mkdir /home/mne_data
 
 ## Workaround for firestore
-RUN pip install protobuf==4.23.0
+RUN pip install protobuf==4.23.1
 RUN pip install google_cloud_firestore==2.11.1
 ### Missing __init__ file in protobuf
 RUN touch /usr/local/lib/python3.8/site-packages/protobuf-4.23.0-py3.8.egg/google/__init__.py
