@@ -6,7 +6,6 @@ from pyriemann_qiskit.utils import (ClassicalOptimizer,
 from pyriemann.classification import MDM
 from pyriemann.estimation import XdawnCovariances
 from sklearn.pipeline import make_pipeline
-from sklearn.model_selection import StratifiedKFold, cross_val_score
 
 
 @pytest.mark.parametrize('optimizer',
