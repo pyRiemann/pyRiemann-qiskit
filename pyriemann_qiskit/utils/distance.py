@@ -45,7 +45,6 @@ def logeucl_dist_convex(X, y, optimizer=ClassicalOptimizer()):
     # should be part of the optimizer
     w = optimizer.get_weights(prob, classes)
 
-    print(logm(X[0]), logm(X[1]))
 
     _2VecLogYD = 2 * prob.sum(w[i] * dist(y, X[i]) for i in classes)
 
