@@ -1,7 +1,6 @@
 from docplex.mp.model import Model
 from pyriemann_qiskit.utils.docplex import ClassicalOptimizer
-from pyriemann.utils.distance import (distance_logeuclid,
-                                      logm)
+from pyriemann.utils.distance import distance_logeuclid
 
 
 def logeucl_dist_convex(X, y, optimizer=ClassicalOptimizer()):
@@ -44,7 +43,6 @@ def logeucl_dist_convex(X, y, optimizer=ClassicalOptimizer()):
 
     # should be part of the optimizer
     w = optimizer.get_weights(prob, classes)
-
 
     _2VecLogYD = 2 * prob.sum(w[i] * dist(y, X[i]) for i in classes)
 
