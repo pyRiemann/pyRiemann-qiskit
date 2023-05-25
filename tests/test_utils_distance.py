@@ -13,5 +13,5 @@ def test_logeucl_dist_convex(optimizer):
     X_1 = X_0 + 1
     X = np.stack((X_0, X_1))
     y = (X_0 + X_1) / 3
-    weight = logeucl_dist_convex(X, y, optimizer=optimizer)
+    distances = logeucl_dist_convex(X, y, optimizer=optimizer)
     assert weight.argmin() == 0
