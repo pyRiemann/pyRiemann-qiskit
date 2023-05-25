@@ -16,6 +16,7 @@ from .firebase_connector import (
         add_moabb_dataframe_results_to_caches,
         convert_caches_to_dataframes
     )
+from .distance import logeucl_dist_convex
 
 __all__ = [
     'hyper_params_factory',
@@ -29,6 +30,7 @@ __all__ = [
     'square_bin_mat_var',
     'ClassicalOptimizer',
     'NaiveQAOAOptimizer',
+    'logeucl_dist_convex',
     'FirebaseConnector',
     'Cache',
     'generate_caches',

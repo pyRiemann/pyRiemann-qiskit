@@ -347,7 +347,7 @@ class ClassicalOptimizer(pyQiskitOptimizer):
     def get_weights(self, prob, classes):
         w = prob.continuous_var_matrix(keys1=[1], keys2=classes,
                                        name="weight",
-                                       b=0, ub=1)
+                                       lb=0, ub=1)
         w = np.array([w[key] for key in w])
         return w
 

@@ -59,6 +59,16 @@ Mean
 
     fro_mean_convex
 
+Distance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _distance_api:
+.. currentmodule:: pyriemann_qiskit.utils.distance
+
+.. autosummary::
+    :toctree: generated/
+
+    logeucl_dist_convex
+
 Docplex
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. _docplex_api:
