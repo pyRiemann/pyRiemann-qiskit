@@ -9,7 +9,8 @@ from pyriemann.utils.distance import (distance_logeuclid,
 
 _optimizer = None
 
-def logeucl_dist_convex(X, y, optimizer=NaiveQAOAOptimizer()):
+
+def logeucl_dist_convex(X, y, optimizer=ClassicalOptimizer()):
     """Convex formulation of the MDM algorithm
     with log-euclidian metric.
 
@@ -19,6 +20,8 @@ def logeucl_dist_convex(X, y, optimizer=NaiveQAOAOptimizer()):
         Set of SPD matrices.
     y : ndarray, shape (n_channels, n_channels)
         A trial
+    optimizer: pyQiskitOptimizer
+      An instance of pyQiskitOptimizer.
 
     Returns
     -------
@@ -35,12 +38,12 @@ def logeucl_dist_convex(X, y, optimizer=NaiveQAOAOptimizer()):
     ----------
     .. [1] \
         http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
-
     """
+
     n_classes, _, _ = X.shape
     classes = range(n_classes)
 
-    def dist(m1, m2): 
+    def dist(m1, m2):
         return distance_logeuclid(m1, m2)
 
     prob = Model()
@@ -48,11 +51,10 @@ def logeucl_dist_convex(X, y, optimizer=NaiveQAOAOptimizer()):
     # should be part of the optimizer
     w = optimizer.get_weights(prob, classes)
 
-    print(logm(X[0]), logm(X[1]))
+    _2VecLogYD = 2 * prob.sum(w[i] * dist(y, X[i]) for i in classes)
 
-    _2VecLogYD = 2 * prob.sum(w[i]*dist(y, X[i]) for i in classes)
-
-    wtDw = prob.sum(w[i]*w[j]*dist(X[i], X[j]) for i in classes for j in classes)
+    wtDw = prob.sum(w[i] * w[j] * dist(X[i], X[j]) for i in classes
+                    for j in classes)
 
     objectives = wtDw - _2VecLogYD
 
