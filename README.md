@@ -139,6 +139,12 @@ Then ensure everything went smoothly by typing:
 import pyriemann_qiskit
 ```
 
+Alternatively you can from the console (Windows or Linux) build the docker image from our Dockerfile. Go to the root folder of pyRiemann-qiskit and type:
+```
+docker build -t pyrq .
+```
+Next use `docker run --detach pyrq` to enter the pyRiemann-qiskit image.
+
 ## Contributor Guidelines
 
 Everyone is welcomed to contribute to this repository. There are two types of contributions:
