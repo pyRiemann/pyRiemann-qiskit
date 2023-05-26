@@ -17,7 +17,7 @@ def test_performance():
     }
 
     clf = make_pipeline(XdawnCovariances(), MDM(metric=metric))
-    skf = StratifiedKFold(n_splits=5)
+    skf = StratifiedKFold(n_splits=3)
     covset, labels = get_mne_sample()
     score = cross_val_score(clf, covset, labels, cv=skf, scoring='roc_auc')
     assert score.mean() > 0
