@@ -21,7 +21,6 @@ from pyriemann.tangentspace import TangentSpace
 from pyriemann_qiskit.datasets import get_feature_dimension
 from pyriemann_qiskit.utils import (ClassicalOptimizer,
                                     NaiveQAOAOptimizer,
-                                    logeucl_dist_convex,
                                     set_global_optimizer)
 
 logger.level = logging.INFO
@@ -479,10 +478,10 @@ class QuanticMDM(QuanticClassifierBase):
 
     """Quantum-enhanced MDM
 
-    # This class is a convex implementation of the MDM [1]_, 
+    # This class is a convex implementation of the MDM [1]_,
     # that can runs with quantum optimization.
     # Only log-euclidian distance between trial and class prototypes
-    # is supported at the moment, but any type of metric 
+    # is supported at the moment, but any type of metric
     # can be used for centroid estimation.
 
     Notes
@@ -528,7 +527,7 @@ class QuanticMDM(QuanticClassifierBase):
         classifier = MDM(metric=self.metric)
         if self.quantum:
             self._optimizer = \
-                NaiveQAOAOptimizer(quantum_instance = self._quantum_instance)
+                NaiveQAOAOptimizer(quantum_instance=self._quantum_instance)
         else:
             self._optimizer = ClassicalOptimizer()
         set_global_optimizer(self._optimizer)

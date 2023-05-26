@@ -32,6 +32,8 @@ __all__ = [
     'square_bin_mat_var',
     'ClassicalOptimizer',
     'NaiveQAOAOptimizer',
+    'set_global_optimizer',
+    'get_global_optimizer',
     'logeucl_dist_convex',
     'FirebaseConnector',
     'Cache',

@@ -3,13 +3,11 @@ import numpy as np
 from pyriemann_qiskit.utils import (ClassicalOptimizer,
                                     NaiveQAOAOptimizer,
                                     logeucl_dist_convex)
-
-from pyriemann.utils.mean import mean_euclid
-from pyriemann.utils.distance import distance_methods
 from pyriemann.classification import MDM
 from pyriemann.estimation import XdawnCovariances
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
+
 
 def test_performance(get_covmats, get_labels):
     metric = {
