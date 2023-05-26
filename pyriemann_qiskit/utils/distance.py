@@ -1,13 +1,12 @@
 import numpy as np
 from docplex.mp.model import Model
-from pyriemann_qiskit.utils.docplex import ClassicalOptimizer, NaiveQAOAOptimizer
+from pyriemann_qiskit.utils.docplex import (ClassicalOptimizer,
+                                            get_global_optimizer)
 from pyriemann.classification import MDM
 from pyriemann.utils.distance import (distance_logeuclid,
                                       logm,
                                       distance_methods,
                                       distance)
-
-_optimizer = None
 
 
 def logeucl_dist_convex(X, y, optimizer=ClassicalOptimizer()):
@@ -39,6 +38,8 @@ def logeucl_dist_convex(X, y, optimizer=ClassicalOptimizer()):
     .. [1] \
         http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
     """
+
+    optimizer = get_global_optimizer(optimizer)
 
     n_classes, _, _ = X.shape
     classes = range(n_classes)

@@ -490,12 +490,19 @@ class QuanticMDM(QuanticClassifierBase):
 
     Parameters
     ----------
-    metric : string | dic (default: 'logeuclid')
-        TODO
+    metric : string | dict, default='riemann'
+        The type of metric used for centroid and distance estimation.
+        see `mean_covariance` for the list of supported metric.
+        the metric could be a dict with two keys, `mean` and `distance` in
+        order to pass different metrics for the centroid estimation and the
+        distance estimation. Typical usecase is to pass 'logeuclid' metric for
+        the mean in order to boost the computional speed and 'riemann' for the
+        distance in order to keep the good sensitivity for the classification.
 
     See Also
     --------
     QuanticClassifierBase
+    pyriemann.classification.MDM
 
     References
     ----------

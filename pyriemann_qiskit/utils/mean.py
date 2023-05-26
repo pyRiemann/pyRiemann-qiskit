@@ -1,6 +1,7 @@
 from docplex.mp.model import Model
 from pyriemann.utils.mean import mean_methods
-from pyriemann_qiskit.utils.docplex import ClassicalOptimizer
+from pyriemann_qiskit.utils.docplex import (ClassicalOptimizer,
+                                            get_global_optimizer)
 
 
 def fro_mean_convex(covmats, sample_weight=None,
@@ -31,6 +32,8 @@ def fro_mean_convex(covmats, sample_weight=None,
     .. [1] \
         http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
     """
+
+    optimizer = get_global_optimizer(optimizer)
 
     n_trials, n_channels, _ = covmats.shape
     channels = range(n_channels)
