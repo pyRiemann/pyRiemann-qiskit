@@ -519,8 +519,8 @@ class QuanticMDM(QuanticClassifierBase):
         self._log("Convex MDM initiating algorithm")
         classifier = MDM(metric=self.metric)
         if self.quantum:
-            # TODO: support execution on remote backedn
-            self._optimizer = NaiveQAOAOptimizer()
+            self._optimizer = \
+                NaiveQAOAOptimizer(quantum_instance = self._quantum_instance)
         else:
             self._optimizer = ClassicalOptimizer()
         return classifier
