@@ -13,7 +13,7 @@ from pyriemann_qiskit.utils import (ClassicalOptimizer,
 def test_performance(get_covmats, get_labels):
     metric = {
         'mean': "convex",
-        'distance': "logeuclid"
+        'distance': "euclid"
     }
 
     clf = make_pipeline(XdawnCovariances(), MDM(metric=metric))
