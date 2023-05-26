@@ -32,7 +32,7 @@ def set_global_optimizer(optimizer):
     -----
     .. versionadded:: 0.0.4
     """
-    _global_optimizer = optimizer
+    _global_optimizer = optimizer # noqa
 
 
 def get_global_optimizer(default):
