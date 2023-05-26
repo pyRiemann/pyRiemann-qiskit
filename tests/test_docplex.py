@@ -1,5 +1,4 @@
 import pytest
-import numpy as np
 from docplex.mp.model import Model
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
 from pyriemann_qiskit.utils import (square_cont_mat_var,

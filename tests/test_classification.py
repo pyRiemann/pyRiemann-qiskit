@@ -138,7 +138,7 @@ class TestClassicalSVM(BinaryFVT):
                self.quantum_instance.classes_[1]
 
 
-class TetQuanticSVM(TestClassicalSVM):
+class TestQuanticSVM(TestClassicalSVM):
     """Perform SVC on a simulated quantum computer.
     This test can also be run on a real computer by providing a qAccountToken
     To do so, you need to use your own token, by registering on:
@@ -155,7 +155,7 @@ class TetQuanticSVM(TestClassicalSVM):
         }
 
 
-class TetQuanticPegasosSVM(TestClassicalSVM):
+class TestQuanticPegasosSVM(TestClassicalSVM):
     """Same as TestQuanticSVM, expect it uses
     PegasosQSVC instead of QSVC implementation.
     """
@@ -170,7 +170,7 @@ class TetQuanticPegasosSVM(TestClassicalSVM):
         }
 
 
-class TetQuanticVQC(BinaryFVT):
+class TestQuanticVQC(BinaryFVT):
     """Perform VQC on a simulated quantum computer"""
     def get_params(self):
         quantum_instance = QuanticVQC(verbose=False)
@@ -209,3 +209,21 @@ class TestClassicalMDM(BinaryFVT):
                self.quantum_instance.classes_[0]
         assert self.prediction[self.class_len:].all() == \
                self.quantum_instance.classes_[1]
+
+
+class TestQuantumClassifierWithDefaultRiemannianPipeline(BinaryFVT):
+    """Functional testing for riemann quantum classifier."""
+    def get_params(self):
+        quantum_instance = \
+            QuantumClassifierWithDefaultRiemannianPipeline(
+                params={"verbose": False}
+            )
+        return {
+            "n_samples": 4,
+            "n_features": 4,
+            "quantum_instance": quantum_instance,
+            "type": None
+        }
+
+    def check(self):
+        assert len(self.prediction) == len(self.labels)
