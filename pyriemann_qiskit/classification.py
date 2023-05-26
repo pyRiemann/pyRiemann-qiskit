@@ -21,7 +21,8 @@ from pyriemann.tangentspace import TangentSpace
 from pyriemann_qiskit.datasets import get_feature_dimension
 from pyriemann_qiskit.utils import (ClassicalOptimizer,
                                     NaiveQAOAOptimizer,
-                                    logeucl_dist_convex)
+                                    logeucl_dist_convex,
+                                    set_global_optimizer)
 
 logger.level = logging.INFO
 
@@ -530,6 +531,7 @@ class QuanticMDM(QuanticClassifierBase):
                 NaiveQAOAOptimizer(quantum_instance = self._quantum_instance)
         else:
             self._optimizer = ClassicalOptimizer()
+        set_global_optimizer(self._optimizer)
         return classifier
 
     def predict_proba(self, X):
