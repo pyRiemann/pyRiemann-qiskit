@@ -12,7 +12,7 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score
 
 def test_performance():
     metric = {
-        'mean': "euclid",
+        'mean': "logeuclid",
         'distance': "convex"
     }
 

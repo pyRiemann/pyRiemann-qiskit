@@ -490,7 +490,7 @@ class QuanticMDM(QuanticClassifierBase):
 
     Parameters
     ----------
-    metric : string | dict, default='riemann'
+    metric : string | dict, default={"mean": 'logeuclid', "distance": 'convex'}
         The type of metric used for centroid and distance estimation.
         see `mean_covariance` for the list of supported metric.
         the metric could be a dict with two keys, `mean` and `distance` in
