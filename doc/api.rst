@@ -84,6 +84,8 @@ Docplex
     pyQiskitOptimizer
     ClassicalOptimizer
     NaiveQAOAOptimizer
+    set_global_optimizer
+    get_global_optimizer
 
 Math
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
