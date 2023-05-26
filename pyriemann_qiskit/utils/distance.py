@@ -64,7 +64,9 @@ def logeucl_dist_convex(X, y, optimizer=ClassicalOptimizer()):
 
     return result
 
+
 _mdm_predict_distances_original = MDM._predict_distances
+
 
 def predict_distances(mdm, X):
     if mdm.metric_dist == 'convex':
@@ -72,6 +74,7 @@ def predict_distances(mdm, X):
         return np.array([logeucl_dist_convex(centroids, x) for x in X])
     else:
         return _mdm_predict_distances_original(mdm, X)
+
 
 MDM._predict_distances = predict_distances
 
