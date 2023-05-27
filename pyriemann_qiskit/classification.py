@@ -16,8 +16,12 @@ from .utils.hyper_params_factory import (gen_zz_feature_map,
                                          get_spsa)
 from .utils import get_provider, get_devices, get_simulator
 from pyriemann.estimation import XdawnCovariances
+from pyriemann.classification import MDM
 from pyriemann.tangentspace import TangentSpace
 from pyriemann_qiskit.datasets import get_feature_dimension
+from pyriemann_qiskit.utils import (ClassicalOptimizer,
+                                    NaiveQAOAOptimizer,
+                                    set_global_optimizer)
 
 logger.level = logging.INFO
 
@@ -451,6 +455,101 @@ class QuanticVQC(QuanticClassifierBase):
         """
         proba, _ = self._predict(X)
         return proba
+
+    def predict(self, X):
+        """Calculates the predictions.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_samples, n_features)
+            Input vector, where `n_samples` is the number of samples and
+            `n_features` is the number of features.
+
+        Returns
+        -------
+        pred : array, shape (n_samples,)
+            Class labels for samples in X.
+        """
+        labels = self._predict(X)
+        return self._map_0_1_to_classes(labels)
+
+
+class QuanticMDM(QuanticClassifierBase):
+
+    """Quantum-enhanced MDM
+
+    # This class is a convex implementation of the MDM [1]_,
+    # that can runs with quantum optimization.
+    # Only log-euclidian distance between trial and class prototypes
+    # is supported at the moment, but any type of metric
+    # can be used for centroid estimation.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.4
+
+    Parameters
+    ----------
+    metric : string | dict, default={"mean": 'logeuclid', "distance": 'convex'}
+        The type of metric used for centroid and distance estimation.
+        see `mean_covariance` for the list of supported metric.
+        the metric could be a dict with two keys, `mean` and `distance` in
+        order to pass different metrics for the centroid estimation and the
+        distance estimation. Typical usecase is to pass 'logeuclid' metric for
+        the mean in order to boost the computional speed and 'riemann' for the
+        distance in order to keep the good sensitivity for the classification.
+
+    See Also
+    --------
+    QuanticClassifierBase
+    pyriemann.classification.MDM
+
+    References
+    ----------
+    .. [1] `Multiclass Brain-Computer Interface Classification by Riemannian
+        Geometry
+        <https://hal.archives-ouvertes.fr/hal-00681328>`_
+        A. Barachant, S. Bonnet, M. Congedo, and C. Jutten. IEEE Transactions
+        on Biomedical Engineering, vol. 59, no. 4, p. 920-928, 2012.
+    .. [2] `Riemannian geometry applied to BCI classification
+        <https://hal.archives-ouvertes.fr/hal-00602700/>`_
+        A. Barachant, S. Bonnet, M. Congedo and C. Jutten. 9th International
+        Conference Latent Variable Analysis and Signal Separation
+        (LVA/ICA 2010), LNCS vol. 6365, 2010, p. 629-636.
+    """
+
+    def __init__(self,
+                 metric={"mean": 'logeuclid', "distance": 'convex'},
+                 **parameters):
+        QuanticClassifierBase.__init__(self, **parameters)
+        self.metric = metric
+
+    def _init_algo(self, n_features):
+        self._log("Convex MDM initiating algorithm")
+        classifier = MDM(metric=self.metric)
+        if self.quantum:
+            self._optimizer = \
+                NaiveQAOAOptimizer(quantum_instance=self._quantum_instance)
+        else:
+            self._optimizer = ClassicalOptimizer()
+        set_global_optimizer(self._optimizer)
+        return classifier
+
+    def predict_proba(self, X):
+        """Return the probabilities associated with predictions.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_trials, n_channels, n_channels)
+            ndarray of trials.
+
+        Returns
+        -------
+        prob : ndarray, shape (n_samples, n_classes)
+            prob[n, 0] == True if the nth sample is assigned to 1st class;
+            prob[n, 1] == True if the nth sample is assigned to 2nd class.
+        """
+        return self._classifier.predict_proba(X)
 
     def predict(self, X):
         """Calculates the predictions.

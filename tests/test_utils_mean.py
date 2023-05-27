@@ -1,7 +1,6 @@
 import pytest
 import numpy as np
 from pyriemann.utils.mean import mean_euclid
-from pyriemann.utils.distance import distance_methods
 from pyriemann.classification import MDM
 from pyriemann.estimation import XdawnCovariances
 from sklearn.pipeline import make_pipeline
@@ -14,10 +13,8 @@ from pyriemann_qiskit.utils import (ClassicalOptimizer,
 def test_performance(get_covmats, get_labels):
     metric = {
         'mean': "convex",
-        'distance': "convex"
+        'distance': "euclid"
     }
-
-    distance_methods["convex"] = lambda A, B: np.linalg.norm(A - B, ord='fro')
 
     clf = make_pipeline(XdawnCovariances(), MDM(metric=metric))
     skf = StratifiedKFold(n_splits=5)

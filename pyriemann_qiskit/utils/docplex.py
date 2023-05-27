@@ -17,6 +17,45 @@ from qiskit_optimization.translators import from_docplex_mp
 from pyriemann_qiskit.utils import cov_to_corr_matrix, get_simulator
 
 
+_global_optimizer = None
+
+
+def set_global_optimizer(optimizer):
+    """Set the value of the global optimizer
+
+    Parameters
+    ----------
+    optimizer: pyQiskitOptimizer
+      An instance of pyQiskitOptimizer.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.4
+    """
+    _global_optimizer = optimizer # noqa
+
+
+def get_global_optimizer(default):
+    """Get the value of the global optimizer
+
+    Parameters
+    ----------
+    default: pyQiskitOptimizer
+      An instance of pyQiskitOptimizer.
+      It will be returned by default if the global optimizer is None.
+
+    Returns
+    -------
+    optimizer : pyQiskitOptimizer
+        The global optimizer.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.4
+    """
+    return _global_optimizer if _global_optimizer is not None else default
+
+
 def square_cont_mat_var(prob, channels,
                         name='cont_covmat'):
     """Creates a 2-dimensional dictionary of continuous decision variables,
@@ -360,6 +399,9 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     ----------
     upper_bound : int (default: 7)
         The maximum integer value for matrix normalization.
+    backend: QuantumInstance (default: None)
+        A quantum backend instance.
+        If None, AerSimulator will be used.
 
     Notes
     -----
@@ -370,9 +412,10 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     --------
     pyQiskitOptimizer
     """
-    def __init__(self, upper_bound=7):
+    def __init__(self, upper_bound=7, quantum_instance=None):
         pyQiskitOptimizer.__init__(self)
         self.upper_bound = upper_bound
+        self.quantum_instance = quantum_instance
 
     """Transform all values in the covariance matrix
     to integers.
@@ -439,8 +482,11 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     def _solve_qp(self, qp, reshape=True):
         conv = IntegerToBinary()
         qubo = conv.convert(qp)
-        backend = get_simulator()
-        quantum_instance = QuantumInstance(backend)
+        if self.quantum_instance is None:
+            backend = get_simulator()
+            quantum_instance = QuantumInstance(backend)
+        else:
+            quantum_instance = self.quantum_instance
         qaoa_mes = QAOA(quantum_instance=quantum_instance,
                         initial_point=[0., 0.])
         qaoa = MinimumEigenOptimizer(qaoa_mes)

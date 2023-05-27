@@ -1,6 +1,10 @@
+import numpy as np
 from docplex.mp.model import Model
-from pyriemann_qiskit.utils.docplex import ClassicalOptimizer
-from pyriemann.utils.distance import distance_logeuclid
+from pyriemann_qiskit.utils.docplex import (ClassicalOptimizer,
+                                            get_global_optimizer)
+from pyriemann.classification import MDM
+from pyriemann.utils.distance import (distance_logeuclid,
+                                      distance_methods)
 
 
 def logeucl_dist_convex(X, y, optimizer=ClassicalOptimizer()):
@@ -33,6 +37,8 @@ def logeucl_dist_convex(X, y, optimizer=ClassicalOptimizer()):
         http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
     """
 
+    optimizer = get_global_optimizer(optimizer)
+
     n_classes, _, _ = X.shape
     classes = range(n_classes)
 
@@ -56,3 +62,24 @@ def logeucl_dist_convex(X, y, optimizer=ClassicalOptimizer()):
     result = optimizer.solve(prob, reshape=False)
 
     return result
+
+
+_mdm_predict_distances_original = MDM._predict_distances
+
+
+def predict_distances(mdm, X):
+    if mdm.metric_dist == 'convex':
+        centroids = np.array(mdm.covmeans_)
+        return np.array([logeucl_dist_convex(centroids, x) for x in X])
+    else:
+        return _mdm_predict_distances_original(mdm, X)
+
+
+MDM._predict_distances = predict_distances
+
+# This is only for validation inside the MDM.
+# In fact, we override the _predict_distances method
+# inside MDM to directly use logeucl_dist_convex when the metric is "convex"
+# This is due to the fact the the signature of this method is different from
+# the usual distance functions.
+distance_methods['convex'] = logeucl_dist_convex
