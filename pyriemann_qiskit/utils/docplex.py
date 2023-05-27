@@ -1,4 +1,59 @@
+"""This module contains both classic and quantum optimizers, and some helper
+functions. The quantum optimizer allows an optimization problem with
+constraints (in the form of docplex model) to be run on a quantum computer.
+It is for example suitable for:
+- MDM optimization problem;
+- computation of matrices mean.
+"""
+import math
+import numpy as np
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
+from qiskit.utils import QuantumInstance
+from qiskit.algorithms import QAOA
+from qiskit_optimization.algorithms import (CobylaOptimizer,
+                                            MinimumEigenOptimizer)
+from qiskit_optimization.converters import IntegerToBinary
+from qiskit_optimization.translators import from_docplex_mp
+from pyriemann_qiskit.utils import cov_to_corr_matrix, get_simulator
+
+
+_global_optimizer = None
+
+
+def set_global_optimizer(optimizer):
+    """Set the value of the global optimizer
+
+    Parameters
+    ----------
+    optimizer: pyQiskitOptimizer
+      An instance of pyQiskitOptimizer.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.4
+    """
+    _global_optimizer = optimizer # noqa
+
+
+def get_global_optimizer(default):
+    """Get the value of the global optimizer
+
+    Parameters
+    ----------
+    default: pyQiskitOptimizer
+      An instance of pyQiskitOptimizer.
+      It will be returned by default if the global optimizer is None.
+
+    Returns
+    -------
+    optimizer : pyQiskitOptimizer
+        The global optimizer.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.4
+    """
+    return _global_optimizer if _global_optimizer is not None else default
 
 
 def square_cont_mat_var(prob, channels,
@@ -16,6 +71,9 @@ def square_cont_mat_var(prob, channels,
     channels : list
         The list of channels. A channel can be any Python object,
         such as channels'name or number but None.
+    name : string
+        An custom name for the variable. The name is used internally by docplex
+        and may appear if your print the model to a file for example.
 
     Returns
     -------
@@ -23,6 +81,10 @@ def square_cont_mat_var(prob, channels,
         A square matrix of continuous decision variables.
         Access element (i, j) with square_mat[(i, j)].
         Indices start with 0.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.2
 
     References
     ----------
@@ -34,7 +96,7 @@ def square_cont_mat_var(prob, channels,
                                       name=name, lb=-prob.infinity)
 
 
-def square_int_mat_var(prob, channels,
+def square_int_mat_var(prob, channels, upper_bound=7,
                        name='int_covmat'):
     """Creates a 2-dimensional dictionary of integer decision variables,
     indexed by pairs of key objects.
@@ -49,6 +111,11 @@ def square_int_mat_var(prob, channels,
     channels : list
         The list of channels. A channel can be any Python object,
         such as channels'name or number but None.
+    upper_bound : int (default: 7)
+        The upper bound of the integer docplex variables.
+    name : string
+        An custom name for the variable. The name is used internally by docplex
+        and may appear if your print the model to a file for example.
 
     Returns
     -------
@@ -57,6 +124,10 @@ def square_int_mat_var(prob, channels,
         Access element (i, j) with square_mat[(i, j)].
         Indices start with 0.
 
+    Notes
+    -----
+    .. versionadded:: 0.0.2
+
     References
     ----------
     .. [1] \
@@ -64,7 +135,7 @@ def square_int_mat_var(prob, channels,
     """
     IntegerVarType.one_letter_symbol = lambda _: 'I'
     return prob.integer_var_matrix(keys1=channels, keys2=channels,
-                                   name=name, lb=-prob.infinity)
+                                   name=name, lb=0, ub=upper_bound)
 
 
 def square_bin_mat_var(prob, channels,
@@ -82,6 +153,9 @@ def square_bin_mat_var(prob, channels,
     channels : list
         The list of channels. A channel can be any Python object,
         such as channels'name or number but None.
+    name : string
+        An custom name for the variable. The name is used internally by docplex
+        and may appear if your print the model to a file for example.
 
     Returns
     -------
@@ -89,6 +163,10 @@ def square_bin_mat_var(prob, channels,
         A square matrix of binary decision variables.
         Access element (i, j) with square_mat[(i, j)].
         Indices start with 0.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.2
 
     References
     ----------
@@ -98,3 +176,349 @@ def square_bin_mat_var(prob, channels,
     BinaryVarType.one_letter_symbol = lambda _: 'B'
     return prob.binary_var_matrix(keys1=channels, keys2=channels,
                                   name=name)
+
+
+class pyQiskitOptimizer():
+
+    """Wrapper for Qiskit optimizer.
+
+    This class is an abstract class which provides an interface
+    for running our docplex model independently of the optimizer type
+    (such as classical or quantum optimizer).
+
+    Notes
+    -----
+    .. versionadded:: 0.0.2
+    .. versionchanged:: 0.0.4
+    """
+    def __init__(self):
+        pass
+
+    """Hook to apply some transformation on a covariance matrix.
+
+    Parameters
+    ----------
+    covmat : ndarray, shape (n_features, n_features)
+        The covariance matrix.
+
+    Returns
+    -------
+    transformed_covmat : ndarray, shape (n_features, n_features)
+        A transformation of the covariance matrix.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.2
+    """
+    def convert_covmat(self, covmat):
+        return covmat
+
+    """Helper to create a docplex representation of a
+    covariance matrix variable.
+
+    Parameters
+    ----------
+    prob : Model
+        An instance of the docplex model [1]_
+    channels : list
+        The list of channels. A channel can be any Python object,
+        such as channels'name or number but None.
+    name : string
+        An custom name for the variable. The name is used internally by docplex
+        and may appear if your print the model to a file for example.
+
+    Returns
+    -------
+    docplex_covmat : dict
+        A square matrix of decision variables representing
+        our covariance matrix.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.2
+
+    References
+    ----------
+    .. [1] \
+        http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+
+    """
+    def covmat_var(self, prob, channels, name):
+        raise NotImplementedError()
+
+    def _solve_qp(self, qp, reshape=True):
+        raise NotImplementedError()
+
+    """Solve the docplex problem.
+
+    Parameters
+    ----------
+    prob : Model
+        An instance of the docplex model [1]_
+
+    Returns
+    -------
+    result : OptimizationResult
+        The result of the optimization.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.2
+    .. versionchanged:: 0.0.4
+
+    References
+    ----------
+    .. [1] \
+        http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+
+    """
+    def solve(self, prob, reshape=True):
+        qp = from_docplex_mp(prob)
+        return self._solve_qp(qp, reshape)
+
+    """Helper to create a docplex representation of a
+    weight vector.
+
+    Parameters
+    ----------
+    prob : Model
+        An instance of the docplex model [1]_
+    classes : list
+        The classes.
+
+    Returns
+    -------
+    docplex_weights : dict
+        A vector of decision variables representing
+        our weights.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.4
+
+    """
+    def get_weights(self, prob, classes):
+        raise NotImplementedError()
+
+
+class ClassicalOptimizer(pyQiskitOptimizer):
+
+    """Wrapper for the classical Cobyla optimizer.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.2
+    .. versionchanged:: 0.0.4
+
+    See Also
+    --------
+    pyQiskitOptimizer
+
+    """
+    def __init__(self):
+        pyQiskitOptimizer.__init__(self)
+
+    """Helper to create a docplex representation of a
+    covariance matrix variable.
+
+    Parameters
+    ----------
+    prob : Model
+        An instance of the docplex model [1]_
+    channels : list
+        The list of channels. A channel can be any Python object,
+        such as channels'name or number but None.
+    name : string
+        An custom name for the variable. The name is used internally by docplex
+        and may appear if your print the model to a file for example.
+
+    Returns
+    -------
+    docplex_covmat : dict
+        A square matrix of continuous decision variables representing
+        our covariance matrix.
+
+    See Also
+    -----
+    square_cont_mat_var
+
+    Notes
+    -----
+    .. versionadded:: 0.0.2
+
+    References
+    ----------
+    .. [1] \
+        http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+
+    """
+    def covmat_var(self, prob, channels, name):
+        return square_cont_mat_var(prob, channels, name)
+
+    def _solve_qp(self, qp, reshape=True):
+        result = CobylaOptimizer(rhobeg=0.01, rhoend=0.0001).solve(qp).x
+        if reshape:
+            n_channels = int(math.sqrt(result.shape[0]))
+            return np.reshape(result, (n_channels, n_channels))
+        return result
+
+    """Helper to create a docplex representation of a
+    weight vector.
+
+    Parameters
+    ----------
+    prob : Model
+        An instance of the docplex model [1]_
+    classes : list
+        The classes.
+
+    Returns
+    -------
+    docplex_weights : dict
+        A vector of continuous decision variables representing
+        our weights.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.4
+
+    """
+    def get_weights(self, prob, classes):
+        w = prob.continuous_var_matrix(keys1=[1], keys2=classes,
+                                       name="weight",
+                                       lb=0, ub=1)
+        w = np.array([w[key] for key in w])
+        return w
+
+
+class NaiveQAOAOptimizer(pyQiskitOptimizer):
+
+    """Wrapper for the quantum optimizer QAOA.
+
+    Attributes
+    ----------
+    upper_bound : int (default: 7)
+        The maximum integer value for matrix normalization.
+    backend: QuantumInstance (default: None)
+        A quantum backend instance.
+        If None, AerSimulator will be used.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.2
+    .. versionchanged:: 0.0.4
+
+    See Also
+    --------
+    pyQiskitOptimizer
+    """
+    def __init__(self, upper_bound=7, quantum_instance=None):
+        pyQiskitOptimizer.__init__(self)
+        self.upper_bound = upper_bound
+        self.quantum_instance = quantum_instance
+
+    """Transform all values in the covariance matrix
+    to integers.
+
+    Example:
+    0.123 -> 1230
+
+    Parameters
+    ----------
+    covmat : ndarray, shape (n_features, n_features)
+        The covariance matrix.
+
+    Returns
+    -------
+    transformed_covmat : ndarray, shape (n_features, n_features)
+        A transformation of the covariance matrix.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.2
+
+    """
+    def convert_covmat(self, covmat):
+        corr = cov_to_corr_matrix(covmat)
+        return np.round(corr * self.upper_bound, 0)
+
+    """Helper to create a docplex representation of a
+    covariance matrix variable.
+
+    Parameters
+    ----------
+    prob : Model
+        An instance of the docplex model [1]_
+    channels : list
+        The list of channels. A channel can be any Python object,
+        such as channels'name or number but None.
+    name : string
+        An custom name for the variable. The name is used internally by docplex
+        and may appear if your print the model to a file for example.
+
+    Returns
+    -------
+    docplex_covmat : dict
+        A square matrix of integer decision variables representing
+        our covariance matrix.
+
+    See Also
+    -----
+    square_int_mat_var
+
+    Notes
+    -----
+    .. versionadded:: 0.0.2
+
+    References
+    ----------
+    .. [1] \
+        http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+
+    """
+    def covmat_var(self, prob, channels, name):
+        return square_int_mat_var(prob, channels, self.upper_bound, name)
+
+    def _solve_qp(self, qp, reshape=True):
+        conv = IntegerToBinary()
+        qubo = conv.convert(qp)
+        if self.quantum_instance is None:
+            backend = get_simulator()
+            quantum_instance = QuantumInstance(backend)
+        else:
+            quantum_instance = self.quantum_instance
+        qaoa_mes = QAOA(quantum_instance=quantum_instance,
+                        initial_point=[0., 0.])
+        qaoa = MinimumEigenOptimizer(qaoa_mes)
+        result = conv.interpret(qaoa.solve(qubo))
+        if reshape:
+            n_channels = int(math.sqrt(result.shape[0]))
+            return np.reshape(result, (n_channels, n_channels))
+        return result
+
+    """Helper to create a docplex representation of a
+    weight vector.
+
+    Parameters
+    ----------
+    prob : Model
+        An instance of the docplex model [1]_
+    classes : list
+        The classes.
+
+    Returns
+    -------
+    docplex_weights : dict
+        A vector of integer decision variables representing
+        our weights.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.4
+
+    """
+    def get_weights(self, prob, classes):
+        w = prob.integer_var_matrix(keys1=[1], keys2=classes,
+                                    name="weight", lb=0, ub=self.upper_bound)
+        w = np.array([w[key] for key in w])
+        return w

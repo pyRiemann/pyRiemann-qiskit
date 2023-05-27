@@ -1,0 +1,18 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.191.0/containers/docker-existing-dockerfile
+{
+  "name": "Existing Dockerfile",
+
+  "context": "..",
+
+  "dockerFile": "../Dockerfile",
+
+  "settings": {},
+
+  "extensions": [
+  ],
+
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ]
+}

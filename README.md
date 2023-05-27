@@ -23,8 +23,12 @@ this could be an interesting research direction to investigate BCI illiteracy.
 
 pyRiemann-qiskit implements a wrapper around QSVC and VQC, to use quantum
 classification with Riemannian geometry. A use case would be to use vectorized
-covariance matrices in the TangentSpace as an input for these classifiers,
+covariance matrices in the tangent space as an input for these classifiers,
 enabling a possible sandbox for researchers and engineers in the field.
+
+The remaining details some of the quantum drawbacks and will guide you through installation.
+Full documentation, including API description, is available at <https://pyriemann-qiskit.readthedocs.io/>.
+The repository also includes a [wiki](https://github.com/pyRiemann/pyRiemann-qiskit/wiki) where you can find additional information.
 
 ## Quantum drawbacks
 
@@ -69,13 +73,24 @@ enabling a possible sandbox for researchers and engineers in the field.
 	NTB Berlin 2022 - International Forum on Neural Engineering & Brain Technologies, May 2022, Berlin, Germany,
 	hal: https://hal.archives-ouvertes.fr/hal-03672246/
 
+### How to cite?
+
+Anton Andreev, Grégoire Cattan, Sylvain Chevallier, and Quentin Barthélemy. ‘PyRiemann-Qiskit: A Sandbox for Quantum Classification Experiments with Riemannian Geometry’. Research Ideas and Outcomes 9 (20 March 2023). https://doi.org/10.3897/rio.9.e101006.
 
 ## Installation
 
 _We recommend the use of [Anaconda](https://www.anaconda.com/) to manage python environements._ 
 
-As there is no stable version, you should clone this repository
-and install the package on your local machine using the `setup.py` script
+`pyRiemann-qiskit` currently supports Windows, Mac and Linux OS with Python 3.7, 3.8 and 3.9.
+
+You can install `pyRiemann-qiskit` release from PyPI:
+
+```
+pip install pyriemann-qiskit
+```
+
+The development version can be installed by cloning this repository
+and installing the package on your local machine using the `setup.py` script:
 
 ```
 python setup.py develop
@@ -87,12 +102,19 @@ To check the installation, open a python shell and type:
 import pyriemann_qiskit
 ```
 
-Full documentation, including API description, is available at <https://pyriemann-qiskit.readthedocs.io/>
+To enable Qiskit GPU optimization when using quantum simulation, run:
+
+```
+pip install .[optim]
+```
+
+Note, Qiskit only provide binaries for Linux. For other platforms, or if you want to
+enable specific NVIDIA optimization for quantum, you need to build the binary [yourself](https://github.com/Qiskit/qiskit-aer/blob/main/CONTRIBUTING.md#building-with-gpu-support).
 
 To run a specific example on your local machine, you should install first dependencies for the documentation:
 
 ```
-pip install .[doc]
+pip install .[docs]
 ```
 
 Then you can run the python example of your choice like:
@@ -100,6 +122,28 @@ Then you can run the python example of your choice like:
 ```
 python examples\ERP\classify_P300_bi.py
 ```
+
+### Installation with docker
+
+We also offer the possibility to set up the dev environment within docker.
+To this end, we recommand to use `vscode` with the `Remote Containers` extension
+from Microsoft. 
+
+Once the installation is successful, just open the project in `vscode` and enter `F1`.
+In the search bar that opens, type `Rebuild and Reopen Container`.
+
+Wait for the container to build, and open a python shell within the container.
+Then ensure everything went smoothly by typing:
+
+```
+import pyriemann_qiskit
+```
+
+Alternatively you can from the console (Windows or Linux) build the docker image from our Dockerfile. Go to the root folder of pyRiemann-qiskit and type:
+```
+docker build -t pyrq .
+```
+Next use `docker run --detach pyrq` to enter the pyRiemann-qiskit image.
 
 ## Contributor Guidelines
 
@@ -127,7 +171,7 @@ Code contribution (pull request) can be either on core functionalities, document
 - Automation is based on `GitHub Action` and `pytest`. It consists in two automated workflows for running the example and the tests. To run the tests on your local machine, you should first install the dependencies for testing:
 
     ```
-    pip install .[test]
+    pip install .[tests]
     ```
 
     and then type `pytest` from the root repository. You can also specify a file like:
@@ -140,9 +184,30 @@ Code contribution (pull request) can be either on core functionalities, document
 
 # Troubleshooting
 
+## Version of pyRiemann not updated
 There is a known issue when you install `pyRiemann-qiskit` in an environement where there is already `pyRiemann` installed. In such case, the `pyRiemann` version is not updated. Therefore before installing or updating `pyRiemann-qiskit`, we recommend to install `pyRiemann` as it follows:
 
 ```
 pip uninstall pyriemann
 pip install pyriemann@git+https://github.com/pyRiemann/pyRiemann#egg=pyriemann
+```
+
+## Firebase admin not loading
+In some environment, the firebase admin module is not loaded. There is two reasons:
+1) The protobuf package is missing an `__init__.py` file. You can fix this issue by adding it manually as it is done in the DockerFile:
+
+```
+touch /usr/local/lib/python3.8/site-packages/protobuf-4.22.1-py3.8-linux-x86_64.egg/google/__init__.py
+```
+
+2) The Firestore service contains unused dependency to `google.cloud.location`. You can fix this issue by removing the dependencies manually,
+as it is done in the DockerFile too:
+
+```
+sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.8/site-packages/google_cloud_firestore-2.10.1-py3.8.egg/google/cloud/firestore_v1/services/firestore/client.py'
+sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.8/site-packages/google_cloud_firestore-2.10.1-py3.8.egg/google/cloud/firestore_v1/services/firestore/transports/base.py'
+sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.8/site-packages/google_cloud_firestore-2.10.1-py3.8.egg/google/cloud/firestore_v1/services/firestore/transports/grpc.py'
+sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.8/site-packages/google_cloud_firestore-2.10.1-py3.8.egg/google/cloud/firestore_v1/services/firestore/transports/grpc_asyncio.py'
+sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.8/site-packages/google_cloud_firestore-2.10.1-py3.8.egg/google/cloud/firestore_v1/services/firestore/transports/rest.py'
+sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.8/site-packages/google_cloud_firestore-2.10.1-py3.8.egg/google/cloud/firestore_v1/services/firestore/async_client.py'
 ```

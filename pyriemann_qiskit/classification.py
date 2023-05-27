@@ -4,20 +4,24 @@ from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.decomposition import PCA
 from sklearn.pipeline import make_pipeline
 from sklearn.svm import SVC
-from qiskit import BasicAer, IBMQ
+from qiskit_ibm_provider import IBMProvider, least_busy
 from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit.utils.quantum_instance import logger
-from qiskit.providers.ibmq import least_busy
-from qiskit_machine_learning.algorithms import QSVC, VQC
+from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
 from qiskit_machine_learning.kernels.quantum_kernel import QuantumKernel
 from datetime import datetime
 import logging
 from .utils.hyper_params_factory import (gen_zz_feature_map,
                                          gen_two_local,
                                          get_spsa)
+from .utils import get_provider, get_devices, get_simulator
 from pyriemann.estimation import XdawnCovariances
+from pyriemann.classification import MDM
 from pyriemann.tangentspace import TangentSpace
 from pyriemann_qiskit.datasets import get_feature_dimension
+from pyriemann_qiskit.utils import (ClassicalOptimizer,
+                                    NaiveQAOAOptimizer,
+                                    set_global_optimizer)
 
 logger.level = logging.INFO
 
@@ -50,7 +54,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         If quantum==True and q_account_token provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
-        token saved with `IBMQ.save_account()`.
+        token saved with `IBMProvider.save_account()`.
     verbose : bool (default:True)
         If true will output all intermediate results and logs
     shots : int (default:1024)
@@ -99,14 +103,14 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
             if self.q_account_token:
                 self._log("Real quantum computation will be performed")
                 if not self.q_account_token == "load_account":
-                    IBMQ.delete_account()
-                    IBMQ.save_account(self.q_account_token)
-                IBMQ.load_account()
+                    IBMProvider.delete_account()
+                    IBMProvider.save_account(self.q_account_token)
+                IBMProvider.load_account()
                 self._log("Getting provider...")
-                self._provider = IBMQ.get_provider(hub='ibm-q')
+                self._provider = get_provider()
             else:
                 self._log("Quantum simulation will be performed")
-                self._backend = BasicAer.get_backend('qasm_simulator')
+                self._backend = get_simulator()
         else:
             self._log("Classical SVM will be performed")
 
@@ -173,12 +177,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._feature_map = self.gen_feature_map(n_features)
         if self.quantum:
             if not hasattr(self, "_backend"):
-                def filters(device):
-                    return (
-                      device.configuration().n_qubits >= n_features
-                      and not device.configuration().simulator
-                      and device.status().operational)
-                devices = self._provider.backends(filters=filters)
+                devices = get_devices(self._provider, n_features)
                 try:
                     self._backend = least_busy(devices)
                 except Exception:
@@ -242,12 +241,26 @@ class QuanticSVM(QuanticClassifierBase):
     Notes
     -----
     .. versionadded:: 0.0.1
+    .. versionchanged:: 0.0.2
+       Qiskit's Pegasos implementation [4, 5]_.
 
     Parameters
     ----------
-    gamma : float | None (default:None)
+    gamma : float | None (default: None)
         Used as input for sklearn rbf_kernel which is used internally.
         See [3]_ for more information about gamma.
+    C : float (default: 1.0)
+        Regularization parameter. The strength of the regularization is
+        inversely proportional to C. Must be strictly positive.
+        Note, if pegasos is enabled you may want to consider
+        larger values of C.
+    max_iter: int | None (default: None)
+        number of steps in Pegasos or (Q)SVC.
+        If None, respective default values for Pegasos and SVC
+        are used. The default value for Pegasos is 1000.
+        For (Q)SVC it is -1 (that is not limit).
+    pegasos : boolean (default: False)
+        If true, uses Qiskit's PegasosQSVC instead of QSVC.
 
     See Also
     --------
@@ -266,11 +279,23 @@ class QuanticSVM(QuanticClassifierBase):
     .. [3] Available from: \
         https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.rbf_kernel.html
 
+    .. [4] G. Gentinetta, A. Thomsen, D. Sutter, and S. Woerner,
+           ‘The complexity of quantum support vector machines’, arXiv,
+           arXiv:2203.00031, Feb. 2022.
+           doi: 10.48550/arXiv.2203.00031
+
+    .. [5] S. Shalev-Shwartz, Y. Singer, and A. Cotter,
+           ‘Pegasos: Primal Estimated sub-GrAdient SOlver for SVM’
+
     """
 
-    def __init__(self, gamma='scale', **parameters):
+    def __init__(self, gamma='scale', C=1.0, max_iter=None,
+                 pegasos=False, **parameters):
         QuanticClassifierBase.__init__(self, **parameters)
         self.gamma = gamma
+        self.C = C
+        self.max_iter = max_iter
+        self.pegasos = pegasos
 
     def _init_algo(self, n_features):
         self._log("SVM initiating algorithm")
@@ -278,10 +303,20 @@ class QuanticSVM(QuanticClassifierBase):
             quantum_kernel = \
                 QuantumKernel(feature_map=self._feature_map,
                               quantum_instance=self._quantum_instance)
-            classifier = QSVC(quantum_kernel=quantum_kernel,
-                              gamma=self.gamma)
+            if self.pegasos:
+                self._log("[Warning] `gamma` is not supported by PegasosQSVC")
+                num_steps = 1000 if self.max_iter is None else self.max_iter
+                classifier = PegasosQSVC(quantum_kernel=quantum_kernel,
+                                         C=self.C,
+                                         num_steps=num_steps)
+            else:
+                max_iter = -1 if self.max_iter is None else self.max_iter
+                classifier = QSVC(quantum_kernel=quantum_kernel,
+                                  gamma=self.gamma, C=self.C,
+                                  max_iter=max_iter)
         else:
-            classifier = SVC(gamma=self.gamma)
+            max_iter = -1 if self.max_iter is None else self.max_iter
+            classifier = SVC(gamma=self.gamma, C=self.C, max_iter=max_iter)
         return classifier
 
     def predict_proba(self, X):
@@ -439,6 +474,101 @@ class QuanticVQC(QuanticClassifierBase):
         return self._map_0_1_to_classes(labels)
 
 
+class QuanticMDM(QuanticClassifierBase):
+
+    """Quantum-enhanced MDM
+
+    # This class is a convex implementation of the MDM [1]_,
+    # that can runs with quantum optimization.
+    # Only log-euclidian distance between trial and class prototypes
+    # is supported at the moment, but any type of metric
+    # can be used for centroid estimation.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.4
+
+    Parameters
+    ----------
+    metric : string | dict, default={"mean": 'logeuclid', "distance": 'convex'}
+        The type of metric used for centroid and distance estimation.
+        see `mean_covariance` for the list of supported metric.
+        the metric could be a dict with two keys, `mean` and `distance` in
+        order to pass different metrics for the centroid estimation and the
+        distance estimation. Typical usecase is to pass 'logeuclid' metric for
+        the mean in order to boost the computional speed and 'riemann' for the
+        distance in order to keep the good sensitivity for the classification.
+
+    See Also
+    --------
+    QuanticClassifierBase
+    pyriemann.classification.MDM
+
+    References
+    ----------
+    .. [1] `Multiclass Brain-Computer Interface Classification by Riemannian
+        Geometry
+        <https://hal.archives-ouvertes.fr/hal-00681328>`_
+        A. Barachant, S. Bonnet, M. Congedo, and C. Jutten. IEEE Transactions
+        on Biomedical Engineering, vol. 59, no. 4, p. 920-928, 2012.
+    .. [2] `Riemannian geometry applied to BCI classification
+        <https://hal.archives-ouvertes.fr/hal-00602700/>`_
+        A. Barachant, S. Bonnet, M. Congedo and C. Jutten. 9th International
+        Conference Latent Variable Analysis and Signal Separation
+        (LVA/ICA 2010), LNCS vol. 6365, 2010, p. 629-636.
+    """
+
+    def __init__(self,
+                 metric={"mean": 'logeuclid', "distance": 'convex'},
+                 **parameters):
+        QuanticClassifierBase.__init__(self, **parameters)
+        self.metric = metric
+
+    def _init_algo(self, n_features):
+        self._log("Convex MDM initiating algorithm")
+        classifier = MDM(metric=self.metric)
+        if self.quantum:
+            self._optimizer = \
+                NaiveQAOAOptimizer(quantum_instance=self._quantum_instance)
+        else:
+            self._optimizer = ClassicalOptimizer()
+        set_global_optimizer(self._optimizer)
+        return classifier
+
+    def predict_proba(self, X):
+        """Return the probabilities associated with predictions.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_trials, n_channels, n_channels)
+            ndarray of trials.
+
+        Returns
+        -------
+        prob : ndarray, shape (n_samples, n_classes)
+            prob[n, 0] == True if the nth sample is assigned to 1st class;
+            prob[n, 1] == True if the nth sample is assigned to 2nd class.
+        """
+        return self._classifier.predict_proba(X)
+
+    def predict(self, X):
+        """Calculates the predictions.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_samples, n_features)
+            Input vector, where `n_samples` is the number of samples and
+            `n_features` is the number of features.
+
+        Returns
+        -------
+        pred : array, shape (n_samples,)
+            Class labels for samples in X.
+        """
+        labels = self._predict(X)
+        return self._map_0_1_to_classes(labels)
+
+
 class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
                                                      ClassifierMixin,
                                                      TransformerMixin):
@@ -467,8 +597,19 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
     gamma : float | None (default:None)
         Used as input for sklearn rbf_kernel which is used internally.
         See [1]_ for more information about gamma.
-    shots : int (default:1024)
+    C : float (default: 1.0)
+        Regularization parameter. The strength of the regularization is
+        inversely proportional to C. Must be strictly positive.
+        Note, if pegasos is enabled you may want to consider
+        larger values of C.
+    max_iter: int | None (default: None)
+        number of steps in Pegasos or SVC.
+        If None, respective default values for Pegasos and (Q)SVC
+        are used. The default value for Pegasos is 1000.
+        For (Q)SVC it is -1 (that is not limit).
+    shots : int | None (default: 1024)
         Number of repetitions of each circuit, for sampling.
+        If None, classical computation will be performed.
     feature_entanglement : str | list[list[list[int]]] | \
                    Callable[int, list[list[list[int]]]]
         Specifies the entanglement structure for the ZZFeatureMap.
@@ -514,13 +655,16 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
     """
 
     def __init__(self, nfilter=1, dim_red=PCA(),
-                 gamma='scale', shots=1024, feature_entanglement='full',
+                 gamma='scale', C=1.0, max_iter=None,
+                 shots=1024, feature_entanglement='full',
                  feature_reps=2, spsa_trials=None, two_local_reps=None,
                  params={}):
 
         self.nfilter = nfilter
         self.dim_red = dim_red
         self.gamma = gamma
+        self.C = C
+        self.max_iter = max_iter
         self.shots = shots
         self.feature_entanglement = feature_entanglement
         self.feature_reps = feature_reps
@@ -544,7 +688,8 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
                              **params)
         else:
             self._log("QuanticSVM chosen.")
-            clf = QuanticSVM(quantum=is_quantum, gamma=gamma,
+            clf = QuanticSVM(quantum=is_quantum, gamma=gamma, C=C,
+                             max_iter=max_iter,
                              gen_feature_map=feature_map,
                              shots=shots, **params)
 

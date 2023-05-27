@@ -1,6 +1,10 @@
+from warnings import warn
 import numpy as np
-from mne import io, read_events, pick_types, Epochs
-from mne.datasets import sample
+try:
+    from mne import io, read_events, pick_types, Epochs
+    from mne.datasets import sample
+except Exception:
+    warn("mne not available. get_mne_sample will fail.")
 from qiskit_machine_learning.datasets import ad_hoc_data
 from sklearn.datasets import make_classification
 
@@ -34,13 +38,17 @@ def get_mne_sample(n_trials=10):
     y : ndarray, shape (n_trials,)
         Predicted target vector relative to X.
 
+    Notes
+    -----
+    .. versionadded:: 0.0.1
+
     References
     ----------
     .. [1] Available from: \
         https://mne.tools/stable/overview/datasets_index.html
 
     """
-    data_path = sample.data_path()
+    data_path = str(sample.data_path())
 
     # Set parameters and read data
     raw_fname = data_path + "/MEG/sample/sample_audvis_filt-0-40_raw.fif"
@@ -81,6 +89,10 @@ def get_mne_sample(n_trials=10):
 def get_qiskit_dataset():
     """Return qiskit dataset.
 
+    Notes
+    -----
+    .. versionadded:: 0.0.1
+
     Returns
     -------
     X : ndarray, shape (n_samples, n_features)
@@ -92,7 +104,7 @@ def get_qiskit_dataset():
     """
 
     feature_dim = 2
-    _, X, _, _ = ad_hoc_data(
+    X, _, _, _ = ad_hoc_data(
         training_size=30,
         test_size=0,
         n=feature_dim,
@@ -108,6 +120,10 @@ def get_qiskit_dataset():
 def get_linearly_separable_dataset():
     """Return a linearly separable dataset.
 
+    Notes
+    -----
+    .. versionadded:: 0.0.1
+
     Returns
     -------
     X : ndarray, shape (n_samples, n_features)
@@ -122,7 +138,7 @@ def get_linearly_separable_dataset():
     rng = np.random.RandomState(2)
     X += 2 * rng.uniform(size=X.shape)
 
-    return(X, y)
+    return (X, y)
 
 
 def get_feature_dimension(dataset):
@@ -151,6 +167,10 @@ def get_feature_dimension(dataset):
         n_features : int
             The feature dimension, -1 denotes no data in the dataset.
 
+    Notes
+    -----
+    .. versionadded:: 0.0.2
+
     Raises
     -------
     TypeError
@@ -166,3 +186,70 @@ def get_feature_dimension(dataset):
         return v.shape[1]
 
     return -1
+
+
+class MockDataset():
+    """A dataset with mock data.
+
+    Parameters
+    ----------
+    dataset_gen : Callable[[], (List, List)]
+        A function to generate datasets.
+        The function accepts no parameters and returns a pair of lists.
+        The first list contains the samples, the second one the labels.
+    n_subjects : int
+        The number of subjects in the dataset.
+        A dataset will be generated for all subjects using the handler
+        `dataset_gen`.
+
+    Attributes
+    ----------
+    code_ : str
+        The code of the dataset.
+        The code of the dataset is also the string representation
+        of the dataset.
+    data_ : Dict
+        A dictionnary representing the dataset. Ex:
+        ```
+        {
+            subject1: (samples1, labels1),
+            subject2: (samples2, labels2),
+            ...
+        }
+        ```
+    subjects_ : List[int]
+        The subjects of the dataset.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.3
+
+    """
+    def __init__(self, dataset_gen, n_subjects: int):
+        self.code_ = "MockDataset"
+        self.subjects_ = range(n_subjects)
+        self.data_ = {}
+        for subject in self.subjects_:
+            self.data_[subject] = dataset_gen()
+
+    def get_data(self, subject):
+        """
+        Returns the data of a subject.
+
+        Parameters
+        ----------
+        subject : int
+            A subject in the list of subjects `subjects_`.
+
+        Returns
+        -------
+        data : the subject's data.
+
+        Notes
+        -----
+        .. versionadded:: 0.0.3
+        """
+        return self.data_[subject]
+
+    def __str__(self) -> str:
+        return self.code_

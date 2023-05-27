@@ -117,7 +117,7 @@ class NaiveDimRed(TransformerMixin):
 
 class Vectorizer(BaseEstimator, TransformerMixin):
     """This is an auxiliary transformer that allows one to vectorize data
-    structures in a pipeline For instance, in the case of an X with
+    structures in a pipeline. For instance, in the case of an X with
     dimensions (n_samples, n_features, n_channels),
     one might be interested in a new data structure with dimensions
     (n_samples, n_features x n_channels)

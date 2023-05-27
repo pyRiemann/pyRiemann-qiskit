@@ -5,6 +5,7 @@ from pyriemann.estimation import XdawnCovariances
 from pyriemann_qiskit.classification \
     import (QuanticSVM,
             QuanticVQC,
+            QuanticMDM,
             QuantumClassifierWithDefaultRiemannianPipeline)
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
@@ -17,6 +18,8 @@ from operator import itemgetter
                          [make_pipeline(XdawnCovariances(nfilter=1),
                                         TangentSpace(), NaiveDimRed(),
                                         QuanticSVM(quantum=False)),
+                          make_pipeline(XdawnCovariances(nfilter=1),
+                                        QuanticMDM(quantum=False)),
                           QuantumClassifierWithDefaultRiemannianPipeline(
                               nfilter=1,
                               shots=None)])
@@ -114,12 +117,11 @@ class BinaryFVT(BinaryTest):
     def additional_steps(self):
         self.quantum_instance.fit(self.samples, self.labels)
         self.prediction = self.quantum_instance.predict(self.samples)
+        print(self.labels, self.prediction)
 
 
 class TestClassicalSVM(BinaryFVT):
-    """ Perform standard SVC test
-    (canary test to assess pipeline correctness)
-    """
+    """ Perform functional validation testing of Quantic SVM"""
     def get_params(self):
         quantum_instance = QuanticSVM(quantum=False, verbose=False)
         return {
@@ -136,7 +138,7 @@ class TestClassicalSVM(BinaryFVT):
                self.quantum_instance.classes_[1]
 
 
-class TestQuanticSVM(BinaryFVT):
+class TestQuanticSVM(TestClassicalSVM):
     """Perform SVC on a simulated quantum computer.
     This test can also be run on a real computer by providing a qAccountToken
     To do so, you need to use your own token, by registering on:
@@ -152,11 +154,20 @@ class TestQuanticSVM(BinaryFVT):
             "type": "bin"
         }
 
-    def check(self):
-        assert self.prediction[:self.class_len].all() == \
-               self.quantum_instance.classes_[0]
-        assert self.prediction[self.class_len:].all() == \
-               self.quantum_instance.classes_[1]
+
+class TestQuanticPegasosSVM(TestClassicalSVM):
+    """Same as TestQuanticSVM, expect it uses
+    PegasosQSVC instead of QSVC implementation.
+    """
+    def get_params(self):
+        quantum_instance = QuanticSVM(quantum=True, verbose=False,
+                                      pegasos=True)
+        return {
+            "n_samples": 10,
+            "n_features": 4,
+            "quantum_instance": quantum_instance,
+            "type": "bin"
+        }
 
 
 class TestQuanticVQC(BinaryFVT):
@@ -176,6 +187,28 @@ class TestQuanticVQC(BinaryFVT):
         # Considering the inputs, this probably make no sense to test accuracy.
         # Instead, we could consider this test as a canary test
         assert len(self.prediction) == len(self.labels)
+
+
+class TestClassicalMDM(BinaryFVT):
+    """Test the classical version of MDM is used
+    when quantum is false
+    https://quantum-computing.ibm.com/
+    Note that the "real quantum version" of this test may also take some time.
+    """
+    def get_params(self):
+        quantum_instance = QuanticMDM(quantum=False, verbose=False)
+        return {
+            "n_samples": 100,
+            "n_features": 9,
+            "quantum_instance": quantum_instance,
+            "type": "bin_cov"
+        }
+
+    def check(self):
+        assert self.prediction[:self.class_len].all() == \
+               self.quantum_instance.classes_[0]
+        assert self.prediction[self.class_len:].all() == \
+               self.quantum_instance.classes_[1]
 
 
 class TestQuantumClassifierWithDefaultRiemannianPipeline(BinaryFVT):

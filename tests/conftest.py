@@ -53,6 +53,11 @@ def _get_labels(n_matrices, n_classes):
     return np.arange(n_classes).repeat(n_matrices // n_classes)
 
 
+@pytest.fixture
+def get_labels():
+    return _get_labels
+
+
 def _get_rand_feats(n_samples, n_features, rs):
     """Generate a set of n_features-dimensional samples for test purpose"""
     return rs.randn(n_samples, n_features)
@@ -85,6 +90,16 @@ def get_dataset(rndstate):
             labels = _get_labels(n_samples, n_classes)
         elif type == "bin":
             samples = _get_binary_feats(n_samples, n_features)
+            labels = _get_labels(n_samples, n_classes)
+        elif type == "rand_cov":
+            samples = make_covariances(n_samples, n_features, 0,
+                                       return_params=False)
+            labels = _get_labels(n_samples, n_classes)
+        elif type == "bin_cov":
+            samples_0 = make_covariances(n_samples // n_classes, n_features, 0,
+                                         return_params=False)
+            samples_1 = samples_0 * 2
+            samples = np.concatenate((samples_0, samples_1), axis=0)
             labels = _get_labels(n_samples, n_classes)
         else:
             samples, labels = get_mne_sample()
