@@ -1,0 +1,23 @@
+# This workflow lints with flake8
+
+name: Flake8
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: [ubuntu-latest]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.8
+    - name: Lint with flake8
+      run: |
+        flake8 examples tests pyriemann_qiskit
+
