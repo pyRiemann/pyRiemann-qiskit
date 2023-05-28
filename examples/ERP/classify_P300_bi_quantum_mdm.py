@@ -7,10 +7,10 @@ The mean and the distance in MDM algorithm are formualted as
 optimization problems. These optimization problems are translated
 to Qiskit using Docplex and additional glue code.
 
-Classification can be run either on emulation or real quaqntum computer.
-If you wan to use GPU, you need to use qiskit-aer-gpu that will replace
-qiskit-aer. It is only available on Linux.
+Classification can be run either on emulation or real quantum computer.
 
+If you want to use GPU, you need to use qiskit-aer-gpu that will replace
+qiskit-aer. It is only available on Linux.
 pip install qiskit-aer-gpu
 
 """
@@ -20,7 +20,8 @@ pip install qiskit-aer-gpu
 
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
-
+from pyriemann.estimation import XdawnCovariances
+from pyriemann.classification import MDM
 from pyriemann_qiskit.classification \
     import (QuanticSVM,
             QuanticVQC,
@@ -34,7 +35,9 @@ import warnings
 import seaborn as sns
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from moabb import set_log_level
-from moabb.datasets import bi2012
+
+from moabb.datasets import bi2012, bi2013a, bi2014a, bi2014b, bi2015a, bi2015b, BNCI2014008, BNCI2014009, BNCI2015003, EPFLP300, Lee2019_ERP
+
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
 from pyriemann_qiskit.classification import \
@@ -64,9 +67,19 @@ set_log_level("info")
 # to 0 and 1
 labels_dict = {"Target": 1, "NonTarget": 0}
 
-paradigm = P300(resample=128)
+paradigm = P300()
 
-datasets = [bi2012()]  # MOABB provides several other P300 datasets
+#Datasets:
+#name, electrodes, subjects
+#bi2013a	    16	24 (normal)
+#bi2014a    	16	64 (usually low performance)
+#BNCI2014009	16	10 (usually high performance)
+#BNCI2014008	 8	 8
+#BNCI2015003	 8	10
+#bi2015a        32  43
+#bi2015b        32  44
+
+datasets = [bi2013a()]
 
 # reduce the number of subjects, the Quantum pipeline takes a lot of time
 # if executed on the entire dataset
@@ -75,19 +88,13 @@ for dataset in datasets:
     dataset.subject_list = dataset.subject_list[0:n_subjects]
 
 overwrite = True  # set to True if we want to overwrite cached results
-
+xdawn_filters_all = 4
 pipelines = {}
 
 # A Riemannian Quantum pipeline provided by pyRiemann-qiskit
 # You can choose between classical SVM and Quantum SVM.
 pipelines["Xdawn+QuanticMDM"] = make_pipeline(
-                                        XdawnCovariances(
-                                            nfilter=2,
-                                            classes=[labels_dict["Target"]],
-                                            estimator="lwf",
-                                            xdawn_estimator="scm"
-                                        ),
-                                        #XdawnCovariances(nfilter=1),
+                                        XdawnCovariances(xdawn_filters_all),
                                         QuanticMDM(quantum=False))
 
 # Here we provide a pipeline for comparison:
@@ -95,18 +102,7 @@ pipelines["Xdawn+QuanticMDM"] = make_pipeline(
 # This is a standard pipeline similar to
 # QuantumClassifierWithDefaultRiemannianPipeline, but with LDA classifier
 # instead.
-pipelines["RG+LDA"] = make_pipeline(
-    # applies XDawn and calculates the covariance matrix, output it matrices
-    XdawnCovariances(
-        nfilter=2,
-        classes=[labels_dict["Target"]],
-        estimator="lwf",
-        xdawn_estimator="scm"
-    ),
-    TangentSpace(),
-    PCA(n_components=10),
-    LDA(solver="lsqr", shrinkage="auto"),  # you can use other classifiers
-)
+pipelines["XDawnCov+ClassicMDM"] = make_pipeline(XdawnCovariances(xdawn_filters_all), MDM())
 
 print("Total pipelines to evaluate: ", len(pipelines))
 
