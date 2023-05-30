@@ -7,7 +7,7 @@ from pyriemann.estimation import Shrinkage
 
 def fro_mean_convex(covmats, sample_weight=None,
                     optimizer=ClassicalOptimizer(),
-                    shrinkage=True):
+                    shrink=True):
     """Convex formulation of the mean
     with frobenius distance.
     Parameters
@@ -19,7 +19,7 @@ def fro_mean_convex(covmats, sample_weight=None,
         It is kept only for standardization with pyRiemann.
     optimizer: pyQiskitOptimizer
         An instance of pyQiskitOptimizer.
-    shrinkage: boolean (default: true)
+    shrink: boolean (default: true)
         If True, it applies shrinkage regularization [2]_
         of the resulting covariance matrix.
 
@@ -64,9 +64,9 @@ def fro_mean_convex(covmats, sample_weight=None,
 
     result = optimizer.solve(prob)
 
-    # regularize output
-    reg_mean_cov = Shrinkage().transform([result])[0]
-    return reg_mean_cov
+    if shrink:
+        return Shrinkage().transform([result])[0]
+    return result
 
 
 mean_methods["convex"] = fro_mean_convex

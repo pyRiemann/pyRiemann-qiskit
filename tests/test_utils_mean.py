@@ -52,7 +52,7 @@ def test_mean_convex_all_zeros(optimizer):
     n_trials, n_channels = 5, 2
     covmats = np.zeros((n_trials, n_channels, n_channels))
     C = fro_mean_convex(covmats, optimizer=optimizer)
-    assert np.allclose(covmats[0], C, atol=0.001)
+    assert np.allclose(covmats[0], C, atol=0.001, shrink=False)
 
 
 def test_mean_convex_all_ones():
@@ -60,7 +60,7 @@ def test_mean_convex_all_ones():
     is a matrix filled with ones"""
     n_trials, n_channels = 5, 2
     covmats = np.ones((n_trials, n_channels, n_channels))
-    C = fro_mean_convex(covmats)
+    C = fro_mean_convex(covmats, shrink=False)
     assert np.allclose(covmats[0], C, atol=0.001)
 
 
@@ -69,7 +69,7 @@ def test_mean_convex_all_equals():
     is a matrix identical to the input"""
     n_trials, n_channels, value = 5, 2, 2.5
     covmats = np.full((n_trials, n_channels, n_channels), value)
-    C = fro_mean_convex(covmats)
+    C = fro_mean_convex(covmats, shrink=False)
     assert np.allclose(covmats[0], C, atol=0.001)
 
 
@@ -80,5 +80,5 @@ def test_mean_convex_mixed():
     covmats_0 = np.zeros((n_trials, n_channels, n_channels))
     covmats_1 = np.ones((n_trials, n_channels, n_channels))
     expected_mean = np.full((n_channels, n_channels), 0.5)
-    C = fro_mean_convex(np.concatenate((covmats_0, covmats_1), axis=0))
+    C = fro_mean_convex(np.concatenate((covmats_0, covmats_1), axis=0), shrink=False)
     assert np.allclose(expected_mean, C, atol=0.001)
