@@ -59,9 +59,10 @@ def logeucl_dist_convex(X, y, optimizer=ClassicalOptimizer()):
 
     prob.set_objective("min", objectives)
 
-    result = optimizer.solve(prob, reshape=False)
+    weights = optimizer.solve(prob, reshape=False)
 
-    return result
+    distance = 1 - weights
+    return distance
 
 
 _mdm_predict_distances_original = MDM._predict_distances
