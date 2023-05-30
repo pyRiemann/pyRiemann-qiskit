@@ -3,6 +3,7 @@ from pyriemann.utils.mean import mean_methods
 from pyriemann_qiskit.utils.docplex import (ClassicalOptimizer,
                                             get_global_optimizer)
 from pyriemann.estimation import Shrinkage
+from sklearn.covariance import ledoit_wolf
 
 
 def fro_mean_convex(covmats, sample_weight=None,
@@ -59,7 +60,7 @@ def fro_mean_convex(covmats, sample_weight=None,
     result = optimizer.solve(prob)
 
     # regularize output
-    reg_mean_cov = Shrinkage().transform(result)
+    reg_mean_cov = ledoit_wolf(result)
     return reg_mean_cov
 
 
