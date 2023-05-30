@@ -59,7 +59,7 @@ def fro_mean_convex(covmats, sample_weight=None,
     result = optimizer.solve(prob)
 
     # regularize output
-    reg_mean_cov = Shrinkage().transform(result)
+    reg_mean_cov = Shrinkage().transform([result])
     return reg_mean_cov
 
 
