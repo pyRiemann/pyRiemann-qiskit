@@ -2,7 +2,6 @@ from docplex.mp.model import Model
 from pyriemann.utils.mean import mean_methods
 from pyriemann_qiskit.utils.docplex import (ClassicalOptimizer,
                                             get_global_optimizer)
-from pyriemann.estimation import Shrinkage
 
 
 def fro_mean_convex(covmats, sample_weight=None,
@@ -27,8 +26,6 @@ def fro_mean_convex(covmats, sample_weight=None,
     Notes
     -----
     .. versionadded:: 0.0.3
-    .. versionmodified:: 0.0.4
-      Add regularization of the results.
 
     References
     ----------
@@ -58,9 +55,7 @@ def fro_mean_convex(covmats, sample_weight=None,
 
     result = optimizer.solve(prob)
 
-    # regularize output
-    reg_mean_cov = Shrinkage().transform(result)
-    return reg_mean_cov
+    return result
 
 
 mean_methods["convex"] = fro_mean_convex
