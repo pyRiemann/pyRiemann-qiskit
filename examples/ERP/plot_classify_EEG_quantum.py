@@ -13,17 +13,17 @@ then projected in the tangent space and classified with a quantum SVM
 # Modified from plot_classify_EEG_tangentspace.py of pyRiemann
 # License: BSD (3-clause)
 
-from matplotlib import pyplot as plt
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
-from sklearn.metrics import (ConfusionMatrixDisplay, balanced_accuracy_score,
-                             confusion_matrix)
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import make_pipeline
-
 from pyriemann_qiskit.classification import QuanticSVM
-from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
+from pyriemann_qiskit.datasets import get_mne_sample
+from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import (confusion_matrix, ConfusionMatrixDisplay,
+                             balanced_accuracy_score)
+from matplotlib import pyplot as plt
+
 
 print(__doc__)
 
@@ -31,7 +31,8 @@ print(__doc__)
 X, y = get_mne_sample(n_trials=-1)
 
 # ...skipping the KFold validation parts (for the purpose of the test only)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=1)
 
 ###############################################################################
 # Decoding in tangent space with a quantum classifier
@@ -52,12 +53,13 @@ dim_red = NaiveDimRed()
 
 
 # https://stackoverflow.com/questions/61825227/plotting-multiple-confusion-matrix-side-by-side
-f, axes = plt.subplots(1, 2, sharey="row")
+f, axes = plt.subplots(1, 2, sharey='row')
 
 disp = None
 
 # Results will be computed for QuanticSVM versus SKLearnSVM for comparison
 for quantum in [True, False]:
+
     qsvm = QuanticSVM(verbose=True, quantum=quantum)
     clf = make_pipeline(sf, tg, dim_red, qsvm)
     clf.fit(X_train, y_train)
@@ -75,12 +77,12 @@ for quantum in [True, False]:
     disp.plot(ax=axe, xticks_rotation=45)
     disp.ax_.set_title(title)
     disp.im_.colorbar.remove()
-    disp.ax_.set_xlabel("")
+    disp.ax_.set_xlabel('')
     if not quantum:
-        disp.ax_.set_ylabel("")
+        disp.ax_.set_ylabel('')
 
 if disp:
-    f.text(0.4, 0.1, "Predicted label", ha="left")
+    f.text(0.4, 0.1, 'Predicted label', ha='left')
     plt.subplots_adjust(wspace=0.40, hspace=0.1)
     f.colorbar(disp.im_, ax=axes)
     plt.show()
