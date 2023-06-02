@@ -1,5 +1,5 @@
 # pyRiemann-qiskit
- 
+
 Litterature on quantum computing suggests it may offer an advantage as compared with
 classical computing in terms of computational time and outcomes, such as for pattern
 recognition or when using limited training sets [1, 2].
