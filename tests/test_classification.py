@@ -141,7 +141,7 @@ class TestClassicalSVM(BinaryFVT):
             self.prediction[: self.class_len].all() == self.quantum_instance.classes_[0]
         )
         assert (
-            self.prediction[self.class_len:].all() == self.quantum_instance.classes_[1]
+            self.prediction[self.class_len :].all() == self.quantum_instance.classes_[1]
         )
 
 
@@ -219,7 +219,7 @@ class TestClassicalMDM(BinaryFVT):
             self.prediction[: self.class_len].all() == self.quantum_instance.classes_[0]
         )
         assert (
-            self.prediction[self.class_len:].all() == self.quantum_instance.classes_[1]
+            self.prediction[self.class_len :].all() == self.quantum_instance.classes_[1]
         )
 
 
