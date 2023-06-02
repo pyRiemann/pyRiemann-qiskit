@@ -1,12 +1,11 @@
 import pytest
 import numpy as np
-from pyriemann_qiskit.utils.filtering import (NoDimRed,
-                                              NaiveDimRed)
+from pyriemann_qiskit.utils.filtering import NoDimRed, NaiveDimRed
 
 
 class TestCommon:
     @pytest.mark.parametrize(
-        'dim_red', [NoDimRed(), NaiveDimRed(), NaiveDimRed(is_even=False)]
+        "dim_red", [NoDimRed(), NaiveDimRed(), NaiveDimRed(is_even=False)]
     )
     def test_fit(self, dim_red):
         """Ensure all filtering can be instanciated,
@@ -17,7 +16,7 @@ class TestCommon:
         assert dim_red.fit(X, y) == dim_red
 
     @pytest.mark.parametrize(
-        'dim_red', [NoDimRed(), NaiveDimRed(), NaiveDimRed(is_even=False)]
+        "dim_red", [NoDimRed(), NaiveDimRed(), NaiveDimRed(is_even=False)]
     )
     def test_transform_empty_array(self, dim_red):
         """Ensure we can provide an empty array to the
@@ -29,7 +28,7 @@ class TestCommon:
 
 class TestNaiveDimRed:
     @pytest.mark.parametrize(
-        'dim_red', [(NaiveDimRed(), True), (NaiveDimRed(is_even=False), False)]
+        "dim_red", [(NaiveDimRed(), True), (NaiveDimRed(is_even=False), False)]
     )
     def test_reduction(self, dim_red):
         """Ensure the dimension of the feature is divied by two

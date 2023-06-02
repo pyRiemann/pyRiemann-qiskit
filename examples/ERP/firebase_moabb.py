@@ -25,11 +25,11 @@ A list of real quantum  computers is available in your IBM quantum account.
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann_qiskit.utils import (
-        generate_caches,
-        filter_subjects_by_incomplete_results,
-        add_moabb_dataframe_results_to_caches,
-        convert_caches_to_dataframes
-    )
+    generate_caches,
+    filter_subjects_by_incomplete_results,
+    add_moabb_dataframe_results_to_caches,
+    convert_caches_to_dataframes,
+)
 from sklearn.pipeline import make_pipeline
 from matplotlib import pyplot as plt
 import warnings
@@ -39,8 +39,9 @@ from moabb import set_log_level
 from moabb.datasets import bi2012
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
-from pyriemann_qiskit.classification import \
-    QuantumClassifierWithDefaultRiemannianPipeline
+from pyriemann_qiskit.classification import (
+    QuantumClassifierWithDefaultRiemannianPipeline,
+)
 from sklearn.decomposition import PCA
 
 print(__doc__)
@@ -92,7 +93,7 @@ pipelines["RG+QuantumSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
     # On a real Quantum computer (n_components = qubits)
     dim_red=PCA(n_components=5),
     # params={'q_account_token': '<IBM Quantum TOKEN>'}
-    )
+)
 
 # Here we provide a pipeline for comparison:
 
@@ -105,7 +106,7 @@ pipelines["RG+LDA"] = make_pipeline(
         nfilter=2,
         classes=[labels_dict["Target"]],
         estimator="lwf",
-        xdawn_estimator="scm"
+        xdawn_estimator="scm",
     ),
     TangentSpace(),
     PCA(n_components=10),
@@ -122,28 +123,24 @@ caches = generate_caches(datasets, pipelines)
 filter_subjects_by_incomplete_results(caches, copy_datasets, pipelines)
 
 print("Total pipelines to evaluate: ", len(pipelines))
-print("Subjects to evaluate",
-      sum([len(dataset.subject_list) for dataset in copy_datasets]))
+print(
+    "Subjects to evaluate",
+    sum([len(dataset.subject_list) for dataset in copy_datasets]),
+)
 evaluation = WithinSessionEvaluation(
-    paradigm=paradigm,
-    datasets=copy_datasets,
-    suffix="examples",
-    overwrite=overwrite
+    paradigm=paradigm, datasets=copy_datasets, suffix="examples", overwrite=overwrite
 )
 
 try:
     results = evaluation.process(pipelines)
-    add_moabb_dataframe_results_to_caches(results,
-                                          copy_datasets,
-                                          pipelines,
-                                          caches)
+    add_moabb_dataframe_results_to_caches(results, copy_datasets, pipelines, caches)
 except ValueError:
     print("No subjects left to evaluate.")
 
 df = convert_caches_to_dataframes(caches, datasets, pipelines)
 
 print("Averaging the session performance:")
-print(df.groupby('pipeline').mean('score')[['score', 'time']])
+print(df.groupby("pipeline").mean("score")[["score", "time"]])
 
 ##############################################################################
 # Plot Results
@@ -164,11 +161,7 @@ sns.stripplot(
     palette="Set1",
 )
 
-sns.pointplot(data=df,
-              y="score",
-              x="pipeline",
-              ax=ax,
-              palette="Set1")
+sns.pointplot(data=df, y="score", x="pipeline", ax=ax, palette="Set1")
 
 ax.set_ylabel("ROC AUC")
 ax.set_ylim(0.3, 1)
