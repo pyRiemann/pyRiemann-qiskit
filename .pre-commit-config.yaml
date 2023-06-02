@@ -31,7 +31,6 @@ repos:
     rev: 6.0.0
     hooks:
       - id: flake8
-        additional_dependencies: [flake8-bugbear]
         exclude: ^(.github/|.devcontainer/|doc/_static/|pyriemann_qiskit/_version.py|setup.py)
 
   - repo: https://github.com/pre-commit/mirrors-prettier
