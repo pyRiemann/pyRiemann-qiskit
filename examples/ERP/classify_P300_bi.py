@@ -22,20 +22,22 @@ A list of real quantum  computers is available in your IBM quantum account.
 # Modified from plot_classify_EEG_tangentspace.py of pyRiemann
 # License: BSD (3-clause)
 
-from pyriemann.estimation import XdawnCovariances
-from pyriemann.tangentspace import TangentSpace
-from sklearn.pipeline import make_pipeline
-from matplotlib import pyplot as plt
 import warnings
+
 import seaborn as sns
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from matplotlib import pyplot as plt
 from moabb import set_log_level
 from moabb.datasets import bi2012
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
+from pyriemann.estimation import XdawnCovariances
+from pyriemann.tangentspace import TangentSpace
+from sklearn.decomposition import PCA
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.pipeline import make_pipeline
+
 from pyriemann_qiskit.classification import \
     QuantumClassifierWithDefaultRiemannianPipeline
-from sklearn.decomposition import PCA
 
 print(__doc__)
 
@@ -84,7 +86,7 @@ pipelines["RG+QuantumSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
     # On a real Quantum computer (n_components = qubits)
     dim_red=PCA(n_components=5),
     # params={'q_account_token': '<IBM Quantum TOKEN>'}
-    )
+)
 
 # Here we provide a pipeline for comparison:
 
@@ -97,7 +99,7 @@ pipelines["RG+LDA"] = make_pipeline(
         nfilter=2,
         classes=[labels_dict["Target"]],
         estimator="lwf",
-        xdawn_estimator="scm"
+        xdawn_estimator="scm",
     ),
     TangentSpace(),
     PCA(n_components=10),
@@ -107,16 +109,13 @@ pipelines["RG+LDA"] = make_pipeline(
 print("Total pipelines to evaluate: ", len(pipelines))
 
 evaluation = WithinSessionEvaluation(
-    paradigm=paradigm,
-    datasets=datasets,
-    suffix="examples",
-    overwrite=overwrite
+    paradigm=paradigm, datasets=datasets, suffix="examples", overwrite=overwrite
 )
 
 results = evaluation.process(pipelines)
 
 print("Averaging the session performance:")
-print(results.groupby('pipeline').mean('score')[['score', 'time']])
+print(results.groupby("pipeline").mean("score")[["score", "time"]])
 
 ##############################################################################
 # Plot Results
@@ -136,11 +135,7 @@ sns.stripplot(
     zorder=1,
     palette="Set1",
 )
-sns.pointplot(data=results,
-              y="score",
-              x="pipeline",
-              ax=ax, zorder=1,
-              palette="Set1")
+sns.pointplot(data=results, y="score", x="pipeline", ax=ax, zorder=1, palette="Set1")
 
 ax.set_ylabel("ROC AUC")
 ax.set_ylim(0.3, 1)
