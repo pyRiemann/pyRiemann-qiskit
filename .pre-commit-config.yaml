@@ -25,17 +25,17 @@ repos:
     rev: 23.3.0
     hooks:
       - id: black
-        exclude: ^(.github/|.devcontainer/|doc/_static/|pyriemann_qiskit/_version.py|setup.py)
+        exclude: ^(.github/|.devcontainer/|doc/_static/|doc/conf.py|pyriemann_qiskit/_version.py|setup.py)
 
   - repo: https://github.com/pycqa/flake8
     rev: 6.0.0
     hooks:
       - id: flake8
-        exclude: ^(.github/|.devcontainer/|doc/_static/|pyriemann_qiskit/_version.py|setup.py)
+        exclude: ^(.github/|.devcontainer/|doc/_static/|doc/conf.py|pyriemann_qiskit/_version.py|setup.py)
 
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.0.0-alpha.6
     hooks:
       - id: prettier
         args: [--print-width=90, --prose-wrap=always]
-        exclude: ^(.github/|.devcontainer/|doc/_static/|pyriemann_qiskit/_version.py|setup.py)
+        exclude: ^(.github/|.devcontainer/|doc/_static/|doc/conf.py|pyriemann_qiskit/_version.py|setup.py)
