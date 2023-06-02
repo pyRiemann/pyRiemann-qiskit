@@ -19,13 +19,12 @@ entanglement or the number of shots.
 # Author: Gregoire Cattan
 # License: BSD (3-clause)
 
-from sklearn.decomposition import PCA
-from sklearn.model_selection import GridSearchCV, StratifiedKFold
-
+from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.classification import \
     QuantumClassifierWithDefaultRiemannianPipeline
-from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
+from sklearn.decomposition import PCA
+from sklearn.model_selection import StratifiedKFold, GridSearchCV
 
 print(__doc__)
 
@@ -42,7 +41,7 @@ default_params = {
     # This defines how we entangle the data into a quantum state
     # the more complex is the kernel, the more outcomes we can expect from
     # a quantum vs classical classifier.
-    "feature_entanglement": ["linear"],  # ['linear', 'sca', 'full'],
+    "feature_entanglement": ['linear'],  # ['linear', 'sca', 'full'],
     # This parameter change the depth of the circuit when entangling data.
     # There is a trade-off between accuracy and noise when the depth of the
     # circuit increases.
@@ -56,7 +55,7 @@ default_params = {
     # especially when using a simulated quantum machine.
     # A quantum simulator is also limited to only 24qbits
     # (and so is the size of the feature).
-    "dim_red": [PCA(n_components=10), NaiveDimRed()],
+    "dim_red": [PCA(n_components=10), NaiveDimRed()]
 }
 
 pipe = QuantumClassifierWithDefaultRiemannianPipeline()
@@ -65,20 +64,14 @@ pipe = QuantumClassifierWithDefaultRiemannianPipeline()
 def customize(custom_params: dict):
     new_params = {}
     for key in default_params:
-        new_params[key] = (
-            custom_params[key] if key in custom_params else default_params[key]
-        )
+        new_params[key] = custom_params[key] if key in custom_params \
+            else default_params[key]
     return new_params
 
 
 def search(params: dict):
-    grid = GridSearchCV(
-        pipe,
-        params,
-        scoring="balanced_accuracy",
-        n_jobs=-1,
-        cv=StratifiedKFold(n_splits=2),
-    )
+    grid = GridSearchCV(pipe, params, scoring='balanced_accuracy',
+                        n_jobs=-1, cv=StratifiedKFold(n_splits=2))
     grid.fit(X, y)
     return grid.best_params_
 
@@ -91,8 +84,13 @@ def analyze_multiple(l_params: list[dict]):
     print(best_params)
 
 
-SVC = {"shots": [None]}
+SVC = {
+    "shots": [None]
+}
 QSVC = {}
-VQC = {"spsa_trials": [40], "two_local_reps": [2]}
+VQC = {
+    "spsa_trials": [40],
+    "two_local_reps": [2]
+}
 
 analyze_multiple([SVC, QSVC, VQC])
