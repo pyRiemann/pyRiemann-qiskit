@@ -23,9 +23,9 @@ repos:
 
   - repo: https://github.com/psf/black
     rev: 23.3.0
-    exclude: ^(.github/|.devcontainer/)
     hooks:
       - id: black
+        exclude: ^(.github/|.devcontainer/)
 
   - repo: https://github.com/PyCQA/isort
     rev: 5.12.0
