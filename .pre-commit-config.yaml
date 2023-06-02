@@ -44,3 +44,4 @@ repos:
     hooks:
       - id: prettier
         args: [--print-width=90, --prose-wrap=always]
+
