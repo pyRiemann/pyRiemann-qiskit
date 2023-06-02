@@ -1,5 +1,6 @@
 from warnings import warn
 import numpy as np
+
 try:
     from mne import io, read_events, pick_types, Epochs
     from mne.datasets import sample
@@ -105,11 +106,7 @@ def get_qiskit_dataset():
 
     feature_dim = 2
     X, _, _, _ = ad_hoc_data(
-        training_size=30,
-        test_size=0,
-        n=feature_dim,
-        gap=0.3,
-        plot_data=False
+        training_size=30, test_size=0, n=feature_dim, gap=0.3, plot_data=False
     )
 
     y = np.concatenate(([0] * 30, [1] * 30))
@@ -133,8 +130,13 @@ def get_linearly_separable_dataset():
         Predicted target vector relative to X.
 
     """
-    X, y = make_classification(n_features=2, n_redundant=0, n_informative=2,
-                               random_state=1, n_clusters_per_class=1)
+    X, y = make_classification(
+        n_features=2,
+        n_redundant=0,
+        n_informative=2,
+        random_state=1,
+        n_clusters_per_class=1,
+    )
     rng = np.random.RandomState(2)
     X += 2 * rng.uniform(size=X.shape)
 
@@ -188,7 +190,7 @@ def get_feature_dimension(dataset):
     return -1
 
 
-class MockDataset():
+class MockDataset:
     """A dataset with mock data.
 
     Parameters
@@ -225,6 +227,7 @@ class MockDataset():
     .. versionadded:: 0.0.3
 
     """
+
     def __init__(self, dataset_gen, n_subjects: int):
         self.code_ = "MockDataset"
         self.subjects_ = range(n_subjects)

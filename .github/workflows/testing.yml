@@ -41,4 +41,3 @@ jobs:
         FIREBASE_CERTIFICATE: ${{ secrets.FIREBASE_CERTIFICATE }}
       run: |
         pytest
-
