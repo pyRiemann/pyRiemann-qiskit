@@ -2,11 +2,12 @@ import pytest
 import numpy as np
 from pyriemann.classification import TangentSpace
 from pyriemann.estimation import XdawnCovariances
-from pyriemann_qiskit.classification \
-    import (QuanticSVM,
-            QuanticVQC,
-            QuanticMDM,
-            QuantumClassifierWithDefaultRiemannianPipeline)
+from pyriemann_qiskit.classification import (
+    QuanticSVM,
+    QuanticVQC,
+    QuanticMDM,
+    QuantumClassifierWithDefaultRiemannianPipeline,
+)
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
 from sklearn.pipeline import make_pipeline
@@ -14,20 +15,25 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score
 from operator import itemgetter
 
 
-@pytest.mark.parametrize('estimator',
-                         [make_pipeline(XdawnCovariances(nfilter=1),
-                                        TangentSpace(), NaiveDimRed(),
-                                        QuanticSVM(quantum=False)),
-                          make_pipeline(XdawnCovariances(nfilter=1),
-                                        QuanticMDM(quantum=False)),
-                          QuantumClassifierWithDefaultRiemannianPipeline(
-                              nfilter=1,
-                              shots=None)])
+@pytest.mark.parametrize(
+    "estimator",
+    [
+        make_pipeline(
+            XdawnCovariances(nfilter=1),
+            TangentSpace(),
+            NaiveDimRed(),
+            QuanticSVM(quantum=False),
+        ),
+        make_pipeline(XdawnCovariances(nfilter=1), QuanticMDM(quantum=False)),
+        QuantumClassifierWithDefaultRiemannianPipeline(nfilter=1, shots=None),
+    ],
+)
 def test_get_set_params(estimator):
     skf = StratifiedKFold(n_splits=2)
     X, y = get_mne_sample()
-    scr = cross_val_score(estimator, X, y, cv=skf, scoring='roc_auc',
-                          error_score='raise')
+    scr = cross_val_score(
+        estimator, X, y, cv=skf, scoring="roc_auc", error_score="raise"
+    )
     assert scr.mean() > 0
 
 
@@ -42,7 +48,7 @@ def test_qsvm_init_quantum_wrong_token():
         q._init_quantum()
 
 
-@pytest.mark.parametrize('quantum', [False, True])
+@pytest.mark.parametrize("quantum", [False, True])
 def test_qsvm_init(quantum):
     """Test init of quantum classifiers"""
 
@@ -66,16 +72,13 @@ class BinaryTest:
 
     def test(self, get_dataset):
         # there is no __init__ method with pytest
-        n_samples, n_features, \
-            quantum_instance, type = itemgetter('n_samples',
-                                                'n_features',
-                                                'quantum_instance',
-                                                'type')(self.get_params())
+        n_samples, n_features, quantum_instance, type = itemgetter(
+            "n_samples", "n_features", "quantum_instance", "type"
+        )(self.get_params())
         self.prepare(n_samples, n_features, quantum_instance, type)
-        self.samples, self.labels = get_dataset(self.n_samples,
-                                                self.n_features,
-                                                self.n_classes,
-                                                self.type)
+        self.samples, self.labels = get_dataset(
+            self.n_samples, self.n_features, self.n_classes, self.type
+        )
         self.additional_steps()
         self.check()
 
@@ -91,22 +94,23 @@ class BinaryTest:
 
 class TestQSVMSplitClasses(BinaryTest):
     """Test _split_classes method of quantum classifiers"""
+
     def get_params(self):
         quantum_instance = QuanticSVM(quantum=False)
         return {
             "n_samples": 100,
             "n_features": 9,
             "quantum_instance": quantum_instance,
-            "type": "rand"
+            "type": "rand",
         }
 
     def additional_steps(self):
         # As fit method is not called here, classes_ is not set.
         # so we need to provide the classes ourselves.
         self.quantum_instance.classes_ = range(0, self.n_classes)
-        self.x_class1, \
-            self.x_class0 = self.quantum_instance._split_classes(self.samples,
-                                                                 self.labels)
+        self.x_class1, self.x_class0 = self.quantum_instance._split_classes(
+            self.samples, self.labels
+        )
 
     def check(self):
         assert np.shape(self.x_class1) == (self.class_len, self.n_features)
@@ -121,21 +125,24 @@ class BinaryFVT(BinaryTest):
 
 
 class TestClassicalSVM(BinaryFVT):
-    """ Perform functional validation testing of Quantic SVM"""
+    """Perform functional validation testing of Quantic SVM"""
+
     def get_params(self):
         quantum_instance = QuanticSVM(quantum=False, verbose=False)
         return {
             "n_samples": 100,
             "n_features": 9,
             "quantum_instance": quantum_instance,
-            "type": "bin"
+            "type": "bin",
         }
 
     def check(self):
-        assert self.prediction[:self.class_len].all() == \
-               self.quantum_instance.classes_[0]
-        assert self.prediction[self.class_len:].all() == \
-               self.quantum_instance.classes_[1]
+        assert (
+            self.prediction[: self.class_len].all() == self.quantum_instance.classes_[0]
+        )
+        assert (
+            self.prediction[self.class_len :].all() == self.quantum_instance.classes_[1]
+        )
 
 
 class TestQuanticSVM(TestClassicalSVM):
@@ -145,13 +152,14 @@ class TestQuanticSVM(TestClassicalSVM):
     https://quantum-computing.ibm.com/
     Note that the "real quantum version" of this test may also take some time.
     """
+
     def get_params(self):
         quantum_instance = QuanticSVM(quantum=True, verbose=False)
         return {
             "n_samples": 10,
             "n_features": 4,
             "quantum_instance": quantum_instance,
-            "type": "bin"
+            "type": "bin",
         }
 
 
@@ -159,19 +167,20 @@ class TestQuanticPegasosSVM(TestClassicalSVM):
     """Same as TestQuanticSVM, expect it uses
     PegasosQSVC instead of QSVC implementation.
     """
+
     def get_params(self):
-        quantum_instance = QuanticSVM(quantum=True, verbose=False,
-                                      pegasos=True)
+        quantum_instance = QuanticSVM(quantum=True, verbose=False, pegasos=True)
         return {
             "n_samples": 10,
             "n_features": 4,
             "quantum_instance": quantum_instance,
-            "type": "bin"
+            "type": "bin",
         }
 
 
 class TestQuanticVQC(BinaryFVT):
     """Perform VQC on a simulated quantum computer"""
+
     def get_params(self):
         quantum_instance = QuanticVQC(verbose=False)
         # To achieve testing in a reasonnable amount of time,
@@ -180,7 +189,7 @@ class TestQuanticVQC(BinaryFVT):
             "n_samples": 6,
             "n_features": 4,
             "quantum_instance": quantum_instance,
-            "type": "rand"
+            "type": "rand",
         }
 
     def check(self):
@@ -195,34 +204,37 @@ class TestClassicalMDM(BinaryFVT):
     https://quantum-computing.ibm.com/
     Note that the "real quantum version" of this test may also take some time.
     """
+
     def get_params(self):
         quantum_instance = QuanticMDM(quantum=False, verbose=False)
         return {
             "n_samples": 100,
             "n_features": 9,
             "quantum_instance": quantum_instance,
-            "type": "bin_cov"
+            "type": "bin_cov",
         }
 
     def check(self):
-        assert self.prediction[:self.class_len].all() == \
-               self.quantum_instance.classes_[0]
-        assert self.prediction[self.class_len:].all() == \
-               self.quantum_instance.classes_[1]
+        assert (
+            self.prediction[: self.class_len].all() == self.quantum_instance.classes_[0]
+        )
+        assert (
+            self.prediction[self.class_len :].all() == self.quantum_instance.classes_[1]
+        )
 
 
 class TestQuantumClassifierWithDefaultRiemannianPipeline(BinaryFVT):
     """Functional testing for riemann quantum classifier."""
+
     def get_params(self):
-        quantum_instance = \
-            QuantumClassifierWithDefaultRiemannianPipeline(
-                params={"verbose": False}
-            )
+        quantum_instance = QuantumClassifierWithDefaultRiemannianPipeline(
+            params={"verbose": False}
+        )
         return {
             "n_samples": 4,
             "n_features": 4,
             "quantum_instance": quantum_instance,
-            "type": None
+            "type": None,
         }
 
     def check(self):
