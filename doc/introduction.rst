@@ -19,7 +19,7 @@ Qiskit implements a quantum version of support vector
 and varitional quantum classifier (VQC) [4]_. These classifiers likely offer
 an advantage over classical SVM in situations where the classification task
 is complex. Task complexity is raised by the encoding of the data into a
-quantum state, the number of available data and the quality of the data. An initial
+quantum state, the number of available data and the quality of the data. An initial 
 study is available in [5]_, and it can be downloaded from `here
 <https://github.com/pyRiemann/pyRiemann-qiskit/blob/main/doc/Presentations/QuantumERPClassification.pdf>`_.
 Although there is no study on this topic at the time of writting,
@@ -44,8 +44,8 @@ Quantum drawbacks
 
 - Time complexity
 
-    A higher number of trials or dimension increases time to completion of the quantum algorithm, especially when running on a local machine. This is why the number of trials is limited in the examples we provided. However, you should avoid such practices in your own analysis.
-
+    A higher number of trials or dimension increases time to completion of the quantum algorithm, especially when running on a local machine. This is why the number of trials is limited in the examples we provided. However, you should avoid such practices in your own analysis. 
+    
     Although these aspects are less important in a remote backend, it may happen that the quantum algorithm is queued depending on the number of concurrent users.
 
     For all these aspects, the use of pyRiemann-qiskit should be limited to offline analysis only.

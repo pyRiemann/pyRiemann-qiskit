@@ -1,17 +1,18 @@
 import pytest
 from qiskit.circuit.parametertable import ParameterView
-
-from pyriemann_qiskit.utils.hyper_params_factory import (gates, gen_two_local,
-                                                         gen_zz_feature_map,
+from pyriemann_qiskit.utils.hyper_params_factory import (gen_zz_feature_map,
+                                                         gen_two_local, gates,
                                                          get_spsa,
                                                          get_spsa_parameters)
 
 
 class TestGenZZFeatureMapParams:
-    @pytest.mark.parametrize("entanglement", ["full", "linear", "circular", "sca"])
+    @pytest.mark.parametrize(
+        'entanglement', ['full', 'linear', 'circular', 'sca']
+    )
     def test_entangl_strings(self, entanglement):
         """Test gen_zz_feature_map with different
-        string options of entanglement
+            string options of entanglement
         """
         n_features = 2
         feature_map = gen_zz_feature_map(entanglement=entanglement)(n_features)
@@ -21,7 +22,8 @@ class TestGenZZFeatureMapParams:
         """Test gen_zz_feature_map with valid indices value"""
         n_features, reps = 2, 2
         indices = get_pauli_z_linear_entangl_idx(reps, n_features)
-        feature_map_handle = gen_zz_feature_map(reps=reps, entanglement=indices)
+        feature_map_handle = gen_zz_feature_map(reps=reps,
+                                                entanglement=indices)
         feature_map = feature_map_handle(n_features)
         assert isinstance(feature_map.parameters, ParameterView)
 
@@ -50,49 +52,47 @@ class TestTwoLocalParams:
         assert len(two_local._rotation_blocks) == 2
         assert len(two_local._entanglement_blocks) == 1
 
-    @pytest.mark.parametrize("rotation_blocks", gates)
-    @pytest.mark.parametrize("entanglement_blocks", gates)
+    @pytest.mark.parametrize('rotation_blocks', gates)
+    @pytest.mark.parametrize('entanglement_blocks', gates)
     def test_strings(self, rotation_blocks, entanglement_blocks):
         """Test gen_two_local with different string options"""
         n_features = 2
-        two_local_handle = gen_two_local(
-            rotation_blocks=rotation_blocks, entanglement_blocks=entanglement_blocks
-        )
+        two_local_handle = \
+            gen_two_local(rotation_blocks=rotation_blocks,
+                          entanglement_blocks=entanglement_blocks)
         two_local = two_local_handle(n_features)
         assert isinstance(two_local._rotation_blocks, list)
         assert isinstance(two_local._entanglement_blocks, list)
 
     def test_local_list(self):
         """Test gen_two_local with a list as rotation
-        and entanglement blocks
+            and entanglement blocks
         """
         n_features = 2
-        rotation_blocks = ["cx", "cz"]
-        entanglement_blocks = ["rx", "rz"]
-        two_local_handle = gen_two_local(
-            rotation_blocks=rotation_blocks, entanglement_blocks=entanglement_blocks
-        )
+        rotation_blocks = ['cx', 'cz']
+        entanglement_blocks = ['rx', 'rz']
+        two_local_handle = \
+            gen_two_local(rotation_blocks=rotation_blocks,
+                          entanglement_blocks=entanglement_blocks)
         two_local = two_local_handle(n_features)
         assert isinstance(two_local._rotation_blocks, list)
         assert isinstance(two_local._entanglement_blocks, list)
 
     def test_invalid_string(self):
         """Test gen_two_local with invalid strings option"""
-        rotation_blocks = "invalid"
-        entanglement_blocks = "invalid"
+        rotation_blocks = 'invalid'
+        entanglement_blocks = 'invalid'
         with pytest.raises(ValueError):
-            gen_two_local(
-                rotation_blocks=rotation_blocks, entanglement_blocks=entanglement_blocks
-            )
+            gen_two_local(rotation_blocks=rotation_blocks,
+                          entanglement_blocks=entanglement_blocks)
 
     def test_invalid_list(self):
         """Test gen_two_local with invalid strings option"""
-        rotation_blocks = ["invalid", "invalid"]
-        entanglement_blocks = ["invalid", "invalid"]
+        rotation_blocks = ['invalid', 'invalid']
+        entanglement_blocks = ['invalid', 'invalid']
         with pytest.raises(ValueError):
-            gen_two_local(
-                rotation_blocks=rotation_blocks, entanglement_blocks=entanglement_blocks
-            )
+            gen_two_local(rotation_blocks=rotation_blocks,
+                          entanglement_blocks=entanglement_blocks)
 
 
 class TestGetSPSAParams:
