@@ -17,7 +17,7 @@ def get_provider():
     -----
     .. versionadded:: 0.0.4
     """
-    return IBMProvider.get_provider(hub="ibm-q")
+    return IBMProvider.get_provider(hub='ibm-q')
 
 
 def get_simulator():
@@ -34,11 +34,12 @@ def get_simulator():
     -----
     .. versionadded:: 0.0.4
     """
-    backend = AerSimulator(method="statevector", cuStateVec_enable=True)
-    if "GPU" in backend.available_devices():
-        backend.set_options(device="GPU")
+    backend = AerSimulator(method='statevector',
+                           cuStateVec_enable=True)
+    if 'GPU' in backend.available_devices():
+        backend.set_options(device='GPU')
     else:
-        print("GPU optimization disabled. No device found.")
+        print('GPU optimization disabled. No device found.')
     return backend
 
 
@@ -63,13 +64,10 @@ def get_devices(provider, min_qubits):
     -----
     .. versionadded:: 0.0.4
     """
-
     def filters(device):
         return (
             device.configuration().n_qubits >= min_qubits
             and not device.configuration().simulator
-            and device.status().operational
-        )
-
+            and device.status().operational)
     devices = provider.backends(filters=filters)
     return devices
