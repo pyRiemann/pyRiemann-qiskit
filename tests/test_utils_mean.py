@@ -6,11 +6,15 @@ from pyriemann.estimation import XdawnCovariances
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from pyriemann_qiskit.utils.mean import fro_mean_convex
-from pyriemann_qiskit.utils import ClassicalOptimizer, NaiveQAOAOptimizer
+from pyriemann_qiskit.utils import (ClassicalOptimizer,
+                                    NaiveQAOAOptimizer)
 
 
 def test_performance(get_covmats, get_labels):
-    metric = {"mean": "convex", "distance": "euclid"}
+    metric = {
+        'mean': "convex",
+        'distance': "euclid"
+    }
 
     clf = make_pipeline(XdawnCovariances(), MDM(metric=metric))
     skf = StratifiedKFold(n_splits=5)
@@ -18,7 +22,7 @@ def test_performance(get_covmats, get_labels):
     covset = get_covmats(n_matrices, n_channels)
     labels = get_labels(n_matrices, n_classes)
 
-    score = cross_val_score(clf, covset, labels, cv=skf, scoring="roc_auc")
+    score = cross_val_score(clf, covset, labels, cv=skf, scoring='roc_auc')
     assert score.mean() > 0
 
 
@@ -39,7 +43,9 @@ def test_mean_convex_shape(get_covmats):
     assert C.shape == (n_channels, n_channels)
 
 
-@pytest.mark.parametrize("optimizer", [ClassicalOptimizer(), NaiveQAOAOptimizer()])
+@pytest.mark.parametrize('optimizer',
+                         [ClassicalOptimizer(),
+                          NaiveQAOAOptimizer()])
 def test_mean_convex_all_zeros(optimizer):
     """Test that the mean of covariance matrices containing zeros
     is a matrix filled with zeros"""
@@ -74,5 +80,6 @@ def test_mean_convex_mixed():
     covmats_0 = np.zeros((n_trials, n_channels, n_channels))
     covmats_1 = np.ones((n_trials, n_channels, n_channels))
     expected_mean = np.full((n_channels, n_channels), 0.5)
-    C = fro_mean_convex(np.concatenate((covmats_0, covmats_1), axis=0), shrink=False)
+    C = fro_mean_convex(np.concatenate((covmats_0, covmats_1), axis=0),
+                        shrink=False)
     assert np.allclose(expected_mean, C, atol=0.001)

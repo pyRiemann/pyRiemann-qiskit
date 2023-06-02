@@ -11,17 +11,17 @@ from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
 from qiskit_machine_learning.kernels.quantum_kernel import QuantumKernel
 from datetime import datetime
 import logging
-from .utils.hyper_params_factory import gen_zz_feature_map, gen_two_local, get_spsa
+from .utils.hyper_params_factory import (gen_zz_feature_map,
+                                         gen_two_local,
+                                         get_spsa)
 from .utils import get_provider, get_devices, get_simulator
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.classification import MDM
 from pyriemann.tangentspace import TangentSpace
 from pyriemann_qiskit.datasets import get_feature_dimension
-from pyriemann_qiskit.utils import (
-    ClassicalOptimizer,
-    NaiveQAOAOptimizer,
-    set_global_optimizer,
-)
+from pyriemann_qiskit.utils import (ClassicalOptimizer,
+                                    NaiveQAOAOptimizer,
+                                    set_global_optimizer)
 
 logger.level = logging.INFO
 
@@ -85,14 +85,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     """
 
-    def __init__(
-        self,
-        quantum=True,
-        q_account_token=None,
-        verbose=True,
-        shots=1024,
-        gen_feature_map=gen_zz_feature_map(),
-    ):
+    def __init__(self, quantum=True, q_account_token=None, verbose=True,
+                 shots=1024, gen_feature_map=gen_zz_feature_map()):
         self.verbose = verbose
         self._log("Initializing Quantum Classifier")
         self.q_account_token = q_account_token
@@ -125,10 +119,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
             print("[QClass] ", *values)
 
     def _split_classes(self, X, y):
-        self._log(
-            "[Warning] Splitting first class from second class."
-            "Only binary classification is supported."
-        )
+        self._log("[Warning] Splitting first class from second class."
+                  "Only binary classification is supported.")
         X_class1 = X[y == self.classes_[1]]
         X_class0 = X[y == self.classes_[0]]
         return (X_class1, X_class0)
@@ -171,10 +163,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._log("Fitting: ", X.shape)
         self.classes_ = np.unique(y)
         if len(self.classes_) != 2:
-            raise Exception(
-                "Only binary classification \
-                             is currently supported."
-            )
+            raise Exception("Only binary classification \
+                             is currently supported.")
 
         class1, class0 = self._split_classes(X, y)
         y = self._map_classes_to_0_1(y)
@@ -196,12 +186,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                 self._log("Quantum backend = ", self._backend)
             seed_sim = algorithm_globals.random_seed
             seed_trs = algorithm_globals.random_seed
-            self._quantum_instance = QuantumInstance(
-                self._backend,
-                shots=self.shots,
-                seed_simulator=seed_sim,
-                seed_transpiler=seed_trs,
-            )
+            self._quantum_instance = QuantumInstance(self._backend,
+                                                     shots=self.shots,
+                                                     seed_simulator=seed_sim,
+                                                     seed_transpiler=seed_trs)
         self._classifier = self._init_algo(n_features)
         self._train(X, y)
         return self
@@ -301,9 +289,8 @@ class QuanticSVM(QuanticClassifierBase):
 
     """
 
-    def __init__(
-        self, gamma="scale", C=1.0, max_iter=None, pegasos=False, **parameters
-    ):
+    def __init__(self, gamma='scale', C=1.0, max_iter=None,
+                 pegasos=False, **parameters):
         QuanticClassifierBase.__init__(self, **parameters)
         self.gamma = gamma
         self.C = C
@@ -313,23 +300,20 @@ class QuanticSVM(QuanticClassifierBase):
     def _init_algo(self, n_features):
         self._log("SVM initiating algorithm")
         if self.quantum:
-            quantum_kernel = QuantumKernel(
-                feature_map=self._feature_map, quantum_instance=self._quantum_instance
-            )
+            quantum_kernel = \
+                QuantumKernel(feature_map=self._feature_map,
+                              quantum_instance=self._quantum_instance)
             if self.pegasos:
                 self._log("[Warning] `gamma` is not supported by PegasosQSVC")
                 num_steps = 1000 if self.max_iter is None else self.max_iter
-                classifier = PegasosQSVC(
-                    quantum_kernel=quantum_kernel, C=self.C, num_steps=num_steps
-                )
+                classifier = PegasosQSVC(quantum_kernel=quantum_kernel,
+                                         C=self.C,
+                                         num_steps=num_steps)
             else:
                 max_iter = -1 if self.max_iter is None else self.max_iter
-                classifier = QSVC(
-                    quantum_kernel=quantum_kernel,
-                    gamma=self.gamma,
-                    C=self.C,
-                    max_iter=max_iter,
-                )
+                classifier = QSVC(quantum_kernel=quantum_kernel,
+                                  gamma=self.gamma, C=self.C,
+                                  max_iter=max_iter)
         else:
             max_iter = -1 if self.max_iter is None else self.max_iter
             classifier = SVC(gamma=self.gamma, C=self.C, max_iter=max_iter)
@@ -354,10 +338,8 @@ class QuanticSVM(QuanticClassifierBase):
             prob[n, 1] == True if the nth sample is assigned to 2nd class.
         """
         predicted_labels = self.predict(X)
-        ret = [
-            np.array([c == self.classes_[0], c == self.classes_[1]])
-            for c in predicted_labels
-        ]
+        ret = [np.array([c == self.classes_[0], c == self.classes_[1]])
+               for c in predicted_labels]
         return np.array(ret)
 
     def predict(self, X):
@@ -423,14 +405,11 @@ class QuanticVQC(QuanticClassifierBase):
 
     """
 
-    def __init__(
-        self, optimizer=get_spsa(), gen_var_form=gen_two_local(), **parameters
-    ):
+    def __init__(self, optimizer=get_spsa(), gen_var_form=gen_two_local(),
+                 **parameters):
         if "quantum" in parameters and not parameters["quantum"]:
-            raise ValueError(
-                "VQC can only run on a quantum \
-                              computer or simulator."
-            )
+            raise ValueError("VQC can only run on a quantum \
+                              computer or simulator.")
         QuanticClassifierBase.__init__(self, **parameters)
         self.optimizer = optimizer
         self.gen_var_form = gen_var_form
@@ -438,13 +417,11 @@ class QuanticVQC(QuanticClassifierBase):
     def _init_algo(self, n_features):
         self._log("VQC training...")
         var_form = self.gen_var_form(n_features)
-        vqc = VQC(
-            optimizer=self.optimizer,
-            feature_map=self._feature_map,
-            ansatz=var_form,
-            quantum_instance=self._quantum_instance,
-            num_qubits=n_features,
-        )
+        vqc = VQC(optimizer=self.optimizer,
+                  feature_map=self._feature_map,
+                  ansatz=var_form,
+                  quantum_instance=self._quantum_instance,
+                  num_qubits=n_features)
         return vqc
 
     def _map_classes_to_0_1(self, y):
@@ -541,9 +518,9 @@ class QuanticMDM(QuanticClassifierBase):
         (LVA/ICA 2010), LNCS vol. 6365, 2010, p. 629-636.
     """
 
-    def __init__(
-        self, metric={"mean": "logeuclid", "distance": "convex"}, **parameters
-    ):
+    def __init__(self,
+                 metric={"mean": 'logeuclid', "distance": 'convex'},
+                 **parameters):
         QuanticClassifierBase.__init__(self, **parameters)
         self.metric = metric
 
@@ -551,9 +528,8 @@ class QuanticMDM(QuanticClassifierBase):
         self._log("Convex MDM initiating algorithm")
         classifier = MDM(metric=self.metric)
         if self.quantum:
-            self._optimizer = NaiveQAOAOptimizer(
-                quantum_instance=self._quantum_instance
-            )
+            self._optimizer = \
+                NaiveQAOAOptimizer(quantum_instance=self._quantum_instance)
         else:
             self._optimizer = ClassicalOptimizer()
         set_global_optimizer(self._optimizer)
@@ -593,9 +569,9 @@ class QuanticMDM(QuanticClassifierBase):
         return self._map_0_1_to_classes(labels)
 
 
-class QuantumClassifierWithDefaultRiemannianPipeline(
-    BaseEstimator, ClassifierMixin, TransformerMixin
-):
+class QuantumClassifierWithDefaultRiemannianPipeline(BaseEstimator,
+                                                     ClassifierMixin,
+                                                     TransformerMixin):
 
     """Default pipeline with Riemann Geometry and a quantum classifier.
 
@@ -678,20 +654,12 @@ class QuantumClassifierWithDefaultRiemannianPipeline(
 
     """
 
-    def __init__(
-        self,
-        nfilter=1,
-        dim_red=PCA(),
-        gamma="scale",
-        C=1.0,
-        max_iter=None,
-        shots=1024,
-        feature_entanglement="full",
-        feature_reps=2,
-        spsa_trials=None,
-        two_local_reps=None,
-        params={},
-    ):
+    def __init__(self, nfilter=1, dim_red=PCA(),
+                 gamma='scale', C=1.0, max_iter=None,
+                 shots=1024, feature_entanglement='full',
+                 feature_reps=2, spsa_trials=None, two_local_reps=None,
+                 params={}):
+
         self.nfilter = nfilter
         self.dim_red = dim_red
         self.gamma = gamma
@@ -712,29 +680,21 @@ class QuantumClassifierWithDefaultRiemannianPipeline(
         self.verbose = "verbose" in params and params["verbose"]
         if is_vqc:
             self._log("QuanticVQC chosen.")
-            clf = QuanticVQC(
-                optimizer=get_spsa(spsa_trials),
-                gen_var_form=gen_two_local(two_local_reps),
-                gen_feature_map=feature_map,
-                shots=self.shots,
-                quantum=is_quantum,
-                **params
-            )
+            clf = QuanticVQC(optimizer=get_spsa(spsa_trials),
+                             gen_var_form=gen_two_local(two_local_reps),
+                             gen_feature_map=feature_map,
+                             shots=self.shots,
+                             quantum=is_quantum,
+                             **params)
         else:
             self._log("QuanticSVM chosen.")
-            clf = QuanticSVM(
-                quantum=is_quantum,
-                gamma=gamma,
-                C=C,
-                max_iter=max_iter,
-                gen_feature_map=feature_map,
-                shots=shots,
-                **params
-            )
+            clf = QuanticSVM(quantum=is_quantum, gamma=gamma, C=C,
+                             max_iter=max_iter,
+                             gen_feature_map=feature_map,
+                             shots=shots, **params)
 
-        self._pipe = make_pipeline(
-            XdawnCovariances(nfilter=nfilter), TangentSpace(), dim_red, clf
-        )
+        self._pipe = make_pipeline(XdawnCovariances(nfilter=nfilter),
+                                   TangentSpace(), dim_red, clf)
 
     def _log(self, trace):
         if self.verbose:

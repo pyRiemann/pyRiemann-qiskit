@@ -3,7 +3,7 @@
 Installing pyRiemann-qiskit
 ===========================
 
-There is no yet stable version of pyRiemann-qiskit.
+There is no yet stable version of pyRiemann-qiskit. 
 
 Therefore, it is recommanded to clone the source code on `github <https://github.com/pyRiemann/pyRiemann-qiskit>`__ and install directly the package from source.
 
