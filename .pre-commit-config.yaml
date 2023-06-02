@@ -23,6 +23,7 @@ repos:
 
   - repo: https://github.com/psf/black
     rev: 23.3.0
+    exclude: ^(.github/|.devcontainer/)
     hooks:
       - id: black
 
