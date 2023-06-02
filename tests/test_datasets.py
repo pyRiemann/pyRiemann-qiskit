@@ -1,4 +1,5 @@
 import pytest
+
 from pyriemann_qiskit.datasets import get_feature_dimension
 
 
