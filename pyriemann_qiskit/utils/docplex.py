@@ -6,16 +6,17 @@ It is for example suitable for:
 - computation of matrices mean.
 """
 import math
+
 import numpy as np
-from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
-from qiskit.utils import QuantumInstance
+from docplex.mp.vartype import BinaryVarType, ContinuousVarType, IntegerVarType
 from qiskit.algorithms import QAOA
+from qiskit.utils import QuantumInstance
 from qiskit_optimization.algorithms import (CobylaOptimizer,
                                             MinimumEigenOptimizer)
 from qiskit_optimization.converters import IntegerToBinary
 from qiskit_optimization.translators import from_docplex_mp
-from pyriemann_qiskit.utils import cov_to_corr_matrix, get_simulator
 
+from pyriemann_qiskit.utils import cov_to_corr_matrix, get_simulator
 
 _global_optimizer = None
 
@@ -32,7 +33,7 @@ def set_global_optimizer(optimizer):
     -----
     .. versionadded:: 0.0.4
     """
-    _global_optimizer = optimizer # noqa
+    _global_optimizer = optimizer  # noqa
 
 
 def get_global_optimizer(default):
@@ -56,8 +57,7 @@ def get_global_optimizer(default):
     return _global_optimizer if _global_optimizer is not None else default
 
 
-def square_cont_mat_var(prob, channels,
-                        name='cont_covmat'):
+def square_cont_mat_var(prob, channels, name="cont_covmat"):
     """Creates a 2-dimensional dictionary of continuous decision variables,
     indexed by pairs of key objects.
     The dictionary represents a square matrix of size
@@ -91,13 +91,13 @@ def square_cont_mat_var(prob, channels,
     .. [1] \
         http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
     """
-    ContinuousVarType.one_letter_symbol = lambda _: 'C'
-    return prob.continuous_var_matrix(keys1=channels, keys2=channels,
-                                      name=name, lb=-prob.infinity)
+    ContinuousVarType.one_letter_symbol = lambda _: "C"
+    return prob.continuous_var_matrix(
+        keys1=channels, keys2=channels, name=name, lb=-prob.infinity
+    )
 
 
-def square_int_mat_var(prob, channels, upper_bound=7,
-                       name='int_covmat'):
+def square_int_mat_var(prob, channels, upper_bound=7, name="int_covmat"):
     """Creates a 2-dimensional dictionary of integer decision variables,
     indexed by pairs of key objects.
     The dictionary represents a square matrix of size
@@ -133,13 +133,13 @@ def square_int_mat_var(prob, channels, upper_bound=7,
     .. [1] \
         http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
     """
-    IntegerVarType.one_letter_symbol = lambda _: 'I'
-    return prob.integer_var_matrix(keys1=channels, keys2=channels,
-                                   name=name, lb=0, ub=upper_bound)
+    IntegerVarType.one_letter_symbol = lambda _: "I"
+    return prob.integer_var_matrix(
+        keys1=channels, keys2=channels, name=name, lb=0, ub=upper_bound
+    )
 
 
-def square_bin_mat_var(prob, channels,
-                       name='bin_covmat'):
+def square_bin_mat_var(prob, channels, name="bin_covmat"):
     """Creates a 2-dimensional dictionary of binary decision variables,
     indexed by pairs of key objects.
     The dictionary represents a square matrix of size
@@ -173,12 +173,11 @@ def square_bin_mat_var(prob, channels,
     .. [1] \
         http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
     """
-    BinaryVarType.one_letter_symbol = lambda _: 'B'
-    return prob.binary_var_matrix(keys1=channels, keys2=channels,
-                                  name=name)
+    BinaryVarType.one_letter_symbol = lambda _: "B"
+    return prob.binary_var_matrix(keys1=channels, keys2=channels, name=name)
 
 
-class pyQiskitOptimizer():
+class pyQiskitOptimizer:
 
     """Wrapper for Qiskit optimizer.
 
@@ -191,6 +190,7 @@ class pyQiskitOptimizer():
     .. versionadded:: 0.0.2
     .. versionchanged:: 0.0.4
     """
+
     def __init__(self):
         pass
 
@@ -210,6 +210,7 @@ class pyQiskitOptimizer():
     -----
     .. versionadded:: 0.0.2
     """
+
     def convert_covmat(self, covmat):
         return covmat
 
@@ -243,6 +244,7 @@ class pyQiskitOptimizer():
         http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
 
     """
+
     def covmat_var(self, prob, channels, name):
         raise NotImplementedError()
 
@@ -272,6 +274,7 @@ class pyQiskitOptimizer():
         http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
 
     """
+
     def solve(self, prob, reshape=True):
         qp = from_docplex_mp(prob)
         return self._solve_qp(qp, reshape)
@@ -297,6 +300,7 @@ class pyQiskitOptimizer():
     .. versionadded:: 0.0.4
 
     """
+
     def get_weights(self, prob, classes):
         raise NotImplementedError()
 
@@ -315,6 +319,7 @@ class ClassicalOptimizer(pyQiskitOptimizer):
     pyQiskitOptimizer
 
     """
+
     def __init__(self):
         pyQiskitOptimizer.__init__(self)
 
@@ -352,6 +357,7 @@ class ClassicalOptimizer(pyQiskitOptimizer):
         http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
 
     """
+
     def covmat_var(self, prob, channels, name):
         return square_cont_mat_var(prob, channels, name)
 
@@ -383,10 +389,11 @@ class ClassicalOptimizer(pyQiskitOptimizer):
     .. versionadded:: 0.0.4
 
     """
+
     def get_weights(self, prob, classes):
-        w = prob.continuous_var_matrix(keys1=[1], keys2=classes,
-                                       name="weight",
-                                       lb=0, ub=1)
+        w = prob.continuous_var_matrix(
+            keys1=[1], keys2=classes, name="weight", lb=0, ub=1
+        )
         w = np.array([w[key] for key in w])
         return w
 
@@ -412,6 +419,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     --------
     pyQiskitOptimizer
     """
+
     def __init__(self, upper_bound=7, quantum_instance=None):
         pyQiskitOptimizer.__init__(self)
         self.upper_bound = upper_bound
@@ -438,6 +446,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     .. versionadded:: 0.0.2
 
     """
+
     def convert_covmat(self, covmat):
         corr = cov_to_corr_matrix(covmat)
         return np.round(corr * self.upper_bound, 0)
@@ -476,6 +485,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
 
     """
+
     def covmat_var(self, prob, channels, name):
         return square_int_mat_var(prob, channels, self.upper_bound, name)
 
@@ -487,8 +497,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
             quantum_instance = QuantumInstance(backend)
         else:
             quantum_instance = self.quantum_instance
-        qaoa_mes = QAOA(quantum_instance=quantum_instance,
-                        initial_point=[0., 0.])
+        qaoa_mes = QAOA(quantum_instance=quantum_instance, initial_point=[0.0, 0.0])
         qaoa = MinimumEigenOptimizer(qaoa_mes)
         result = conv.interpret(qaoa.solve(qubo))
         if reshape:
@@ -517,8 +526,10 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     .. versionadded:: 0.0.4
 
     """
+
     def get_weights(self, prob, classes):
-        w = prob.integer_var_matrix(keys1=[1], keys2=classes,
-                                    name="weight", lb=0, ub=self.upper_bound)
+        w = prob.integer_var_matrix(
+            keys1=[1], keys2=classes, name="weight", lb=0, ub=self.upper_bound
+        )
         w = np.array([w[key] for key in w])
         return w
