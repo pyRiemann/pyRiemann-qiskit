@@ -27,12 +27,6 @@ repos:
       - id: black
         exclude: ^(.github/|.devcontainer/|doc/_static/|pyriemann_qiskit/_version.py|setup.py)
 
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-        exclude: ^(.github/|.devcontainer/|doc/_static/|pyriemann_qiskit/_version.py|setup.py)
-
   - repo: https://github.com/pycqa/flake8
     rev: 6.0.0
     hooks:
