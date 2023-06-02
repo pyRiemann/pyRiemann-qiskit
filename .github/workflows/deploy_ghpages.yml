@@ -3,14 +3,14 @@ name: Deploy GitHub pages
 on:
   push:
     paths:
-    - 'doc/**'
-    - 'examples/**'
-    - '.github/workflows/deploy_ghpages.yml'
+      - "doc/**"
+      - "examples/**"
+      - ".github/workflows/deploy_ghpages.yml"
   pull_request:
     paths:
-    - 'doc/**'
-    - 'examples/**'
-    - '.github/workflows/deploy_ghpages.yml'
+      - "doc/**"
+      - "examples/**"
+      - ".github/workflows/deploy_ghpages.yml"
 
 jobs:
   build_docs:
@@ -27,7 +27,7 @@ jobs:
             apt-get -y install --fix-missing git-core
             apt-get -y install build-essential
             pip install -r doc/requirements.txt
-      - name:  Upload generated HTML as artifact
+      - name: Upload generated HTML as artifact
         uses: actions/upload-artifact@v3
         with:
           name: DocHTML
