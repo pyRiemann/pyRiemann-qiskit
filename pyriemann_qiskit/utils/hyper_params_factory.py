@@ -1,10 +1,10 @@
-from qiskit.circuit.library import ZZFeatureMap
-from qiskit.algorithms.optimizers import SPSA
-from qiskit.circuit.library import TwoLocal
 import inspect
 
+from qiskit.algorithms.optimizers import SPSA
+from qiskit.circuit.library import TwoLocal, ZZFeatureMap
 
-def gen_zz_feature_map(reps=2, entanglement='linear'):
+
+def gen_zz_feature_map(reps=2, entanglement="linear"):
     """Return a callable that generate a ZZFeatureMap.
     A feature map encodes data into a quantum state.
     A ZZFeatureMap is a second-order Pauli-Z evolution circuit.
@@ -36,20 +36,46 @@ def gen_zz_feature_map(reps=2, entanglement='linear'):
         https://qiskit.org/documentation/stable/0.19/stubs/qiskit.circuit.library.NLocal.html
     """
     if reps < 1:
-        raise ValueError("Parameter reps must be superior \
-                          or equal to 1 (Got %d)" % reps)
+        raise ValueError(
+            "Parameter reps must be superior \
+                          or equal to 1 (Got %d)"
+            % reps
+        )
 
-    return lambda n_features: ZZFeatureMap(feature_dimension=n_features,
-                                           reps=reps,
-                                           entanglement=entanglement)
+    return lambda n_features: ZZFeatureMap(
+        feature_dimension=n_features, reps=reps, entanglement=entanglement
+    )
 
 
 # Valid gates for two local circuits
-gates = ['ch', 'cx', 'cy', 'cz', 'crx', 'cry', 'crz',
-         'h', 'i', 'id', 'iden',
-         'rx', 'rxx', 'ry', 'ryy', 'rz', 'rzx', 'rzz',
-         's', 'sdg', 'swap',
-         'x', 'y', 'z', 't', 'tdg']
+gates = [
+    "ch",
+    "cx",
+    "cy",
+    "cz",
+    "crx",
+    "cry",
+    "crz",
+    "h",
+    "i",
+    "id",
+    "iden",
+    "rx",
+    "rxx",
+    "ry",
+    "ryy",
+    "rz",
+    "rzx",
+    "rzz",
+    "s",
+    "sdg",
+    "swap",
+    "x",
+    "y",
+    "z",
+    "t",
+    "tdg",
+]
 
 
 def _check_gates_in_blocks(blocks):
@@ -59,12 +85,10 @@ def _check_gates_in_blocks(blocks):
                 raise ValueError("Gate %s is not a valid gate" % gate)
     else:
         if blocks not in gates:
-            raise ValueError("Gate %s is not a valid gate"
-                             % blocks)
+            raise ValueError("Gate %s is not a valid gate" % blocks)
 
 
-def gen_two_local(reps=3, rotation_blocks=['ry', 'rz'],
-                  entanglement_blocks='cz'):
+def gen_two_local(reps=3, rotation_blocks=["ry", "rz"], entanglement_blocks="cz"):
     """Return a callable that generate a TwoLocal circuit.
     The two-local circuit is a parameterized circuit consisting
     of alternating rotation layers and entanglement layers [1]_.
@@ -98,16 +122,19 @@ def gen_two_local(reps=3, rotation_blocks=['ry', 'rz'],
         https://qiskit.org/documentation/stable/0.19/stubs/qiskit.circuit.library.TwoLocal.html
     """
     if reps < 1:
-        raise ValueError("Parameter reps must be superior \
-                          or equal to 1 (Got %d)" % reps)
+        raise ValueError(
+            "Parameter reps must be superior \
+                          or equal to 1 (Got %d)"
+            % reps
+        )
 
     _check_gates_in_blocks(rotation_blocks)
 
     _check_gates_in_blocks(entanglement_blocks)
 
-    return lambda n_features: TwoLocal(n_features,
-                                       rotation_blocks,
-                                       entanglement_blocks, reps=reps)
+    return lambda n_features: TwoLocal(
+        n_features, rotation_blocks, entanglement_blocks, reps=reps
+    )
 
 
 def get_spsa(max_trials=40, c=(None, None, None, None, 4.0)):
@@ -161,15 +188,28 @@ def get_spsa(max_trials=40, c=(None, None, None, None, 4.0)):
     gamma = c[3] if c[3] else 0.101
     stability_constant = c[4] if c[4] else 0
 
-    def calibrate(loss, initial_point=initial_point,
-                  c=initial_pertubation,
-                  stability_constant=stability_constant,
-                  target_magnitude=None,
-                  alpha=alpha, gamma=gamma,
-                  modelspace=False, max_evals_grouped=1):
-        return SPSA.calibrate(loss, initial_point, c,
-                              stability_constant, target_magnitude,
-                              alpha, gamma, modelspace, max_evals_grouped)
+    def calibrate(
+        loss,
+        initial_point=initial_point,
+        c=initial_pertubation,
+        stability_constant=stability_constant,
+        target_magnitude=None,
+        alpha=alpha,
+        gamma=gamma,
+        modelspace=False,
+        max_evals_grouped=1,
+    ):
+        return SPSA.calibrate(
+            loss,
+            initial_point,
+            c,
+            stability_constant,
+            target_magnitude,
+            alpha,
+            gamma,
+            modelspace,
+            max_evals_grouped,
+        )
 
     spsa.calibrate = calibrate
     return spsa
@@ -201,8 +241,10 @@ def get_spsa_parameters(spsa):
         https://qiskit.org/documentation/stable/0.36/stubs/qiskit.algorithms.optimizers.SPSA.calibrate.html
     """
     signature = inspect.signature(spsa.calibrate)
-    return (signature.parameters["initial_point"].default[0],
-            signature.parameters["c"].default,
-            signature.parameters["alpha"].default,
-            signature.parameters["gamma"].default,
-            signature.parameters["stability_constant"].default)
+    return (
+        signature.parameters["initial_point"].default[0],
+        signature.parameters["c"].default,
+        signature.parameters["alpha"].default,
+        signature.parameters["gamma"].default,
+        signature.parameters["stability_constant"].default,
+    )

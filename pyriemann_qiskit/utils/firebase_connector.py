@@ -1,16 +1,20 @@
-import firebase_admin
 import os
-import pandas as pd
 from warnings import warn
+
+import firebase_admin
+import pandas as pd
+
 try:
     from firebase_admin import credentials, firestore
 except Exception:
-    warn("""No firebase_admin found. Firebase connector \
-         can only run with mock data.""")
+    warn(
+        """No firebase_admin found. Firebase connector \
+         can only run with mock data."""
+    )
 from .firebase_cert import certificate
 
 
-class FirebaseConnector():
+class FirebaseConnector:
     """
     A connector to Firebase.
     It gets/adds data to Firestore.
@@ -43,6 +47,7 @@ class FirebaseConnector():
     -----
     .. versionadded:: 0.0.3
     """
+
     def __init__(self, mock_data=None) -> None:
         self._db = None
         self._datasets = {}
@@ -59,8 +64,9 @@ class FirebaseConnector():
             try:
                 cred = credentials.Certificate(certificate)
             except ValueError:
-                certificate["private_key"] = \
-                    certificate["private_key"].replace("\\n", "\n")
+                certificate["private_key"] = certificate["private_key"].replace(
+                    "\\n", "\n"
+                )
                 cred = credentials.Certificate(certificate)
         except KeyError:
             env_certificate = eval(os.environ["FIREBASE_CERTIFICATE"])
@@ -75,13 +81,19 @@ class FirebaseConnector():
         if self.mock_data is not None:
             self._datasets = self.mock_data
             return
-        self._collection = self._db.collection(u'datasets')
+        self._collection = self._db.collection("datasets")
         stream = self._collection.stream()
         for dataset in stream:
             self._datasets[dataset.id] = dataset.to_dict()
 
-    def add(self, dataset: str, subject: str, pipeline: str,
-            true_labels: list, predicted_labels: list):
+    def add(
+        self,
+        dataset: str,
+        subject: str,
+        pipeline: str,
+        true_labels: list,
+        predicted_labels: list,
+    ):
         """
         Add a data to firestore (or to the mock data if provided).
 
@@ -115,10 +127,9 @@ class FirebaseConnector():
             dataset_dict[subject] = {}
         subject_dict = dataset_dict[subject]
         if pipeline in subject_dict:
-            raise KeyError(dataset +
-                           '.' + subject +
-                           '.' + pipeline +
-                           " already exists.")
+            raise KeyError(
+                dataset + "." + subject + "." + pipeline + " already exists."
+            )
         subject_dict[pipeline] = {}
         pipeline_dict = subject_dict[pipeline]
         pipeline_dict["true_labels"] = true_labels
@@ -148,7 +159,7 @@ class FirebaseConnector():
         return repr(self)
 
 
-class Cache():
+class Cache:
     """
     Layer of abstraction over FirebaseConnector.
     It facilitates adding/removing data
@@ -171,6 +182,7 @@ class Cache():
     -----
     .. versionadded:: 0.0.3
     """
+
     def __init__(self, dataset_name: str, pipeline, mock_data=None) -> None:
         self._dataset_name = dataset_name
         self._pipeline = pipeline
@@ -200,8 +212,13 @@ class Cache():
         -----
         .. versionadded:: 0.0.3
         """
-        self._connector.add(self._dataset_name, subject, str(self._pipeline),
-                            true_labels, predicted_labels)
+        self._connector.add(
+            self._dataset_name,
+            subject,
+            str(self._pipeline),
+            true_labels,
+            predicted_labels,
+        )
 
     def get_result(self, subject):
         """
@@ -269,19 +286,18 @@ def generate_caches(datasets: list, pipelines: list, mock_data=None):
     caches = {}
     for dataset in datasets:
         for pipeline in pipelines:
-            cache = Cache(dataset.code,
-                          pipeline,
-                          mock_data[dataset.code][pipeline]
-                          if mock_data is not None
-                          else None)
-            if (dataset.code not in caches):
+            cache = Cache(
+                dataset.code,
+                pipeline,
+                mock_data[dataset.code][pipeline] if mock_data is not None else None,
+            )
+            if dataset.code not in caches:
                 caches[dataset.code] = {}
             caches[dataset.code][pipeline] = cache
     return caches
 
 
-def filter_subjects_by_incomplete_results(caches, datasets: list,
-                                          pipelines: list):
+def filter_subjects_by_incomplete_results(caches, datasets: list, pipelines: list):
     """
     Keep only subjects with incomplete results in the datasets
     (that is results for at least one pipeline is missing).
@@ -317,25 +333,24 @@ def filter_subjects_by_incomplete_results(caches, datasets: list,
                 cache = caches[dataset.code][pipeline]
                 try:
                     result = cache.get_result(str(subject))
-                    results[subject] = \
-                        results[subject] if subject in results else {}
+                    results[subject] = results[subject] if subject in results else {}
                     results[subject][pipeline] = result
                 except Exception:
                     if not subject_list.__contains__(subject):
                         subject_list.append(subject)
                     results = {}
-            if subject in results and \
-               len(results[subject]) == len(pipelines):
-                all_results[dataset.code] = all_results[dataset.code] \
-                    if dataset.code in all_results \
-                    else {}
+            if subject in results and len(results[subject]) == len(pipelines):
+                all_results[dataset.code] = (
+                    all_results[dataset.code] if dataset.code in all_results else {}
+                )
                 all_results[dataset.code][subject] = results[subject]
         dataset.subject_list = subject_list
     return all_results
 
 
-def add_moabb_dataframe_results_to_caches(df_results, datasets: list,
-                                          pipelines: list, caches):
+def add_moabb_dataframe_results_to_caches(
+    df_results, datasets: list, pipelines: list, caches
+):
     """
     Add MOABB dataframe results, such as the one which
     is returned by `WithinSessionEvaluation.process` to the caches.
@@ -362,13 +377,16 @@ def add_moabb_dataframe_results_to_caches(df_results, datasets: list,
             for pipeline in pipelines:
                 cache: Cache = caches[dataset.code][pipeline]
                 record = df_results.where(
-                    (df_results["dataset"] == dataset.code) &
-                    (df_results["subject"] == str(subject)) &
-                    (df_results["pipeline"] == pipeline)).dropna()
+                    (df_results["dataset"] == dataset.code)
+                    & (df_results["subject"] == str(subject))
+                    & (df_results["pipeline"] == pipeline)
+                ).dropna()
                 try:
-                    cache.add(str(subject),
-                              record["time"].tolist()[0],
-                              record["score"].tolist()[0])
+                    cache.add(
+                        str(subject),
+                        record["time"].tolist()[0],
+                        record["score"].tolist()[0],
+                    )
                 except KeyError:
                     print("Key already existed. Skipping.")
 
@@ -406,11 +424,11 @@ def convert_caches_to_dataframes(caches, datasets, pipelines):
             for s in d.subject_list:
                 time, score = caches[d.code][p].get_result(str(s))
                 new_row = {
-                    'pipeline': p,
-                    'dataset': d.code,
-                    'subject': str(s),
-                    'score': score,
-                    'time': time
+                    "pipeline": p,
+                    "dataset": d.code,
+                    "subject": str(s),
+                    "score": score,
+                    "time": time,
                 }
                 rows_list.append(new_row)
     df = pd.DataFrame(rows_list)

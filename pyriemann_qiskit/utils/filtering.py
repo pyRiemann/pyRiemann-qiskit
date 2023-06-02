@@ -1,5 +1,5 @@
-from sklearn.base import BaseEstimator, TransformerMixin
 import numpy as np
+from sklearn.base import BaseEstimator, TransformerMixin
 
 
 class NoDimRed(TransformerMixin):
@@ -127,6 +127,7 @@ class Vectorizer(BaseEstimator, TransformerMixin):
     .. versionadded:: 0.0.1
 
     """
+
     def __init__(self):
         pass
 
