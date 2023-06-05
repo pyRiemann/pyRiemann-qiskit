@@ -18,6 +18,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Generate HTML docs
+        env:
+          FIREBASE_CERTIFICATE: ${{ secrets.FIREBASE_CERTIFICATE }}
         uses: ammaraskar/sphinx-action@master
         with:
           docs-folder: "doc/"
