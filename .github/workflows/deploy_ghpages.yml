@@ -21,7 +21,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ hashFiles('deploy_ghpages.yml') }}
+          key: deploy_ghpages.yml
       - name: Generate HTML docs
         env:
           FIREBASE_CERTIFICATE: ${{ secrets.FIREBASE_CERTIFICATE }}
@@ -39,3 +39,4 @@ jobs:
         with:
           name: DocHTML
           path: doc/build/html/
+
