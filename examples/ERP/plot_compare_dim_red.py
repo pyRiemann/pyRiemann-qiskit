@@ -83,7 +83,7 @@ def search(params: dict):
     return grid.best_params_
 
 
-def analyze_multiple(l_params: list[dict]):
+def analyze_multiple(l_params: list):
     best_params = []
     for params in l_params:
         params_space = customize(params)
