@@ -35,7 +35,7 @@ default_params = {
     # size of the xdawn filter
     "nfilter": [2],  # [1, 2, 3]
     # hyperparameter for the SVC classifier
-    "gamma": [None],  # [None, 0.05, 0.1, 0.15]
+    "gamma": [0.1],  # [None, 0.05, 0.1, 0.15]
     # Determine the number of "run" on the quantum machine (simulated or real)
     # the higher is this number, the lower the variability.
     "shots": [1024],  # [512, 1024, 2048]
