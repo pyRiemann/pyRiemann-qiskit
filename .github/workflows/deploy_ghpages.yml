@@ -17,10 +17,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - name: Cache dependencies
+        uses: actions/cache@v3
         with:
-          python-version: '3.8'
-          cache: 'pip'
+          path: ~/.cache/pip
+          key: ${{ hashFiles('deploy_ghpages.yml') }}
       - name: Generate HTML docs
         env:
           FIREBASE_CERTIFICATE: ${{ secrets.FIREBASE_CERTIFICATE }}
