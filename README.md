@@ -158,7 +158,7 @@ docker build -t pyrq .
 Next use `docker run --detach pyrq` to enter the pyRiemann-qiskit image.
 
 If you wish, you can also download docker images directly from github docker registry:
-https://github.com/gcattan/pyRiemann-qiskit/pkgs/container/pyriemann-qiskit
+https://github.com/pyRiemann/pyRiemann-qiskit/pkgs/container/pyriemann-qiskit
 
 They are pushed to the docker registry on each release.
 
