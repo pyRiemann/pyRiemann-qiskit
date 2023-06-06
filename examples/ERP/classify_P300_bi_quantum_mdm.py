@@ -18,7 +18,7 @@ pip install qiskit-aer-gpu
 # Modified from plot_classify_EEG_tangentspace.py of pyRiemann
 # License: BSD (3-clause)
 
-from pyriemann.estimation import XdawnCovariances
+from pyriemann.estimation import XdawnCovariances, Covariances, ERPCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.classification import MDM
@@ -79,7 +79,7 @@ paradigm = P300()
 #bi2015a        32  43
 #bi2015b        32  44
 
-datasets = [bi2013a()]
+datasets = [BNCI2014009()]
 
 # reduce the number of subjects, the Quantum pipeline takes a lot of time
 # if executed on the entire dataset
@@ -88,21 +88,13 @@ for dataset in datasets:
     dataset.subject_list = dataset.subject_list[0:n_subjects]
 
 overwrite = True  # set to True if we want to overwrite cached results
-xdawn_filters_all = 4
 pipelines = {}
 
-# A Riemannian Quantum pipeline provided by pyRiemann-qiskit
-# You can choose between classical SVM and Quantum SVM.
 pipelines["Xdawn+QuanticMDM"] = make_pipeline(
-                                        XdawnCovariances(xdawn_filters_all),
-                                        QuanticMDM(quantum=False))
+    XdawnCovariances(nfilter=8,estimator="lwf",xdawn_estimator="scm"),
+    QuanticMDM(quantum=False))
 
-# Here we provide a pipeline for comparison:
-
-# This is a standard pipeline similar to
-# QuantumClassifierWithDefaultRiemannianPipeline, but with LDA classifier
-# instead.
-pipelines["XDawnCov+ClassicMDM"] = make_pipeline(XdawnCovariances(xdawn_filters_all), MDM())
+pipelines["XDawnCov+ClassicMDM"] = make_pipeline(XdawnCovariances(4), MDM())
 
 print("Total pipelines to evaluate: ", len(pipelines))
 
