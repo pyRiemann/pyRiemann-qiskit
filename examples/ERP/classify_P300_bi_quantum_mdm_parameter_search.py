@@ -3,7 +3,7 @@
 Classification of P300 datasets from MOABB using Quantum MDM
 ====================================================================
 
-The mean and the distance in MDM algorithm are formualted as 
+The mean and the distance in MDM algorithm are formualted as
 optimization problems. These optimization problems are translated
 to Qiskit using Docplex and additional glue code.
 
@@ -26,11 +26,12 @@ from pyriemann.estimation import XdawnCovariances, Covariances, ERPCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.classification import MDM
-from pyriemann_qiskit.classification \
-    import (QuanticSVM,
-            QuanticVQC,
-            QuanticMDM,
-            QuantumClassifierWithDefaultRiemannianPipeline)
+from pyriemann_qiskit.classification import (
+    QuanticSVM,
+    QuanticVQC,
+    QuanticMDM,
+    QuantumClassifierWithDefaultRiemannianPipeline,
+)
 from operator import itemgetter
 
 from sklearn.pipeline import make_pipeline
@@ -40,14 +41,27 @@ import seaborn as sns
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from moabb import set_log_level
 
-from moabb.datasets import bi2012, bi2013a, bi2014a, bi2014b, bi2015a, bi2015b, BNCI2014008, BNCI2014009, BNCI2015003, EPFLP300, Lee2019_ERP
+from moabb.datasets import (
+    bi2012,
+    bi2013a,
+    bi2014a,
+    bi2014b,
+    bi2015a,
+    bi2015b,
+    BNCI2014008,
+    BNCI2014009,
+    BNCI2015003,
+    EPFLP300,
+    Lee2019_ERP,
+)
 
 from moabb.evaluations import WithinSessionEvaluation, CrossSubjectEvaluation
 from moabb.paradigms import P300
-from pyriemann_qiskit.classification import \
-    QuantumClassifierWithDefaultRiemannianPipeline
+from pyriemann_qiskit.classification import (
+    QuantumClassifierWithDefaultRiemannianPipeline,
+)
 from sklearn.decomposition import PCA
-from  pyriemann_qiskit.utils import mean
+from pyriemann_qiskit.utils import mean
 
 print(__doc__)
 
@@ -74,15 +88,15 @@ labels_dict = {"Target": 1, "NonTarget": 0}
 
 paradigm = P300()
 
-#Datasets:
-#name, electrodes, subjects
-#bi2013a	    16	24 (normal)
-#bi2014a    	16	64 (usually low performance)
-#BNCI2014009	16	10 (usually high performance)
-#BNCI2014008	 8	 8
-#BNCI2015003	 8	10
-#bi2015a        32  43
-#bi2015b        32  44
+# Datasets:
+# name, electrodes, subjects
+# bi2013a	    16	24 (normal)
+# bi2014a    	16	64 (usually low performance)
+# BNCI2014009	16	10 (usually high performance)
+# BNCI2014008	 8	 8
+# BNCI2015003	 8	10
+# bi2015a        32  43
+# bi2015b        32  44
 
 datasets = [BNCI2014009()]
 
@@ -100,109 +114,107 @@ from sklearn.preprocessing import MinMaxScaler
 
 pipelines = {}
 
-#result = CobylaOptimizer(rhobeg=0.01, rhoend=0.0001).solve(qp).x
+# result = CobylaOptimizer(rhobeg=0.01, rhoend=0.0001).solve(qp).x
 
 # pipelines["ERPCov,mean: logeuclid, distance: convex"] = make_pipeline( #it works
-    
+
 #     ERPCovariances(),
 #     QuanticMDM(metric={"mean": 'logeuclid', "distance": 'convex'}, quantum=False)
-    
+
 #     )
 
 # pipelines["ERPCov,{mean: logdet, distance: logdet}"] = make_pipeline( #works
-    
+
 #     ERPCovariances(),
-#     QuanticMDM(metric={"mean": 'logdet', "distance": 'logdet'}, quantum=False) #normally good results 
+#     QuanticMDM(metric={"mean": 'logdet', "distance": 'logdet'}, quantum=False) #normally good results
 
 #     )
 
 # pipelines["ERPCov,{mean: logdet, distance: convex}"] = make_pipeline( #by default, works
-    
+
 #     ERPCovariances(),
-#     QuanticMDM(metric={"mean": 'logdet', "distance": 'convex'}, quantum=False) 
-    
+#     QuanticMDM(metric={"mean": 'logdet', "distance": 'convex'}, quantum=False)
+
 #     )
 
 # pipelines["ERPCov,mean: convex, distance: euclid"] = make_pipeline( #works
-    
+
 #     ERPCovariances(),
 #     QuanticMDM(metric={"mean": 'convex', "distance": 'euclid'}, quantum=False) #normally good results
-    
+
 #     )
 
 
-pipelines["ERPCov,mean: convex, distance: convex"] = make_pipeline( #fails error
-    
+pipelines["ERPCov,mean: convex, distance: convex"] = make_pipeline(  # fails error
     ERPCovariances(),
-    QuanticMDM(metric={"mean": 'convex', "distance": 'convex'}, quantum=False)
-    
-    )
+    QuanticMDM(metric={"mean": "convex", "distance": "convex"}, quantum=False),
+)
 
-pipelines["ERPCov,mean: convex, distance: logdet"] = make_pipeline( #fails error
-    
+pipelines["ERPCov,mean: convex, distance: logdet"] = make_pipeline(  # fails error
     ERPCovariances(),
-    QuanticMDM(metric={"mean": 'convex', "distance": 'logdet'}, quantum=False) #normally good results
-    
-    )
+    QuanticMDM(
+        metric={"mean": "convex", "distance": "logdet"}, quantum=False
+    ),  # normally good results
+)
 
 
-#==============================================================================================
+# ==============================================================================================
 # pipelines["ERPCovariances"] = make_pipeline(
-    
+
 #     ERPCovariances(),
 #     QuanticMDM(quantum=False)
-    
+
 #     )
 
 # pipelines["Covariances"] = make_pipeline(
-    
+
 #     Covariances(),
 #     QuanticMDM(quantum=False)
-    
+
 #     )
 
 # pipelines["Xdawn_filter=8,estimator=scm,xdawn_estimator=scm"] = make_pipeline(
-    
+
 #     XdawnCovariances(nfilter=8,estimator="scm",xdawn_estimator="scm"),
 #     QuanticMDM(quantum=False)
-    
+
 #     )
 
 
 # pipelines["Xdawn_nfilter=8,estimator=lwf,xdawn_estimator=scm"] = make_pipeline(
-    
+
 #     XdawnCovariances(nfilter=8,estimator="lwf",xdawn_estimator="scm"),
 #     QuanticMDM(quantum=False)
-    
+
 #     )
 
 # pipelines["Xdawnn_filter=2,estimator=scm,xdawn_estimator=scm"] = make_pipeline(
-    
+
 #     XdawnCovariances(nfilter=2,estimator="scm",xdawn_estimator="scm"),
 #     QuanticMDM(quantum=False)
-    
+
 #     )
 
 
 # pipelines["Xdawn_nfilter=2,estimator=lwf,xdawn_estimator=scm"] = make_pipeline(
-    
+
 #     XdawnCovariances(nfilter=2,estimator="lwf",xdawn_estimator="scm"),
 #     QuanticMDM(quantum=False)
-    
+
 #     )
 
 
-evaluation = CrossSubjectEvaluation( #WithinSessionEvaluation
+evaluation = CrossSubjectEvaluation(  # WithinSessionEvaluation
     paradigm=paradigm,
     datasets=datasets,
-    #suffix="examples",
-    overwrite=True
+    # suffix="examples",
+    overwrite=True,
 )
 
 results = evaluation.process(pipelines)
 
 print("Averaging the session performance:")
-print(results.groupby('pipeline').mean('score')[['score', 'time']])
+print(results.groupby("pipeline").mean("score")[["score", "time"]])
 
 # from moabb import benchmark
 

@@ -3,7 +3,7 @@
 Classification of P300 datasets from MOABB using Quantum MDM
 ====================================================================
 
-The mean and the distance in MDM algorithm are formualted as 
+The mean and the distance in MDM algorithm are formualted as
 optimization problems. These optimization problems are translated
 to Qiskit using Docplex and additional glue code.
 
@@ -22,11 +22,12 @@ from pyriemann.estimation import XdawnCovariances, Covariances, ERPCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.classification import MDM
-from pyriemann_qiskit.classification \
-    import (QuanticSVM,
-            QuanticVQC,
-            QuanticMDM,
-            QuantumClassifierWithDefaultRiemannianPipeline)
+from pyriemann_qiskit.classification import (
+    QuanticSVM,
+    QuanticVQC,
+    QuanticMDM,
+    QuantumClassifierWithDefaultRiemannianPipeline,
+)
 from operator import itemgetter
 
 from sklearn.pipeline import make_pipeline
@@ -36,12 +37,25 @@ import seaborn as sns
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from moabb import set_log_level
 
-from moabb.datasets import bi2012, bi2013a, bi2014a, bi2014b, bi2015a, bi2015b, BNCI2014008, BNCI2014009, BNCI2015003, EPFLP300, Lee2019_ERP
+from moabb.datasets import (
+    bi2012,
+    bi2013a,
+    bi2014a,
+    bi2014b,
+    bi2015a,
+    bi2015b,
+    BNCI2014008,
+    BNCI2014009,
+    BNCI2015003,
+    EPFLP300,
+    Lee2019_ERP,
+)
 
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
-from pyriemann_qiskit.classification import \
-    QuantumClassifierWithDefaultRiemannianPipeline
+from pyriemann_qiskit.classification import (
+    QuantumClassifierWithDefaultRiemannianPipeline,
+)
 from sklearn.decomposition import PCA
 
 print(__doc__)
@@ -69,15 +83,15 @@ labels_dict = {"Target": 1, "NonTarget": 0}
 
 paradigm = P300()
 
-#Datasets:
-#name, electrodes, subjects
-#bi2013a	    16	24 (normal)
-#bi2014a    	16	64 (usually low performance)
-#BNCI2014009	16	10 (usually high performance)
-#BNCI2014008	 8	 8
-#BNCI2015003	 8	10
-#bi2015a        32  43
-#bi2015b        32  44
+# Datasets:
+# name, electrodes, subjects
+# bi2013a	    16	24 (normal)
+# bi2014a    	16	64 (usually low performance)
+# BNCI2014009	16	10 (usually high performance)
+# BNCI2014008	 8	 8
+# BNCI2015003	 8	10
+# bi2015a        32  43
+# bi2015b        32  44
 
 datasets = [BNCI2014009()]
 
@@ -91,24 +105,22 @@ overwrite = True  # set to True if we want to overwrite cached results
 pipelines = {}
 
 pipelines["Xdawn+QuanticMDM"] = make_pipeline(
-    XdawnCovariances(nfilter=8,estimator="lwf",xdawn_estimator="scm"),
-    QuanticMDM(quantum=False))
+    XdawnCovariances(nfilter=8, estimator="lwf", xdawn_estimator="scm"),
+    QuanticMDM(quantum=False),
+)
 
 pipelines["XDawnCov+ClassicMDM"] = make_pipeline(XdawnCovariances(4), MDM())
 
 print("Total pipelines to evaluate: ", len(pipelines))
 
 evaluation = WithinSessionEvaluation(
-    paradigm=paradigm,
-    datasets=datasets,
-    suffix="examples",
-    overwrite=overwrite
+    paradigm=paradigm, datasets=datasets, suffix="examples", overwrite=overwrite
 )
 
 results = evaluation.process(pipelines)
 
 print("Averaging the session performance:")
-print(results.groupby('pipeline').mean('score')[['score', 'time']])
+print(results.groupby("pipeline").mean("score")[["score", "time"]])
 
 ##############################################################################
 # Plot Results
@@ -128,11 +140,7 @@ sns.stripplot(
     zorder=1,
     palette="Set1",
 )
-sns.pointplot(data=results,
-              y="score",
-              x="pipeline",
-              ax=ax, zorder=1,
-              palette="Set1")
+sns.pointplot(data=results, y="score", x="pipeline", ax=ax, zorder=1, palette="Set1")
 
 ax.set_ylabel("ROC AUC")
 ax.set_ylim(0.3, 1)
