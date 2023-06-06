@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       tag: ${{ github.event.pull_request.number }}
+      GITHUB_TOKEN: ${{ github.token }}
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
@@ -24,5 +25,5 @@ jobs:
     - name: Publish the Docker image
       if: ${{ github.event_name == 'release' }}
       run: |
-        docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+        docker login ghcr.io -u ${{ github.actor }} -p $GITHUB_TOKEN
         docker push ghcr.io/${{ github.actor }}/pyriemann-qiskit:$tag
