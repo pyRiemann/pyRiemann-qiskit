@@ -71,7 +71,6 @@ v0.0.4
 - Improve workflow for Ci/Cd (cache results, automate linting)
 - Add regularization of convex mean
 - Fix examples not running on Ci/Cd
-- Publish paper :)
 
 Details:
 
