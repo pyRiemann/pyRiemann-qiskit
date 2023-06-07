@@ -1,13 +1,12 @@
 from docplex.mp.model import Model
 from pyriemann.utils.mean import mean_methods
-from pyriemann_qiskit.utils.docplex import (ClassicalOptimizer,
-                                            get_global_optimizer)
+from pyriemann_qiskit.utils.docplex import ClassicalOptimizer, get_global_optimizer
 from pyriemann.estimation import Shrinkage
 
 
-def fro_mean_convex(covmats, sample_weight=None,
-                    optimizer=ClassicalOptimizer(),
-                    shrink=True):
+def fro_mean_convex(
+    covmats, sample_weight=None, optimizer=ClassicalOptimizer(), shrink=True
+):
     """Convex formulation of the mean
     with frobenius distance.
     Parameters
@@ -50,13 +49,11 @@ def fro_mean_convex(covmats, sample_weight=None,
 
     prob = Model()
 
-    X_mean = optimizer.covmat_var(prob, channels, 'fro_mean')
+    X_mean = optimizer.covmat_var(prob, channels, "fro_mean")
 
     def _fro_dist(A, B):
         A = optimizer.convert_covmat(A)
-        return prob.sum_squares(A[r, c] - B[r, c]
-                                for r in channels
-                                for c in channels)
+        return prob.sum_squares(A[r, c] - B[r, c] for r in channels for c in channels)
 
     objectives = prob.sum(_fro_dist(covmats[i], X_mean) for i in trials)
 
