@@ -65,7 +65,7 @@ def fro_mean_convex(covmats, sample_weight=None,
     result = optimizer.solve(prob)
 
     if shrink:
-        return Shrinkage().transform([result])[0]
+        return Shrinkage(shrinkage=0.9).transform([result])[0]
     return result
 
 

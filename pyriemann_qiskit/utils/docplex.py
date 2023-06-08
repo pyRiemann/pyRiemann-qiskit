@@ -356,7 +356,7 @@ class ClassicalOptimizer(pyQiskitOptimizer):
         return square_cont_mat_var(prob, channels, name)
 
     def _solve_qp(self, qp, reshape=True):
-        result = CobylaOptimizer(rhobeg=0.01, rhoend=0.0001).solve(qp).x
+        result = CobylaOptimizer(rhobeg=2.1, rhoend=0.000001).solve(qp).x
         if reshape:
             n_channels = int(math.sqrt(result.shape[0]))
             return np.reshape(result, (n_channels, n_channels))
