@@ -2,8 +2,7 @@ import numpy as np
 from docplex.mp.model import Model
 from pyriemann_qiskit.utils.docplex import ClassicalOptimizer, get_global_optimizer
 from pyriemann.classification import MDM
-from pyriemann.utils.distance import (distance_logeuclid,
-                                      distance_methods)
+from pyriemann.utils.distance import distance_logeuclid, distance_methods
 from pyriemann.utils.base import logm
 
 
