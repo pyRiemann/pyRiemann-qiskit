@@ -88,7 +88,7 @@ https://doi.org/10.3897/rio.9.e101006.
 _We recommend the use of [Anaconda](https://www.anaconda.com/) to manage python
 environements._
 
-`pyRiemann-qiskit` currently supports Windows, Mac and Linux OS with Python 3.7, 3.8 and
+`pyRiemann-qiskit` currently supports Windows, Mac and Linux OS with Python 3.8 and
 3.9.
 
 You can install `pyRiemann-qiskit` release from PyPI:
