@@ -1,0 +1,31 @@
+name: Docker Image CI
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: false
+        default: 'info'
+      tags:
+        description: 'Tags'
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      tag: $(git rev-parse --short "$GITHUB_SHA")
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: |
+        export actor=pyRiemann
+        docker build . --file Dockerfile --tag ghcr.io/${actor}/pyriemann-qiskit:$tag
+    - name: Publish the Docker image
+      run: |
+        docker login ghcr.io -u ${{ github.actor }} -p $GITHUB_TOKEN
+        docker push ghcr.io/${{ github.actor }}/pyriemann-qiskit:$tag
