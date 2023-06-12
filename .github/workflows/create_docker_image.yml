@@ -5,8 +5,6 @@ on:
     branches: [ "main" ]
   schedule:
     - cron: "0 0 1 * *"
-  release:
-    types: [published]
 
 jobs:
 
@@ -22,8 +20,3 @@ jobs:
       run: |
         export actor=$(echo ${{ github.actor }} | tr -d '[]')
         docker build . --file Dockerfile --tag ghcr.io/${actor}/pyriemann-qiskit:$tag
-    - name: Publish the Docker image
-      if: ${{ github.event_name == 'release' }}
-      run: |
-        docker login ghcr.io -u ${{ github.actor }} -p $GITHUB_TOKEN
-        docker push ghcr.io/${{ github.actor }}/pyriemann-qiskit:$tag
