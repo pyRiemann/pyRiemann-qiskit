@@ -1,9 +1,10 @@
 """
 ====================================================================
-Classification of P300 datasets from MOABB
+Classification of P300 datasets from MOABB with cache
 ====================================================================
 
-It demonstrates the QuantumClassifierWithDefaultRiemannianPipeline(). This
+It demonstrates the use of firebase cache for MOABB with
+the QuantumClassifierWithDefaultRiemannianPipeline(). This
 pipeline uses Riemannian Geometry, Tangent Space and a quantum SVM
 classifier. MOABB is used to access many EEG datasets and also for the
 evaluation and comparison with other classifiers.
@@ -18,8 +19,8 @@ of qubits supported by the real quantum computer you are going to use.
 A list of real quantum  computers is available in your IBM quantum account.
 
 """
-# Author: Anton Andreev
-# Modified from plot_classify_EEG_tangentspace.py of pyRiemann
+# Author: Anton Andreev, Gregoire Cattan
+# Modified from plot_classify_P300_bi.py
 # License: BSD (3-clause)
 
 from pyriemann.estimation import XdawnCovariances
