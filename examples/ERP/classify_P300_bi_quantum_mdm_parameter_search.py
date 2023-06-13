@@ -112,18 +112,18 @@ quantum = False
 
 pipelines["{mean: logdet, distance: logdet}"] = make_pipeline(
     ERPCovariances(),
-    QuanticMDM(metric={"mean": 'logdet', "distance": 'logdet'}, quantum=quantum)
+    QuanticMDM(metric={"mean": "logdet", "distance": "logdet"}, quantum=quantum),
 )
 
 pipelines["{mean: convex, distance: euclid}"] = make_pipeline(
     ERPCovariances(),
-    QuanticMDM(metric={"mean": 'convex', "distance": 'euclid'}, quantum=quantum)
+    QuanticMDM(metric={"mean": "convex", "distance": "euclid"}, quantum=quantum),
 )
 
 
 pipelines["{mean: logeuclid, distance: convex}"] = make_pipeline(
-    ERPCovariances(estimator='oas'),
-    QuanticMDM(metric={"mean": 'logeuclid', "distance": 'convex'}, quantum=quantum)
+    ERPCovariances(estimator="oas"),
+    QuanticMDM(metric={"mean": "logeuclid", "distance": "convex"}, quantum=quantum),
 )
 
 
@@ -131,9 +131,9 @@ pipelines["{mean: logeuclid, distance: convex}"] = make_pipeline(
 #     ERPCovariances(),
 #     QuanticMDM(metric={"mean": 'convex', "distance": 'logdet'}, quantum=quantum)
 # )
- 
 
-evaluation = WithinSessionEvaluation(  
+
+evaluation = WithinSessionEvaluation(
     paradigm=paradigm,
     datasets=datasets,
     overwrite=True,
@@ -163,11 +163,7 @@ sns.stripplot(
     zorder=1,
     palette="Set1",
 )
-sns.pointplot(data=results,
-              y="score",
-              x="pipeline",
-              ax=ax,
-              palette="Set1")
+sns.pointplot(data=results, y="score", x="pipeline", ax=ax, palette="Set1")
 
 ax.set_ylabel("ROC AUC")
 ax.set_ylim(0.3, 1)
