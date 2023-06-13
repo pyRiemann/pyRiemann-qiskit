@@ -3,8 +3,7 @@ from docplex.mp.model import Model
 from pyriemann_qiskit.utils.docplex import (ClassicalOptimizer,
                                             get_global_optimizer)
 from pyriemann.classification import MDM
-from pyriemann.utils.distance import (distance_logeuclid,
-                                      distance_methods)
+from pyriemann.utils.distance import distance_methods
 from pyriemann.utils.base import logm
 
 
@@ -44,8 +43,7 @@ def logeucl_dist_convex(X, y, optimizer=ClassicalOptimizer()):
     classes = range(n_classes)
 
     def dist(m1, m2):
-        return np.dot(logm(m1).flatten(), logm(m2).flatten())
-        return distance_logeuclid(m1, m2)
+        return np.nansum(logm(m1).flatten() * logm(m2).flatten())
 
     prob = Model()
 
