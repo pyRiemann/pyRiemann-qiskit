@@ -37,16 +37,6 @@ pyRiemann-qiskit: Qiskit wrapper for pyRiemann
            <img src="_images/sphx_glr_plot_classify_P300_bi_thumb.png">
          </div>
        </a>
-       <a href="auto_examples/ERP/firebase_moabb.html">
-         <div class="col-md-3 thumbnail">
-           <img src="_images/sphx_glr_firebase_moabb_thumb.png">
-         </div>
-       </a>
-       <a href="auto_examples/ERP/plot_compare_dim_red.html">
-         <div class="col-md-3 thumbnail">
-           <img src="_images/sphx_glr_plot_compare_dim_red_thumb.png">
-         </div>
-       </a>
        <a href="auto_examples/toys_dataset/plot_classifier_comparison.html">
          <div class="col-md-3 thumbnail">
            <img src="_images/sphx_glr_plot_classifier_comparison_thumb.png">
