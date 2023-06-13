@@ -9,12 +9,12 @@ build:
     python: "3.8"
 
 sphinx:
-   configuration: doc/conf.py
+  configuration: doc/conf.py
 
 # If using Sphinx, optionally build your docs in additional formats such as PDF
 formats:
-    - pdf
+  - pdf
 
 python:
-   install:
-   - requirements: doc/requirements.txt
+  install:
+    - requirements: doc/requirements.txt
