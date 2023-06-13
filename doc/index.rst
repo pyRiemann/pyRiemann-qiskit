@@ -32,9 +32,9 @@ pyRiemann-qiskit: Qiskit wrapper for pyRiemann
            <img src="_images/sphx_glr_plot_classify_EEG_quantum_thumb.png">
          </div>
        </a>
-       <a href="auto_examples/ERP/classify_P300_bi.html">
+       <a href="auto_examples/ERP/plot_classify_P300_bi.html">
          <div class="col-md-3 thumbnail">
-           <img src="_images/sphx_glr_classify_P300_bi_thumb.png">
+           <img src="_images/sphx_glr_plot_classify_P300_bi_thumb.png">
          </div>
        </a>
        <a href="auto_examples/ERP/firebase_moabb.html">
@@ -42,9 +42,9 @@ pyRiemann-qiskit: Qiskit wrapper for pyRiemann
            <img src="_images/sphx_glr_firebase_moabb_thumb.png">
          </div>
        </a>
-       <a href="auto_examples/ERP/compare_dim_red.html">
+       <a href="auto_examples/ERP/plot_compare_dim_red.html">
          <div class="col-md-3 thumbnail">
-           <img src="_images/sphx_glr_compare_dim_red_thumb.png">
+           <img src="_images/sphx_glr_plot_compare_dim_red_thumb.png">
          </div>
        </a>
        <a href="auto_examples/toys_dataset/plot_classifier_comparison.html">
