@@ -22,15 +22,9 @@ pip install moabb==0.5.0
 # Modified from plot_classify_EEG_tangentspace.py of pyRiemann
 # License: BSD (3-clause)
 
-from pyriemann.estimation import XdawnCovariances, Covariances, ERPCovariances
-from pyriemann.tangentspace import TangentSpace
-from pyriemann.estimation import XdawnCovariances
-from pyriemann.classification import MDM
+from pyriemann.estimation import ERPCovariances
 from pyriemann_qiskit.classification import (
-    QuanticSVM,
-    QuanticVQC,
     QuanticMDM,
-    QuantumClassifierWithDefaultRiemannianPipeline,
 )
 from operator import itemgetter
 
@@ -102,7 +96,7 @@ datasets = [BNCI2014009()]
 
 # reduce the number of subjects, the Quantum pipeline takes a lot of time
 # if executed on the entire dataset
-n_subjects = 5
+n_subjects = 2
 for dataset in datasets:
     dataset.subject_list = dataset.subject_list[0:n_subjects]
 
@@ -114,100 +108,34 @@ from sklearn.preprocessing import MinMaxScaler
 
 pipelines = {}
 
-# result = CobylaOptimizer(rhobeg=0.01, rhoend=0.0001).solve(qp).x
+quantum = False
 
-# pipelines["ERPCov,mean: logeuclid, distance: convex"] = make_pipeline( #it works
-
-#     ERPCovariances(),
-#     QuanticMDM(metric={"mean": 'logeuclid', "distance": 'convex'}, quantum=False)
-
-#     )
-
-# pipelines["ERPCov,{mean: logdet, distance: logdet}"] = make_pipeline( #works
-
-#     ERPCovariances(),
-#     QuanticMDM(metric={"mean": 'logdet', "distance": 'logdet'}, quantum=False) #normally good results
-
-#     )
-
-# pipelines["ERPCov,{mean: logdet, distance: convex}"] = make_pipeline( #by default, works
-
-#     ERPCovariances(),
-#     QuanticMDM(metric={"mean": 'logdet', "distance": 'convex'}, quantum=False)
-
-#     )
-
-# pipelines["ERPCov,mean: convex, distance: euclid"] = make_pipeline( #works
-
-#     ERPCovariances(),
-#     QuanticMDM(metric={"mean": 'convex', "distance": 'euclid'}, quantum=False) #normally good results
-
-#     )
-
-
-pipelines["ERPCov,mean: convex, distance: convex"] = make_pipeline(  # fails error
+pipelines["{mean: logdet, distance: logdet}"] = make_pipeline(
     ERPCovariances(),
-    QuanticMDM(metric={"mean": "convex", "distance": "convex"}, quantum=False),
+    QuanticMDM(metric={"mean": 'logdet', "distance": 'logdet'}, quantum=quantum)
 )
 
-pipelines["ERPCov,mean: convex, distance: logdet"] = make_pipeline(  # fails error
+pipelines["{mean: convex, distance: euclid}"] = make_pipeline(
     ERPCovariances(),
-    QuanticMDM(
-        metric={"mean": "convex", "distance": "logdet"}, quantum=False
-    ),  # normally good results
+    QuanticMDM(metric={"mean": 'convex', "distance": 'euclid'}, quantum=quantum)
 )
 
 
-# ==============================================================================================
-# pipelines["ERPCovariances"] = make_pipeline(
+pipelines["{mean: logeuclid, distance: convex}"] = make_pipeline(
+    ERPCovariances(estimator='oas'),
+    QuanticMDM(metric={"mean": 'logeuclid', "distance": 'convex'}, quantum=quantum)
+)
 
+
+# pipelines["{mean: logeuclid, distance: convex}"] = make_pipeline(
 #     ERPCovariances(),
-#     QuanticMDM(quantum=False)
+#     QuanticMDM(metric={"mean": 'convex', "distance": 'logdet'}, quantum=quantum)
+# )
+ 
 
-#     )
-
-# pipelines["Covariances"] = make_pipeline(
-
-#     Covariances(),
-#     QuanticMDM(quantum=False)
-
-#     )
-
-# pipelines["Xdawn_filter=8,estimator=scm,xdawn_estimator=scm"] = make_pipeline(
-
-#     XdawnCovariances(nfilter=8,estimator="scm",xdawn_estimator="scm"),
-#     QuanticMDM(quantum=False)
-
-#     )
-
-
-# pipelines["Xdawn_nfilter=8,estimator=lwf,xdawn_estimator=scm"] = make_pipeline(
-
-#     XdawnCovariances(nfilter=8,estimator="lwf",xdawn_estimator="scm"),
-#     QuanticMDM(quantum=False)
-
-#     )
-
-# pipelines["Xdawnn_filter=2,estimator=scm,xdawn_estimator=scm"] = make_pipeline(
-
-#     XdawnCovariances(nfilter=2,estimator="scm",xdawn_estimator="scm"),
-#     QuanticMDM(quantum=False)
-
-#     )
-
-
-# pipelines["Xdawn_nfilter=2,estimator=lwf,xdawn_estimator=scm"] = make_pipeline(
-
-#     XdawnCovariances(nfilter=2,estimator="lwf",xdawn_estimator="scm"),
-#     QuanticMDM(quantum=False)
-
-#     )
-
-
-evaluation = CrossSubjectEvaluation(  # WithinSessionEvaluation
+evaluation = WithinSessionEvaluation(  
     paradigm=paradigm,
     datasets=datasets,
-    # suffix="examples",
     overwrite=True,
 )
 
@@ -216,41 +144,6 @@ results = evaluation.process(pipelines)
 print("Averaging the session performance:")
 print(results.groupby("pipeline").mean("score")[["score", "time"]])
 
-# from moabb import benchmark
-
-# results = benchmark(
-#     pipelines=pipelines,
-#     evaluations=["WithinSession"],
-#     paradigms=[paradigm],
-#     include_datasets=datasets,
-#     results="./results/",
-#     overwrite=False,
-#     plot=False,
-#     output="./benchmark/",
-# )
-
-# overwrite = True  # set to True if we want to overwrite cached results
-# pipelines = {}
-
-# pipelines["Xdawn+QuanticMDM"] = make_pipeline(
-#     XdawnCovariances(nfilter=8,estimator="lwf",xdawn_estimator="scm"),
-#     QuanticMDM(quantum=False))
-
-# pipelines["XDawnCov+ClassicMDM"] = make_pipeline(XdawnCovariances(4), MDM())
-
-# print("Total pipelines to evaluate: ", len(pipelines))
-
-# evaluation = WithinSessionEvaluation(
-#     paradigm=paradigm,
-#     datasets=datasets,
-#     suffix="examples",
-#     overwrite=overwrite
-# )
-
-# results = evaluation.process(pipelines)
-
-# print("Averaging the session performance:")
-# print(results.groupby('pipeline').mean('score')[['score', 'time']])
 
 # ##############################################################################
 # # Plot Results
@@ -258,25 +151,25 @@ print(results.groupby("pipeline").mean("score")[["score", "time"]])
 # #
 # # Here we plot the results to compare the two pipelines
 
-# fig, ax = plt.subplots(facecolor="white", figsize=[8, 4])
+fig, ax = plt.subplots(facecolor="white", figsize=[8, 4])
 
-# sns.stripplot(
-#     data=results,
-#     y="score",
-#     x="pipeline",
-#     ax=ax,
-#     jitter=True,
-#     alpha=0.5,
-#     zorder=1,
-#     palette="Set1",
-# )
-# sns.pointplot(data=results,
-#               y="score",
-#               x="pipeline",
-#               ax=ax, zorder=1,
-#               palette="Set1")
+sns.stripplot(
+    data=results,
+    y="score",
+    x="pipeline",
+    ax=ax,
+    jitter=True,
+    alpha=0.5,
+    zorder=1,
+    palette="Set1",
+)
+sns.pointplot(data=results,
+              y="score",
+              x="pipeline",
+              ax=ax,
+              palette="Set1")
 
-# ax.set_ylabel("ROC AUC")
-# ax.set_ylim(0.3, 1)
+ax.set_ylabel("ROC AUC")
+ax.set_ylim(0.3, 1)
 
-# plt.show()
+plt.show()
