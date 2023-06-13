@@ -158,7 +158,7 @@ html_theme_options = {
     'navbar_sidebarrel':
     False,
     'bootstrap_version':
-    "5",
+    "3",
     'navbar_links': [("API", "api"), ("Gallery", "auto_examples/index")],
 }
 
