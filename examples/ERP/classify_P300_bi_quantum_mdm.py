@@ -105,7 +105,7 @@ overwrite = True  # set to True if we want to overwrite cached results
 pipelines = {}
 
 pipelines["Xdawn+QuanticMDM"] = make_pipeline(
-    XdawnCovariances(nfilter=8, estimator="lwf", xdawn_estimator="scm"),
+    XdawnCovariances(nfilter=8, estimator="scm", xdawn_estimator="lwf"),
     QuanticMDM(quantum=False),
 )
 
