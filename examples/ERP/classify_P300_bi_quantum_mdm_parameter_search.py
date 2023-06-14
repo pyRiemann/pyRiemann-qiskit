@@ -22,7 +22,7 @@ pip install moabb==0.5.0
 # Modified from plot_classify_EEG_tangentspace.py of pyRiemann
 # License: BSD (3-clause)
 
-from pyriemann.estimation import ERPCovariances
+from pyriemann.estimation import ERPCovariances, XdawnCovariances
 from pyriemann_qiskit.classification import (
     QuanticMDM,
 )
@@ -56,6 +56,7 @@ from pyriemann_qiskit.classification import (
 )
 from sklearn.decomposition import PCA
 from pyriemann_qiskit.utils import mean
+from sklearn.ensemble import VotingClassifier
 
 print(__doc__)
 
@@ -110,28 +111,35 @@ pipelines = {}
 
 quantum = False
 
+xdawn = XdawnCovariances(nfilter=8, estimator="scm", xdawn_estimator="lwf")
+erp = ERPCovariances()
+
 pipelines["{mean: logdet, distance: logdet}"] = make_pipeline(
-    ERPCovariances(),
+    erp,
     QuanticMDM(metric={"mean": 'logdet', "distance": 'logdet'}, quantum=quantum)
 )
 
 pipelines["{mean: convex, distance: euclid}"] = make_pipeline(
-    ERPCovariances(),
+    erp,
     QuanticMDM(metric={"mean": 'convex', "distance": 'euclid'}, quantum=quantum)
 )
 
-
 pipelines["{mean: logeuclid, distance: convex}"] = make_pipeline(
-    ERPCovariances(estimator='oas'),
+    erp,
     QuanticMDM(metric={"mean": 'logeuclid', "distance": 'convex'}, quantum=quantum)
 )
 
+pipelines["{mean: convex, distance: convex}"] = make_pipeline(
+    xdawn,
+    QuanticMDM(metric={"mean": 'convex', "distance": 'convex'}, quantum=quantum)
+)
 
-# pipelines["{mean: logeuclid, distance: convex}"] = make_pipeline(
-#     ERPCovariances(),
-#     QuanticMDM(metric={"mean": 'convex', "distance": 'logdet'}, quantum=quantum)
-# )
- 
+c1 = pipelines["{mean: convex, distance: euclid}"]
+c2 = pipelines["{mean: logeuclid, distance: convex}"]
+
+pipelines["Voting convex"] = make_pipeline(
+    VotingClassifier([('cvx/euc', c1), ('logeuc/cvx', c2)], voting='soft')
+)
 
 evaluation = WithinSessionEvaluation(  
     paradigm=paradigm,
