@@ -51,7 +51,9 @@ def logeucl_dist_convex(X, y, optimizer=ClassicalOptimizer()):
 
     _2VecLogYD = 2 * prob.sum(w[i] * log_prod(y, X[i]) for i in classes)
 
-    wtDw = prob.sum(w[i] * w[j] * log_prod(X[i], X[j]) for i in classes for j in classes)
+    wtDw = prob.sum(
+        w[i] * w[j] * log_prod(X[i], X[j]) for i in classes for j in classes
+    )
 
     objectives = wtDw - _2VecLogYD
 

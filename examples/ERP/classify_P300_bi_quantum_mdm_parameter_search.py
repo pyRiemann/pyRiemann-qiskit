@@ -115,33 +115,29 @@ xdawn = XdawnCovariances(nfilter=8, estimator="scm", xdawn_estimator="lwf")
 erp = ERPCovariances()
 
 pipelines["{mean: logdet, distance: logdet}"] = make_pipeline(
-    erp,
-    QuanticMDM(metric={"mean": 'logdet', "distance": 'logdet'}, quantum=quantum)
+    erp, QuanticMDM(metric={"mean": "logdet", "distance": "logdet"}, quantum=quantum)
 )
 
 pipelines["{mean: convex, distance: euclid}"] = make_pipeline(
-    erp,
-    QuanticMDM(metric={"mean": 'convex', "distance": 'euclid'}, quantum=quantum)
+    erp, QuanticMDM(metric={"mean": "convex", "distance": "euclid"}, quantum=quantum)
 )
 
 pipelines["{mean: logeuclid, distance: convex}"] = make_pipeline(
-    erp,
-    QuanticMDM(metric={"mean": 'logeuclid', "distance": 'convex'}, quantum=quantum)
+    erp, QuanticMDM(metric={"mean": "logeuclid", "distance": "convex"}, quantum=quantum)
 )
 
 pipelines["{mean: convex, distance: convex}"] = make_pipeline(
-    xdawn,
-    QuanticMDM(metric={"mean": 'convex', "distance": 'convex'}, quantum=quantum)
+    xdawn, QuanticMDM(metric={"mean": "convex", "distance": "convex"}, quantum=quantum)
 )
 
 c1 = pipelines["{mean: convex, distance: euclid}"]
 c2 = pipelines["{mean: logeuclid, distance: convex}"]
 
 pipelines["Voting convex"] = make_pipeline(
-    VotingClassifier([('cvx/euc', c1), ('logeuc/cvx', c2)], voting='soft')
+    VotingClassifier([("cvx/euc", c1), ("logeuc/cvx", c2)], voting="soft")
 )
 
-evaluation = WithinSessionEvaluation(  
+evaluation = WithinSessionEvaluation(
     paradigm=paradigm,
     datasets=datasets,
     overwrite=True,
@@ -171,11 +167,7 @@ sns.stripplot(
     zorder=1,
     palette="Set1",
 )
-sns.pointplot(data=results,
-              y="score",
-              x="pipeline",
-              ax=ax,
-              palette="Set1")
+sns.pointplot(data=results, y="score", x="pipeline", ax=ax, palette="Set1")
 
 ax.set_ylabel("ROC AUC")
 ax.set_ylim(0.3, 1)
