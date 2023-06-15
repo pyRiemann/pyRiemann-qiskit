@@ -320,14 +320,20 @@ class QuanticSVM(QuanticClassifierBase):
     """
 
     def __init__(
-        self, gamma="scale", C=1.0, max_iter=None, pegasos=False,
+        self,
+        gamma="scale",
+        C=1.0,
+        max_iter=None,
+        pegasos=False,
         quantum=True,
         q_account_token=None,
         verbose=True,
         shots=1024,
         gen_feature_map=gen_zz_feature_map(),
     ):
-        QuanticClassifierBase.__init__(self, quantum, q_account_token, verbose, shots, gen_feature_map)
+        QuanticClassifierBase.__init__(
+            self, quantum, q_account_token, verbose, shots, gen_feature_map
+        )
         self.gamma = gamma
         self.C = C
         self.max_iter = max_iter
@@ -465,7 +471,9 @@ class QuanticVQC(QuanticClassifierBase):
     """
 
     def __init__(
-        self, optimizer=get_spsa(), gen_var_form=gen_two_local(),
+        self,
+        optimizer=get_spsa(),
+        gen_var_form=gen_two_local(),
         quantum=True,
         q_account_token=None,
         verbose=True,
@@ -477,7 +485,9 @@ class QuanticVQC(QuanticClassifierBase):
                 "VQC can only run on a quantum \
                               computer or simulator."
             )
-        QuanticClassifierBase.__init__(self, quantum, q_account_token, verbose, shots, gen_feature_map)
+        QuanticClassifierBase.__init__(
+            self, quantum, q_account_token, verbose, shots, gen_feature_map
+        )
         self.optimizer = optimizer
         self.gen_var_form = gen_var_form
 
@@ -606,14 +616,17 @@ class QuanticMDM(QuanticClassifierBase):
     """
 
     def __init__(
-        self, metric={"mean": "logeuclid", "distance": "convex"},
+        self,
+        metric={"mean": "logeuclid", "distance": "convex"},
         quantum=True,
         q_account_token=None,
         verbose=True,
         shots=1024,
         gen_feature_map=gen_zz_feature_map(),
     ):
-        QuanticClassifierBase.__init__(self, quantum, q_account_token, verbose, shots, gen_feature_map)
+        QuanticClassifierBase.__init__(
+            self, quantum, q_account_token, verbose, shots, gen_feature_map
+        )
         self.metric = metric
 
     def _init_algo(self, n_features):
