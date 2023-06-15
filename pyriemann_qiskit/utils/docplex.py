@@ -16,7 +16,7 @@ from qiskit_optimization.translators import from_docplex_mp
 from pyriemann_qiskit.utils import cov_to_corr_matrix, get_simulator
 
 
-_global_optimizer = None
+_global_optimizer = [None]
 
 
 def set_global_optimizer(optimizer):
@@ -31,7 +31,7 @@ def set_global_optimizer(optimizer):
     -----
     .. versionadded:: 0.0.4
     """
-    _global_optimizer = optimizer  # noqa
+    _global_optimizer[0] = optimizer
 
 
 def get_global_optimizer(default):
@@ -52,7 +52,7 @@ def get_global_optimizer(default):
     -----
     .. versionadded:: 0.0.4
     """
-    return _global_optimizer if _global_optimizer is not None else default
+    return _global_optimizer[0] if _global_optimizer[0] is not None else default
 
 
 def square_cont_mat_var(prob, channels, name="cont_covmat"):
