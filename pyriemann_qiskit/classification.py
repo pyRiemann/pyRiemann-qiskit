@@ -614,7 +614,6 @@ class QuanticMDM(QuanticClassifierBase):
         gen_feature_map=gen_zz_feature_map(),
     ):
         QuanticClassifierBase.__init__(self, quantum, q_account_token, verbose, shots, gen_feature_map)
-        self._log("MDM.quantum", self.quantum)
         self.metric = metric
 
     def _init_algo(self, n_features):
