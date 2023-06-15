@@ -103,7 +103,6 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._training_input = {}
 
     def _init_quantum(self):
-        print("self.quantum=", self.quantum)
         if self.quantum:
             algorithm_globals.random_seed = datetime.now().microsecond
             self._log("seed = ", algorithm_globals.random_seed)
@@ -119,7 +118,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                 self._log("Quantum simulation will be performed")
                 self._backend = get_simulator()
         else:
-            self._log("Classical SVM will be performed")
+            self._log("Classical computation will be performed")
 
     def _log(self, *values):
         if self.verbose:
