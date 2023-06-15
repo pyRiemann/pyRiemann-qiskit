@@ -98,7 +98,7 @@ datasets = [bi2013a()]
 # reduce the number of subjects, the Quantum pipeline takes a lot of time
 # if executed on the entire dataset
 n_subjects = 3
-title = ''
+title = ""
 for dataset in datasets:
     title = title + dataset.code
     dataset.subject_list = dataset.subject_list[0:n_subjects]
@@ -169,7 +169,9 @@ sns.stripplot(
     zorder=1,
     palette="Set1",
 )
-sns.pointplot(data=results, y="score", x="pipeline", ax=ax, palette="Set1").set(title=title)
+sns.pointplot(data=results, y="score", x="pipeline", ax=ax, palette="Set1").set(
+    title=title
+)
 
 ax.set_ylabel("ROC AUC")
 ax.set_ylim(0.3, 1)
