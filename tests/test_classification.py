@@ -12,7 +12,6 @@ from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
-from operator import itemgetter
 
 
 @pytest.mark.parametrize(

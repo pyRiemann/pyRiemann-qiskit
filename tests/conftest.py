@@ -3,7 +3,7 @@ import numpy as np
 from functools import partial
 from pyriemann.datasets import make_covariances
 from pyriemann_qiskit.datasets import get_mne_sample
-
+from operator import itemgetter
 
 def requires_module(function, name, call=None):
     """Skip a test if package is not available (decorator)."""
