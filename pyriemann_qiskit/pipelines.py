@@ -1,4 +1,5 @@
 """Module for pipelines."""
+import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.decomposition import PCA
 from sklearn.pipeline import make_pipeline
