@@ -40,7 +40,7 @@ from moabb import set_log_level
 from moabb.datasets import bi2012
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
-from pyriemann_qiskit.classification import (
+from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
 )
 from sklearn.decomposition import PCA

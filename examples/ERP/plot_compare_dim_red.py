@@ -20,7 +20,7 @@ entanglement or the number of shots.
 # License: BSD (3-clause)
 
 from pyriemann_qiskit.datasets import get_mne_sample
-from pyriemann_qiskit.classification import (
+from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
 )
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
