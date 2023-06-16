@@ -1,4 +1,5 @@
 import pytest
+from conftest import BinaryTest, BinaryFVT
 from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
 )

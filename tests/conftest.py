@@ -139,3 +139,42 @@ def get_pauli_z_linear_entangl_idx():
         return [indices for _ in range(reps)]
 
     return _get_pauli_z_linear_entangl_idx
+
+
+class BinaryTest:
+    def prepare(self, n_samples, n_features, quantum_instance, type):
+        self.n_classes = 2
+        self.n_samples = n_samples
+        self.n_features = n_features
+        self.quantum_instance = quantum_instance
+        self.type = type
+        self.class_len = n_samples // self.n_classes
+
+    def test(self, get_dataset):
+        # there is no __init__ method with pytest
+        n_samples, n_features, quantum_instance, type = itemgetter(
+            "n_samples", "n_features", "quantum_instance", "type"
+        )(self.get_params())
+        self.prepare(n_samples, n_features, quantum_instance, type)
+        self.samples, self.labels = get_dataset(
+            self.n_samples, self.n_features, self.n_classes, self.type
+        )
+        self.additional_steps()
+        self.check()
+
+    def get_params(self):
+        raise NotImplementedError
+
+    def additional_steps(self):
+        raise NotImplementedError
+
+    def check(self):
+        raise NotImplementedError
+
+
+class BinaryFVT(BinaryTest):
+    def additional_steps(self):
+        self.quantum_instance.fit(self.samples, self.labels)
+        self.prediction = self.quantum_instance.predict(self.samples)
+        print(self.labels, self.prediction)
+

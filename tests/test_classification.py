@@ -1,4 +1,5 @@
 import pytest
+from conftest import BinaryTest, BinaryFVT
 import numpy as np
 from pyriemann.classification import TangentSpace
 from pyriemann.estimation import XdawnCovariances
@@ -59,37 +60,6 @@ def test_qsvm_init(quantum):
     assert not hasattr(q, "_provider")
 
 
-class BinaryTest:
-    def prepare(self, n_samples, n_features, quantum_instance, type):
-        self.n_classes = 2
-        self.n_samples = n_samples
-        self.n_features = n_features
-        self.quantum_instance = quantum_instance
-        self.type = type
-        self.class_len = n_samples // self.n_classes
-
-    def test(self, get_dataset):
-        # there is no __init__ method with pytest
-        n_samples, n_features, quantum_instance, type = itemgetter(
-            "n_samples", "n_features", "quantum_instance", "type"
-        )(self.get_params())
-        self.prepare(n_samples, n_features, quantum_instance, type)
-        self.samples, self.labels = get_dataset(
-            self.n_samples, self.n_features, self.n_classes, self.type
-        )
-        self.additional_steps()
-        self.check()
-
-    def get_params(self):
-        raise NotImplementedError
-
-    def additional_steps(self):
-        raise NotImplementedError
-
-    def check(self):
-        raise NotImplementedError
-
-
 class TestQSVMSplitClasses(BinaryTest):
     """Test _split_classes method of quantum classifiers"""
 
@@ -113,13 +83,6 @@ class TestQSVMSplitClasses(BinaryTest):
     def check(self):
         assert np.shape(self.x_class1) == (self.class_len, self.n_features)
         assert np.shape(self.x_class0) == (self.class_len, self.n_features)
-
-
-class BinaryFVT(BinaryTest):
-    def additional_steps(self):
-        self.quantum_instance.fit(self.samples, self.labels)
-        self.prediction = self.quantum_instance.predict(self.samples)
-        print(self.labels, self.prediction)
 
 
 class TestClassicalSVM(BinaryFVT):
