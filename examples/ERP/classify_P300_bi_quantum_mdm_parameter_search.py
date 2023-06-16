@@ -99,6 +99,7 @@ datasets = [BNCI2014009()]
 # if executed on the entire dataset
 n_subjects = 1
 for dataset in datasets:
+    title = title + dataset.code
     dataset.subject_list = dataset.subject_list[0:n_subjects]
 
 
@@ -167,7 +168,9 @@ sns.stripplot(
     zorder=1,
     palette="Set1",
 )
-sns.pointplot(data=results, y="score", x="pipeline", ax=ax, palette="Set1")
+sns.pointplot(data=results, y="score", x="pipeline", ax=ax, palette="Set1").set(
+    title=title
+)
 
 ax.set_ylabel("ROC AUC")
 ax.set_ylim(0.3, 1)
