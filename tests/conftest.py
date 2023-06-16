@@ -5,6 +5,7 @@ from pyriemann.datasets import make_covariances
 from pyriemann_qiskit.datasets import get_mne_sample
 from operator import itemgetter
 
+
 def requires_module(function, name, call=None):
     """Skip a test if package is not available (decorator)."""
     call = ("import %s" % name) if call is None else call
