@@ -34,7 +34,7 @@ import warnings
 import seaborn as sns
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from moabb import set_log_level
-
+from pyriemann.preprocessing import Whitening
 from moabb.datasets import (
     bi2012,
     bi2013a,
@@ -97,7 +97,7 @@ datasets = [BNCI2014009()]
 
 # reduce the number of subjects, the Quantum pipeline takes a lot of time
 # if executed on the entire dataset
-n_subjects = 2
+n_subjects = 1
 for dataset in datasets:
     dataset.subject_list = dataset.subject_list[0:n_subjects]
 
@@ -109,26 +109,26 @@ from sklearn.preprocessing import MinMaxScaler
 
 pipelines = {}
 
-quantum = False
+quantum = True
 
-xdawn = XdawnCovariances(nfilter=8, estimator="scm", xdawn_estimator="lwf")
+xdawn = XdawnCovariances(nfilter=1, estimator="scm", xdawn_estimator="lwf")
 erp = ERPCovariances()
 
-pipelines["{mean: logdet, distance: logdet}"] = make_pipeline(
-    erp, QuanticMDM(metric={"mean": "logdet", "distance": "logdet"}, quantum=quantum)
-)
+# pipelines["{mean: logdet, distance: logdet}"] = make_pipeline(
+#     erp, QuanticMDM(metric={"mean": "logdet", "distance": "logdet"}, quantum=quantum)
+# )
 
 pipelines["{mean: convex, distance: euclid}"] = make_pipeline(
-    erp, QuanticMDM(metric={"mean": "convex", "distance": "euclid"}, quantum=quantum)
+    xdawn, Whitening(dim_red={'n_components': 2}), QuanticMDM(metric={"mean": "convex", "distance": "euclid"}, quantum=quantum)
 )
 
 pipelines["{mean: logeuclid, distance: convex}"] = make_pipeline(
     erp, QuanticMDM(metric={"mean": "logeuclid", "distance": "convex"}, quantum=quantum)
 )
 
-pipelines["{mean: convex, distance: convex}"] = make_pipeline(
-    xdawn, QuanticMDM(metric={"mean": "convex", "distance": "convex"}, quantum=quantum)
-)
+# pipelines["{mean: convex, distance: convex}"] = make_pipeline(
+#     xdawn, QuanticMDM(metric={"mean": "convex", "distance": "convex"}, quantum=quantum)
+# )
 
 c1 = pipelines["{mean: convex, distance: euclid}"]
 c2 = pipelines["{mean: logeuclid, distance: convex}"]
