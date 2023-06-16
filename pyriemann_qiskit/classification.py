@@ -635,8 +635,7 @@ class QuanticMDM(QuanticClassifierBase):
         if self.quantum:
             self._log("Using NaiveQAOAOptimizer")
             self._optimizer = NaiveQAOAOptimizer(
-                quantum_instance=self._quantum_instance,
-                upper_bound=7
+                quantum_instance=self._quantum_instance, upper_bound=7
             )
         else:
             self._log("Using ClassicalOptimizer (COBYLA)")

@@ -120,7 +120,9 @@ erp = ERPCovariances()
 # )
 
 pipelines["{mean: convex, distance: euclid}"] = make_pipeline(
-    xdawn, Whitening(dim_red={'n_components': 2}), QuanticMDM(metric={"mean": "convex", "distance": "euclid"}, quantum=quantum)
+    xdawn,
+    Whitening(dim_red={"n_components": 2}),
+    QuanticMDM(metric={"mean": "convex", "distance": "euclid"}, quantum=quantum),
 )
 
 pipelines["{mean: logeuclid, distance: convex}"] = make_pipeline(
