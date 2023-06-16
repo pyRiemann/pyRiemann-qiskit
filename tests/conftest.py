@@ -177,4 +177,3 @@ class BinaryFVT(BinaryTest):
         self.quantum_instance.fit(self.samples, self.labels)
         self.prediction = self.quantum_instance.predict(self.samples)
         print(self.labels, self.prediction)
-
