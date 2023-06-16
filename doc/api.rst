@@ -17,6 +17,17 @@ Classification
     QuanticSVM
     QuanticVQC
     QuanticMDM
+
+
+Pipelines
+---------
+.. _pipelines_api:
+.. currentmodule:: pyriemann_qiskit.pipelines
+
+.. autosummary::
+    :toctree: generated/
+    :template: class.rst
+
     QuantumClassifierWithDefaultRiemannianPipeline
 
 

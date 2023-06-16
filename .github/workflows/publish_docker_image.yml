@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Publish Image Docker
 
 on:
   release:
@@ -23,7 +23,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build the Docker image
       run: |
-        export actor=pyRiemann
+        export actor=pyriemann
         docker build . --file Dockerfile --tag ghcr.io/${actor}/pyriemann-qiskit:$tag
     - name: Publish the Docker image
       run: |

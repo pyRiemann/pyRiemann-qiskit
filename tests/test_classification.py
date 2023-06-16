@@ -1,4 +1,5 @@
 import pytest
+from conftest import BinaryTest, BinaryFVT
 import numpy as np
 from pyriemann.classification import TangentSpace
 from pyriemann.estimation import XdawnCovariances
@@ -6,13 +7,11 @@ from pyriemann_qiskit.classification import (
     QuanticSVM,
     QuanticVQC,
     QuanticMDM,
-    QuantumClassifierWithDefaultRiemannianPipeline,
 )
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
-from operator import itemgetter
 
 
 @pytest.mark.parametrize(
@@ -25,7 +24,6 @@ from operator import itemgetter
             QuanticSVM(quantum=False),
         ),
         make_pipeline(XdawnCovariances(nfilter=1), QuanticMDM(quantum=False)),
-        QuantumClassifierWithDefaultRiemannianPipeline(nfilter=1, shots=None),
     ],
 )
 def test_get_set_params(estimator):
@@ -61,37 +59,6 @@ def test_qsvm_init(quantum):
     assert not hasattr(q, "_provider")
 
 
-class BinaryTest:
-    def prepare(self, n_samples, n_features, quantum_instance, type):
-        self.n_classes = 2
-        self.n_samples = n_samples
-        self.n_features = n_features
-        self.quantum_instance = quantum_instance
-        self.type = type
-        self.class_len = n_samples // self.n_classes
-
-    def test(self, get_dataset):
-        # there is no __init__ method with pytest
-        n_samples, n_features, quantum_instance, type = itemgetter(
-            "n_samples", "n_features", "quantum_instance", "type"
-        )(self.get_params())
-        self.prepare(n_samples, n_features, quantum_instance, type)
-        self.samples, self.labels = get_dataset(
-            self.n_samples, self.n_features, self.n_classes, self.type
-        )
-        self.additional_steps()
-        self.check()
-
-    def get_params(self):
-        raise NotImplementedError
-
-    def additional_steps(self):
-        raise NotImplementedError
-
-    def check(self):
-        raise NotImplementedError
-
-
 class TestQSVMSplitClasses(BinaryTest):
     """Test _split_classes method of quantum classifiers"""
 
@@ -115,13 +82,6 @@ class TestQSVMSplitClasses(BinaryTest):
     def check(self):
         assert np.shape(self.x_class1) == (self.class_len, self.n_features)
         assert np.shape(self.x_class0) == (self.class_len, self.n_features)
-
-
-class BinaryFVT(BinaryTest):
-    def additional_steps(self):
-        self.quantum_instance.fit(self.samples, self.labels)
-        self.prediction = self.quantum_instance.predict(self.samples)
-        print(self.labels, self.prediction)
 
 
 class TestClassicalSVM(BinaryFVT):
@@ -221,21 +181,3 @@ class TestClassicalMDM(BinaryFVT):
         assert (
             self.prediction[self.class_len :].all() == self.quantum_instance.classes_[1]
         )
-
-
-class TestQuantumClassifierWithDefaultRiemannianPipeline(BinaryFVT):
-    """Functional testing for riemann quantum classifier."""
-
-    def get_params(self):
-        quantum_instance = QuantumClassifierWithDefaultRiemannianPipeline(
-            params={"verbose": False}
-        )
-        return {
-            "n_samples": 4,
-            "n_features": 4,
-            "quantum_instance": quantum_instance,
-            "type": None,
-        }
-
-    def check(self):
-        assert len(self.prediction) == len(self.labels)
