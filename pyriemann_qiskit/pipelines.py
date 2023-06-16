@@ -17,6 +17,7 @@ from pyriemann_qiskit.classification import QuanticVQC, QuanticSVM, QuanticMDM
 
 # TODO: Base class
 
+
 class QuantumClassifierWithDefaultRiemannianPipeline(
     BaseEstimator, ClassifierMixin, TransformerMixin
 ):
@@ -321,10 +322,12 @@ class QuantumMDMWithDefaultRiemannianPipeline(
             metric = {"mean": "convex", "distance": "euclid"}
         else:
             metric = {"mean": "logeuclid", "distance": "convex"}
-        
+
         if metric["mean"] == "convex":
             if quantum:
-                covariances = XdawnCovariances(nfilter=1, estimator="scm", xdawn_estimator="lwf")
+                covariances = XdawnCovariances(
+                    nfilter=1, estimator="scm", xdawn_estimator="lwf"
+                )
                 filtering = Whitening(dim_red={"n_components": 2})
             else:
                 covariances = XdawnCovariances(estimator="scm", xdawn_estimator="lwf")
@@ -333,13 +336,11 @@ class QuantumMDMWithDefaultRiemannianPipeline(
             covariances = ERPCovariances()
             filtering = NoDimRed()
 
-        clf = QuanticMDM(metric, quantum, q_account_token, verbose, shots, gen_feature_map)
-
-        self._pipe = make_pipeline(
-            covariances,
-            filtering,
-            clf
+        clf = QuanticMDM(
+            metric, quantum, q_account_token, verbose, shots, gen_feature_map
         )
+
+        self._pipe = make_pipeline(covariances, filtering, clf)
 
     def _log(self, trace):
         if self.verbose:
@@ -434,9 +435,7 @@ class QuantumMDMWithDefaultRiemannianPipeline(
         return self._pipe.transform(X)
 
 
-class QuantumMDMVotingClassifier(
-    BaseEstimator, ClassifierMixin, TransformerMixin
-):
+class QuantumMDMVotingClassifier(BaseEstimator, ClassifierMixin, TransformerMixin):
 
     """TODO
 
@@ -483,11 +482,21 @@ class QuantumMDMVotingClassifier(
         shots=1024,
         gen_feature_map=gen_zz_feature_map(),
     ):
-        clf_mean_logeuclid_dist_convex = QuantumMDMWithDefaultRiemannianPipeline("distance", quantum, q_account_token, verbose, shots, gen_feature_map)
-        clf_mean_convex_dist_euclid = QuantumMDMWithDefaultRiemannianPipeline("mean", quantum, q_account_token, verbose, shots, gen_feature_map)
+        clf_mean_logeuclid_dist_convex = QuantumMDMWithDefaultRiemannianPipeline(
+            "distance", quantum, q_account_token, verbose, shots, gen_feature_map
+        )
+        clf_mean_convex_dist_euclid = QuantumMDMWithDefaultRiemannianPipeline(
+            "mean", quantum, q_account_token, verbose, shots, gen_feature_map
+        )
 
         self._pipe = make_pipeline(
-            VotingClassifier([("mean_logeuclid_dist_convex", clf_mean_logeuclid_dist_convex), ("mean_convex_dist_euclid ", clf_mean_convex_dist_euclid)], voting="soft")
+            VotingClassifier(
+                [
+                    ("mean_logeuclid_dist_convex", clf_mean_logeuclid_dist_convex),
+                    ("mean_convex_dist_euclid ", clf_mean_convex_dist_euclid),
+                ],
+                voting="soft",
+            )
         )
 
     def _log(self, trace):
@@ -581,4 +590,3 @@ class QuantumMDMVotingClassifier(
             `n_filter` and `dim_red`.
         """
         return self._pipe.transform(X)
-
