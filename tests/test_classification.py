@@ -6,7 +6,6 @@ from pyriemann_qiskit.classification import (
     QuanticSVM,
     QuanticVQC,
     QuanticMDM,
-    QuantumClassifierWithDefaultRiemannianPipeline,
 )
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
@@ -25,7 +24,6 @@ from operator import itemgetter
             QuanticSVM(quantum=False),
         ),
         make_pipeline(XdawnCovariances(nfilter=1), QuanticMDM(quantum=False)),
-        QuantumClassifierWithDefaultRiemannianPipeline(nfilter=1, shots=None),
     ],
 )
 def test_get_set_params(estimator):
@@ -221,21 +219,3 @@ class TestClassicalMDM(BinaryFVT):
         assert (
             self.prediction[self.class_len :].all() == self.quantum_instance.classes_[1]
         )
-
-
-class TestQuantumClassifierWithDefaultRiemannianPipeline(BinaryFVT):
-    """Functional testing for riemann quantum classifier."""
-
-    def get_params(self):
-        quantum_instance = QuantumClassifierWithDefaultRiemannianPipeline(
-            params={"verbose": False}
-        )
-        return {
-            "n_samples": 4,
-            "n_features": 4,
-            "quantum_instance": quantum_instance,
-            "type": None,
-        }
-
-    def check(self):
-        assert len(self.prediction) == len(self.labels)
