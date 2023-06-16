@@ -1,6 +1,10 @@
 """Module for pipelines."""
+from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.decomposition import PCA
 from sklearn.pipeline import make_pipeline
+from pyriemann.estimation import XdawnCovariances
+from pyriemann.tangentspace import TangentSpace
+from pyriemann_qiskit.utils.hyper_params_factory import gen_zz_feature_map, gen_two_local, get_spsa
 from pyriemann_qiskit.classification import QuanticVQC, QuanticSVM
 
 

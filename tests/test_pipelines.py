@@ -1,5 +1,4 @@
 import pytest
-import numpy as np
 from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
 )
