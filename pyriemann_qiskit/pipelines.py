@@ -3,6 +3,7 @@ from sklearn.decomposition import PCA
 from sklearn.pipeline import make_pipeline
 from pyriemann_qiskit.classification import QuanticVQC, QuanticSVM
 
+
 class QuantumClassifierWithDefaultRiemannianPipeline(
     BaseEstimator, ClassifierMixin, TransformerMixin
 ):
