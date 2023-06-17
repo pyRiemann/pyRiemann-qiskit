@@ -13,50 +13,36 @@ If you want to use GPU, you need to use qiskit-aer-gpu that will replace
 qiskit-aer. It is only available on Linux.
 pip install qiskit-aer-gpu
 
+pip install moabb==0.5.0
+
 """
 # Author: Anton Andreev
 # Modified from plot_classify_EEG_tangentspace.py of pyRiemann
 # License: BSD (3-clause)
 
-from pyriemann.estimation import XdawnCovariances, Covariances, ERPCovariances
-from pyriemann.tangentspace import TangentSpace
-from pyriemann.estimation import XdawnCovariances
-from pyriemann.classification import MDM
-from pyriemann_qiskit.classification import (
-    QuanticSVM,
-    QuanticVQC,
-    QuanticMDM,
-    QuantumClassifierWithDefaultRiemannianPipeline,
-)
-from operator import itemgetter
-
-from sklearn.pipeline import make_pipeline
 from matplotlib import pyplot as plt
 import warnings
 import seaborn as sns
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from moabb import set_log_level
-
 from moabb.datasets import (
-    bi2012,
-    bi2013a,
-    bi2014a,
-    bi2014b,
-    bi2015a,
-    bi2015b,
-    BNCI2014008,
+    # bi2012,
+    # bi2013a,
+    # bi2014a,
+    # bi2014b,
+    # bi2015a,
+    # bi2015b,
+    # BNCI2014008,
     BNCI2014009,
-    BNCI2015003,
-    EPFLP300,
-    Lee2019_ERP,
+    # BNCI2015003,
+    # EPFLP300,
+    # Lee2019_ERP,
 )
-
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
-from pyriemann_qiskit.classification import (
-    QuantumClassifierWithDefaultRiemannianPipeline,
+from pyriemann_qiskit.pipelines import (
+    QuantumMDMVotingClassifier,
+    QuantumMDMWithRiemannianPipeline,
 )
-from sklearn.decomposition import PCA
 
 print(__doc__)
 
@@ -70,16 +56,11 @@ warnings.filterwarnings("ignore")
 set_log_level("info")
 
 ##############################################################################
-# Create Pipelines
+# Initialization
 # ----------------
 #
-# Pipelines must be a dict of sklearn pipeline transformer.
-
-##############################################################################
-# We have to do this because the classes are called 'Target' and 'NonTarget'
-# but the evaluation function uses a LabelEncoder, transforming them
-# to 0 and 1
-labels_dict = {"Target": 1, "NonTarget": 0}
+# 1) Create paradigm
+# 2) Load datasets
 
 paradigm = P300()
 
@@ -97,24 +78,49 @@ datasets = [BNCI2014009()]
 
 # reduce the number of subjects, the Quantum pipeline takes a lot of time
 # if executed on the entire dataset
-n_subjects = 5
+n_subjects = 1
+title = "Datasets: "
 for dataset in datasets:
+    title = title + " " + dataset.code
     dataset.subject_list = dataset.subject_list[0:n_subjects]
 
-overwrite = True  # set to True if we want to overwrite cached results
+# Change this to true to test the quantum optimizer
+quantum = False
+
+##############################################################################
+# We have to do this because the classes are called 'Target' and 'NonTarget'
+# but the evaluation function uses a LabelEncoder, transforming them
+# to 0 and 1
+labels_dict = {"Target": 1, "NonTarget": 0}
+
+##############################################################################
+# Create Pipelines
+# ----------------
+#
+# Pipelines must be a dict of sklearn pipeline transformer.
+
 pipelines = {}
 
-pipelines["Xdawn+QuanticMDM"] = make_pipeline(
-    XdawnCovariances(nfilter=8, estimator="scm", xdawn_estimator="lwf"),
-    QuanticMDM(quantum=False),
+pipelines["mean=convex/distance=euclid"] = QuantumMDMWithRiemannianPipeline(
+    convex_metric="mean", quantum=quantum
 )
 
-pipelines["XDawnCov+ClassicMDM"] = make_pipeline(XdawnCovariances(4), MDM())
+pipelines["mean=logeuclid/distance=convex"] = QuantumMDMWithRiemannianPipeline(
+    convex_metric="distance", quantum=quantum
+)
 
-print("Total pipelines to evaluate: ", len(pipelines))
+pipelines["Voting convex"] = QuantumMDMVotingClassifier(quantum=quantum)
+
+##############################################################################
+# Run evaluation
+# ----------------
+#
+# Compare the pipeline using a within session evaluation.
 
 evaluation = WithinSessionEvaluation(
-    paradigm=paradigm, datasets=datasets, suffix="examples", overwrite=overwrite
+    paradigm=paradigm,
+    datasets=datasets,
+    overwrite=True,
 )
 
 results = evaluation.process(pipelines)
@@ -122,11 +128,12 @@ results = evaluation.process(pipelines)
 print("Averaging the session performance:")
 print(results.groupby("pipeline").mean("score")[["score", "time"]])
 
-##############################################################################
-# Plot Results
-# ----------------
-#
-# Here we plot the results to compare the two pipelines
+
+# ##############################################################################
+# # Plot Results
+# # ----------------
+# #
+# # Here we plot the results to compare two pipelines
 
 fig, ax = plt.subplots(facecolor="white", figsize=[8, 4])
 
@@ -140,7 +147,9 @@ sns.stripplot(
     zorder=1,
     palette="Set1",
 )
-sns.pointplot(data=results, y="score", x="pipeline", ax=ax, zorder=1, palette="Set1")
+sns.pointplot(data=results, y="score", x="pipeline", ax=ax, palette="Set1").set(
+    title=title
+)
 
 ax.set_ylabel("ROC AUC")
 ax.set_ylim(0.3, 1)
