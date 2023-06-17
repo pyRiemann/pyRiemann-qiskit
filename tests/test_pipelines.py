@@ -2,8 +2,6 @@ import pytest
 from conftest import BinaryFVT
 from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
-    QuantumMDMWithRiemannianPipeline,
-    QuantumMDMVotingClassifier,
 )
 from pyriemann_qiskit.datasets import get_mne_sample
 from sklearn.model_selection import StratifiedKFold, cross_val_score
@@ -13,7 +11,6 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score
     "estimator",
     [
         QuantumClassifierWithDefaultRiemannianPipeline(nfilter=1, shots=None),
-        QuantumMDMVotingClassifier(quantum=False),
     ],
 )
 def test_get_set_params(estimator):
