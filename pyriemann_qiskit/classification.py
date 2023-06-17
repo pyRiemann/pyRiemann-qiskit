@@ -576,6 +576,7 @@ class QuanticMDM(QuanticClassifierBase):
         the mean in order to boost the computional speed and 'riemann' for the
         distance in order to keep the good sensitivity for the classification.
     quantum : bool (default: True)
+        Only applies if `metric` contains a convex distance or mean.
         - If true will run on local or remote backend
         (depending on q_account_token value).
         - If false, will perform classical computing instead

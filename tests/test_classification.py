@@ -159,14 +159,11 @@ class TestQuanticVQC(BinaryFVT):
 
 
 class TestClassicalMDM(BinaryFVT):
-    """Test the classical version of MDM is used
-    when quantum is false
-    https://quantum-computing.ibm.com/
-    Note that the "real quantum version" of this test may also take some time.
+    """Test the classical version of MDM inside QuanticMDM wrapper.
     """
 
     def get_params(self):
-        quantum_instance = QuanticMDM(quantum=False, verbose=False)
+        quantum_instance = QuanticMDM(quantum=False, verbose=False, metric={"mean":"logdet", "distance": "logdet"})
         return {
             "n_samples": 100,
             "n_features": 9,
