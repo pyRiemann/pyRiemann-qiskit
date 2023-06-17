@@ -16,9 +16,7 @@ from pyriemann_qiskit.utils.hyper_params_factory import (
 from pyriemann_qiskit.classification import QuanticVQC, QuanticSVM, QuanticMDM
 
 
-class BasePipeline(
-    BaseEstimator, ClassifierMixin, TransformerMixin
-):
+class BasePipeline(BaseEstimator, ClassifierMixin, TransformerMixin):
 
     """Base class for quantum classifiers with riemannian pipeline.
 
@@ -38,10 +36,7 @@ class BasePipeline(
 
     """
 
-    def __init__(
-        self,
-        code
-    ):
+    def __init__(self, code):
         self.code = code
 
         self._pipe = self._create_pipe()
@@ -142,9 +137,7 @@ class BasePipeline(
         return self._pipe.transform(X)
 
 
-class QuantumClassifierWithDefaultRiemannianPipeline(
-    BasePipeline
-):
+class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
 
     """Default pipeline with Riemann Geometry and a quantum classifier.
 
@@ -266,7 +259,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(
         is_quantum = self.shots is not None
 
         feature_map = gen_zz_feature_map(self.feature_reps, self.feature_entanglement)
-        
+
         if is_vqc:
             self._log("QuanticVQC chosen.")
             clf = QuanticVQC(
@@ -294,9 +287,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(
         )
 
 
-class QuantumMDMWithRiemannianPipeline(
-    BasePipeline
-):
+class QuantumMDMWithRiemannianPipeline(BasePipeline):
 
     """MDM with riemannian pipeline adapted for convex metrics.
     It can run on classical or quantum optimizer.
@@ -383,16 +374,20 @@ class QuantumMDMWithRiemannianPipeline(
             filtering = NoDimRed()
 
         clf = QuanticMDM(
-            metric, self.quantum, self.q_account_token, self.verbose, self.shots, self.gen_feature_map
+            metric,
+            self.quantum,
+            self.q_account_token,
+            self.verbose,
+            self.shots,
+            self.gen_feature_map,
         )
 
         return make_pipeline(covariances, filtering, clf)
 
 
-
 class QuantumMDMVotingClassifier(BasePipeline):
 
-    """Voting classifier with two configuration of 
+    """Voting classifier with two configuration of
     QuantumMDMWithRiemannianPipeline :
     - with mean = convex and distance = euclid
     - with mean = logeuclid and distance = convex
@@ -448,10 +443,20 @@ class QuantumMDMVotingClassifier(BasePipeline):
 
     def _create_pipe(self):
         clf_mean_logeuclid_dist_convex = QuantumMDMWithRiemannianPipeline(
-            "distance", self.quantum, self.q_account_token, self.verbose, self.shots, self.gen_feature_map
+            "distance",
+            self.quantum,
+            self.q_account_token,
+            self.verbose,
+            self.shots,
+            self.gen_feature_map,
         )
         clf_mean_convex_dist_euclid = QuantumMDMWithRiemannianPipeline(
-            "mean", self.quantum, self.q_account_token, self.verbose, self.shots, self.gen_feature_map
+            "mean",
+            self.quantum,
+            self.q_account_token,
+            self.verbose,
+            self.shots,
+            self.gen_feature_map,
         )
 
         return make_pipeline(
