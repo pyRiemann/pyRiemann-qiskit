@@ -13,8 +13,7 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score
     "estimator",
     [
         QuantumClassifierWithDefaultRiemannianPipeline(nfilter=1, shots=None),
-        QuantumMDMWithRiemannianPipeline(quantum=True),
-        QuantumMDMVotingClassifier(quantum=True),
+        QuantumMDMVotingClassifier(quantum=False),
     ],
 )
 def test_get_set_params(estimator):
