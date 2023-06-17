@@ -367,10 +367,10 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
                 )
                 filtering = Whitening(dim_red={"n_components": 2})
             else:
-                covariances = ERPCovariances(estimator='lwf')
+                covariances = ERPCovariances(estimator="lwf")
                 filtering = NoDimRed()
         else:
-            covariances = ERPCovariances(estimator='lwf')
+            covariances = ERPCovariances(estimator="lwf")
             filtering = NoDimRed()
 
         clf = QuanticMDM(
