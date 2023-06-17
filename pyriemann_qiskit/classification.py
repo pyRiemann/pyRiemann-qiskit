@@ -476,7 +476,7 @@ class QuanticVQC(QuanticClassifierBase):
         shots=1024,
         gen_feature_map=gen_zz_feature_map(),
     ):
-        if quantum == False:
+        if quantum is False:
             raise ValueError(
                 "VQC can only run on a quantum \
                               computer or simulator."
