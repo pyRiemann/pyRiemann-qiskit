@@ -357,7 +357,7 @@ class QuantumMDMWithRiemannianPipeline(
         self.q_account_token = q_account_token
         self.verbose = verbose
         self.shots = shots
-        self.gen_feature_map = self.gen_feature_map
+        self.gen_feature_map = gen_feature_map
 
         BasePipeline.__init__(self, "QuantumMDMWithRiemannianPipeline")
 
