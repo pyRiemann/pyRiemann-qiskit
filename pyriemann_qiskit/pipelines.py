@@ -172,7 +172,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
         number of steps in Pegasos or SVC.
         If None, respective default values for Pegasos and (Q)SVC
         are used. The default value for Pegasos is 1000.
-        For (Q)SVC it is -1 (that is not limit).
+        For (Q)SVC it is -1 (that is no limit).
     shots : int | None (default: 1024)
         Number of repetitions of each circuit, for sampling.
         If None, classical computation will be performed.
