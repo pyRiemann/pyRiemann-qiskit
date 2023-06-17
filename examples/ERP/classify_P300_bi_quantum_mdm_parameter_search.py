@@ -53,7 +53,7 @@ from moabb.evaluations import WithinSessionEvaluation, CrossSubjectEvaluation
 from moabb.paradigms import P300
 from pyriemann_qiskit.pipelines import (
     QuantumMDMVotingClassifier,
-    QuantumMDMWithRiemannianPipeline
+    QuantumMDMWithRiemannianPipeline,
 )
 from sklearn.decomposition import PCA
 from pyriemann_qiskit.utils import mean
@@ -114,11 +114,13 @@ pipelines = {}
 
 quantum = False
 
-pipelines["mean=convex/distance=euclid"] = \
-    QuantumMDMWithRiemannianPipeline(convex_metric="mean", quantum=quantum)
+pipelines["mean=convex/distance=euclid"] = QuantumMDMWithRiemannianPipeline(
+    convex_metric="mean", quantum=quantum
+)
 
-pipelines["mean=logeuclid/distance=convex"] = \
-    QuantumMDMWithRiemannianPipeline(convex_metric="distance", quantum=quantum)
+pipelines["mean=logeuclid/distance=convex"] = QuantumMDMWithRiemannianPipeline(
+    convex_metric="distance", quantum=quantum
+)
 
 pipelines["Voting convex"] = QuantumMDMVotingClassifier(quantum=quantum)
 
