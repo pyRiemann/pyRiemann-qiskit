@@ -15,11 +15,135 @@ from pyriemann_qiskit.utils.hyper_params_factory import (
 )
 from pyriemann_qiskit.classification import QuanticVQC, QuanticSVM, QuanticMDM
 
-# TODO: Base class
+
+class BasePipeline(
+    BaseEstimator, ClassifierMixin, TransformerMixin
+):
+
+    """Base class for quantum classifiers with riemannian pipeline.
+
+    Parameters
+    ----------
+    code: string
+        Identifier of the pipeline (for log purposes).
+
+    Attributes
+    ----------
+    classes_ : list
+        list of classes.
+
+    Notes
+    -----
+    .. versionadded:: 0.1.0
+
+    """
+
+    def __init__(
+        self,
+        code
+    ):
+        self.code = code
+
+        self._pipe = self._create_pipe()
+
+    def _create_pipe(self):
+        raise NotImplementedError()
+
+    def _log(self, trace):
+        if self.verbose:
+            print("[" + self.code + "] ", trace)
+
+    def fit(self, X, y):
+        """Train the riemann quantum classifier.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_trials, n_channels, n_times)
+            ndarray of trials.
+        y : ndarray, shape (n_samples,)
+            Target vector relative to X.
+
+        Returns
+        -------
+        self : BasePipeline instance
+            The BasePipeline instance
+        """
+
+        self.classes_ = np.unique(y)
+        self._pipe.fit(X, y)
+        return self
+
+    def score(self, X, y):
+        """Return the accuracy.
+        You might want to use a different metric by using sklearn
+        cross_val_score
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_trials, n_channels, n_times)
+            ndarray of trials.
+        y : ndarray, shape (n_trials,)
+            Predicted target vector relative to X.
+
+        Returns
+        -------
+        accuracy : double
+            Accuracy of predictions from X with respect y.
+        """
+        return self._pipe.score(X, y)
+
+    def predict(self, X):
+        """get the predictions.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_trials, n_channels, n_times)
+            ndarray of trials.
+
+        Returns
+        -------
+        pred : ndarray of int, shape (n_trials, 1)
+            Class labels for samples in X.
+        """
+        return self._pipe.predict(X)
+
+    def predict_proba(self, X):
+        """Return the probabilities associated with predictions.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_trials, n_channels, n_times)
+            ndarray of trials.
+
+        Returns
+        -------
+        prob : ndarray, shape (n_samples, n_classes)
+            prob[n, 0] == True if the nth sample is assigned to 1st class;
+            prob[n, 1] == True if the nth sample is assigned to 2nd class.
+        """
+
+        return self._pipe.predict_proba(X)
+
+    def transform(self, X):
+        """Transform the data into feature vectors.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_trials, n_channels, n_times)
+            ndarray of trials.
+
+        Returns
+        -------
+        dist : ndarray, shape (n_trials, n_ts)
+            the tangent space projection of the data.
+            the dimension of the feature vector depends on
+            `n_filter` and `dim_red`.
+        """
+        return self._pipe.transform(X)
 
 
 class QuantumClassifierWithDefaultRiemannianPipeline(
-    BaseEstimator, ClassifierMixin, TransformerMixin
+    BasePipeline
 ):
 
     """Default pipeline with Riemann Geometry and a quantum classifier.
@@ -133,137 +257,49 @@ class QuantumClassifierWithDefaultRiemannianPipeline(
         self.spsa_trials = spsa_trials
         self.two_local_reps = two_local_reps
         self.params = params
-
-        is_vqc = spsa_trials and two_local_reps
-        is_quantum = shots is not None
-
-        feature_map = gen_zz_feature_map(feature_reps, feature_entanglement)
         # verbose is passed as an additional parameter to quantum classifiers.
-        self.verbose = "verbose" in params and params["verbose"]
+        self.verbose = "verbose" in self.params and self.params["verbose"]
+        BasePipeline.__init__(self, "QuantumClassifierWithDefaultRiemannianPipeline")
+
+    def _create_pipe(self):
+        is_vqc = self.spsa_trials and self.two_local_reps
+        is_quantum = self.shots is not None
+
+        feature_map = gen_zz_feature_map(self.feature_reps, self.feature_entanglement)
+        
         if is_vqc:
             self._log("QuanticVQC chosen.")
             clf = QuanticVQC(
-                optimizer=get_spsa(spsa_trials),
-                gen_var_form=gen_two_local(two_local_reps),
+                optimizer=get_spsa(self.spsa_trials),
+                gen_var_form=gen_two_local(self.two_local_reps),
                 gen_feature_map=feature_map,
                 shots=self.shots,
                 quantum=is_quantum,
-                **params
+                **self.params
             )
         else:
             self._log("QuanticSVM chosen.")
             clf = QuanticSVM(
                 quantum=is_quantum,
-                gamma=gamma,
-                C=C,
-                max_iter=max_iter,
+                gamma=self.gamma,
+                C=self.C,
+                max_iter=self.max_iter,
                 gen_feature_map=feature_map,
-                shots=shots,
-                **params
+                shots=self.shots,
+                **self.params
             )
 
-        self._pipe = make_pipeline(
-            XdawnCovariances(nfilter=nfilter), TangentSpace(), dim_red, clf
+        return make_pipeline(
+            XdawnCovariances(nfilter=self.nfilter), TangentSpace(), self.dim_red, clf
         )
 
-    def _log(self, trace):
-        if self.verbose:
-            print("[QuantumClassifierWithDefaultRiemannianPipeline] ", trace)
 
-    def fit(self, X, y):
-        """Train the riemann quantum classifier.
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_trials, n_channels, n_times)
-            ndarray of trials.
-        y : ndarray, shape (n_samples,)
-            Target vector relative to X.
-
-        Returns
-        -------
-        self : QuantumClassifierWithDefaultRiemannianPipeline instance
-            The QuantumClassifierWithDefaultRiemannianPipeline instance
-        """
-
-        self.classes_ = np.unique(y)
-        self._pipe.fit(X, y)
-        return self
-
-    def score(self, X, y):
-        """Return the accuracy.
-        You might want to use a different metric by using sklearn
-        cross_val_score
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_trials, n_channels, n_times)
-            ndarray of trials.
-        y : ndarray, shape (n_trials,)
-            Predicted target vector relative to X.
-
-        Returns
-        -------
-        accuracy : double
-            Accuracy of predictions from X with respect y.
-        """
-        return self._pipe.score(X, y)
-
-    def predict(self, X):
-        """get the predictions.
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_trials, n_channels, n_times)
-            ndarray of trials.
-
-        Returns
-        -------
-        pred : ndarray of int, shape (n_trials, 1)
-            Class labels for samples in X.
-        """
-        return self._pipe.predict(X)
-
-    def predict_proba(self, X):
-        """Return the probabilities associated with predictions.
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_trials, n_channels, n_times)
-            ndarray of trials.
-
-        Returns
-        -------
-        prob : ndarray, shape (n_samples, n_classes)
-            prob[n, 0] == True if the nth sample is assigned to 1st class;
-            prob[n, 1] == True if the nth sample is assigned to 2nd class.
-        """
-
-        return self._pipe.predict_proba(X)
-
-    def transform(self, X):
-        """Transform the data into feature vectors.
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_trials, n_channels, n_times)
-            ndarray of trials.
-
-        Returns
-        -------
-        dist : ndarray, shape (n_trials, n_ts)
-            the tangent space projection of the data.
-            the dimension of the feature vector depends on
-            `n_filter` and `dim_red`.
-        """
-        return self._pipe.transform(X)
-
-
-class QuantumMDMWithDefaultRiemannianPipeline(
-    BaseEstimator, ClassifierMixin, TransformerMixin
+class QuantumMDMWithRiemannianPipeline(
+    BasePipeline
 ):
 
-    """TODO
+    """MDM with riemannian pipeline adapted for convex metrics.
+    It can run on classical or quantum optimizer.
 
 
     Parameters
@@ -316,15 +352,25 @@ class QuantumMDMWithDefaultRiemannianPipeline(
         shots=1024,
         gen_feature_map=gen_zz_feature_map(),
     ):
-        if convex_metric == "both":
+        self.convex_metric = convex_metric
+        self.quantum = quantum
+        self.q_account_token = q_account_token
+        self.verbose = verbose
+        self.shots = shots
+        self.gen_feature_map = self.gen_feature_map
+
+        BasePipeline.__init__(self, "QuantumMDMWithRiemannianPipeline")
+
+    def _create_pipe(self):
+        if self.convex_metric == "both":
             metric = {"mean": "convex", "distance": "convex"}
-        elif convex_metric == "mean":
+        elif self.convex_metric == "mean":
             metric = {"mean": "convex", "distance": "euclid"}
         else:
             metric = {"mean": "logeuclid", "distance": "convex"}
 
         if metric["mean"] == "convex":
-            if quantum:
+            if self.quantum:
                 covariances = XdawnCovariances(
                     nfilter=1, estimator="scm", xdawn_estimator="lwf"
                 )
@@ -337,108 +383,19 @@ class QuantumMDMWithDefaultRiemannianPipeline(
             filtering = NoDimRed()
 
         clf = QuanticMDM(
-            metric, quantum, q_account_token, verbose, shots, gen_feature_map
+            metric, self.quantum, self.q_account_token, self.verbose, self.shots, self.gen_feature_map
         )
 
-        self._pipe = make_pipeline(covariances, filtering, clf)
-
-    def _log(self, trace):
-        if self.verbose:
-            print("[QuantumMDMWithDefaultRiemannianPipeline] ", trace)
-
-    def fit(self, X, y):
-        """Train the riemann quantum classifier.
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_trials, n_channels, n_times)
-            ndarray of trials.
-        y : ndarray, shape (n_samples,)
-            Target vector relative to X.
-
-        Returns
-        -------
-        self : QuantumClassifierWithDefaultRiemannianPipeline instance
-            The QuantumClassifierWithDefaultRiemannianPipeline instance
-        """
-
-        self.classes_ = np.unique(y)
-        self._pipe.fit(X, y)
-        return self
-
-    def score(self, X, y):
-        """Return the accuracy.
-        You might want to use a different metric by using sklearn
-        cross_val_score
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_trials, n_channels, n_times)
-            ndarray of trials.
-        y : ndarray, shape (n_trials,)
-            Predicted target vector relative to X.
-
-        Returns
-        -------
-        accuracy : double
-            Accuracy of predictions from X with respect y.
-        """
-        return self._pipe.score(X, y)
-
-    def predict(self, X):
-        """get the predictions.
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_trials, n_channels, n_times)
-            ndarray of trials.
-
-        Returns
-        -------
-        pred : ndarray of int, shape (n_trials, 1)
-            Class labels for samples in X.
-        """
-        return self._pipe.predict(X)
-
-    def predict_proba(self, X):
-        """Return the probabilities associated with predictions.
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_trials, n_channels, n_times)
-            ndarray of trials.
-
-        Returns
-        -------
-        prob : ndarray, shape (n_samples, n_classes)
-            prob[n, 0] == True if the nth sample is assigned to 1st class;
-            prob[n, 1] == True if the nth sample is assigned to 2nd class.
-        """
-
-        return self._pipe.predict_proba(X)
-
-    def transform(self, X):
-        """Transform the data into feature vectors.
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_trials, n_channels, n_times)
-            ndarray of trials.
-
-        Returns
-        -------
-        dist : ndarray, shape (n_trials, n_ts)
-            the tangent space projection of the data.
-            the dimension of the feature vector depends on
-            `n_filter` and `dim_red`.
-        """
-        return self._pipe.transform(X)
+        return make_pipeline(covariances, filtering, clf)
 
 
-class QuantumMDMVotingClassifier(BaseEstimator, ClassifierMixin, TransformerMixin):
 
-    """TODO
+class QuantumMDMVotingClassifier(BasePipeline):
 
+    """Voting classifier with two configuration of 
+    QuantumMDMWithRiemannianPipeline :
+    - with mean = convex and distance = euclid
+    - with mean = logeuclid and distance = convex
 
     Parameters
     ----------
@@ -470,7 +427,7 @@ class QuantumMDMVotingClassifier(BaseEstimator, ClassifierMixin, TransformerMixi
 
     See Also
     --------
-    QuanticMDM
+    QuantumMDMWithRiemannianPipeline
 
     """
 
@@ -482,14 +439,22 @@ class QuantumMDMVotingClassifier(BaseEstimator, ClassifierMixin, TransformerMixi
         shots=1024,
         gen_feature_map=gen_zz_feature_map(),
     ):
-        clf_mean_logeuclid_dist_convex = QuantumMDMWithDefaultRiemannianPipeline(
-            "distance", quantum, q_account_token, verbose, shots, gen_feature_map
+        self.quantum = quantum
+        self.q_account_token = q_account_token
+        self.verbose = verbose
+        self.shots = shots
+        self.gen_feature_map = gen_feature_map
+        BasePipeline.__init__(self, "QuantumMDMVotingClassifier")
+
+    def _create_pipe(self):
+        clf_mean_logeuclid_dist_convex = QuantumMDMWithRiemannianPipeline(
+            "distance", self.quantum, self.q_account_token, self.verbose, self.shots, self.gen_feature_map
         )
-        clf_mean_convex_dist_euclid = QuantumMDMWithDefaultRiemannianPipeline(
-            "mean", quantum, q_account_token, verbose, shots, gen_feature_map
+        clf_mean_convex_dist_euclid = QuantumMDMWithRiemannianPipeline(
+            "mean", self.quantum, self.q_account_token, self.verbose, self.shots, self.gen_feature_map
         )
 
-        self._pipe = make_pipeline(
+        return make_pipeline(
             VotingClassifier(
                 [
                     ("mean_logeuclid_dist_convex", clf_mean_logeuclid_dist_convex),
@@ -498,95 +463,3 @@ class QuantumMDMVotingClassifier(BaseEstimator, ClassifierMixin, TransformerMixi
                 voting="soft",
             )
         )
-
-    def _log(self, trace):
-        if self.verbose:
-            print("[QuantumMDMWithDefaultRiemannianPipeline] ", trace)
-
-    def fit(self, X, y):
-        """Train the riemann quantum classifier.
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_trials, n_channels, n_times)
-            ndarray of trials.
-        y : ndarray, shape (n_samples,)
-            Target vector relative to X.
-
-        Returns
-        -------
-        self : QuantumClassifierWithDefaultRiemannianPipeline instance
-            The QuantumClassifierWithDefaultRiemannianPipeline instance
-        """
-
-        self.classes_ = np.unique(y)
-        self._pipe.fit(X, y)
-        return self
-
-    def score(self, X, y):
-        """Return the accuracy.
-        You might want to use a different metric by using sklearn
-        cross_val_score
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_trials, n_channels, n_times)
-            ndarray of trials.
-        y : ndarray, shape (n_trials,)
-            Predicted target vector relative to X.
-
-        Returns
-        -------
-        accuracy : double
-            Accuracy of predictions from X with respect y.
-        """
-        return self._pipe.score(X, y)
-
-    def predict(self, X):
-        """get the predictions.
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_trials, n_channels, n_times)
-            ndarray of trials.
-
-        Returns
-        -------
-        pred : ndarray of int, shape (n_trials, 1)
-            Class labels for samples in X.
-        """
-        return self._pipe.predict(X)
-
-    def predict_proba(self, X):
-        """Return the probabilities associated with predictions.
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_trials, n_channels, n_times)
-            ndarray of trials.
-
-        Returns
-        -------
-        prob : ndarray, shape (n_samples, n_classes)
-            prob[n, 0] == True if the nth sample is assigned to 1st class;
-            prob[n, 1] == True if the nth sample is assigned to 2nd class.
-        """
-
-        return self._pipe.predict_proba(X)
-
-    def transform(self, X):
-        """Transform the data into feature vectors.
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_trials, n_channels, n_times)
-            ndarray of trials.
-
-        Returns
-        -------
-        dist : ndarray, shape (n_trials, n_ts)
-            the tangent space projection of the data.
-            the dimension of the feature vector depends on
-            `n_filter` and `dim_red`.
-        """
-        return self._pipe.transform(X)
