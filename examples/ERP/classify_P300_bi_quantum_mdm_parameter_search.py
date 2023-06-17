@@ -51,8 +51,9 @@ from moabb.datasets import (
 
 from moabb.evaluations import WithinSessionEvaluation, CrossSubjectEvaluation
 from moabb.paradigms import P300
-from pyriemann_qiskit.classification import (
-    QuantumClassifierWithDefaultRiemannianPipeline,
+from pyriemann_qiskit.pipelines import (
+    QuantumMDMVotingClassifier,
+    QuantumMDMWithRiemannianPipeline
 )
 from sklearn.decomposition import PCA
 from pyriemann_qiskit.utils import mean
@@ -98,6 +99,7 @@ datasets = [BNCI2014009()]
 # reduce the number of subjects, the Quantum pipeline takes a lot of time
 # if executed on the entire dataset
 n_subjects = 1
+title = ""
 for dataset in datasets:
     title = title + dataset.code
     dataset.subject_list = dataset.subject_list[0:n_subjects]
@@ -110,35 +112,15 @@ from sklearn.preprocessing import MinMaxScaler
 
 pipelines = {}
 
-quantum = True
+quantum = False
 
-xdawn = XdawnCovariances(nfilter=1, estimator="scm", xdawn_estimator="lwf")
-erp = ERPCovariances()
+pipelines["mean=convex/distance=euclid"] = \
+    QuantumMDMWithRiemannianPipeline(convex_metric="mean", quantum=quantum)
 
-# pipelines["{mean: logdet, distance: logdet}"] = make_pipeline(
-#     erp, QuanticMDM(metric={"mean": "logdet", "distance": "logdet"}, quantum=quantum)
-# )
+pipelines["mean=logeuclid/distance=convex"] = \
+    QuantumMDMWithRiemannianPipeline(convex_metric="distance", quantum=quantum)
 
-pipelines["{mean: convex, distance: euclid}"] = make_pipeline(
-    xdawn,
-    Whitening(dim_red={"n_components": 2}),
-    QuanticMDM(metric={"mean": "convex", "distance": "euclid"}, quantum=quantum),
-)
-
-pipelines["{mean: logeuclid, distance: convex}"] = make_pipeline(
-    erp, QuanticMDM(metric={"mean": "logeuclid", "distance": "convex"}, quantum=quantum)
-)
-
-# pipelines["{mean: convex, distance: convex}"] = make_pipeline(
-#     xdawn, QuanticMDM(metric={"mean": "convex", "distance": "convex"}, quantum=quantum)
-# )
-
-c1 = pipelines["{mean: convex, distance: euclid}"]
-c2 = pipelines["{mean: logeuclid, distance: convex}"]
-
-pipelines["Voting convex"] = make_pipeline(
-    VotingClassifier([("cvx/euc", c1), ("logeuc/cvx", c2)], voting="soft")
-)
+pipelines["Voting convex"] = QuantumMDMVotingClassifier(quantum=quantum)
 
 evaluation = WithinSessionEvaluation(
     paradigm=paradigm,
