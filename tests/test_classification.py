@@ -159,11 +159,14 @@ class TestQuanticVQC(BinaryFVT):
 
 
 class TestClassicalMDM(BinaryFVT):
-    """Test the classical version of MDM inside QuanticMDM wrapper.
-    """
+    """Test the classical version of MDM inside QuanticMDM wrapper."""
 
     def get_params(self):
-        quantum_instance = QuanticMDM(quantum=False, verbose=False, metric={"mean":"logdet", "distance": "logdet"})
+        quantum_instance = QuanticMDM(
+            quantum=False,
+            verbose=False,
+            metric={"mean": "logdet", "distance": "logdet"},
+        )
         return {
             "n_samples": 100,
             "n_features": 9,
