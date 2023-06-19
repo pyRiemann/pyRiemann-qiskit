@@ -39,8 +39,9 @@ from moabb.datasets import (
 )
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
+
 # inject convex distance and mean to pyriemann (if not done already)
-from pyriemann_qiskit.utils import distance, mean # noqa
+from pyriemann_qiskit.utils import distance, mean  # noqa
 from pyriemann_qiskit.pipelines import (
     QuantumMDMVotingClassifier,
     QuantumMDMWithRiemannianPipeline,
