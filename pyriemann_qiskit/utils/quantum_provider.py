@@ -16,6 +16,8 @@ def get_provider():
     Notes
     -----
     .. versionadded:: 0.0.4
+    .. versionchanged:: 0.1.0
+        IBMProvider is not a static API anymore but need to be instanciated.
     """
     return IBMProvider()
 
