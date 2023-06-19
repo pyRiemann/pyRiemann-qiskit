@@ -17,7 +17,7 @@ def get_provider():
     -----
     .. versionadded:: 0.0.4
     """
-    return IBMProvider.get_provider(hub="ibm-q")
+    return IBMProvider()
 
 
 def get_simulator():
