@@ -17,12 +17,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      tag: $(git rev-parse --short "$GITHUB_SHA")
       GITHUB_TOKEN: ${{ github.token }}
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
       run: |
+        export tag=$(git rev-parse --short "$GITHUB_SHA")
         export actor=pyriemann
         docker build . --file Dockerfile --tag ghcr.io/${actor}/pyriemann-qiskit:$tag
     - name: Publish the Docker image
