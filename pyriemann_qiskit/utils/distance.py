@@ -2,7 +2,8 @@ import numpy as np
 from docplex.mp.model import Model
 from pyriemann_qiskit.utils.docplex import ClassicalOptimizer, get_global_optimizer
 from pyriemann.classification import MDM
-from pyriemann.utils.distance import distance_logeuclid, distance_methods
+from pyriemann.utils.distance import distance_methods
+from pyriemann.utils.base import logm
 
 
 def logeucl_dist_convex(X, y, optimizer=ClassicalOptimizer()):
@@ -40,17 +41,19 @@ def logeucl_dist_convex(X, y, optimizer=ClassicalOptimizer()):
     n_classes, _, _ = X.shape
     classes = range(n_classes)
 
-    def dist(m1, m2):
-        return distance_logeuclid(m1, m2)
+    def log_prod(m1, m2):
+        return np.nansum(logm(m1).flatten() * logm(m2).flatten())
 
     prob = Model()
 
     # should be part of the optimizer
     w = optimizer.get_weights(prob, classes)
 
-    _2VecLogYD = 2 * prob.sum(w[i] * dist(y, X[i]) for i in classes)
+    _2VecLogYD = 2 * prob.sum(w[i] * log_prod(y, X[i]) for i in classes)
 
-    wtDw = prob.sum(w[i] * w[j] * dist(X[i], X[j]) for i in classes for j in classes)
+    wtDw = prob.sum(
+        w[i] * w[j] * log_prod(X[i], X[j]) for i in classes for j in classes
+    )
 
     objectives = wtDw - _2VecLogYD
 
@@ -58,7 +61,7 @@ def logeucl_dist_convex(X, y, optimizer=ClassicalOptimizer()):
 
     result = optimizer.solve(prob, reshape=False)
 
-    return result
+    return 1 - result
 
 
 _mdm_predict_distances_original = MDM._predict_distances

@@ -16,8 +16,10 @@ def get_provider():
     Notes
     -----
     .. versionadded:: 0.0.4
+    .. versionchanged:: 0.1.0
+        IBMProvider is not a static API anymore but need to be instanciated.
     """
-    return IBMProvider.get_provider(hub="ibm-q")
+    return IBMProvider()
 
 
 def get_simulator():
@@ -59,6 +61,11 @@ def get_devices(provider, min_qubits):
     devices: IBMQBackend[]
         A list of compatible backends.
 
+    Raises
+    -------
+    ValueError
+        if no devices found.
+
     Notes
     -----
     .. versionadded:: 0.0.4
@@ -72,4 +79,9 @@ def get_devices(provider, min_qubits):
         )
 
     devices = provider.backends(filters=filters)
+    if devices is None or len(devices) == 0:
+        raise ValueError(
+            "No devices matching: real quantum backend, operational and n_qubits>="
+            + min_qubits
+        )
     return devices

@@ -106,15 +106,14 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                 self._log("Real quantum computation will be performed")
                 if not self.q_account_token == "load_account":
                     IBMProvider.delete_account()
-                    IBMProvider.save_account(self.q_account_token)
-                IBMProvider.load_account()
+                    IBMProvider.save_account(token=self.q_account_token, hub="ibm-q")
                 self._log("Getting provider...")
                 self._provider = get_provider()
             else:
                 self._log("Quantum simulation will be performed")
                 self._backend = get_simulator()
         else:
-            self._log("Classical SVM will be performed")
+            self._log("Classical computation will be performed")
 
     def _log(self, *values):
         if self.verbose:
@@ -251,6 +250,8 @@ class QuanticSVM(QuanticClassifierBase):
     .. versionadded:: 0.0.1
     .. versionchanged:: 0.0.2
        Qiskit's Pegasos implementation [4, 5]_.
+    .. versionchanged:: 0.1.0
+       Fix: copy estimator not keeping base class parameters.
 
     Parameters
     ----------
@@ -269,6 +270,22 @@ class QuanticSVM(QuanticClassifierBase):
         For (Q)SVC it is -1 (that is not limit).
     pegasos : boolean (default: False)
         If true, uses Qiskit's PegasosQSVC instead of QSVC.
+    quantum : bool (default: True)
+        - If true will run on local or remote backend
+        (depending on q_account_token value).
+        - If false, will perform classical computing instead
+    q_account_token : string (default:None)
+        If quantum==True and q_account_token provided,
+        the classification task will be running on a IBM quantum backend.
+        If `load_account` is provided, the classifier will use the previous
+        token saved with `IBMProvider.save_account()`.
+    verbose : bool (default:True)
+        If true will output all intermediate results and logs
+    shots : int (default:1024)
+        Number of repetitions of each circuit, for sampling
+    gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
+                      (default : Callable[int, ZZFeatureMap])
+        Function generating a feature map to encode data into a quantum state.
 
     See Also
     --------
@@ -298,9 +315,20 @@ class QuanticSVM(QuanticClassifierBase):
     """
 
     def __init__(
-        self, gamma="scale", C=1.0, max_iter=None, pegasos=False, **parameters
+        self,
+        gamma="scale",
+        C=1.0,
+        max_iter=None,
+        pegasos=False,
+        quantum=True,
+        q_account_token=None,
+        verbose=True,
+        shots=1024,
+        gen_feature_map=gen_zz_feature_map(),
     ):
-        QuanticClassifierBase.__init__(self, **parameters)
+        QuanticClassifierBase.__init__(
+            self, quantum, q_account_token, verbose, shots, gen_feature_map
+        )
         self.gamma = gamma
         self.C = C
         self.max_iter = max_iter
@@ -389,10 +417,28 @@ class QuanticVQC(QuanticClassifierBase):
     gen_var_form : Callable[int, QuantumCircuit | VariationalForm] \
                    (default: Callable[int, TwoLocal])
         Function generating a variational form instance.
+    quantum : bool (default: True)
+        - If true will run on local or remote backend
+        (depending on q_account_token value).
+        - If false, will perform classical computing instead
+    q_account_token : string (default:None)
+        If quantum==True and q_account_token provided,
+        the classification task will be running on a IBM quantum backend.
+        If `load_account` is provided, the classifier will use the previous
+        token saved with `IBMProvider.save_account()`.
+    verbose : bool (default:True)
+        If true will output all intermediate results and logs
+    shots : int (default:1024)
+        Number of repetitions of each circuit, for sampling
+    gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
+                      (default : Callable[int, ZZFeatureMap])
+        Function generating a feature map to encode data into a quantum state.
 
     Notes
     -----
     .. versionadded:: 0.0.1
+    .. versionchanged:: 0.1.0
+       Fix: copy estimator not keeping base class parameters.
 
     See Also
     --------
@@ -420,14 +466,23 @@ class QuanticVQC(QuanticClassifierBase):
     """
 
     def __init__(
-        self, optimizer=get_spsa(), gen_var_form=gen_two_local(), **parameters
+        self,
+        optimizer=get_spsa(),
+        gen_var_form=gen_two_local(),
+        quantum=True,
+        q_account_token=None,
+        verbose=True,
+        shots=1024,
+        gen_feature_map=gen_zz_feature_map(),
     ):
-        if "quantum" in parameters and not parameters["quantum"]:
+        if quantum is False:
             raise ValueError(
                 "VQC can only run on a quantum \
                               computer or simulator."
             )
-        QuanticClassifierBase.__init__(self, **parameters)
+        QuanticClassifierBase.__init__(
+            self, quantum, q_account_token, verbose, shots, gen_feature_map
+        )
         self.optimizer = optimizer
         self.gen_var_form = gen_var_form
 
@@ -506,6 +561,8 @@ class QuanticMDM(QuanticClassifierBase):
     Notes
     -----
     .. versionadded:: 0.0.4
+    .. versionchanged:: 0.1.0
+       Fix: copy estimator not keeping base class parameters.
 
     Parameters
     ----------
@@ -517,6 +574,23 @@ class QuanticMDM(QuanticClassifierBase):
         distance estimation. Typical usecase is to pass 'logeuclid' metric for
         the mean in order to boost the computional speed and 'riemann' for the
         distance in order to keep the good sensitivity for the classification.
+    quantum : bool (default: True)
+        Only applies if `metric` contains a convex distance or mean.
+        - If true will run on local or remote backend
+        (depending on q_account_token value).
+        - If false, will perform classical computing instead
+    q_account_token : string (default:None)
+        If quantum==True and q_account_token provided,
+        the classification task will be running on a IBM quantum backend.
+        If `load_account` is provided, the classifier will use the previous
+        token saved with `IBMProvider.save_account()`.
+    verbose : bool (default:True)
+        If true will output all intermediate results and logs
+    shots : int (default:1024)
+        Number of repetitions of each circuit, for sampling
+    gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
+                      (default : Callable[int, ZZFeatureMap])
+        Function generating a feature map to encode data into a quantum state.
 
     See Also
     --------
@@ -538,19 +612,29 @@ class QuanticMDM(QuanticClassifierBase):
     """
 
     def __init__(
-        self, metric={"mean": "logeuclid", "distance": "convex"}, **parameters
+        self,
+        metric={"mean": "logeuclid", "distance": "convex"},
+        quantum=True,
+        q_account_token=None,
+        verbose=True,
+        shots=1024,
+        gen_feature_map=gen_zz_feature_map(),
     ):
-        QuanticClassifierBase.__init__(self, **parameters)
+        QuanticClassifierBase.__init__(
+            self, quantum, q_account_token, verbose, shots, gen_feature_map
+        )
         self.metric = metric
 
     def _init_algo(self, n_features):
         self._log("Convex MDM initiating algorithm")
         classifier = MDM(metric=self.metric)
         if self.quantum:
+            self._log("Using NaiveQAOAOptimizer")
             self._optimizer = NaiveQAOAOptimizer(
-                quantum_instance=self._quantum_instance
+                quantum_instance=self._quantum_instance, upper_bound=7
             )
         else:
+            self._log("Using ClassicalOptimizer (COBYLA)")
             self._optimizer = ClassicalOptimizer()
         set_global_optimizer(self._optimizer)
         return classifier

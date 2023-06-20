@@ -16,7 +16,7 @@ from qiskit_optimization.translators import from_docplex_mp
 from pyriemann_qiskit.utils import cov_to_corr_matrix, get_simulator
 
 
-_global_optimizer = None
+_global_optimizer = [None]
 
 
 def set_global_optimizer(optimizer):
@@ -31,7 +31,7 @@ def set_global_optimizer(optimizer):
     -----
     .. versionadded:: 0.0.4
     """
-    _global_optimizer = optimizer  # noqa
+    _global_optimizer[0] = optimizer
 
 
 def get_global_optimizer(default):
@@ -52,7 +52,7 @@ def get_global_optimizer(default):
     -----
     .. versionadded:: 0.0.4
     """
-    return _global_optimizer if _global_optimizer is not None else default
+    return _global_optimizer[0] if _global_optimizer[0] is not None else default
 
 
 def square_cont_mat_var(prob, channels, name="cont_covmat"):
@@ -360,7 +360,7 @@ class ClassicalOptimizer(pyQiskitOptimizer):
         return square_cont_mat_var(prob, channels, name)
 
     def _solve_qp(self, qp, reshape=True):
-        result = CobylaOptimizer(rhobeg=0.01, rhoend=0.0001).solve(qp).x
+        result = CobylaOptimizer(rhobeg=2.1, rhoend=0.000001).solve(qp).x
         if reshape:
             n_channels = int(math.sqrt(result.shape[0]))
             return np.reshape(result, (n_channels, n_channels))
@@ -404,7 +404,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     ----------
     upper_bound : int (default: 7)
         The maximum integer value for matrix normalization.
-    backend: QuantumInstance (default: None)
+    quantum_instance: QuantumInstance (default: None)
         A quantum backend instance.
         If None, AerSimulator will be used.
 
@@ -412,6 +412,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     -----
     .. versionadded:: 0.0.2
     .. versionchanged:: 0.0.4
+        add get_weights method
 
     See Also
     --------
