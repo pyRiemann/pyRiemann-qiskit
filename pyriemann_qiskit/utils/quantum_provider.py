@@ -61,6 +61,11 @@ def get_devices(provider, min_qubits):
     devices: IBMQBackend[]
         A list of compatible backends.
 
+    Raises
+    -------
+    ValueError
+        if no devices found.
+
     Notes
     -----
     .. versionadded:: 0.0.4
@@ -74,4 +79,7 @@ def get_devices(provider, min_qubits):
         )
 
     devices = provider.backends(filters=filters)
+    if devices is None or len(devices) == 0:
+        raise ValueError("No devices matching: real quantum backend, operational and n_qubits>=" + min_qubits)
     return devices
+
