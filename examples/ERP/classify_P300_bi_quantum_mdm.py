@@ -5,7 +5,9 @@ Classification of P300 datasets from MOABB using Quantum MDM
 
 The mean and the distance in MDM algorithm are formualted as
 optimization problems. These optimization problems are translated
-to Qiskit using Docplex and additional glue code.
+to Qiskit using Docplex and additional glue code. These optimizations
+are enabled when we use convex mean or convex distance. This is set
+using the 'convex_metric' parameter of the QuantumMDMWithRiemannianPipeline.
 
 Classification can be run either on emulation or real quantum computer.
 
@@ -81,7 +83,7 @@ datasets = [BNCI2014009()]
 
 # reduce the number of subjects, the Quantum pipeline takes a lot of time
 # if executed on the entire dataset
-n_subjects = 1
+n_subjects = 2
 title = "Datasets: "
 for dataset in datasets:
     title = title + " " + dataset.code
