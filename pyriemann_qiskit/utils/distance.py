@@ -2,7 +2,7 @@ import numpy as np
 from docplex.mp.model import Model
 from pyriemann_qiskit.utils.docplex import ClassicalOptimizer, get_global_optimizer
 from pyriemann.classification import MDM
-from pyriemann.utils.distance import distance_methods
+from pyriemann.utils.distance import distance_functions
 from pyriemann.utils.base import logm
 
 
@@ -82,4 +82,4 @@ MDM._predict_distances = predict_distances
 # inside MDM to directly use logeucl_dist_convex when the metric is "convex"
 # This is due to the fact the the signature of this method is different from
 # the usual distance functions.
-distance_methods["convex"] = logeucl_dist_convex
+distance_functions["convex"] = logeucl_dist_convex
