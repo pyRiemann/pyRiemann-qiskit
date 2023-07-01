@@ -17,4 +17,4 @@ scipy==1.10.1
 moabb>=0.4.6
 pyriemann==0.4
 docplex>=2.21.207
-firebase_admin==6.1.0
+firebase_admin==6.2.0
