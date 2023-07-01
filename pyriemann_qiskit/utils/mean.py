@@ -1,5 +1,5 @@
 from docplex.mp.model import Model
-from pyriemann.utils.mean import mean_functions 
+from pyriemann.utils.mean import mean_functions
 from pyriemann_qiskit.utils.docplex import ClassicalOptimizer, get_global_optimizer
 from pyriemann.estimation import Shrinkage
 
@@ -66,4 +66,4 @@ def fro_mean_convex(
     return result
 
 
-mean_functions ["convex"] = fro_mean_convex
+mean_functions["convex"] = fro_mean_convex
