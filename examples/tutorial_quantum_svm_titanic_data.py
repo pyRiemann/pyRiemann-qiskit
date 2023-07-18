@@ -1,41 +1,50 @@
-#!/usr/bin/env python
-# coding: utf-8
+"""
+====================================================================
+Use QuanticSVM with real data from Kaggle's Titanic Dataset
+====================================================================
 
-# # Compétition Kaggle : Projet Titanic
+Practical application of quantum-enhanced SVM to the titanic dataset:
+https://www.kaggle.com/c/titanic/data
 
-# # Partie 1 : Collecte des données
+"""
+# Author: Adrien Veres
+# License: BSD (3-clause)
 
-# In[3]:
-
-
-pip install pyriemann-qiskit
-
-
-# In[4]:
-
-
-#On importe les librairies que l'on va utiliser
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib.collections import LineCollection
-from pyriemann_qiskit.classification import     QuantumClassifierWithDefaultRiemannianPipeline
+from pyriemann_qiskit.classification import QuantumClassifierWithDefaultRiemannianPipeline
+from sklearn.impute import KNNImputer
+from sklearn.preprocessing import LabelEncoder
+import pandas as pd
+import numpy as np
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+import sklearn
+from sklearn import linear_model
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+from sklearn.svm import SVC
+import pandas as pd
+from sklearn.svm import SVC
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.metrics import balanced_accuracy_score
+from pyriemann_qiskit.classification import QuanticSVM
 
+print(__doc__)
 
-# In[5]:
+###############################################################################
+# Download data
 
-
-#On importe le fichier csv
-import os
-os.getcwd()
-os.chdir("/kaggle/input/titanic")
-
-
-# In[6]:
-
-
-#Chargement du fichier CSV
 gender_sub = pd.read_csv("gender_submission.csv")
 train = pd.read_csv("train.csv")
 test = pd.read_csv("test.csv")
@@ -69,102 +78,44 @@ test = pd.read_csv("test.csv")
 # 1. * Child = daughter, son, stepdaughter, stepson
 # 1. * Some children travelled only with a nanny, therefore parch=0 for them.
 
-# # Apercus des CSV
-
-# In[5]:
-
-
+# Apercus des CSV
 gender_sub.head()
-
-
-# In[6]:
-
-
 train.head()
-
-
-# In[7]:
-
-
 test.head()
 
-
-# Il semble que le CSV train soit plus complet
-
-# In[8]:
-
-
-#describe pour avoir un apercus
+# describe pour avoir un apercus
 train.describe()
 
-
-# In[9]:
-
-
-#voir les erreurs et valeurs manquantes
+# voir les erreurs et valeurs manquantes
 print(train.isna().sum())
 sns.heatmap(train.isna())
 
-
-# In[10]:
-
-
 # Calculer le taux de remplissage. Pas beaucoup d'info sur les cabines, seulement une partie sur l'age
 fill_rate = train.notnull().mean()
-
 print(fill_rate)
 
 
-# # Partie 2 : Feature engineering
-
-# In[8]:
-
+###############################################################################
+# Imputation with KNNs (Feature Engineering)
 
 # Sélectionner les features principales pour l'analyse
-features = train[["PassengerId","Name", "Sex", "Age",                   "Fare" ,"Embarked", "Pclass", "Survived"]]
+features = train[["PassengerId","Name", "Sex", "Age", "Fare" ,"Embarked", "Pclass", "Survived"]]
 
 # Imprimer un apercu tableau
 features.head()
 
-
-# # Connaitre le nombres de survivants et de décés
-
-# In[12]:
-
-
-#Connaitre le nombres de survivants et de décés
+# Connaitre le nombres de survivants et de décés
 survived_counts = train["Survived"].value_counts()
 print(survived_counts)
-
 
 # Il y a donc **549 décés** et **342 survivants**
 # Le taux de décés est donc de **61.62%** , le taux de survie de **38.38%**
 
 # **Countplot de décés vs survies**
-
-# In[13]:
-
-
-#Countplot de décés vs survies
 sns.countplot(x='Survived',data=train)
 
-
-# In[14]:
-
-
-#Histogramme avant nettoyage
+# Histogramme avant nettoyage
 train.hist( sharex= True , sharey=True)
-
-
-# # Remplacer les valeurs manquantes
-
-# Méthode KNN
-
-# In[9]:
-
-
-#KNN
-from sklearn.impute import KNNImputer
 
 # Charger les données d'entraînement
 train = pd.read_csv("train.csv")
@@ -181,27 +132,14 @@ train[age_cols] = imputer.fit_transform(train[age_cols])
 # Afficher les premières lignes des données d'entraînement imputées
 print(train.head())
 
-
-# In[16]:
-
-
 #voir si le KNN a remplacer les ages manquants
 print(train.isna().sum())
-
-
-# In[17]:
-
 
 #Histogramme aprés nettoyage
 train.hist( sharex= True , sharey=True)
 
 
 # # Calcul du taux de survie par **Sex, Age, Tarif, Port d'embarquement et par classe**
-
-# # Taux de Survie
-
-# In[18]:
-
 
 # regrouper les données par sexe et calculer les taux de survie
 sex_group = train.groupby(["Sex"])["Survived"].mean()
@@ -225,7 +163,6 @@ print("\nTaux de survie par âge :\n", age_group)
 print("\nTaux de survie par tarif :\n", fare_group)
 print("\nTaux de survie par port d'embarquement :\n", embarked_group)
 print("\nTaux de survie par classe :\n", class_group)
-
 
 # # Faire histogramme avant et aprés knn
 
@@ -262,10 +199,6 @@ print("\nTaux de survie par classe :\n", class_group)
 
 # ** Calculer la matrice de corrélation entre deux variables ( Embarked & Fare) dans un ensemble de données. **
 
-# In[10]:
-
-
-from sklearn.preprocessing import LabelEncoder
 # créer un encodeur de label
 le = LabelEncoder()
 
@@ -274,17 +207,10 @@ train_embarked_encoded = le.fit_transform(train["Embarked"])
 
 # utiliser np.corrcoef() avec les données encodées :calculer la matrice de corrélation entre les différentes variables d'un ensemble de données
 R2 = np.corrcoef(train_embarked_encoded, train["Fare"])
-R2
+print(R2)
 
-
-# # Partie 3 : Exploration
-
-# # Analyse multivarié
-
-# Definitions
-
-# In[11]:
-
+###############################################################################
+# Multivariate analysis
 
 def correlation_ratio(categories, measurements):
         fcat, _ = pd.factorize(categories)
@@ -304,11 +230,6 @@ def correlation_ratio(categories, measurements):
             eta = numerator/denominator
         return eta
 
-
-# In[12]:
-
-
-#define the main functions
 def display_circles(pcs, n_comp, pca, axis_ranks, labels=None, label_rotation=0, lims=None):
     for d1, d2 in axis_ranks: # On affiche les 3 premiers plans factoriels, donc les 6 premières composantes
         if d2 < n_comp:
@@ -360,11 +281,6 @@ def display_circles(pcs, n_comp, pca, axis_ranks, labels=None, label_rotation=0,
             plt.title("Cercle des corrélations (F{} et F{})".format(d1+1, d2+1))
             plt.show(block=False)
 
-
-
-# In[13]:
-
-
 def display_factorial_planes(X_projected, n_comp, pca, axis_ranks, labels=None, alpha=1, illustrative_var=None):
     for d1,d2 in axis_ranks:
         if d2 < n_comp:
@@ -404,10 +320,6 @@ def display_factorial_planes(X_projected, n_comp, pca, axis_ranks, labels=None, 
             plt.title("Projection des individus (sur F{} et F{})".format(d1+1, d2+1))
             plt.show(block=False)
 
-
-# In[14]:
-
-
 def display_scree_plot(pca):
     scree = pca.explained_variance_ratio_*100
     plt.bar(np.arange(len(scree))+1, scree)
@@ -416,10 +328,6 @@ def display_scree_plot(pca):
     plt.ylabel("pourcentage d'inertie")
     plt.title("Eboulis des valeurs propres")
     plt.show(block=False)
-
-
-# In[15]:
-
 
 def correlation_ratio(categories, measurements):
         fcat, _ = pd.factorize(categories)
@@ -439,67 +347,31 @@ def correlation_ratio(categories, measurements):
             eta = numerator/denominator
         return eta
 
-
-# # Analyse ANOVA : Rule of Thumb Eta Squared
-
-# In[16]:
-
-
-# Rule of thumb , Niveau de corrélation entre Survived et Sex ( Fort)
+# # ANOVA Rule of thumb , Niveau de corrélation entre Survived et Sex ( Fort)
 correlation_ratio(features["Sex"], features["Survived"])
 
-
-# In[17]:
-
-
-#Corrélation Moyenne
-
+# Corrélation Moyenne
 correlation_ratio(features["Age"], features["Survived"])
 
-
-# In[18]:
-
-
-#Corrélation forte
+# Corrélation forte
 correlation_ratio(features["Fare"], features["Survived"])
 
-
-# In[19]:
-
-
-#Corrélation faible
+# Corrélation faible
 correlation_ratio(features["Embarked"], features["Survived"])
 
-
-# In[20]:
-
-
-#Corrélation Moyenne
+# Corrélation Moyenne
 correlation_ratio(features["Pclass"], features["Survived"])
 
 
 # On vérifie l'hypothese qu'il existe une trés forte corrélation entre le tarif et la classe d'un passager
 
-# In[21]:
-
-
-#Corrélation entre le tarif et la classe d'un passager
+# Corrélation entre le tarif et la classe d'un passager
 correlation_ratio(features["Fare"], features["Pclass"])
 
 
 # # PCA et Cercle de corrélation
 
-# In[31]:
-
-
 data = train
-# Importer les bibliothèques nécessaires
-import pandas as pd
-import numpy as np
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
-import matplotlib.pyplot as plt
-
 
 # Sélectionner les variables à inclure dans l'analyse
 variables = ['Age', 'Pclass', 'SibSp', 'Parch', 'Fare']
@@ -543,24 +415,9 @@ plt.show()
 # 1. La composante PC2 est Co linéaire et expliquée en grande partie par Pclass puis Age. La corrélation est forte. Donc les features Pclass et Age peuvent être utilisées pour prédire PC2.
 # 1. PC1 et PC2 expliquent une grande partie de la variance du modele.
 
-# In[32]:
-
-
-import sklearn
-from sklearn import linear_model
-from sklearn.model_selection import train_test_split
-
-
-# In[34]:
-
-
 train.head()
 
-
 # # Nettoyage
-
-# In[35]:
-
 
 def clean(data):
     # dropping the columns that are not significant for survival
@@ -583,131 +440,57 @@ def clean(data):
 
     return data
 
-
-# In[36]:
-
-
-#voir les erreurs et valeurs manquantes : Tout semble OK
+# voir les erreurs et valeurs manquantes : Tout semble OK
 print(train.isna().sum())
-
-
-# In[37]:
-
 
 train_data = train
 test_data = test
 
-
-# In[38]:
-
-
 print(train_data["Pclass"].describe())
 sns.displot(x='Pclass',data=train_data)
-
-
-# In[39]:
-
 
 print(train_data["Age"].describe())
 sns.displot(x='Age',data=train_data)
 
-
-# In[40]:
-
-
 print(train_data["Sex"].describe())
 sns.displot(x='Sex',data=train_data)
-
-
-# In[41]:
-
 
 print(train_data["Embarked"].describe())
 sns.displot(x='Embarked',data=train_data)
 
-
-# In[42]:
-
-
 print(train_data["Fare"].describe())
 sns.displot(x='Fare',data=train_data)
 
-
-# In[43]:
-
-
 sns.catplot(data=train_data, y="Pclass", hue="Survived", kind="count", palette="pastel", edgecolor=".6")
-
-
-# In[44]:
-
 
 sns.boxplot(data=train_data, x="Pclass", y="Age", hue="Survived")
 
-
-# In[45]:
-
-
 sns.boxplot(data=train_data, x="Age", y="Sex", hue="Survived")
-
-
-# In[46]:
-
 
 sns.boxplot(data=train_data, x="Embarked", y="Age", hue="Survived")
 
-
-# In[47]:
-
-
 sns.catplot(data=train_data, y="SibSp", hue="Survived", kind="count", palette="pastel", edgecolor=".6")
-
-
-# In[48]:
-
 
 sns.catplot(data=train_data, y="Parch", hue="Survived", kind="count", palette="pastel", edgecolor=".6")
 
-
-# In[49]:
-
-
 sns.catplot(data=train_data, y="Embarked", hue="Survived", kind="count", palette="pastel", edgecolor=".6")
 
-
-# In[50]:
-
-
 sns.catplot(data=train_data, y="Sex", hue="Survived", kind="count", palette="pastel", edgecolor=".6")
-
-
-# In[51]:
-
 
 sns.catplot(data=train_data, y="Pclass", hue="Survived", kind="count", palette="pastel", edgecolor=".6")
 
 
-# In[52]:
-
-
-from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
-
+###############################################################################
+# Classification
 
 # # Logistic Regression
 
-# In[53]:
-
-
-#Nettoyage
+# Nettoyage
 train = clean(train)
-#Logistic Regression
 
+# Logistic Regression
 
 # Convertir les variables catégorielles en données numériques en utilisant l'encodage one-hot
-
 train = pd.get_dummies(train, columns=["Sex", "Embarked", "Pclass"])
 
 
@@ -725,35 +508,8 @@ y_pred = model.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
 print("Accuracy:", accuracy)
 
+# SVC lineaire
 
-# # SVC Quantique
-
-# In[54]:
-
-
-from sklearn.svm import SVC
-#Tester avec linéraire et RBF
-
-
-# In[55]:
-
-
-import pandas as pd
-from sklearn.svm import SVC
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-from sklearn.preprocessing import StandardScaler
-
-
-# # SVC avec un modele de regression linéaire
-#
-
-# In[56]:
-
-
-#SVC avec un modele de regression linéaire
-
-# Construire un modèle de régression logistique
 model = SVC()
 model.fit(X_train, y_train)
 
@@ -764,15 +520,7 @@ y_pred = model.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
 print("Accuracy:", accuracy)
 
-
-# # SVC avec Noyau RBF
-
-# In[57]:
-
-
-# Importer les modules nécessaires
-from sklearn.svm import SVC
-from sklearn.metrics import balanced_accuracy_score
+# SVC + RBF
 
 # Construire un modèle SVM avec noyau RBF
 model = SVC(kernel='rbf')
@@ -785,42 +533,20 @@ y_pred = model.predict(X_test)
 score = balanced_accuracy_score(y_test, y_pred)
 print("score:", score)
 
-
-# In[58]:
-
-
 X_train.dtypes
 
 
 # **On Créer X_train2 pour mettre les données de X_train dans le même type "float64"**
 
-# In[59]:
-
-
 X_train2= X_train.astype("float64")
 
-
-# In[60]:
-
-
 X_train2.dtypes
-
-
-# In[61]:
-
 
 y_train.dtypes
 
 
-# # Construire un modèle SVM avec noyau quantique
+# Construire un modèle SVM avec noyau quantique
 
-# In[ ]:
-
-
-# Importer les modules nécessaires
-from pyriemann_qiskit.classification import QuanticSVM
-
-# Construire un modèle SVM avec noyau RBF
 model = QuanticSVM(quantum=True, pegasos=False)
 model.fit(X_train2, y_train)
 
@@ -831,27 +557,3 @@ y_pred = model.predict(X_test)
 score = balanced_accuracy_score(y_test, y_pred)
 print("score:", score)
 
-
-# Essaiyer avec xtrain sans le xtrain_2 , faire les simulations
-
-# # Calcul taux de survie par passagers
-
-# In[ ]:
-
-
-# Calculer le taux de survie pour chaque passager
-passenger_survival_rates = train[["PassengerId", "Survived"]]     .groupby(["PassengerId"])     .mean()
-
-# Ajouter une colonne "Survival_Status" à la DataFrame passenger_survival_rates
-passenger_survival_rates["Survival_Status"] = passenger_survival_rates["Survived"].apply(lambda x: "A survécu" if x == 1 else "Est décédé")
-
-# Afficher les taux de survie pour chaque passager
-print(passenger_survival_rates)
-
-
-# In[ ]:
-
-
-# Afficher toutes les lignes du DataFrame
-pd.set_option('display.max_rows', None)
-print(passenger_survival_rates)
