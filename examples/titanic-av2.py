@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # Compétition Kaggle : Projet Titanic 
+# # Compétition Kaggle : Projet Titanic
 
 # # Partie 1 : Collecte des données
 
@@ -45,22 +45,22 @@ test = pd.read_csv("test.csv")
 # * Variable	Definition	Key
 # * survival	Survival	0 = No, 1 = Yes
 # * pclass	Ticket class	1 = 1st, 2 = 2nd, 3 = 3rd
-# * sex	Sex	
-# * Age	Age in years	
-# * sibsp	# of siblings / spouses aboard the Titanic	
-# * parch	# of parents / children aboard the Titanic	
-# * ticket	Ticket number	
-# * fare	Passenger fare	
-# * cabin	Cabin number	
+# * sex	Sex
+# * Age	Age in years
+# * sibsp	# of siblings / spouses aboard the Titanic
+# * parch	# of parents / children aboard the Titanic
+# * ticket	Ticket number
+# * fare	Passenger fare
+# * cabin	Cabin number
 # * embarked	Port of Embarkation	C = Cherbourg, Q = Queenstown, S = Southampton
-# 
+#
 # # Variable Notes
 # **pclass:** A proxy for socio-economic status (SES)
 # 1. * 1st = Upper
 # 1. * 2nd = Middle
 # 1. * 3rd = Lower
 # **age:** Age is fractional if less than 1. If the age is estimated, is it in the form of xx.5
-# 
+#
 # **sibsp:** The dataset defines family relations in this way...
 # 1. * Sibling = brother, sister, stepbrother, stepsister
 # 1. * Spouse = husband, wife (mistresses and fiancés were ignored)
@@ -94,7 +94,7 @@ test.head()
 # In[8]:
 
 
-#describe pour avoir un apercus 
+#describe pour avoir un apercus
 train.describe()
 
 
@@ -233,32 +233,32 @@ print("\nTaux de survie par classe :\n", class_group)
 # **Taux de survie par sex :**
 # 1. Femmes : 74.2%
 # 1. Hommes: 18.8%
-# 
+#
 # **Taux de survie par âge :**
 # * (0, 18]      49.31%
 # * (18, 25]     33.14%
 # * (25, 40]     37.16%
 # * (40, 60]     39.28%
 # * (60, 100]    22.72%
-# 
-# 
+#
+#
 # **Taux de survie par tarif :**
 # * (0, 10]        20.56%
 # * (10, 25]       42.08%
 # * (25, 50]       41.95%
 # * (50, 100]      65.42%
 # * (100, 1000]    73.58%
-# 
+#
 # **Taux de survie par port d'embarquement :**
 # 1. Cherbourg     55.35%
 # 1. Queenstown    38.96%
 # 1. Southampton   33.69%
-# 
+#
 # **Taux de survie par classe :**
 # 1. 1    62.96%
 # 1. 2    47.28%
 # 1. 3    24.23%
-# 
+#
 
 # ** Calculer la matrice de corrélation entre deux variables ( Embarked & Fare) dans un ensemble de données. **
 
@@ -328,19 +328,19 @@ def display_circles(pcs, n_comp, pca, axis_ranks, labels=None, label_rotation=0,
             # s'il y a plus de 30 flèches, on n'affiche pas le triangle à leur extrémité
             if pcs.shape[1] < 30 :
                 plt.quiver(np.zeros(pcs.shape[1]), np.zeros(pcs.shape[1]),
-                   pcs[d1,:], pcs[d2,:], 
+                   pcs[d1,:], pcs[d2,:],
                    angles='xy', scale_units='xy', scale=1, color="grey")
                 # (voir la doc : https://matplotlib.org/api/_as_gen/matplotlib.pyplot.quiver.html)
             else:
                 lines = [[[0,0],[x,y]] for x,y in pcs[[d1,d2]].T]
                 ax.add_collection(LineCollection(lines, axes=ax, alpha=.1, color='black'))
-            
-            # affichage des noms des variables  
-            if labels is not None:  
+
+            # affichage des noms des variables
+            if labels is not None:
                 for i,(x, y) in enumerate(pcs[[d1,d2]].T):
                     if x >= xmin and x <= xmax and y >= ymin and y <= ymax :
                         plt.text(x, y, labels[i], fontsize='14', ha='center', va='center', rotation=label_rotation, color="blue", alpha=0.5)
-            
+
             # affichage du cercle
             circle = plt.Circle((0,0), 1, facecolor='none', edgecolor='b')
             plt.gca().add_artist(circle)
@@ -348,7 +348,7 @@ def display_circles(pcs, n_comp, pca, axis_ranks, labels=None, label_rotation=0,
             # définition des limites du graphique
             plt.xlim(xmin, xmax)
             plt.ylim(ymin, ymax)
-        
+
             # affichage des lignes horizontales et verticales
             plt.plot([-1, 1], [0, 0], color='grey', ls='--')
             plt.plot([0, 0], [-1, 1], color='grey', ls='--')
@@ -359,7 +359,7 @@ def display_circles(pcs, n_comp, pca, axis_ranks, labels=None, label_rotation=0,
 
             plt.title("Cercle des corrélations (F{} et F{})".format(d1+1, d2+1))
             plt.show(block=False)
-            
+
 
 
 # In[13]:
@@ -368,10 +368,10 @@ def display_circles(pcs, n_comp, pca, axis_ranks, labels=None, label_rotation=0,
 def display_factorial_planes(X_projected, n_comp, pca, axis_ranks, labels=None, alpha=1, illustrative_var=None):
     for d1,d2 in axis_ranks:
         if d2 < n_comp:
- 
-            # initialisation de la figure       
+
+            # initialisation de la figure
             fig = plt.figure(figsize=(7,6))
-        
+
             # affichage des points
             if illustrative_var is None:
                 plt.scatter(X_projected[:, d1], X_projected[:, d2], alpha=alpha)
@@ -386,13 +386,13 @@ def display_factorial_planes(X_projected, n_comp, pca, axis_ranks, labels=None, 
             if labels is not None:
                 for i,(x,y) in enumerate(X_projected[:,[d1,d2]]):
                     plt.text(x, y, labels[i],
-                              fontsize='14', ha='center',va='center') 
-                
+                              fontsize='14', ha='center',va='center')
+
             # détermination des limites du graphique
             boundary = np.max(np.abs(X_projected[:, [d1,d2]])) * 1.1
             plt.xlim([-boundary,boundary])
             plt.ylim([-boundary,boundary])
-        
+
             # affichage des lignes horizontales et verticales
             plt.plot([-100, 100], [0, 0], color='grey', ls='--')
             plt.plot([0, 0], [-100, 100], color='grey', ls='--')
@@ -564,9 +564,9 @@ train.head()
 
 def clean(data):
     # dropping the columns that are not significant for survival
-    droppable_columns = ["Name", "Ticket", "Cabin"] 
+    droppable_columns = ["Name", "Ticket", "Cabin"]
     data = data.drop(droppable_columns, axis=1)
-    
+
     # "Age" missing values replaced by the mean age
     data["Age"].fillna(data["Age"].mean(),inplace=True)
     # data['Age'] = data[['Age', "Pclass"]].apply(age_engineering, axis = 1)
@@ -580,7 +580,7 @@ def clean(data):
 
     # "Fare" missing values replaced by its median
     data["Fare"].fillna(data["Fare"].mean(),inplace=True)
-    
+
     return data
 
 
@@ -746,7 +746,7 @@ from sklearn.preprocessing import StandardScaler
 
 
 # # SVC avec un modele de regression linéaire
-# 
+#
 
 # In[56]:
 
@@ -818,7 +818,7 @@ y_train.dtypes
 
 
 # Importer les modules nécessaires
-from pyriemann_qiskit.classification import QuanticSVM 
+from pyriemann_qiskit.classification import QuanticSVM
 
 # Construire un modèle SVM avec noyau RBF
 model = QuanticSVM(quantum=True, pegasos=False)
@@ -855,4 +855,3 @@ print(passenger_survival_rates)
 # Afficher toutes les lignes du DataFrame
 pd.set_option('display.max_rows', None)
 print(passenger_survival_rates)
-
