@@ -12,33 +12,18 @@ https://www.kaggle.com/c/titanic/data
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib.collections import LineCollection
-from pyriemann_qiskit.classification import (
-    QuantumClassifierWithDefaultRiemannianPipeline,
-)
-from sklearn.impute import KNNImputer
-from sklearn.preprocessing import LabelEncoder
-import pandas as pd
-import numpy as np
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
-import sklearn
-from sklearn import linear_model
+from sklearn.impute import KNNImputer
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from sklearn.svm import SVC
-import pandas as pd
-from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC
 from sklearn.metrics import balanced_accuracy_score
 from pyriemann_qiskit.classification import QuanticSVM
 
@@ -80,19 +65,19 @@ test = pd.read_csv("test.csv")
 # 1. * Child = daughter, son, stepdaughter, stepson
 # 1. * Some children travelled only with a nanny, therefore parch=0 for them.
 
-# Apercus des CSV
+# Display first lines of each CSV file
 gender_sub.head()
 train.head()
 test.head()
 
-# describe pour avoir un apercus
+# Compute dataset statistics
 train.describe()
 
-# voir les erreurs et valeurs manquantes
+# Display missing values
 print(train.isna().sum())
 sns.heatmap(train.isna())
 
-# Calculer le taux de remplissage. Pas beaucoup d'info sur les cabines, seulement une partie sur l'age
+# Compute fill-ness
 fill_rate = train.notnull().mean()
 print(fill_rate)
 
@@ -100,46 +85,38 @@ print(fill_rate)
 ###############################################################################
 # Imputation with KNNs (Feature Engineering)
 
-# Sélectionner les features principales pour l'analyse
+# Select appropriate features
 features = train[
     ["PassengerId", "Name", "Sex", "Age", "Fare", "Embarked", "Pclass", "Survived"]
 ]
 
-# Imprimer un apercu tableau
 features.head()
 
-# Connaitre le nombres de survivants et de décés
+# Compute the number of survivors/deceased persons
 survived_counts = train["Survived"].value_counts()
 print(survived_counts)
 
-# Il y a donc **549 décés** et **342 survivants**
-# Le taux de décés est donc de **61.62%** , le taux de survie de **38.38%**
+# Survival rate is about **38.38%**
 
-# **Countplot de décés vs survies**
 sns.countplot(x="Survived", data=train)
 
-# Histogramme avant nettoyage
+# Histogramme before imputation
 train.hist(sharex=True, sharey=True)
 
-# Charger les données d'entraînement
-train = pd.read_csv("train.csv")
-
-# Sélectionner les colonnes pertinentes pour l'imputation des âges manquants
+# Select features to impute
 age_cols = ["Age", "Pclass", "SibSp", "Parch", "Fare"]
 
-# Créer un imputeur K-NN avec 5 voisins
+# Imput
+train = pd.read_csv("train.csv")
 imputer = KNNImputer(n_neighbors=5)
-
-# Imputer les âges manquants
 train[age_cols] = imputer.fit_transform(train[age_cols])
 
-# Afficher les premières lignes des données d'entraînement imputées
 print(train.head())
 
-# voir si le KNN a remplacer les ages manquants
+# Check missing values are now fulfilled
 print(train.isna().sum())
 
-# Histogramme aprés nettoyage
+# Histogram after imputation
 train.hist(sharex=True, sharey=True)
 
 
@@ -626,7 +603,7 @@ model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 
 # Calculer la précision du modèle
-accuracy = accuracy_score(y_test, y_pred)
+accuracy = balanced_accuracy_score(y_test, y_pred)
 print("Accuracy:", accuracy)
 
 # SVC lineaire
@@ -638,7 +615,7 @@ model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 
 # Calculer la précision du modèle
-accuracy = accuracy_score(y_test, y_pred)
+accuracy = balanced_accuracy_score(y_test, y_pred)
 print("Accuracy:", accuracy)
 
 # SVC + RBF
