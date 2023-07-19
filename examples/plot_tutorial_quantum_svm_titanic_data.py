@@ -14,7 +14,6 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from matplotlib.collections import LineCollection
 from sklearn.impute import KNNImputer
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.decomposition import PCA
@@ -389,7 +388,10 @@ print("score:", score)
 # Tackles type conversion issue with QuanticSVM
 X_train2 = X_train.astype("float64")
 
-model = QuanticSVM(quantum=True, pegasos=False)
+# Disable quantum for Ci/Cd optimization
+# (with quantum=True, expect an accuracy better
+# than for linear and rbf svc - in general > 0.7)
+model = QuanticSVM(quantum=False, pegasos=False)
 model.fit(X_train2, y_train)
 
 y_pred = model.predict(X_test)
