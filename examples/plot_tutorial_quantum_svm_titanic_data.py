@@ -52,22 +52,12 @@ def correlation_ratio(categories, measurements):
 
 
 def clean(data):
-    # dropping the columns that are not significant for survival
-    droppable_columns = ["Name", "Ticket", "Cabin"]
-    data = data.drop(droppable_columns, axis=1)
-
-    # "Age" missing values replaced by the mean age
-    data["Age"].fillna(data["Age"].mean(), inplace=True)
-
     # "Embarked" missing values replaced by U(unknown)
-    data["Embarked"].fillna("U", inplace=True)
+    data["embarked"].fillna("U", inplace=True)
 
-    # "SibSp", "Parch" missing values replaced by 0
-    data["SibSp"].fillna(0, inplace=True)
-    data["Parch"].fillna(0, inplace=True)
-
-    # "Fare" missing values replaced by its median
-    data["Fare"].fillna(data["Fare"].mean(), inplace=True)
+    # "sibsp", "parch" missing values replaced by 0
+    data["sibsp"].fillna(0, inplace=True)
+    data["parch"].fillna(0, inplace=True)
 
     return data
 
@@ -84,12 +74,8 @@ dataset = pd.read_csv("https://zenodo.org/record/5987761/files/titanic.csv")
 # * survival	Survival	0 = No, 1 = Yes
 # * pclass	Ticket class	1 = 1st, 2 = 2nd, 3 = 3rd
 # * sex	Sex
-# * Age	Age in years
 # * sibsp	# of siblings / spouses aboard the Titanic
 # * parch	# of parents / children aboard the Titanic
-# * ticket	Ticket number
-# * fare	Passenger fare
-# * cabin	Cabin number
 # * embarked	Port of Embarkation	C = Cherbourg, Q = Queenstown, S = Southampton
 #
 # # Variable Notes
@@ -97,8 +83,6 @@ dataset = pd.read_csv("https://zenodo.org/record/5987761/files/titanic.csv")
 # 1. * 1st = Upper
 # 1. * 2nd = Middle
 # 1. * 3rd = Lower
-# **age:** Age is fractional if less than 1.
-#      If the age is estimated, is it in the form of xx.5
 #
 # **sibsp:** The dataset defines family relations in this way...
 # 1. * Sibling = brother, sister, stepbrother, stepsister
@@ -127,46 +111,27 @@ print(fill_rate)
 print(dataset["pclass"].describe())
 sns.displot(x="pclass", data=dataset)
 
-print(dataset["Age"].describe())
-sns.displot(x="Age", data=dataset)
+print(dataset["sex"].describe())
+sns.displot(x="sex", data=dataset)
 
-print(dataset["Sex"].describe())
-sns.displot(x="Sex", data=dataset)
-
-print(dataset["Embarked"].describe())
-sns.displot(x="Embarked", data=dataset)
-
-print(dataset["Fare"].describe())
-sns.displot(x="Fare", data=dataset)
+print(dataset["embarked"].describe())
+sns.displot(x="embarked", data=dataset)
 
 sns.catplot(
     data=dataset,
     y="pclass",
-    hue="Survived",
+    hue="survived",
     kind="count",
     palette="pastel",
     edgecolor=".6",
 )
 
-sns.boxplot(data=dataset, x="pclass", y="Age", hue="Survived")
-
-sns.boxplot(data=dataset, x="Age", y="Sex", hue="Survived")
-
-sns.boxplot(data=dataset, x="Embarked", y="Age", hue="Survived")
+sns.boxplot(data=dataset, x="embarked", y="pclass", hue="survived")
 
 sns.catplot(
     data=dataset,
-    y="SibSp",
-    hue="Survived",
-    kind="count",
-    palette="pastel",
-    edgecolor=".6",
-)
-
-sns.catplot(
-    data=dataset,
-    y="Parch",
-    hue="Survived",
+    y="sibsp",
+    hue="survived",
     kind="count",
     palette="pastel",
     edgecolor=".6",
@@ -174,8 +139,8 @@ sns.catplot(
 
 sns.catplot(
     data=dataset,
-    y="Embarked",
-    hue="Survived",
+    y="parch",
+    hue="survived",
     kind="count",
     palette="pastel",
     edgecolor=".6",
@@ -183,8 +148,17 @@ sns.catplot(
 
 sns.catplot(
     data=dataset,
-    y="Sex",
-    hue="Survived",
+    y="embarked",
+    hue="survived",
+    kind="count",
+    palette="pastel",
+    edgecolor=".6",
+)
+
+sns.catplot(
+    data=dataset,
+    y="sex",
+    hue="survived",
     kind="count",
     palette="pastel",
     edgecolor=".6",
@@ -193,7 +167,7 @@ sns.catplot(
 sns.catplot(
     data=dataset,
     y="pclass",
-    hue="Survived",
+    hue="survived",
     kind="count",
     palette="pastel",
     edgecolor=".6",
@@ -204,28 +178,28 @@ sns.catplot(
 
 # Select appropriate features
 features = dataset[
-    ["PassengerId", "Name", "Sex", "Age", "Fare", "Embarked", "pclass", "Survived"]
+    ["sex", "embarked", "pclass", "survived"]
 ]
 
 features.head()
 
 # Compute the number of survivors/deceased persons
-survived_counts = dataset["Survived"].value_counts()
+survived_counts = dataset["survived"].value_counts()
 print(survived_counts)
 
 # Survival rate is about **38.38%**
 
-sns.countplot(x="Survived", data=dataset)
+sns.countplot(x="survived", data=dataset)
 
 # Histogram before imputation
 dataset.hist(sharex=True, sharey=True)
 
 # Select features to impute
-age_cols = ["Age", "pclass", "SibSp", "Parch", "Fare"]
+cols_to_fill = ["pclass", "sibsp", "parch"]
 
 # Imput
 imputer = KNNImputer(n_neighbors=5)
-dataset[age_cols] = imputer.fit_transform(dataset[age_cols])
+dataset[cols_to_fill] = imputer.fit_transform(dataset[cols_to_fill])
 
 print(dataset.head())
 
@@ -238,60 +212,42 @@ dataset.hist(sharex=True, sharey=True)
 
 # # Compute survival rate
 
-sex_group = dataset.groupby(["Sex"])["Survived"].mean()
+sex_group = dataset.groupby(["sex"])["survived"].mean()
 
-age_group = pd.cut(dataset["Age"], [0, 18, 25, 40, 60, 100])
-age_group = dataset.groupby([age_group])["Survived"].mean()
+embarked_group = dataset.groupby(["embarked"])["survived"].mean()
 
-fare_group = pd.cut(dataset["Fare"], [0, 10, 25, 50, 100, 1000])
-fare_group = dataset.groupby([fare_group])["Survived"].mean()
-
-embarked_group = dataset.groupby(["Embarked"])["Survived"].mean()
-
-class_group = dataset.groupby(["pclass"])["Survived"].mean()
+class_group = dataset.groupby(["pclass"])["survived"].mean()
 
 print("Survival rate by sex :\n", sex_group)
-print("\nSurvival rate by age :\n", age_group)
-print("\nSurvival rate by fair :\n", fare_group)
 print("\nSurvival rate by embarkation point :\n", embarked_group)
 print("\nSurvival rate by class :\n", class_group)
 
-# Compute correlation matrix between Embarked & Fare
+# Compute correlation matrix between Embarked & Class
 
 # Label-encoding of "Embarked"
 le = LabelEncoder()
-embarked_encoded = le.fit_transform(dataset["Embarked"])
+embarked_encoded = le.fit_transform(dataset["embarked"])
 
-R2 = np.corrcoef(embarked_encoded, dataset["Fare"])
+R2 = np.corrcoef(embarked_encoded, dataset["pclass"])
 print(R2)
 
 ###############################################################################
 # Multivariate analysis
 
 # # ANOVA Rule of thumb
-correlation_ratio(features["Sex"], features["Survived"])
-
-# Correlation should be average
-correlation_ratio(features["Age"], features["Survived"])
-
-# Correlation should be strong
-correlation_ratio(features["Fare"], features["Survived"])
+correlation_ratio(features["sex"], features["survived"])
 
 # Correlation should be weak
-correlation_ratio(features["Embarked"], features["Survived"])
+correlation_ratio(features["embarked"], features["survived"])
 
 # Correlation should be average
-correlation_ratio(features["pclass"], features["Survived"])
+correlation_ratio(features["pclass"], features["survived"])
 
-
-# Check the correlation between fair and class
-
-correlation_ratio(features["Fare"], features["pclass"])
 
 # # PCA and correlation circle
 
 # Select features
-variables = ["Age", "pclass", "SibSp", "Parch", "Fare"]
+variables = ["pclass", "sibsp", "parch"]
 
 X = dataset[variables].values
 
@@ -305,7 +261,7 @@ principal_components = pca.fit_transform(X_scaled)
 components_df = pd.DataFrame(data=principal_components, columns=["PC1", "PC2"])
 
 # Add target
-components_df["Survived"] = dataset["Survived"]
+components_df["survived"] = dataset["survived"]
 
 # Display correlation circle
 fig = plt.figure(figsize=(8, 8))
@@ -337,13 +293,13 @@ plt.show()
 dataset = clean(dataset)
 
 # One-hot encoding
-dataset = pd.get_dummies(dataset, columns=["Sex", "Embarked", "pclass"])
+dataset = pd.get_dummies(dataset, columns=["sex", "embarked", "pclass"])
 
 # train/test validation
 # (the same for all classifiers - avoid biases in comparison)
 X_train, X_test, y_train, y_test = train_test_split(
-    dataset.drop("Survived", axis=1),
-    dataset["Survived"],
+    dataset.drop("survived", axis=1),
+    dataset["survived"],
     test_size=0.2,
     random_state=42,
 )
