@@ -58,7 +58,6 @@ def clean(data):
 
     # "Age" missing values replaced by the mean age
     data["Age"].fillna(data["Age"].mean(), inplace=True)
-    # data['Age'] = data[['Age', "Pclass"]].apply(age_engineering, axis = 1)
 
     # "Embarked" missing values replaced by U(unknown)
     data["Embarked"].fillna("U", inplace=True)
@@ -125,8 +124,8 @@ sns.heatmap(dataset.isna())
 fill_rate = dataset.notnull().mean()
 print(fill_rate)
 
-print(dataset["Pclass"].describe())
-sns.displot(x="Pclass", data=dataset)
+print(dataset["pclass"].describe())
+sns.displot(x="pclass", data=dataset)
 
 print(dataset["Age"].describe())
 sns.displot(x="Age", data=dataset)
@@ -142,14 +141,14 @@ sns.displot(x="Fare", data=dataset)
 
 sns.catplot(
     data=dataset,
-    y="Pclass",
+    y="pclass",
     hue="Survived",
     kind="count",
     palette="pastel",
     edgecolor=".6",
 )
 
-sns.boxplot(data=dataset, x="Pclass", y="Age", hue="Survived")
+sns.boxplot(data=dataset, x="pclass", y="Age", hue="Survived")
 
 sns.boxplot(data=dataset, x="Age", y="Sex", hue="Survived")
 
@@ -193,7 +192,7 @@ sns.catplot(
 
 sns.catplot(
     data=dataset,
-    y="Pclass",
+    y="pclass",
     hue="Survived",
     kind="count",
     palette="pastel",
@@ -205,7 +204,7 @@ sns.catplot(
 
 # Select appropriate features
 features = dataset[
-    ["PassengerId", "Name", "Sex", "Age", "Fare", "Embarked", "Pclass", "Survived"]
+    ["PassengerId", "Name", "Sex", "Age", "Fare", "Embarked", "pclass", "Survived"]
 ]
 
 features.head()
@@ -222,7 +221,7 @@ sns.countplot(x="Survived", data=dataset)
 dataset.hist(sharex=True, sharey=True)
 
 # Select features to impute
-age_cols = ["Age", "Pclass", "SibSp", "Parch", "Fare"]
+age_cols = ["Age", "pclass", "SibSp", "Parch", "Fare"]
 
 # Imput
 imputer = KNNImputer(n_neighbors=5)
@@ -249,7 +248,7 @@ fare_group = dataset.groupby([fare_group])["Survived"].mean()
 
 embarked_group = dataset.groupby(["Embarked"])["Survived"].mean()
 
-class_group = dataset.groupby(["Pclass"])["Survived"].mean()
+class_group = dataset.groupby(["pclass"])["Survived"].mean()
 
 print("Survival rate by sex :\n", sex_group)
 print("\nSurvival rate by age :\n", age_group)
@@ -282,17 +281,17 @@ correlation_ratio(features["Fare"], features["Survived"])
 correlation_ratio(features["Embarked"], features["Survived"])
 
 # Correlation should be average
-correlation_ratio(features["Pclass"], features["Survived"])
+correlation_ratio(features["pclass"], features["Survived"])
 
 
 # Check the correlation between fair and class
 
-correlation_ratio(features["Fare"], features["Pclass"])
+correlation_ratio(features["Fare"], features["pclass"])
 
 # # PCA and correlation circle
 
 # Select features
-variables = ["Age", "Pclass", "SibSp", "Parch", "Fare"]
+variables = ["Age", "pclass", "SibSp", "Parch", "Fare"]
 
 X = dataset[variables].values
 
@@ -338,7 +337,7 @@ plt.show()
 dataset = clean(dataset)
 
 # One-hot encoding
-dataset = pd.get_dummies(dataset, columns=["Sex", "Embarked", "Pclass"])
+dataset = pd.get_dummies(dataset, columns=["Sex", "Embarked", "pclass"])
 
 # train/test validation
 # (the same for all classifiers - avoid biases in comparison)
