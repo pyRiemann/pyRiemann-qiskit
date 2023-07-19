@@ -226,6 +226,7 @@ print(R2)
 ###############################################################################
 # Multivariate analysis
 
+
 def correlation_ratio(categories, measurements):
     fcat, _ = pd.factorize(categories)
     cat_num = np.max(fcat) + 1
@@ -253,9 +254,7 @@ def display_circles(
     for (
         d1,
         d2,
-    ) in (
-        axis_ranks
-    ):  # Display the 6 first components
+    ) in axis_ranks:  # Display the 6 first components
         if d2 < n_comp:
             fig, ax = plt.subplots(figsize=(7, 6))
 
@@ -395,6 +394,7 @@ def display_scree_plot(pca):
     plt.title("Eboulis des valeurs propres")
     plt.show(block=False)
 
+
 def clean(data):
     # dropping the columns that are not significant for survival
     droppable_columns = ["Name", "Ticket", "Cabin"]
@@ -415,6 +415,7 @@ def clean(data):
     data["Fare"].fillna(data["Fare"].mean(), inplace=True)
 
     return data
+
 
 # # ANOVA Rule of thumb
 correlation_ratio(features["Sex"], features["Survived"])
