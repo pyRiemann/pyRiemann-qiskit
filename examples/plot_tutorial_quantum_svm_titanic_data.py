@@ -177,9 +177,7 @@ sns.catplot(
 # Imputation with KNNs (Feature Engineering)
 
 # Select appropriate features
-features = dataset[
-    ["sex", "embarked", "pclass", "survived"]
-]
+features = dataset[["sex", "embarked", "pclass", "survived"]]
 
 features.head()
 
