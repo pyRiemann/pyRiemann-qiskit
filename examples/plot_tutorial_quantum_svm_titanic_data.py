@@ -385,7 +385,10 @@ print("score:", score)
 # Tackles type conversion issue with QuanticSVM
 X_train2 = X_train.astype("float64")
 
-model = QuanticSVM(quantum=True, pegasos=False)
+# Use quantum=False for Ci/Cd optimization
+# In general, accuracy is > 0.7 with quantum True
+# (this is better then linear and rbf kernel)
+model = QuanticSVM(quantum=False, pegasos=False)
 model.fit(X_train2, y_train)
 
 y_pred = model.predict(X_test)
