@@ -344,7 +344,10 @@ dataset = pd.get_dummies(dataset, columns=["Sex", "Embarked", "Pclass"])
 # train/test validation
 # (the same for all classifiers - avoid biases in comparison)
 X_train, X_test, y_train, y_test = train_test_split(
-    dataset.drop("Survived", axis=1), dataset["Survived"], test_size=0.2, random_state=42
+    dataset.drop("Survived", axis=1),
+    dataset["Survived"],
+    test_size=0.2,
+    random_state=42,
 )
 
 # Logistic Regression
