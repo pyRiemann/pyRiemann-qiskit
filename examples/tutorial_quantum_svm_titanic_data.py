@@ -30,6 +30,7 @@ print(__doc__)
 ###############################################################################
 # Useful functions
 
+
 def correlation_ratio(categories, measurements):
     fcat, _ = pd.factorize(categories)
     cat_num = np.max(fcat) + 1
@@ -71,6 +72,7 @@ def clean(data):
     data["Fare"].fillna(data["Fare"].mean(), inplace=True)
 
     return data
+
 
 ###############################################################################
 # Download data
