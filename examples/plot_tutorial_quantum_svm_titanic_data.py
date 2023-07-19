@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib.collections import LineCollection
 from sklearn.impute import KNNImputer
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.decomposition import PCA
@@ -76,9 +77,8 @@ def clean(data):
 ###############################################################################
 # Download data
 
-gender_sub = pd.read_csv("gender_submission.csv")
-train = pd.read_csv("train.csv")
-test = pd.read_csv("test.csv")
+# Skip Kaggle, download data publicly from Zenodo.
+dataset = pd.read_csv("https://zenodo.org/record/5987761/files/titanic.csv")
 
 
 # # *Data Dictionary*
@@ -113,38 +113,36 @@ test = pd.read_csv("test.csv")
 ###############################################################################
 # Exploration
 
-gender_sub.head()
-train.head()
-test.head()
+dataset.head()
 
 # Compute dataset statistics
-train.describe()
+dataset.describe()
 
 # Display missing values
-print(train.isna().sum())
-sns.heatmap(train.isna())
+print(dataset.isna().sum())
+sns.heatmap(dataset.isna())
 
 # Compute fill-ness
-fill_rate = train.notnull().mean()
+fill_rate = dataset.notnull().mean()
 print(fill_rate)
 
-print(train["Pclass"].describe())
-sns.displot(x="Pclass", data=train)
+print(dataset["Pclass"].describe())
+sns.displot(x="Pclass", data=dataset)
 
-print(train["Age"].describe())
-sns.displot(x="Age", data=train)
+print(dataset["Age"].describe())
+sns.displot(x="Age", data=dataset)
 
-print(train["Sex"].describe())
-sns.displot(x="Sex", data=train)
+print(dataset["Sex"].describe())
+sns.displot(x="Sex", data=dataset)
 
-print(train["Embarked"].describe())
-sns.displot(x="Embarked", data=train)
+print(dataset["Embarked"].describe())
+sns.displot(x="Embarked", data=dataset)
 
-print(train["Fare"].describe())
-sns.displot(x="Fare", data=train)
+print(dataset["Fare"].describe())
+sns.displot(x="Fare", data=dataset)
 
 sns.catplot(
-    data=train,
+    data=dataset,
     y="Pclass",
     hue="Survived",
     kind="count",
@@ -152,14 +150,14 @@ sns.catplot(
     edgecolor=".6",
 )
 
-sns.boxplot(data=train, x="Pclass", y="Age", hue="Survived")
+sns.boxplot(data=dataset, x="Pclass", y="Age", hue="Survived")
 
-sns.boxplot(data=train, x="Age", y="Sex", hue="Survived")
+sns.boxplot(data=dataset, x="Age", y="Sex", hue="Survived")
 
-sns.boxplot(data=train, x="Embarked", y="Age", hue="Survived")
+sns.boxplot(data=dataset, x="Embarked", y="Age", hue="Survived")
 
 sns.catplot(
-    data=train,
+    data=dataset,
     y="SibSp",
     hue="Survived",
     kind="count",
@@ -168,7 +166,7 @@ sns.catplot(
 )
 
 sns.catplot(
-    data=train,
+    data=dataset,
     y="Parch",
     hue="Survived",
     kind="count",
@@ -177,7 +175,7 @@ sns.catplot(
 )
 
 sns.catplot(
-    data=train,
+    data=dataset,
     y="Embarked",
     hue="Survived",
     kind="count",
@@ -186,7 +184,7 @@ sns.catplot(
 )
 
 sns.catplot(
-    data=train,
+    data=dataset,
     y="Sex",
     hue="Survived",
     kind="count",
@@ -195,7 +193,7 @@ sns.catplot(
 )
 
 sns.catplot(
-    data=train,
+    data=dataset,
     y="Pclass",
     hue="Survived",
     kind="count",
@@ -207,53 +205,52 @@ sns.catplot(
 # Imputation with KNNs (Feature Engineering)
 
 # Select appropriate features
-features = train[
+features = dataset[
     ["PassengerId", "Name", "Sex", "Age", "Fare", "Embarked", "Pclass", "Survived"]
 ]
 
 features.head()
 
 # Compute the number of survivors/deceased persons
-survived_counts = train["Survived"].value_counts()
+survived_counts = dataset["Survived"].value_counts()
 print(survived_counts)
 
 # Survival rate is about **38.38%**
 
-sns.countplot(x="Survived", data=train)
+sns.countplot(x="Survived", data=dataset)
 
 # Histogram before imputation
-train.hist(sharex=True, sharey=True)
+dataset.hist(sharex=True, sharey=True)
 
 # Select features to impute
 age_cols = ["Age", "Pclass", "SibSp", "Parch", "Fare"]
 
 # Imput
-train = pd.read_csv("train.csv")
 imputer = KNNImputer(n_neighbors=5)
-train[age_cols] = imputer.fit_transform(train[age_cols])
+dataset[age_cols] = imputer.fit_transform(dataset[age_cols])
 
-print(train.head())
+print(dataset.head())
 
 # Check missing values are now fulfilled
-print(train.isna().sum())
+print(dataset.isna().sum())
 
 # Histogram after imputation
-train.hist(sharex=True, sharey=True)
+dataset.hist(sharex=True, sharey=True)
 
 
 # # Compute survival rate
 
-sex_group = train.groupby(["Sex"])["Survived"].mean()
+sex_group = dataset.groupby(["Sex"])["Survived"].mean()
 
-age_group = pd.cut(train["Age"], [0, 18, 25, 40, 60, 100])
-age_group = train.groupby([age_group])["Survived"].mean()
+age_group = pd.cut(dataset["Age"], [0, 18, 25, 40, 60, 100])
+age_group = dataset.groupby([age_group])["Survived"].mean()
 
-fare_group = pd.cut(train["Fare"], [0, 10, 25, 50, 100, 1000])
-fare_group = train.groupby([fare_group])["Survived"].mean()
+fare_group = pd.cut(dataset["Fare"], [0, 10, 25, 50, 100, 1000])
+fare_group = dataset.groupby([fare_group])["Survived"].mean()
 
-embarked_group = train.groupby(["Embarked"])["Survived"].mean()
+embarked_group = dataset.groupby(["Embarked"])["Survived"].mean()
 
-class_group = train.groupby(["Pclass"])["Survived"].mean()
+class_group = dataset.groupby(["Pclass"])["Survived"].mean()
 
 print("Survival rate by sex :\n", sex_group)
 print("\nSurvival rate by age :\n", age_group)
@@ -265,9 +262,9 @@ print("\nSurvival rate by class :\n", class_group)
 
 # Label-encoding of "Embarked"
 le = LabelEncoder()
-train_embarked_encoded = le.fit_transform(train["Embarked"])
+embarked_encoded = le.fit_transform(dataset["Embarked"])
 
-R2 = np.corrcoef(train_embarked_encoded, train["Fare"])
+R2 = np.corrcoef(embarked_encoded, dataset["Fare"])
 print(R2)
 
 ###############################################################################
@@ -295,12 +292,10 @@ correlation_ratio(features["Fare"], features["Pclass"])
 
 # # PCA and correlation circle
 
-data = train
-
 # Select features
 variables = ["Age", "Pclass", "SibSp", "Parch", "Fare"]
 
-X = data[variables].values
+X = dataset[variables].values
 
 # Standard scaler
 scaler = StandardScaler()
@@ -341,15 +336,15 @@ plt.show()
 # Classification
 
 # Cleaning
-train = clean(train)
+dataset = clean(dataset)
 
 # One-hot encoding
-train = pd.get_dummies(train, columns=["Sex", "Embarked", "Pclass"])
+dataset = pd.get_dummies(dataset, columns=["Sex", "Embarked", "Pclass"])
 
 # train/test validation
 # (the same for all classifiers - avoid biases in comparison)
 X_train, X_test, y_train, y_test = train_test_split(
-    train.drop("Survived", axis=1), train["Survived"], test_size=0.2, random_state=42
+    dataset.drop("Survived", axis=1), dataset["Survived"], test_size=0.2, random_state=42
 )
 
 # Logistic Regression
@@ -388,10 +383,7 @@ print("score:", score)
 # Tackles type conversion issue with QuanticSVM
 X_train2 = X_train.astype("float64")
 
-# Disable quantum for Ci/Cd optimization
-# (with quantum=True, expect an accuracy better
-# than for linear and rbf svc - in general > 0.7)
-model = QuanticSVM(quantum=False, pegasos=False)
+model = QuanticSVM(quantum=True, pegasos=False)
 model.fit(X_train2, y_train)
 
 y_pred = model.predict(X_test)
