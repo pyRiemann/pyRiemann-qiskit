@@ -308,8 +308,8 @@ model.fit(X_train, y_train)
 
 y_pred = model.predict(X_test)
 
-accuracy = balanced_accuracy_score(y_test, y_pred)
-print("Balanced accuracy:", accuracy)
+score = balanced_accuracy_score(y_test, y_pred)
+print("Balanced accuracy LR:", score)
 
 # linear SVC
 
@@ -319,8 +319,8 @@ model.fit(X_train, y_train)
 
 y_pred = model.predict(X_test)
 
-accuracy = balanced_accuracy_score(y_test, y_pred)
-print("Balanced accuracy:", accuracy)
+score = balanced_accuracy_score(y_test, y_pred)
+print("Balanced accuracy linear SVC:", score)
 
 # SVC + RBF
 
@@ -330,7 +330,7 @@ model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 
 score = balanced_accuracy_score(y_test, y_pred)
-print("score:", score)
+print("Balanced accuracy SVC+RBF:", score)
 
 
 # SVM + quantum kernel
@@ -347,4 +347,4 @@ model.fit(X_train2, y_train)
 y_pred = model.predict(X_test)
 
 score = balanced_accuracy_score(y_test, y_pred)
-print("score:", score)
+print("Balanced accuracy quantum SVC:", score)
