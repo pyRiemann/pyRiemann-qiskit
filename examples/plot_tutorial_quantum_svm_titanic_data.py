@@ -14,7 +14,6 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from matplotlib.collections import LineCollection
 from sklearn.impute import KNNImputer
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.decomposition import PCA
@@ -307,7 +306,7 @@ principal_components = pca.fit_transform(X_scaled)
 components_df = pd.DataFrame(data=principal_components, columns=["PC1", "PC2"])
 
 # Add target
-components_df["Survived"] = data["Survived"]
+components_df["Survived"] = dataset["Survived"]
 
 # Display correlation circle
 fig = plt.figure(figsize=(8, 8))
