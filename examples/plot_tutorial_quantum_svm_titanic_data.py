@@ -62,8 +62,9 @@ def clean(data):
     return data
 
 
-###############################################################################
+##############################################################################
 # Download data
+# --------------
 
 # Skip Kaggle, download data publicly from Zenodo.
 dataset = pd.read_csv("https://zenodo.org/record/5987761/files/titanic.csv")
@@ -94,6 +95,7 @@ dataset = pd.read_csv("https://zenodo.org/record/5987761/files/titanic.csv")
 
 ###############################################################################
 # Exploration
+# -----------
 
 dataset.head()
 
@@ -175,6 +177,7 @@ sns.catplot(
 
 ###############################################################################
 # Imputation with KNNs (Feature Engineering)
+# ------------------------------------------
 
 # Select appropriate features
 features = dataset[["sex", "embarked", "pclass", "survived"]]
@@ -231,6 +234,7 @@ print(R2)
 
 ###############################################################################
 # Multivariate analysis
+# ---------------------
 
 # # ANOVA Rule of thumb
 correlation_ratio(features["sex"], features["survived"])
@@ -286,6 +290,7 @@ plt.show()
 
 ###############################################################################
 # Classification
+# --------------
 
 # Cleaning
 dataset = clean(dataset)
