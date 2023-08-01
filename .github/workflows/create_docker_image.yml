@@ -12,7 +12,7 @@ jobs:
 
     runs-on: ubuntu-latest
     env:
-      tag: ${{ github.event.pull_request.number }}
+      tag: $(git rev-parse --short "$GITHUB_SHA")
       GITHUB_TOKEN: ${{ github.token }}
     steps:
     - uses: actions/checkout@v3
