@@ -188,4 +188,4 @@ class MultiLabelsTest(BinaryTest):
 
 class MultiLabelsFVT(MultiLabelsTest):
     def additional_steps(self):
-        BinaryFVT.additional_stpes(self)
+        BinaryFVT.additional_steps(self)
