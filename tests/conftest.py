@@ -182,7 +182,7 @@ class BinaryFVT(BinaryTest):
 
 class MultiLabelsTest(BinaryTest):
     def prepare(self, n_samples, n_features, quantum_instance, type):
-        base.prepare(n_samples, n_features, quantum_instance, type)
+        super().prepare(n_samples, n_features, quantum_instance, type)
         self.n_classes = 3
 
 
