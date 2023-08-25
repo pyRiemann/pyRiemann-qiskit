@@ -158,6 +158,17 @@ class TestQuanticVQC(BinaryFVT):
         assert len(self.prediction) == len(self.labels)
 
 
+class TestQuanticVQC(MultiLabelsFVT):
+    """Perform VQC on a simulated quantum computer
+    (multi labels classification)"""
+
+    def get_params(self):
+        # multi-inheritance pattern
+        TestQuanticVQC.get_params(self)
+
+    def check(self):
+        TestQuanticVQC.check(self)
+
 class TestClassicalMDM(BinaryFVT):
     """Test the classical version of MDM inside QuanticMDM wrapper."""
 
