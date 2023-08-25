@@ -164,7 +164,7 @@ class TestQuanticVQC_MultiLabels(MultiLabelsFVT):
 
     def get_params(self):
         # multi-inheritance pattern
-        TestQuanticVQC.get_params(self)
+        return TestQuanticVQC.get_params(self)
 
     def check(self):
         TestQuanticVQC.check(self)
