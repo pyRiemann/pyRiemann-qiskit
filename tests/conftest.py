@@ -172,16 +172,19 @@ class BinaryTest:
     def check(self):
         raise NotImplementedError
 
+
 class BinaryFVT(BinaryTest):
     def additional_steps(self):
         self.quantum_instance.fit(self.samples, self.labels)
         self.prediction = self.quantum_instance.predict(self.samples)
         print(self.labels, self.prediction)
-        
+
+
 class MultiLabelsTest(BinaryTest):
     def prepare(self, n_samples, n_features, quantum_instance, type):
         base.prepare(n_samples, n_features, quantum_instance, type)
         self.n_classes = 3
+
 
 class MultiLabelsFVT(MultiLabelsTest):
     def additional_steps(self):
