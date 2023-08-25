@@ -158,7 +158,7 @@ class TestQuanticVQC(BinaryFVT):
         assert len(self.prediction) == len(self.labels)
 
 
-class TestQuanticVQC(MultiLabelsFVT):
+class TestQuanticVQC_MultiLabels(MultiLabelsFVT):
     """Perform VQC on a simulated quantum computer
     (multi labels classification)"""
 
