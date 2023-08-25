@@ -169,6 +169,7 @@ class TestQuanticVQC(MultiLabelsFVT):
     def check(self):
         TestQuanticVQC.check(self)
 
+
 class TestClassicalMDM(BinaryFVT):
     """Test the classical version of MDM inside QuanticMDM wrapper."""
 
