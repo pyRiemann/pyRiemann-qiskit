@@ -1,5 +1,5 @@
 import pytest
-from conftest import BinaryTest, BinaryFVT
+from conftest import BinaryTest, BinaryFVT, MultiLabelsFVT
 import numpy as np
 from pyriemann.classification import TangentSpace
 from pyriemann.estimation import XdawnCovariances
