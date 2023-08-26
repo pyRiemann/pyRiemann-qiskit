@@ -17,9 +17,7 @@ from matplotlib import pyplot as plt
 import warnings
 import seaborn as sns
 from moabb import set_log_level
-from moabb.datasets import (
-    AlexMI
-)
+from moabb.datasets import AlexMI
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import MotorImagery
 
@@ -51,7 +49,7 @@ set_log_level("info")
 # 1) Create paradigm
 # 2) Load datasets
 
-paradigm = MotorImagery(events=['feet', 'right_hand'], n_classes=2)
+paradigm = MotorImagery(events=["feet", "right_hand"], n_classes=2)
 
 datasets = [AlexMI()]
 
@@ -76,7 +74,7 @@ pipelines["mean=logeuclid/distance=convex"] = QuantumMDMWithRiemannianPipeline(
 )
 
 # Classical baseline for evaluation
-pipelines["R-MDM"] = make_pipeline(ERPCovariances(estimator='lwf'), MDM())
+pipelines["R-MDM"] = make_pipeline(ERPCovariances(estimator="lwf"), MDM())
 
 ##############################################################################
 # Run evaluation
