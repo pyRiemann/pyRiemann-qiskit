@@ -4,7 +4,7 @@ Multiclass EEG classification with Quantum Pipeline
 ====================================================================
 
 This example demonstrate multiclass EEG classification with a quantum
-classifier. 
+classifier.
 We will be comparing the performance of VQC vs Quantum SVM vs
 Classical SVM
 """
