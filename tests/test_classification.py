@@ -1,5 +1,5 @@
 import pytest
-from conftest import BinaryTest, BinaryFVT, MultiLabelsFVT
+from conftest import BinaryTest, BinaryFVT, MultiLabelsFVT, MultiLabelsTest
 import numpy as np
 from pyriemann.classification import TangentSpace
 from pyriemann.estimation import XdawnCovariances
@@ -82,7 +82,7 @@ class TestQSVMSplitClasses(BinaryTest):
             assert np.shape(self.x_classes[i]) == (self.class_len, self.n_features)
 
 
-class TestQSVMSplitClasses_MultiLabels(MultiLabelsTst):
+class TestQSVMSplitClasses_MultiLabels(MultiLabelsTest):
     """Test _split_classes method of quantum classifiers (with 3 classes)"""
 
     def get_params(self):
