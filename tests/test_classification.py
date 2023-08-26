@@ -88,7 +88,8 @@ class TestQSVMSplitClasses_MultiLabels(MultiLabelsTest):
     def get_params(self):
         params = TestQSVMSplitClasses.get_params(self)
         # This is a limitation of the get_separable_feats methods:
-        # we want to have a number of samples which can be divided by the number of classes
+        # we want to have a number of samples 
+        # that can be divided by the number of classes
         # (3 with MultiLabelsTest)
         params["n_samples"] = 99
         return params
