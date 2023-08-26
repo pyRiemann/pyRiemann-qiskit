@@ -81,7 +81,11 @@ for idx in range(n_classifiers):
     acc_str = "%0.2f" % acc
 
     names = ["aud left", "aud right", "vis left", "vis right"]
-    title = ("VQC (" if idx == 0 else "Quantum (" if idx == 1 else "Classical (") + acc_str + ")"
+    title = (
+        ("VQC (" if idx == 0 else "Quantum (" if idx == 1 else "Classical (")
+        + acc_str
+        + ")"
+    )
     axe = axes[idx]
     cm = confusion_matrix(y_pred, y_test)
     disp = ConfusionMatrixDisplay(cm, display_labels=names)
