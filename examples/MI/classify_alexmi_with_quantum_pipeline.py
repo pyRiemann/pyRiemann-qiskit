@@ -10,7 +10,7 @@ pip install moabb==0.5.0
 
 """
 # Author: Gregoire Cattan
-# Modified from classify_P300_bi_quantum_mdm.py of pyRiemann
+# Modified from ERP/classify_P300_bi_quantum_mdm.py
 # License: BSD (3-clause)
 
 from matplotlib import pyplot as plt
