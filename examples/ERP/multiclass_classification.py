@@ -85,7 +85,7 @@ for idx in range(n_classifiers):
     y_pred = clf.predict(X_test)
 
     # Printing the results
-    acc = balanced_accuracy_score(y_pred, y_test)
+    acc = balanced_accuracy_score(y_test, y_pred)
     acc_str = "%0.2f" % acc
 
     names = ["aud left", "aud right", "vis left", "vis right"]

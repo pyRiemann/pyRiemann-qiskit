@@ -67,7 +67,7 @@ for quantum in [True, False]:
     y_pred = clf.predict(X_test)
 
     # Printing the results
-    acc = balanced_accuracy_score(y_pred, y_test)
+    acc = balanced_accuracy_score(y_test, y_pred)
     acc_str = "%0.2f" % acc
 
     names = ["vis left", "vis right"]
