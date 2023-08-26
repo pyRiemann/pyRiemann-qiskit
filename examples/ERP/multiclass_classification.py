@@ -15,7 +15,7 @@ Classical SVM vs Quantum MDM vs MDM
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
-    QuantumMDMWithRiemannianPipeline
+    QuantumMDMWithRiemannianPipeline,
 )
 from pyriemann.estimation import ERPCovariances
 from pyriemann.classification import MDM
@@ -46,7 +46,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 
 # We will use the handler in the pipelines module
 # to auto-configure the parameters of the pipelines.
-# it might not be accurate, but this shows the general line. 
+# it might not be accurate, but this shows the general line.
 
 quantum_svm = QuantumClassifierWithDefaultRiemannianPipeline(
     dim_red=PCA(n_components=5),
@@ -90,13 +90,11 @@ for idx in range(n_classifiers):
 
     names = ["aud left", "aud right", "vis left", "vis right"]
     title = (
-        ("VQC (" if idx == 0 else
-          "Quantum SVM (" if idx == 1 else
-          "Classical SVM (") if idx == 2 else
-          "Quantum MDM (" if idx == 3 else
-          "R-MDM ("
-        + acc_str
-        + ")"
+        ("VQC (" if idx == 0 else "Quantum SVM (" if idx == 1 else "Classical SVM (")
+        if idx == 2
+        else "Quantum MDM ("
+        if idx == 3
+        else "R-MDM (" + acc_str + ")"
     )
     axe = axes[idx]
     cm = confusion_matrix(y_pred, y_test)
