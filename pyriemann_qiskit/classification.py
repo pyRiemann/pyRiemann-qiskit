@@ -59,6 +59,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     Notes
     -----
     .. versionadded:: 0.0.1
+    .. versionchanged:: 0.1.0
+        Added support for multi-class classification.
 
     Attributes
     ----------
@@ -427,6 +429,7 @@ class QuanticVQC(QuanticClassifierBase):
     .. versionadded:: 0.0.1
     .. versionchanged:: 0.1.0
        Fix: copy estimator not keeping base class parameters.
+       Added support for multi-class classification.
 
     See Also
     --------
@@ -485,26 +488,6 @@ class QuanticVQC(QuanticClassifierBase):
             num_qubits=n_features,
         )
         return vqc
-
-    def _map_classes_to_indices(self, y):
-        # Label must be one-hot encoded for VQC
-        n_classes = len(self.classes_)
-        y_copy = np.ndarray((y.shape[0], n_classes))
-        for i in range(n_classes):
-            y_copy[y == self.classes_[i]] = [
-                1 if j == i else 0 for j in range(n_classes)
-            ]
-        return y_copy
-
-    def _map_indices_to_classes(self, y):
-        # Decode one-hot encoded labels
-        y_copy = np.ndarray((y.shape[0], 1))
-        n_classes = len(self.classes_)
-        for i in range(n_classes):
-            y_copy[
-                (y == [1 if j == i else 0 for j in range(n_classes)]).all()
-            ] = self.classes_[i]
-        return y_copy
 
     def predict_proba(self, X):
         """Returns the probabilities associated with predictions.

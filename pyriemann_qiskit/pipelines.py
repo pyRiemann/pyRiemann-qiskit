@@ -185,10 +185,14 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
     feature_reps : int (default: 2)
         The number of repeated circuits for the ZZFeatureMap,
         greater or equal to 1.
-    spsa_trials : int (default: 40)
+    spsa_trials : int (default: None)
         Maximum number of iterations to perform using SPSA optimizer.
-    two_local_reps : int (default: 3)
+        For VQC, you can use 40 as a default.
+        VQC is only enabled if spsa_trials and two_local_reps are not None.
+    two_local_reps : int (default: None)
         The number of repetition for the two-local cricuit.
+        VQC is only enabled if spsa_trials and two_local_reps are not None.
+        For VQC, you can use 3 as a default.
     params: Dict (default: {})
         Additional parameters to pass to the nested instance
         of the quantum classifier.

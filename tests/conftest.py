@@ -179,13 +179,13 @@ class BinaryFVT(BinaryTest):
         print(self.labels, self.prediction)
 
 
-class MultiLabelsTest(BinaryTest):
+class MultiClassesTest(BinaryTest):
     def prepare(self, n_samples, n_features, quantum_instance, type):
         super().prepare(n_samples, n_features, quantum_instance, type)
         self.n_classes = 3
         self.class_len = n_samples // self.n_classes
 
 
-class MultiLabelsFVT(MultiLabelsTest):
+class MultiClassesFVT(MultiClassesTest):
     def additional_steps(self):
         BinaryFVT.additional_steps(self)
