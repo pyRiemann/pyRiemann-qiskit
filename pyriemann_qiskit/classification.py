@@ -37,9 +37,6 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     * tasks on a real quantum computer are assigned to a queue
       before being executed on a back-end (delayed execution)
 
-    WARNING: At the moment this implementation only supports binary
-    classification.
-
     Parameters
     ----------
     quantum : bool (default: True)
@@ -120,21 +117,17 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
             print("[QClass] ", *values)
 
     def _split_classes(self, X, y):
-        self._log(
-            "[Warning] Splitting first class from second class."
-            "Only binary classification is supported."
-        )
         X_class1 = X[y == self.classes_[1]]
         X_class0 = X[y == self.classes_[0]]
         return (X_class1, X_class0)
 
-    def _map_classes_to_0_1(self, y):
+    def _map_classes_to_indices(self, y):
         y_copy = y.copy()
         y_copy[y == self.classes_[0]] = 0
         y_copy[y == self.classes_[1]] = 1
         return y_copy
 
-    def _map_0_1_to_classes(self, y):
+    def _map_indices_to_classes(self, y):
         y_copy = y.copy()
         y_copy[y == 0] = self.classes_[0]
         y_copy[y == 1] = self.classes_[1]
@@ -151,11 +144,6 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         y : ndarray, shape (n_samples,)
             Target vector relative to X.
 
-        Raises
-        ------
-        Exception
-            Raised if the number of classes is different from 2
-
         Returns
         -------
         self : QuanticClassifierBase instance
@@ -165,14 +153,9 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         self._log("Fitting: ", X.shape)
         self.classes_ = np.unique(y)
-        if len(self.classes_) != 2:
-            raise Exception(
-                "Only binary classification \
-                             is currently supported."
-            )
 
         class1, class0 = self._split_classes(X, y)
-        y = self._map_classes_to_0_1(y)
+        y = self._map_classes_to_indices(y)
 
         self._training_input[self.classes_[1]] = class1
         self._training_input[self.classes_[0]] = class0
@@ -226,7 +209,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         accuracy : double
             Accuracy of predictions from X with respect y.
         """
-        y = self._map_classes_to_0_1(y)
+        y = self._map_classes_to_indices(y)
         self._log("Testing...")
         return self._classifier.score(X, y)
 
@@ -399,7 +382,7 @@ class QuanticSVM(QuanticClassifierBase):
             Class labels for samples in X.
         """
         labels = self._predict(X)
-        return self._map_0_1_to_classes(labels)
+        return self._map_indices_to_classes(labels)
 
 
 class QuanticVQC(QuanticClassifierBase):
@@ -498,14 +481,14 @@ class QuanticVQC(QuanticClassifierBase):
         )
         return vqc
 
-    def _map_classes_to_0_1(self, y):
+    def _map_classes_to_indices(self, y):
         # Label must be one-hot encoded for VQC
         y_copy = np.ndarray((y.shape[0], 2))
         y_copy[y == self.classes_[0]] = [1, 0]
         y_copy[y == self.classes_[1]] = [0, 1]
         return y_copy
 
-    def _map_0_1_to_classes(self, y):
+    def _map_indices_to_classes(self, y):
         # Decode one-hot encoded labels
         y_copy = np.ndarray((y.shape[0], 1))
         y_copy[(y == [1, 0]).all()] = self.classes_[0]
@@ -545,7 +528,7 @@ class QuanticVQC(QuanticClassifierBase):
             Class labels for samples in X.
         """
         labels = self._predict(X)
-        return self._map_0_1_to_classes(labels)
+        return self._map_indices_to_classes(labels)
 
 
 class QuanticMDM(QuanticClassifierBase):
@@ -670,4 +653,4 @@ class QuanticMDM(QuanticClassifierBase):
             Class labels for samples in X.
         """
         labels = self._predict(X)
-        return self._map_0_1_to_classes(labels)
+        return self._map_indices_to_classes(labels)
