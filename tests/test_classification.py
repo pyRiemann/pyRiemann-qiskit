@@ -75,13 +75,13 @@ class TestQSVMSplitClasses(BinaryTest):
         # As fit method is not called here, classes_ is not set.
         # so we need to provide the classes ourselves.
         self.quantum_instance.classes_ = range(0, self.n_classes)
-        self.x_class1, self.x_class0 = self.quantum_instance._split_classes(
+        self.x_classes = self.quantum_instance._split_classes(
             self.samples, self.labels
         )
 
     def check(self):
-        assert np.shape(self.x_class1) == (self.class_len, self.n_features)
-        assert np.shape(self.x_class0) == (self.class_len, self.n_features)
+        for i in range(self.classes):
+            assert np.shape(self.x_classes[i]) == (self.class_len, self.n_features)
 
 
 class TestQSVMSplitClasses_MultiLabels(MultiLabelsTst):
