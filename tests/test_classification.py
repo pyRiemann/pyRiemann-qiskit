@@ -78,7 +78,7 @@ class TestQSVMSplitClasses(BinaryTest):
         self.x_classes = self.quantum_instance._split_classes(self.samples, self.labels)
 
     def check(self):
-        for i in range(self.x_classes):
+        for i in range(self.n_classes):
             assert np.shape(self.x_classes[i]) == (self.class_len, self.n_features)
 
 
