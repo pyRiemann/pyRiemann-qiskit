@@ -490,7 +490,7 @@ class QuanticVQC(QuanticClassifierBase):
         # Label must be one-hot encoded for VQC
         n_classes = len(self.classes_)
         y_copy = np.ndarray((y.shape[0], n_classes))
-        for i in range(n_classes): 
+        for i in range(n_classes):
             y_copy[y == self.classes_[i]] = [1 if j == i for j in range(n_classes)]
         return y_copy
 
@@ -498,7 +498,7 @@ class QuanticVQC(QuanticClassifierBase):
         # Decode one-hot encoded labels
         y_copy = np.ndarray((y.shape[0], 1))
         n_classes = len(self.classes_)
-        for i in range(n_classes): 
+        for i in range(n_classes):
             y_copy[(y == [1 if j == i for j in range(n_classes)]).all()] = self.classes_[i]
         return y_copy
 
