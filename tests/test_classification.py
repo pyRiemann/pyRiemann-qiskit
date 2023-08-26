@@ -83,6 +83,17 @@ class TestQSVMSplitClasses(BinaryTest):
         assert np.shape(self.x_class1) == (self.class_len, self.n_features)
         assert np.shape(self.x_class0) == (self.class_len, self.n_features)
 
+class TestQSVMSplitClasses_MultiLabels(MultiLabelsTst):
+    """Test _split_classes method of quantum classifiers (with 3 classes)"""
+
+    def get_params(self):
+        return TestQSVMSplitClasses.get_params(self)
+
+    def additional_steps(self):
+        return TestQSVMSplitClasses.additional_steps(self)
+
+    def check(self):
+        return TestQSVMSplitClasses.check(self)
 
 class TestClassicalSVM(BinaryFVT):
     """Perform functional validation testing of Quantic SVM"""
