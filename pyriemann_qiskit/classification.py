@@ -491,7 +491,9 @@ class QuanticVQC(QuanticClassifierBase):
         n_classes = len(self.classes_)
         y_copy = np.ndarray((y.shape[0], n_classes))
         for i in range(n_classes):
-            y_copy[y == self.classes_[i]] = [1 if j == i else 0 for j in range(n_classes)]
+            y_copy[y == self.classes_[i]] = [
+                1 if j == i else 0 for j in range(n_classes)
+            ]
         return y_copy
 
     def _map_indices_to_classes(self, y):
@@ -499,7 +501,9 @@ class QuanticVQC(QuanticClassifierBase):
         y_copy = np.ndarray((y.shape[0], 1))
         n_classes = len(self.classes_)
         for i in range(n_classes):
-            y_copy[(y == [1 if j == i else 0 for j in range(n_classes)]).all()] = self.classes_[i]
+            y_copy[
+                (y == [1 if j == i else 0 for j in range(n_classes)]).all()
+            ] = self.classes_[i]
         return y_copy
 
     def predict_proba(self, X):
