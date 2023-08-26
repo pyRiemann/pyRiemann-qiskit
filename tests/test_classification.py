@@ -156,6 +156,8 @@ class TestQuanticVQC(BinaryFVT):
         # Considering the inputs, this probably make no sense to test accuracy.
         # Instead, we could consider this test as a canary test
         assert len(self.prediction) == len(self.labels)
+        # Check the number of classes is consistent
+        assert len(np.unique(self.prediction)) == len(np.unique(self.labels))
 
 
 class TestQuanticVQC_MultiLabels(MultiLabelsFVT):
