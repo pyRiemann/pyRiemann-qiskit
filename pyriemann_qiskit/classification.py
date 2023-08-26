@@ -488,16 +488,18 @@ class QuanticVQC(QuanticClassifierBase):
 
     def _map_classes_to_indices(self, y):
         # Label must be one-hot encoded for VQC
-        y_copy = np.ndarray((y.shape[0], 2))
-        y_copy[y == self.classes_[0]] = [1, 0]
-        y_copy[y == self.classes_[1]] = [0, 1]
+        n_classes = len(self.classes_)
+        y_copy = np.ndarray((y.shape[0], n_classes))
+        for i in range(n_classes): 
+            y_copy[y == self.classes_[i]] = [1 if j == i for j in range(n_classes)]
         return y_copy
 
     def _map_indices_to_classes(self, y):
         # Decode one-hot encoded labels
         y_copy = np.ndarray((y.shape[0], 1))
-        y_copy[(y == [1, 0]).all()] = self.classes_[0]
-        y_copy[(y == [0, 1]).all()] = self.classes_[1]
+        n_classes = len(self.classes_)
+        for i in range(n_classes): 
+            y_copy[(y == [1 if j == i for j in range(n_classes)]).all()] = self.classes_[i]
         return y_copy
 
     def predict_proba(self, X):
