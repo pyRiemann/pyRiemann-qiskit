@@ -10,7 +10,7 @@ from qiskit_machine_learning.datasets import ad_hoc_data
 from sklearn.datasets import make_classification
 
 
-def get_mne_sample(n_trials=10):
+def get_mne_sample(n_trials=10, include_auditory=False):
     """Return sample data from the mne dataset.
 
     ```
@@ -31,6 +31,9 @@ def get_mne_sample(n_trials=10):
     n_trials : int (default:10)
         Number of trials to return.
         If -1, then all trials are returned.
+    include_auditory : boolean (default:False)
+        If True, it returns also the auditory stimulation
+        in the MNE dataset.
 
     Returns
     -------
@@ -42,6 +45,8 @@ def get_mne_sample(n_trials=10):
     Notes
     -----
     .. versionadded:: 0.0.1
+    .. versionchanged:: 0.1.0
+        Possibility to include auditory stimulation.
 
     References
     ----------
@@ -55,7 +60,10 @@ def get_mne_sample(n_trials=10):
     raw_fname = data_path + "/MEG/sample/sample_audvis_filt-0-40_raw.fif"
     event_fname = data_path + "/MEG/sample/sample_audvis_filt-0-40_raw-eve.fif"
     tmin, tmax = -0.0, 1
-    event_id = dict(vis_l=3, vis_r=4)  # select only two classes
+    if include_auditory:
+         event_id = dict(aud_l=1, aud_r=2, vis_l=3, vis_r=4)
+    else:
+        event_id = dict(vis_l=3, vis_r=4)
 
     # Setup for reading the raw data
     raw = io.Raw(raw_fname, preload=True, verbose=False)
