@@ -65,7 +65,6 @@ def _get_rand_feats(n_samples, n_features, rs):
 def _get_separable_feats(n_samples, n_features, n_classes):
     """Generate a balanced set of n_features-dimensional
     samples for test purpose, containing 0, 1, 2, ... n_classes as values"""
-    n_classes = 2
     class_len = n_samples // n_classes  # balanced set
     samples = []
     for i in range(n_classes):
