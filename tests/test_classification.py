@@ -86,7 +86,12 @@ class TestQSVMSplitClasses_MultiLabels(MultiLabelsTest):
     """Test _split_classes method of quantum classifiers (with 3 classes)"""
 
     def get_params(self):
-        return TestQSVMSplitClasses.get_params(self)
+        params = TestQSVMSplitClasses.get_params(self)
+        # This is a limitation of the get_separable_feats methods:
+        # we want to have a number of samples which can be divided by the number of classes
+        # (3 with MultiLabelsTest)
+        params["n_samples"] = 99
+        return params
 
     def additional_steps(self):
         return TestQSVMSplitClasses.additional_steps(self)
