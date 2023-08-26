@@ -117,20 +117,24 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
             print("[QClass] ", *values)
 
     def _split_classes(self, X, y):
-        X_class1 = X[y == self.classes_[1]]
-        X_class0 = X[y == self.classes_[0]]
-        return (X_class1, X_class0)
+        n_classes = len(self.classes_)
+        X_classes = [] * n_classes
+        for idx in range(n_classes):
+            X_classes[idx] = X[y == self.classes_[idx]]
+        return X_classes
 
     def _map_classes_to_indices(self, y):
         y_copy = y.copy()
-        y_copy[y == self.classes_[0]] = 0
-        y_copy[y == self.classes_[1]] = 1
+        n_classes = len(self.classes_)
+        for idx in range(n_classes):
+            y_copy[y == self.classes_[idx]] = idx
         return y_copy
 
     def _map_indices_to_classes(self, y):
         y_copy = y.copy()
-        y_copy[y == 0] = self.classes_[0]
-        y_copy[y == 1] = self.classes_[1]
+        n_classes = len(self.classes_)
+        for idx in range(n_classes):
+            y_copy[y == idx] = self.classes_[idx]
         return y_copy
 
     def fit(self, X, y):
@@ -154,11 +158,12 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._log("Fitting: ", X.shape)
         self.classes_ = np.unique(y)
 
-        class1, class0 = self._split_classes(X, y)
+        X_classes = self._split_classes(X, y)
         y = self._map_classes_to_indices(y)
 
-        self._training_input[self.classes_[1]] = class1
-        self._training_input[self.classes_[0]] = class0
+        n_classes = len(self.classes_)
+        for idx in range(n_classes):
+            self._training_input[self.classes_[idx]] = X_classes[idx]
 
         n_features = get_feature_dimension(self._training_input)
         self._log("Feature dimension = ", n_features)
