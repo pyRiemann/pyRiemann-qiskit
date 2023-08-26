@@ -23,6 +23,7 @@ from sklearn.metrics import (
     ConfusionMatrixDisplay,
     balanced_accuracy_score,
 )
+from sklearn.decomposition import PCA
 from matplotlib import pyplot as plt
 
 
@@ -62,13 +63,16 @@ vqc = QuantumClassifierWithDefaultRiemannianPipeline(
 
 classifiers = [vqc, quantum_svm, classical_svm]
 
+n_classifiers = len(classifiers)
+
 # https://stackoverflow.com/questions/61825227/plotting-multiple-confusion-matrix-side-by-side
-f, axes = plt.subplots(1, 2, sharey="row")
+f, axes = plt.subplots(1, n_classifiers, sharey="row")
 
 disp = None
 
-# Results will be computed for QuanticSVM versus SKLearnSVM for comparison
-for clf in classifiers:
+# Compute results
+for idx in range(n_classifiers):
+    clf = classifiers[idx]
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
 
@@ -76,16 +80,16 @@ for clf in classifiers:
     acc = balanced_accuracy_score(y_pred, y_test)
     acc_str = "%0.2f" % acc
 
-    names = ["vis left", "vis right"]
-    title = ("Quantum (" if quantum else "Classical (") + acc_str + ")"
-    axe = axes[0 if quantum else 1]
+    names = ["aud left", "aud right", "vis left", "vis right"]
+    title = ("VQC (" if idx == 0 else "Quantum (" if idx == 1 else "Classical (") + acc_str + ")"
+    axe = axes[idx]
     cm = confusion_matrix(y_pred, y_test)
     disp = ConfusionMatrixDisplay(cm, display_labels=names)
     disp.plot(ax=axe, xticks_rotation=45)
     disp.ax_.set_title(title)
     disp.im_.colorbar.remove()
     disp.ax_.set_xlabel("")
-    if not quantum:
+    if idx > 0:
         disp.ax_.set_ylabel("")
 
 if disp:
