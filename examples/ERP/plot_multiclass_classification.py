@@ -12,11 +12,10 @@ Classical SVM
 # Modified from plot_classify_EEG_quantum_svm
 # License: BSD (3-clause)
 
-from pyriemann.estimation import XdawnCovariances
-from pyriemann.tangentspace import TangentSpace
-from pyriemann_qiskit.classification import QuanticSVM
-from pyriemann_qiskit.utils.filtering import NaiveDimRed
 from pyriemann_qiskit.datasets import get_mne_sample
+from pyriemann_qiskit.pipelines import (
+    QuantumClassifierWithDefaultRiemannianPipeline,
+)
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import (
