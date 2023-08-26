@@ -61,7 +61,7 @@ def get_mne_sample(n_trials=10, include_auditory=False):
     event_fname = data_path + "/MEG/sample/sample_audvis_filt-0-40_raw-eve.fif"
     tmin, tmax = -0.0, 1
     if include_auditory:
-         event_id = dict(aud_l=1, aud_r=2, vis_l=3, vis_r=4)
+        event_id = dict(aud_l=1, aud_r=2, vis_l=3, vis_r=4)
     else:
         event_id = dict(vis_l=3, vis_r=4)
 
