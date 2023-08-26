@@ -36,21 +36,21 @@ setup(name='pyriemann-qiskit',
       install_requires=[
                         'numpy<1.24',
                         'cython',
-                        'pyriemann==0.4',
+                        'pyriemann==0.5',
                         'qiskit_machine_learning==0.6.1',
-                        'qiskit-ibm-provider==0.6.1',
+                        'qiskit-ibm-provider==0.6.2',
                         'qiskit-optimization==0.5.0',
-                        'qiskit-aer==0.12.0',
-                        'cvxpy==1.3.1',
+                        'qiskit-aer==0.12.2',
+                        'cvxpy==1.3.2',
                         'scipy==1.10.1',
                         'docplex>=2.21.207',
-                        'firebase_admin==6.1.0',
+                        'firebase_admin==6.2.0',
                         'tqdm'
                         ],
       extras_require={'docs': ['sphinx-gallery', 'sphinx-bootstrap_theme', 'numpydoc', 'mne', 'seaborn', 'moabb>=0.4.6'],
                       'tests': ['pytest', 'seaborn', 'flake8', 'mne', 'pooch'],
                       # GPU optimization not available on all platform.
                       # See https://github.com/Qiskit/qiskit-aer/issues/929#issuecomment-691716936
-                      'optim': ['qiskit-aer-gpu==0.11.2']},
+                      'optim': ['qiskit-aer-gpu==0.12.2']},
       zip_safe=False,
 )
