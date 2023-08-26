@@ -1,5 +1,5 @@
 import pytest
-from conftest import BinaryTest, BinaryFVT, MultiClassesFVT, MultiClassesTest
+from conftest import BinaryTest, BinaryFVT, MultiClassFVT, MultiClassTest
 import numpy as np
 from pyriemann.classification import TangentSpace
 from pyriemann.estimation import XdawnCovariances
@@ -82,7 +82,7 @@ class TestQSVMSplitClasses(BinaryTest):
             assert np.shape(self.x_classes[i]) == (self.class_len, self.n_features)
 
 
-class TestQSVMSplitClasses_MultiClasses(MultiClassesTest):
+class TestQSVMSplitClasses_MultiClass(MultiClassTest):
     """Test _split_classes method of quantum classifiers (with 3 classes)"""
 
     def get_params(self):
@@ -90,7 +90,7 @@ class TestQSVMSplitClasses_MultiClasses(MultiClassesTest):
         # This is a limitation of the get_separable_feats methods:
         # we want to have a number of samples
         # that can be divided by the number of classes
-        # (3 with MultiClassesTest)
+        # (3 with MultiClassTest)
         params["n_samples"] = 99
         return params
 
@@ -177,7 +177,7 @@ class TestQuanticVQC(BinaryFVT):
         assert len(np.unique(self.prediction)) == len(np.unique(self.labels))
 
 
-class TestQuanticVQC_MultiClasses(MultiClassesFVT):
+class TestQuanticVQC_MultiClass(MultiClassFVT):
     """Perform VQC on a simulated quantum computer
     (multi labels classification)"""
 
