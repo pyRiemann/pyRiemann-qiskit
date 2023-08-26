@@ -118,9 +118,9 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     def _split_classes(self, X, y):
         n_classes = len(self.classes_)
-        X_classes = [] * n_classes
+        X_classes = []
         for idx in range(n_classes):
-            X_classes[idx] = X[y == self.classes_[idx]]
+            X_classes.append(X[y == self.classes_[idx]])
         return X_classes
 
     def _map_classes_to_indices(self, y):
