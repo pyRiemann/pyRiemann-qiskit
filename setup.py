@@ -42,7 +42,7 @@ setup(name='pyriemann-qiskit',
                         'qiskit-optimization==0.5.0',
                         'qiskit-aer==0.12.2',
                         'cvxpy==1.3.2',
-                        'scipy==1.10.1',
+                        'scipy==1.11.2',
                         'docplex>=2.21.207',
                         'firebase_admin==6.2.0',
                         'tqdm'
