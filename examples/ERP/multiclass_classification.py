@@ -44,9 +44,9 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 ###############################################################################
 # Decoding in tangent space with a quantum classifier
 
-#Our helper class QuantumClassifierWithDefaultRiemannianPipeline allows to
-#auto-configure the parameters of the pipelines.
-#Warning: these are not optimal parameters
+# Our helper class QuantumClassifierWithDefaultRiemannianPipeline allows to
+# auto-configure the parameters of the pipelines.
+# Warning: these are not optimal parameters
 
 # Piepeline 1
 quantum_svm = QuantumClassifierWithDefaultRiemannianPipeline(
@@ -85,7 +85,6 @@ disp = None
 
 # Compute results
 for idx in range(n_classifiers):
-    
     # Training and classification
     clf = classifiers[idx]
     clf.fit(X_train, y_train)
