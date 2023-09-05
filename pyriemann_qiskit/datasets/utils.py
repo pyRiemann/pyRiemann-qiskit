@@ -1,3 +1,6 @@
+"""
+Contains helper methods and classes to manage datasets.
+"""
 from warnings import warn
 import numpy as np
 
