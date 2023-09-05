@@ -1,5 +1,5 @@
 import pytest
-from conftest import BinaryTest, BinaryFVT
+from conftest import BinaryTest, BinaryFVT, MultiClassFVT, MultiClassTest
 import numpy as np
 from pyriemann.classification import TangentSpace
 from pyriemann.estimation import XdawnCovariances
@@ -73,19 +73,36 @@ class TestQSVMSplitClasses(BinaryTest):
 
     def additional_steps(self):
         # As fit method is not called here, classes_ is not set.
-        # so we need to provide the classes ourselves.
+        # We need to provide the classes ourselves.
         self.quantum_instance.classes_ = range(0, self.n_classes)
-        self.x_class1, self.x_class0 = self.quantum_instance._split_classes(
-            self.samples, self.labels
-        )
+        self.x_classes = self.quantum_instance._split_classes(self.samples, self.labels)
 
     def check(self):
-        assert np.shape(self.x_class1) == (self.class_len, self.n_features)
-        assert np.shape(self.x_class0) == (self.class_len, self.n_features)
+        for i in range(self.n_classes):
+            assert np.shape(self.x_classes[i]) == (self.class_len, self.n_features)
+
+
+class TestQSVMSplitClasses_MultiClass(MultiClassTest):
+    """Test _split_classes method of quantum classifiers (with 3 classes)"""
+
+    def get_params(self):
+        params = TestQSVMSplitClasses.get_params(self)
+        # This is a limitation of the get_separable_feats methods:
+        # we want to have a number of samples
+        # that can be divided by the number of classes
+        # (3 with MultiClassTest)
+        params["n_samples"] = 99
+        return params
+
+    def additional_steps(self):
+        return TestQSVMSplitClasses.additional_steps(self)
+
+    def check(self):
+        return TestQSVMSplitClasses.check(self)
 
 
 class TestClassicalSVM(BinaryFVT):
-    """Perform functional validation testing of Quantic SVM"""
+    """Tests the classic SVM version of Quantic SVM"""
 
     def get_params(self):
         quantum_instance = QuanticSVM(quantum=False, verbose=False)
@@ -106,8 +123,9 @@ class TestClassicalSVM(BinaryFVT):
 
 
 class TestQuanticSVM(TestClassicalSVM):
-    """Perform SVC on a simulated quantum computer.
-    This test can also be run on a real computer by providing a qAccountToken
+    """Tests the Quantum version of Quantic SVM.
+    It is executed on a simulated quantum computer.
+    This test can also be run on a real computer by providing a qAccountToken.
     To do so, you need to use your own token, by registering on:
     https://quantum-computing.ibm.com/
     Note that the "real quantum version" of this test may also take some time.
@@ -124,7 +142,7 @@ class TestQuanticSVM(TestClassicalSVM):
 
 
 class TestQuanticPegasosSVM(TestClassicalSVM):
-    """Same as TestQuanticSVM, expect it uses
+    """Same as TestQuanticSVM, except it uses
     PegasosQSVC instead of QSVC implementation.
     """
 
@@ -144,7 +162,7 @@ class TestQuanticVQC(BinaryFVT):
     def get_params(self):
         quantum_instance = QuanticVQC(verbose=False)
         # To achieve testing in a reasonnable amount of time,
-        # we will lower the size of the feature and the number of trials
+        # you need to reduce the number of features and the number of samples
         return {
             "n_samples": 6,
             "n_features": 4,
@@ -156,10 +174,24 @@ class TestQuanticVQC(BinaryFVT):
         # Considering the inputs, this probably make no sense to test accuracy.
         # Instead, we could consider this test as a canary test
         assert len(self.prediction) == len(self.labels)
+        # Check the number of classes is consistent
+        assert len(np.unique(self.prediction)) == len(np.unique(self.labels))
+
+
+class TestQuanticVQC_MultiClass(MultiClassFVT):
+    """Perform VQC on a simulated quantum computer
+    (multi-label classification)"""
+
+    def get_params(self):
+        # multi-inheritance pattern
+        return TestQuanticVQC.get_params(self)
+
+    def check(self):
+        TestQuanticVQC.check(self)
 
 
 class TestClassicalMDM(BinaryFVT):
-    """Test the classical version of MDM inside QuanticMDM wrapper."""
+    """Test the classical version of MDM using the QuanticMDM wrapper."""
 
     def get_params(self):
         quantum_instance = QuanticMDM(

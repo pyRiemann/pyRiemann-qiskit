@@ -1,3 +1,6 @@
+"""
+Contains helper methods and classes to manage the tests.
+"""
 import pytest
 import numpy as np
 from functools import partial
@@ -62,14 +65,14 @@ def _get_rand_feats(n_samples, n_features, rs):
     return rs.randn(n_samples, n_features)
 
 
-def _get_binary_feats(n_samples, n_features):
-    """Generate a balanced binary set of n_features-dimensional
-    samples for test purpose, containing either 0 or 1"""
-    n_classes = 2
+def _get_separable_feats(n_samples, n_features, n_classes):
+    """Generate a balanced set of n_features-dimensional
+    samples for test purpose, containing 0, 1, 2, ... n_classes as values"""
     class_len = n_samples // n_classes  # balanced set
-    samples_0 = np.zeros((class_len, n_features))
-    samples_1 = np.ones((class_len, n_features))
-    samples = np.concatenate((samples_0, samples_1), axis=0)
+    samples = []
+    for i in range(n_classes):
+        samples.append(np.zeros((class_len, n_features)) + i)
+    samples = np.concatenate(samples, axis=0)
     return samples
 
 
@@ -82,14 +85,13 @@ def get_dataset(rndstate):
     is returned.
     """
 
-    # Note: the n_classes parameters might be misleading as it is only
     # recognized by the _get_labels methods.
     def _get_dataset(n_samples, n_features, n_classes, type="bin"):
         if type == "rand":
             samples = _get_rand_feats(n_samples, n_features, rndstate)
             labels = _get_labels(n_samples, n_classes)
         elif type == "bin":
-            samples = _get_binary_feats(n_samples, n_features)
+            samples = _get_separable_feats(n_samples, n_features, n_classes)
             labels = _get_labels(n_samples, n_classes)
         elif type == "rand_cov":
             samples = make_covariances(n_samples, n_features, 0, return_params=False)
@@ -178,3 +180,15 @@ class BinaryFVT(BinaryTest):
         self.quantum_instance.fit(self.samples, self.labels)
         self.prediction = self.quantum_instance.predict(self.samples)
         print(self.labels, self.prediction)
+
+
+class MultiClassTest(BinaryTest):
+    def prepare(self, n_samples, n_features, quantum_instance, type):
+        super().prepare(n_samples, n_features, quantum_instance, type)
+        self.n_classes = 3
+        self.class_len = n_samples // self.n_classes
+
+
+class MultiClassFVT(MultiClassTest):
+    def additional_steps(self):
+        BinaryFVT.additional_steps(self)
