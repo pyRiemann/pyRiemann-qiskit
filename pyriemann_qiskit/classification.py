@@ -1,4 +1,9 @@
-"""Module for classification function."""
+"""
+Contains the base class for all quantum classifiers
+as well as several quantum classifiers than can run
+in several modes quantum/classical and simulated/real
+quantum computer.
+"""
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.svm import SVC
@@ -40,7 +45,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     Parameters
     ----------
     quantum : bool (default: True)
-        - If true will run on local or remote backend
+        - If true will run on local or remote quantum backend
         (depending on q_account_token value).
         - If false, will perform classical computing instead
     q_account_token : string (default:None)
