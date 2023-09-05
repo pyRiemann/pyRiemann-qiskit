@@ -6,7 +6,7 @@ Multiclass EEG classification with Quantum Pipeline
 This example demonstrate multiclass EEG classification with a quantum
 classifier.
 We will be comparing the performance of VQC vs Quantum SVM vs
-Classical SVM vs Quantum MDM vs MDM
+Classical SVM vs Quantum MDM vs MDM.
 """
 # Author: Gregoire Cattan
 # Modified from plot_classify_EEG_quantum_svm
@@ -38,25 +38,28 @@ print(__doc__)
 # Use MNE sample. The include_auditory parameter select 4 classes.
 X, y = get_mne_sample(n_trials=-1, include_auditory=True)
 
-# ...skipping the KFold validation parts (for the purpose of the demo only)
+# evaluation without k-fold cross-validation
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
 
 ###############################################################################
 # Decoding in tangent space with a quantum classifier
 
-# We will use the handler in the pipelines module
-# to auto-configure the parameters of the pipelines.
-# it might not be accurate, but this shows the general line.
+#Our helper class QuantumClassifierWithDefaultRiemannianPipeline allows to
+#auto-configure the parameters of the pipelines.
+#Warning: these are not optimal parameters
 
+# Piepeline 1
 quantum_svm = QuantumClassifierWithDefaultRiemannianPipeline(
     dim_red=PCA(n_components=5),
 )
 
+# Piepeline 2
 classical_svm = QuantumClassifierWithDefaultRiemannianPipeline(
     shots=None,  # 'None' forces classic SVM
     dim_red=PCA(n_components=5),
 )
 
+# Piepeline 3
 vqc = QuantumClassifierWithDefaultRiemannianPipeline(
     dim_red=PCA(n_components=5),
     # These parameters are specific to VQC.
@@ -65,8 +68,10 @@ vqc = QuantumClassifierWithDefaultRiemannianPipeline(
     two_local_reps=3,
 )
 
+# Piepeline 4
 quantum_mdm = QuantumMDMWithRiemannianPipeline()
 
+# Piepeline 5
 mdm = make_pipeline(ERPCovariances(estimator="lwf"), MDM())
 
 classifiers = [vqc, quantum_svm, classical_svm, quantum_mdm, mdm]
@@ -80,6 +85,8 @@ disp = None
 
 # Compute results
 for idx in range(n_classifiers):
+    
+    # Training and classification
     clf = classifiers[idx]
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
@@ -88,6 +95,7 @@ for idx in range(n_classifiers):
     acc = balanced_accuracy_score(y_test, y_pred)
     acc_str = "%0.2f" % acc
 
+    # Results visualization
     names = ["aud left", "aud right", "vis left", "vis right"]
     title = (
         ("VQC (" if idx == 0 else "Quantum SVM (" if idx == 1 else "Classical SVM (")
