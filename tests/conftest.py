@@ -1,3 +1,6 @@
+"""
+Contains helper methods and classes to manage the tests.
+"""
 import pytest
 import numpy as np
 from functools import partial
