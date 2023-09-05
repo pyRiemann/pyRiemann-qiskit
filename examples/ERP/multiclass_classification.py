@@ -3,10 +3,11 @@
 Multiclass EEG classification with Quantum Pipeline
 ====================================================================
 
-This example demonstrate multiclass EEG classification with a quantum
+This example demonstrates multiclass EEG classification with a quantum
 classifier.
 We will be comparing the performance of VQC vs Quantum SVM vs
 Classical SVM vs Quantum MDM vs MDM.
+Execution takes approximately 1h. 
 """
 # Author: Gregoire Cattan
 # Modified from plot_classify_EEG_quantum_svm
@@ -95,6 +96,8 @@ for idx in range(n_classifiers):
     acc_str = "%0.2f" % acc
 
     # Results visualization
+    # A confusion matrix is reported for each classifier. A perfectly performing
+    # classifier will have only its diagonal filled and the rest will be zeros.
     names = ["aud left", "aud right", "vis left", "vis right"]
     title = (
         ("VQC (" if idx == 0 else "Quantum SVM (" if idx == 1 else "Classical SVM (")
@@ -113,6 +116,7 @@ for idx in range(n_classifiers):
     if idx > 0:
         disp.ax_.set_ylabel("")
 
+# Display all the confusion matrices
 if disp:
     f.text(0.4, 0.1, "Predicted label", ha="left")
     plt.subplots_adjust(wspace=0.40, hspace=0.1)
