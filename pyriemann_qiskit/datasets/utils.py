@@ -98,12 +98,19 @@ def get_mne_sample(n_trials=10, include_auditory=False):
     return X, y
 
 
-def get_qiskit_dataset():
+def get_qiskit_dataset(n_trials=30):
     """Return qiskit dataset.
 
     Notes
     -----
     .. versionadded:: 0.0.1
+    .. versionchanged:: 0.1.0
+        Added `n_trials` parameter.
+
+    Parameters
+    ----------
+    n_trials : int (default:30)
+        Number of trials to return.
 
     Returns
     -------
@@ -117,10 +124,10 @@ def get_qiskit_dataset():
 
     feature_dim = 2
     X, _, _, _ = ad_hoc_data(
-        training_size=30, test_size=0, n=feature_dim, gap=0.3, plot_data=False
+        training_size=n_trials, test_size=0, n=feature_dim, gap=0.3, plot_data=False
     )
 
-    y = np.concatenate(([0] * 30, [1] * 30))
+    y = np.concatenate(([0] * n_trials, [1] * n_trials))
 
     return (X, y)
 
