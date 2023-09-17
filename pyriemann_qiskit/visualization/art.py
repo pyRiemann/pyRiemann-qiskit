@@ -1,8 +1,7 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 
-def weights_spiral(vqc, X, y, n_trainings=5):
+def weights_spiral(axe, vqc, X, y, n_trainings=5):
     """Artistic representation of vqc training.
 
     Display a spiral. Each "branch" of the spiral corresponds to a parameter inside VQC.
@@ -15,6 +14,8 @@ def weights_spiral(vqc, X, y, n_trainings=5):
 
     Parameters
     ----------
+    axe: Axe
+        Pointer to the matplotlib plot or subplot.
     vqc: QuanticVQC
         The instance of VQC to evaluate.
     X: ndarray, shape (n_samples, n_features)
@@ -70,6 +71,4 @@ def weights_spiral(vqc, X, y, n_trainings=5):
         xf = np.concatenate((x, x2[::-1]))
         yf = np.concatenate((y, y2[::-1]))
 
-        plt.fill(xf, yf)
-
-    plt.show()
+        axe.fill(xf, yf)

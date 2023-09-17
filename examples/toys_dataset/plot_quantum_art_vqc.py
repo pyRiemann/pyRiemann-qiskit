@@ -31,10 +31,15 @@ print(__doc__)
 
 ###############################################################################
 
-vqc = QuanticVQC(gen_var_form=gen_two_local(reps=1))
+fig, axes = plt.subplots(2)
+fig.suptitle('Vertically stacked subplots')
 
-X, y = get_qiskit_dataset(n_trials=2)
+vqc_low_param = QuanticVQC(gen_var_form=gen_two_local(reps=1))
+vqc = QuanticVQC(gen_var_form=gen_two_local(reps=2))
 
-weights_spiral(vqc, X, y)
+X, y = get_qiskit_dataset(n_samples=2)
+X2, y2 = get_linearly_separable_dataset(n_samples=2)
+
+weights_spiral(axes[0], vqc, X, y)
 
 # 2 datasets, 2 var form, 2-3 n_trials differents
