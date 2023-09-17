@@ -31,15 +31,33 @@ print(__doc__)
 
 ###############################################################################
 
-fig, axes = plt.subplots(2)
+fig, axes = plt.subplots(2, 3)
 fig.suptitle('Vertically stacked subplots')
 
 vqc_low_param = QuanticVQC(gen_var_form=gen_two_local(reps=1))
 vqc = QuanticVQC(gen_var_form=gen_two_local(reps=2))
 
 X, y = get_qiskit_dataset(n_samples=2)
-X2, y2 = get_linearly_separable_dataset(n_samples=2)
+X2, y2 = get_qiskit_dataset(n_samples=30)
 
-weights_spiral(axes[0], vqc, X, y)
+weights_spiral(axes[0, 0], vqc, X, y)
+axes[0, 0].set_title("High param, qiskit dataset, low samples")
+weights_spiral(axes[0, 1], vqc_low_param, X, y)
+axes[0, 1].set_title("Low param, qiskit dataset, low samples")
+weights_spiral(axes[0, 2], vqc, X2, y2)
+axes[0, 2].set_title("High param, qiskit dataset, high samples")
 
+
+X, y = get_linearly_separable_dataset(n_samples=2)
+X2, y2 = get_linearly_separable_dataset(n_samples=30)
+
+weights_spiral(axes[1, 0], vqc, X, y)
+axes[1, 0].set_title("High param, linear dataset, low samples")
+weights_spiral(axes[1, 1], vqc_low_param, X, y)
+axes[1, 1].set_title("Low param, linear dataset, low samples")
+weights_spiral(axes[1, 2], vqc, X2, y2)
+axes[1, 2].set_title("High param, linear dataset, high samples")
+
+
+plt.show()
 # 2 datasets, 2 var form, 2-3 n_trials differents
