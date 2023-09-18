@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 
+
 def weights_spiral(axe, vqc, X, y, n_trainings=5):
     """Artistic representation of vqc training.
 
@@ -24,7 +25,7 @@ def weights_spiral(axe, vqc, X, y, n_trainings=5):
     y: ndarray, shape (n_samples,)
         Predicted target vector relative to X.
     n_trainings: int (default: 5)
-        Number of trainings to run, in order to evaluate the variability of the 
+        Number of trainings to run, in order to evaluate the variability of the
         parameters' weights.
 
     Returns
@@ -48,7 +49,7 @@ def weights_spiral(axe, vqc, X, y, n_trainings=5):
 
     theta = np.arange(0, 8 * np.pi, 0.1)
     a = 1
-    b = .2
+    b = 0.2
 
     n_params = len(df.columns)
 
@@ -56,17 +57,16 @@ def weights_spiral(axe, vqc, X, y, n_trainings=5):
 
     # https://matplotlib.org/3.1.1/gallery/misc/fill_spiral.html
     for i in range(n_params):
-
-        dt = 2*np.pi / n_params * i
-        x = a*np.cos(theta + dt)*np.exp(b*theta)
-        y = a*np.sin(theta + dt)*np.exp(b*theta)
+        dt = 2 * np.pi / n_params * i
+        x = a * np.cos(theta + dt) * np.exp(b * theta)
+        y = a * np.sin(theta + dt) * np.exp(b * theta)
 
         var = df[i].var()
-        
-        dt = dt + (var / max_var) * np.pi/4.0
 
-        x2 = a*np.cos(theta + dt)*np.exp(b*theta)
-        y2 = a*np.sin(theta + dt)*np.exp(b*theta)
+        dt = dt + (var / max_var) * np.pi / 4.0
+
+        x2 = a * np.cos(theta + dt) * np.exp(b * theta)
+        y2 = a * np.sin(theta + dt) * np.exp(b * theta)
 
         xf = np.concatenate((x, x2[::-1]))
         yf = np.concatenate((y, y2[::-1]))

@@ -21,9 +21,9 @@ from pyriemann_qiskit.visualization import weights_spiral
 print(__doc__)
 
 ###############################################################################
-# In this example we will display weights variability of the parameter inside 
+# In this example we will display weights variability of the parameter inside
 # the variational quantum circuit which is used by VQC.
-# 
+#
 # The idea is simple :
 # - We initialize a VQC with different number of parameters and number of samples
 # - We train the VQC a couple of time and we store the fitted weights.
@@ -31,14 +31,13 @@ print(__doc__)
 
 # Let's start by defining some plot area.
 fig, axes = plt.subplots(2, 2)
-fig.suptitle('VQC weights variability')
+fig.suptitle("VQC weights variability")
 
 # We will compute weight variability for different number of samples
 for i, n_samples in enumerate([2, 20]):
     # ... and for differente number of parameters.
     # (n_reps controls the number of parameters inside the circuit)
     for j, n_reps in enumerate([1, 3]):
-
         # instanciate VQC.
         vqc = QuanticVQC(gen_var_form=gen_two_local(reps=n_reps))
 
@@ -53,12 +52,12 @@ for i, n_samples in enumerate([2, 20]):
         weights_spiral(axe, vqc, X, y, n_trainings=5)
         n_params = vqc.parameter_count
 
-        # Just improve display of the graphics. 
+        # Just improve display of the graphics.
         if j == 0:
             axe.set_ylabel(f"n_samples: {n_samples}")
         if i == 0:
             axe.set_xlabel(f"n_params: {n_params}")
-        axe.xaxis.set_label_position('top') 
+        axe.xaxis.set_label_position("top")
         axe.set_xticks(())
         axe.set_yticks(())
 
