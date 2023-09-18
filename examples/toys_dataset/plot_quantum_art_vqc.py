@@ -12,17 +12,9 @@ classifiers on toys datasets.
 # Modified for pyRiemann-qiskit by Gregoire Cattan
 # License: BSD 3 clause
 
-import pandas as pd
-import numpy as np
 from pyriemann_qiskit.utils.hyper_params_factory import gen_two_local
-import seaborn as sns
 import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.datasets import make_moons, make_circles
-from sklearn.svm import SVC
-from pyriemann_qiskit.datasets import get_linearly_separable_dataset, get_qiskit_dataset
+from pyriemann_qiskit.datasets import get_linearly_separable_dataset
 from pyriemann_qiskit.classification import QuanticVQC
 from pyriemann_qiskit.visualization import weights_spiral
 
@@ -31,33 +23,27 @@ print(__doc__)
 
 ###############################################################################
 
-fig, axes = plt.subplots(2, 3)
+fig, axes = plt.subplots(2, 2)
 fig.suptitle('Vertically stacked subplots')
 
 vqc_low_param = QuanticVQC(gen_var_form=gen_two_local(reps=1))
 vqc = QuanticVQC(gen_var_form=gen_two_local(reps=2))
 
-X, y = get_qiskit_dataset(n_samples=2)
-X2, y2 = get_qiskit_dataset(n_samples=30)
+for i, n_samples in enumerate([2, 3]):
+    for j, n_reps in enumerate([1, 2]):
+        vqc = QuanticVQC(gen_var_form=gen_two_local(reps=n_reps))
+        X, y = get_linearly_separable_dataset(n_samples=n_samples)
+        axe = axes[i, j]
+        
+        weights_spiral(axe, vqc, X, y)
+        n_params = vqc.parameter_count
+        if j == 0:
+            axe.set_ylabel(f"n_samples: {n_samples}")
+        if i == 0:
+            axe.set_xlabel(f"n_params: {n_params}")
+        axe.xaxis.set_label_position('top') 
+        axe.set_xticks(())
+        axe.set_yticks(())
 
-weights_spiral(axes[0, 0], vqc, X, y)
-axes[0, 0].set_title("High param, qiskit dataset, low samples")
-weights_spiral(axes[0, 1], vqc_low_param, X, y)
-axes[0, 1].set_title("Low param, qiskit dataset, low samples")
-weights_spiral(axes[0, 2], vqc, X2, y2)
-axes[0, 2].set_title("High param, qiskit dataset, high samples")
-
-
-X, y = get_linearly_separable_dataset(n_samples=2)
-X2, y2 = get_linearly_separable_dataset(n_samples=30)
-
-weights_spiral(axes[1, 0], vqc, X, y)
-axes[1, 0].set_title("High param, linear dataset, low samples")
-weights_spiral(axes[1, 1], vqc_low_param, X, y)
-axes[1, 1].set_title("Low param, linear dataset, low samples")
-weights_spiral(axes[1, 2], vqc, X2, y2)
-axes[1, 2].set_title("High param, linear dataset, high samples")
-
-
+plt.tight_layout()
 plt.show()
-# 2 datasets, 2 var form, 2-3 n_trials differents
