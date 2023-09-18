@@ -34,10 +34,10 @@ fig, axes = plt.subplots(2, 2)
 fig.suptitle('VQC weights variability')
 
 # We will compute weight variability for different number of samples
-for i, n_samples in enumerate([2, 5]):
+for i, n_samples in enumerate([2, 20]):
     # ... and for differente number of parameters.
     # (n_reps controls the number of parameters inside the circuit)
-    for j, n_reps in enumerate([1, 2]):
+    for j, n_reps in enumerate([1, 3]):
 
         # instanciate VQC.
         vqc = QuanticVQC(gen_var_form=gen_two_local(reps=n_reps))
