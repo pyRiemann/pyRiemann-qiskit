@@ -529,6 +529,24 @@ class QuanticVQC(QuanticClassifierBase):
         labels = self._predict(X)
         return self._map_indices_to_classes(labels)
 
+    @property
+    def parameter_count(self):
+        """Returns the number of parameters inside the variational circuit.
+        This is determined by the `gen_var_form` attribute of this instance.
+
+        Returns
+        -------
+        n_params : int
+            The number of parameters in the variational circuit.
+            Returns 0 if the instance is not fit yet.
+        """
+
+        if hasattr(self, "_classifier"):
+            return len(self._classifier.ansatz.parameters)
+
+        self._log("Instance not initialized. Parameter count is 0.")
+        return 0
+
 
 class QuanticMDM(QuanticClassifierBase):
 

@@ -98,12 +98,19 @@ def get_mne_sample(n_trials=10, include_auditory=False):
     return X, y
 
 
-def get_qiskit_dataset():
+def get_qiskit_dataset(n_samples=30):
     """Return qiskit dataset.
 
     Notes
     -----
     .. versionadded:: 0.0.1
+    .. versionchanged:: 0.1.0
+        Added `n_samples` parameter.
+
+    Parameters
+    ----------
+    n_samples : int (default: 30)
+        Number of trials to return.
 
     Returns
     -------
@@ -117,20 +124,27 @@ def get_qiskit_dataset():
 
     feature_dim = 2
     X, _, _, _ = ad_hoc_data(
-        training_size=30, test_size=0, n=feature_dim, gap=0.3, plot_data=False
+        training_size=n_samples, test_size=0, n=feature_dim, gap=0.3, plot_data=False
     )
 
-    y = np.concatenate(([0] * 30, [1] * 30))
+    y = np.concatenate(([0] * n_samples, [1] * n_samples))
 
     return (X, y)
 
 
-def get_linearly_separable_dataset():
+def get_linearly_separable_dataset(n_samples=100):
     """Return a linearly separable dataset.
 
     Notes
     -----
     .. versionadded:: 0.0.1
+    .. versionchanged:: 0.1.0
+        Added `n_samples` parameter.
+
+    Parameters
+    ----------
+    n_samples : int (default: 100)
+        Number of trials to return.
 
     Returns
     -------
@@ -142,6 +156,7 @@ def get_linearly_separable_dataset():
 
     """
     X, y = make_classification(
+        n_samples=n_samples,
         n_features=2,
         n_redundant=0,
         n_informative=2,
