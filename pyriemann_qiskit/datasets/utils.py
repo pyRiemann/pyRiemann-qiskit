@@ -141,7 +141,8 @@ def generate_linearly_separable_dataset(n_samples=100):
     .. versionadded:: 0.0.1
     .. versionchanged:: 0.1.0
         Added `n_samples` parameter.
-        Rename from `get_linearly_separable_dataset` to `generate_linearly_separable_dataset`.
+        Rename from `get_linearly_separable_dataset` to
+        `generate_linearly_separable_dataset`.
 
     Parameters
     ----------
