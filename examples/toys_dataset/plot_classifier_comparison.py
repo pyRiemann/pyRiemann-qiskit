@@ -19,7 +19,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.datasets import make_moons, make_circles
 from sklearn.svm import SVC
-from pyriemann_qiskit.datasets import get_linearly_separable_dataset, get_qiskit_dataset
+from pyriemann_qiskit.datasets import generate_linearly_separable_dataset, generate_qiskit_dataset
 from pyriemann_qiskit.classification import QuanticSVM
 
 # uncomment to run comparison with QuanticVQC (disabled for CI/CD)
@@ -51,8 +51,8 @@ classifiers = [
 datasets = [
     make_moons(noise=0.3, random_state=0),
     make_circles(noise=0.2, factor=0.5, random_state=1),
-    get_linearly_separable_dataset(),
-    get_qiskit_dataset(),
+    generate_linearly_separable_dataset(),
+    generate_qiskit_dataset(),
 ]
 
 figure = plt.figure(figsize=(15, 9))
