@@ -25,9 +25,9 @@ print(__doc__)
 # the variational quantum circuit which is used by VQC.
 #
 # The idea is simple :
-# - We initialize a VQC with different number of parameters and number of samples
-# - We train the VQC a couple of time and we store the fitted weights.
-# - We compute variability of the weight and display it in a fashion way.
+# - We initialize a VQC with different number of parameters and number of samples.
+# - We train the VQC a couple of times and we store the fitted weights.
+# - We compute variability of the weight and display it in a fashionable way.
 
 # Let's start by defining some plot area.
 fig, axes = plt.subplots(2, 2)
