@@ -13,7 +13,7 @@ classifier.
 
 from pyriemann_qiskit.utils.hyper_params_factory import gen_two_local
 import matplotlib.pyplot as plt
-from pyriemann_qiskit.datasets import get_linearly_separable_dataset
+from pyriemann_qiskit.datasets import generate_linearly_separable_dataset
 from pyriemann_qiskit.classification import QuanticVQC
 from pyriemann_qiskit.visualization import weights_spiral
 
@@ -25,9 +25,9 @@ print(__doc__)
 # the variational quantum circuit which is used by VQC.
 #
 # The idea is simple :
-# - We initialize a VQC with different number of parameters and number of samples
-# - We train the VQC a couple of time and we store the fitted weights.
-# - We compute variability of the weight and display it in a fashion way.
+# - We initialize a VQC with different number of parameters and number of samples.
+# - We train the VQC a couple of times and we store the fitted weights.
+# - We compute variability of the weight and display it in a fashionable way.
 
 # Let's start by defining some plot area.
 fig, axes = plt.subplots(2, 2)
@@ -42,7 +42,7 @@ for i, n_samples in enumerate([2, 20]):
         vqc = QuanticVQC(gen_var_form=gen_two_local(reps=n_reps))
 
         # Get data. We will use a toy dataset here.
-        X, y = get_linearly_separable_dataset(n_samples=n_samples)
+        X, y = generate_linearly_separable_dataset(n_samples=n_samples)
 
         # Compute and display weight variability after training
         axe = axes[i, j]

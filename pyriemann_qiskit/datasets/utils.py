@@ -98,7 +98,7 @@ def get_mne_sample(n_trials=10, include_auditory=False):
     return X, y
 
 
-def get_qiskit_dataset(n_samples=30):
+def generate_qiskit_dataset(n_samples=30):
     """Return qiskit dataset.
 
     Notes
@@ -106,6 +106,7 @@ def get_qiskit_dataset(n_samples=30):
     .. versionadded:: 0.0.1
     .. versionchanged:: 0.1.0
         Added `n_samples` parameter.
+        Rename from `get_qiskit_dataset` to `generate_qiskit_dataset`.
 
     Parameters
     ----------
@@ -132,7 +133,7 @@ def get_qiskit_dataset(n_samples=30):
     return (X, y)
 
 
-def get_linearly_separable_dataset(n_samples=100):
+def generate_linearly_separable_dataset(n_samples=100):
     """Return a linearly separable dataset.
 
     Notes
@@ -140,6 +141,8 @@ def get_linearly_separable_dataset(n_samples=100):
     .. versionadded:: 0.0.1
     .. versionchanged:: 0.1.0
         Added `n_samples` parameter.
+        Rename from `get_linearly_separable_dataset` to
+        `generate_linearly_separable_dataset`.
 
     Parameters
     ----------
