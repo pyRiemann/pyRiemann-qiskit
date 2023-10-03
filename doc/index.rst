@@ -27,7 +27,7 @@ pyRiemann-qiskit: Qiskit wrapper for pyRiemann
     <div style="clear: both"></div>
     <div class="container-fluid hidden-xs hidden-sm">
       <div class="row">
-       <a href="auto_examples/ERP/plot_classify_EEG_quantum.html">
+       <a href="auto_examples/ERP/plot_classify_EEG_quantum_svm.html">
          <div class="col-md-3 thumbnail">
            <img src="_images/sphx_glr_plot_classify_EEG_quantum_thumb.png">
          </div>
