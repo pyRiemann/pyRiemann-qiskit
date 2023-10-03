@@ -1,5 +1,5 @@
 import os.path as op
-import numpy
+import numpy as np
 
 from setuptools import setup, find_packages, Extension
 
@@ -30,7 +30,7 @@ setup(name='pyriemann-qiskit',
             'fastdtw._fastdtw',
             [os.path.join('fastdtw', '_fastdtw' + ext)],
             language="c++",
-            include_dirs=[numpy.get_include()], # AND ADDED numpy.get_include()
+            include_dirs=[np.get_include()], # AND ADDED numpy.get_include()
             libraries=["stdc++"]
       )],
       long_description=long_description,
