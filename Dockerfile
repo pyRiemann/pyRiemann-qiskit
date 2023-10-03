@@ -13,7 +13,7 @@ RUN apt-get -y install --fix-missing git-core
 RUN apt-get -y install build-essential
 
 RUN pip install urllib3==1.26.12
-RUN pip install numpy<1.24
+RUN pip install "numpy<1.24"
 RUN python setup.py develop
 RUN pip install .[docs]
 RUN pip install .[tests]
