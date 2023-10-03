@@ -1,4 +1,4 @@
-FROM python:3.9-slim-buster
+FROM python:3.8-slim-buster
 ADD pyriemann_qiskit /pyriemann_qiskit
 ADD examples /examples
 ADD setup.py /
@@ -13,7 +13,7 @@ RUN apt-get -y install --fix-missing git-core
 RUN apt-get -y install build-essential
 
 RUN pip install urllib3==1.26.12
-RUN python setup.py develop
+RUN pip install -e .
 RUN pip install .[docs]
 RUN pip install .[tests]
 
