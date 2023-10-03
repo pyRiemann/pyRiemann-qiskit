@@ -1,4 +1,4 @@
-FROM python:3.8-slim-buster
+FROM python:3.9-slim-buster
 ADD pyriemann_qiskit /pyriemann_qiskit
 ADD examples /examples
 ADD setup.py /
