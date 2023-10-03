@@ -32,7 +32,7 @@ setup(name='pyriemann-qiskit',
             language="c++",
             include_dirs=[numpy.get_include()], # AND ADDED numpy.get_include()
             libraries=["stdc++"]
-      )]
+      )],
       long_description=long_description,
       long_description_content_type='text/markdown',
       project_urls={
