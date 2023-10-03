@@ -1,6 +1,7 @@
 import os.path as op
+import numpy
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
 
 
 # get the version (don't import mne here, so dependencies are not needed)
@@ -24,6 +25,14 @@ setup(name='pyriemann-qiskit',
       author_email='gcattan@hotmail.com',
       license='BSD (3-clause)',
       packages=find_packages(),
+      # https://stackoverflow.com/questions/44994866/efficient-pairwise-dtw-calculation-using-numpy-or-cython
+      extensions = [Extension(
+            'fastdtw._fastdtw',
+            [os.path.join('fastdtw', '_fastdtw' + ext)],
+            language="c++",
+            include_dirs=[numpy.get_include()], # AND ADDED numpy.get_include()
+            libraries=["stdc++"]
+      )]
       long_description=long_description,
       long_description_content_type='text/markdown',
       project_urls={
