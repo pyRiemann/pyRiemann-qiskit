@@ -109,9 +109,9 @@ Or directly pip:
 pip install .
 ```
 
-Note that the steps above need to be re-executed in your local environment after
-any changes inside your local copy of the `pyriemann_qiskit` folder,
-including pulling from remote.
+Note that the steps above need to be re-executed in your local environment after any
+changes inside your local copy of the `pyriemann_qiskit` folder, including pulling from
+remote.
 
 To check the installation, open a python shell and type:
 
@@ -178,8 +178,8 @@ contributions:
 
 - [Raise an issue](https://github.com/pyRiemann/pyRiemann-qiskit/issues/new) on the
   repository. Issues can be either a bug report or an enhancement proposal. Note that it
-  is necessary to register on GitHub before. There is no special template that is
-  expected but, if you raise a defect please provide as many details as possible.
+  is necessary to register on GitHub before. There is no special template that is expected
+  but, if you raise a defect please provide as many details as possible.
 
 - [Raise a pull request](https://github.com/pyRiemann/pyRiemann-qiskit/compare). Fork the
   repository and work on your own branch. Then raise a pull request with your branch
