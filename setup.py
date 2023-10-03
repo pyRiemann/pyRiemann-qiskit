@@ -1,7 +1,9 @@
 import os.path as op
-import numpy as np
+from setuptools import setup, find_packages, Extension, dist
 
-from setuptools import setup, find_packages, Extension
+# fetch numpy before actual setup so we can install fastdtw
+# https://stackoverflow.com/questions/19919905/how-to-bootstrap-numpy-installation-in-setup-py
+dist.Distribution().fetch_build_eggs(['numpy<1.24'])
 
 
 # get the version (don't import mne here, so dependencies are not needed)
