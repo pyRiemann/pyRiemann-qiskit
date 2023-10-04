@@ -3,7 +3,7 @@
 Classification of P300 datasets from MOABB using Quantum MDM
 ====================================================================
 
-The mean and the distance in MDM algorithm are formualted as
+The mean and the distance in MDM algorithm are formulated as
 optimization problems. These optimization problems are translated
 to Qiskit using Docplex and additional glue code. These optimizations
 are enabled when we use convex mean or convex distance. This is set
@@ -13,6 +13,7 @@ Classification can be run either on emulation or real quantum computer.
 
 If you want to use GPU, you need to use qiskit-aer-gpu that will replace
 qiskit-aer. It is only available on Linux.
+
 pip install qiskit-aer-gpu
 
 pip install moabb==0.5.0

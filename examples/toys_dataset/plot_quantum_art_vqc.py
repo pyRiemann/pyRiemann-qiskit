@@ -24,7 +24,8 @@ print(__doc__)
 # In this example we will display weights variability of the parameter inside
 # the variational quantum circuit which is used by VQC.
 #
-# The idea is simple :
+# The idea is simple:
+#
 # - We initialize a VQC with different number of parameters and number of samples.
 # - We train the VQC a couple of times and we store the fitted weights.
 # - We compute variability of the weight and display it in a fashionable way.

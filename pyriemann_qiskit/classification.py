@@ -244,7 +244,7 @@ class QuanticSVM(QuanticClassifierBase):
     -----
     .. versionadded:: 0.0.1
     .. versionchanged:: 0.0.2
-       Qiskit's Pegasos implementation [4, 5]_.
+       Qiskit's Pegasos implementation [4]_, [5]_.
     .. versionchanged:: 0.1.0
        Fix: copy estimator not keeping base class parameters.
 
@@ -408,14 +408,14 @@ class QuanticVQC(QuanticClassifierBase):
     ----------
     optimizer : Optimizer (default:SPSA)
         The classical optimizer to use.
-        See [3] for details.
+        See [3]_ for details.
     gen_var_form : Callable[int, QuantumCircuit | VariationalForm] \
                    (default: Callable[int, TwoLocal])
         Function generating a variational form instance.
     quantum : bool (default: True)
         - If true will run on local or remote backend
-        (depending on q_account_token value).
-        - If false, will perform classical computing instead
+          (depending on q_account_token value).
+        - If false, will perform classical computing instead.
     q_account_token : string (default:None)
         If quantum==True and q_account_token provided,
         the classification task will be running on a IBM quantum backend.
@@ -552,11 +552,10 @@ class QuanticMDM(QuanticClassifierBase):
 
     """Quantum-enhanced MDM
 
-    # This class is a convex implementation of the MDM [1]_,
-    # that can runs with quantum optimization.
-    # Only log-euclidian distance between trial and class prototypes
-    # is supported at the moment, but any type of metric
-    # can be used for centroid estimation.
+    This class is a convex implementation of the MDM [1]_,
+    that can runs with quantum optimization.
+    Only log-euclidian distance between trial and class prototypes is supported
+    at the moment, but any type of metric can be used for centroid estimation.
 
     Notes
     -----
@@ -577,7 +576,7 @@ class QuanticMDM(QuanticClassifierBase):
     quantum : bool (default: True)
         Only applies if `metric` contains a convex distance or mean.
         - If true will run on local or remote backend
-        (depending on q_account_token value).
+          (depending on q_account_token value).
         - If false, will perform classical computing instead
     q_account_token : string (default:None)
         If quantum==True and q_account_token provided,

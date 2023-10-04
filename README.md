@@ -103,6 +103,16 @@ package on your local machine using the `setup.py` script:
 python setup.py develop
 ```
 
+Or directly pip:
+
+```
+pip install .
+```
+
+Note that the steps above need to be re-executed in your local environment after any
+changes inside your local copy of the `pyriemann_qiskit` folder, including pulling from
+remote.
+
 To check the installation, open a python shell and type:
 
 ```
@@ -163,24 +173,24 @@ They are pushed to the docker registry on each release.
 
 ## Contributor Guidelines
 
-Everyone is welcomed to contribute to this repository. There are two types of
+Everyone is welcome to contribute to this repository. There are two types of
 contributions:
 
 - [Raise an issue](https://github.com/pyRiemann/pyRiemann-qiskit/issues/new) on the
   repository. Issues can be either a bug report or an enhancement proposal. Note that it
-  is necessary to register on GitHub before. There is no special template which is
-  expected but, if you raise a defect please provide as much details as possible.
+  is necessary to register on GitHub before. There is no special template that is expected
+  but, if you raise a defect please provide as many details as possible.
 
 - [Raise a pull request](https://github.com/pyRiemann/pyRiemann-qiskit/compare). Fork the
   repository and work on your own branch. Then raise a pull request with your branch
   against master. As much as possible, we ask you to:
   - avoid merging master into your branch. Always prefer git rebase.
-  - always provide full documentation of public method.
+  - always provide full documentation of public methods.
 
 Code contribution (pull request) can be either on core functionalities, documentation or
 automation.
 
-- The core functionalies are based on `Python`,
+- The core functionalities are based on `Python`,
   [pyRiemann](https://github.com/pyRiemann/pyRiemann),
   [Qiskit ML](https://github.com/Qiskit/qiskit-machine-learning) and follow the best
   practice from [scikit-learn](https://scikit-learn.org/stable/index.html). We use
@@ -209,9 +219,9 @@ automation.
   pytest tests/test_classification.py
   ```
 
-  Workflows are automatically triggered when you push a commit. However, the worflow for
+  Workflows are automatically triggered when you push a commit. However, the workflow for
   example execution is only triggered when you modify one of the examples or the
-  documentation as the execution take a lot of time. You can enable
+  documentation as the execution takes a lot of time. You can enable
   [Github Actions](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository)
   in your fork to see the result of the CI pipeline. Results are also indicated at the end
   of your pull request when raised. However note, that workflows in the pull request need
