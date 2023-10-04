@@ -1,27 +1,23 @@
 """Module for mathematical helpers"""
 
-import numpy as np
+from pyriemann.utils.covariance import normalize
 
 
 def cov_to_corr_matrix(covmat):
-    """Convert a covariance matrix to a correlation matrix.
+    """Convert covariance matrices to correlation matrices.
 
     Parameters
     ----------
-    covmat: ndarray, shape (n_channels, n_channels)
-        A covariance matrix.
+    covmat: ndarray, shape (..., n_channels, n_channels)
+        Covariance matrices.
 
     Returns
     -------
-    corrmat : ndarray, shape (n_channels, n_channels)
-        The correlation matrix.
+    corrmat : ndarray, shape (..., n_channels, n_channels)
+        Correlation matrices.
 
     Notes
     -----
     .. versionadded:: 0.0.2
     """
-    v = np.sqrt(np.diag(covmat))
-    outer_v = np.outer(v, v)
-    correlation = covmat / outer_v
-    correlation[covmat == 0] = 0
-    return correlation
+    return normalize(covmat, "corr")
