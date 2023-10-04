@@ -20,4 +20,4 @@ def cov_to_corr_matrix(covmat):
     -----
     .. versionadded:: 0.0.2
     """
-    return normalize(covmat, 'corr')
+    return normalize(covmat, "corr")
