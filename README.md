@@ -59,21 +59,22 @@ information.
 
 [1] A. Blance and M. Spannowsky, ‘Quantum machine learning for particle physics using a
 variational quantum classifier’, J. High Energ. Phys., vol. 2021, no. 2, p. 212, Feb.
-2021, doi: 10.1007/JHEP02(2021)212.
+2021, https://doi.org/10.1007/JHEP02(2021)212
 
 [2] P. Rebentrost, M. Mohseni, and S. Lloyd, ‘Quantum Support Vector Machine for Big Data
-Classification’, Phys. Rev. Lett., vol. 113, no. 13, p. 130503, Sep. 2014, doi:
-10.1103/PhysRevLett.113.130503.
+Classification’, Phys. Rev. Lett., vol. 113, no. 13, p. 130503, Sep. 2014,
+https://doi.org/10.1103/PhysRevLett.113.130503
 
 [3] H. Abraham et al., Qiskit: An Open-source Framework for Quantum Computing.
-Zenodo, 2019. doi: 10.5281/zenodo.2562110.
+Zenodo, 2019, https://doi.org/10.5281/zenodo.2562110.
 
 [4] V. Havlíček et al., ‘Supervised learning with quantum-enhanced feature spaces’,
-Nature, vol. 567, no. 7747, pp. 209–212, Mar. 2019, doi: 10.1038/s41586-019-0980-2.
+Nature, vol. 567, no. 7747, pp. 209–212, Mar. 2019,
+https://doi.org/10.1038/s41586-019-0980-2
 
 [5] G. Cattan, A. Andreev, First steps to the classification of ERPs using quantum
 computation, NTB Berlin 2022 - International Forum on Neural Engineering & Brain
-Technologies, May 2022, Berlin, Germany, hal:
+Technologies, May 2022, Berlin, Germany,
 https://hal.archives-ouvertes.fr/hal-03672246/
 
 ### How to cite?
