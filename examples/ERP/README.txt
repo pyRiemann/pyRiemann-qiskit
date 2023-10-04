@@ -1,4 +1,4 @@
 Classification of ERP
 ---------------------
 
-Event related potential classification with quantum algorithm and Riemannian geometry.
+Event related potential classification with quantum algorithms and Riemannian geometry.
