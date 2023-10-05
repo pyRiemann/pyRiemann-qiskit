@@ -7,11 +7,11 @@ from pyriemann.estimation import Shrinkage
 def fro_mean_convex(
     covmats, sample_weight=None, optimizer=ClassicalOptimizer(), shrink=True
 ):
-    """Convex formulation of the mean
-    with frobenius distance.
+    """Convex formulation of the mean with Frobenius distance.
+
     Parameters
     ----------
-    covmats: ndarray, shape (n_classes, n_channels, n_channels)
+    covmats: ndarray, shape (n_matrices, n_channels, n_channels)
         Set of SPD matrices.
     sample_weights:  None | ndarray, shape (n_matrices,), default=None
         Weights for each matrix. Never used in practice.
@@ -25,7 +25,7 @@ def fro_mean_convex(
     Returns
     -------
     mean : ndarray, shape (n_channels, n_channels)
-        Convex-optimized forbenius mean.
+        Convex-optimized Frobenius mean.
 
     Notes
     -----
