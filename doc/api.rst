@@ -28,7 +28,10 @@ Pipelines
     :toctree: generated/
     :template: class.rst
 
+    BasePipeline
     QuantumClassifierWithDefaultRiemannianPipeline
+    QuantumMDMWithRiemannianPipeline
+    QuantumMDMVotingClassifier
 
 
 Utils function
