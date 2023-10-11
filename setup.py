@@ -34,7 +34,7 @@ setup(name='pyriemann-qiskit',
       platforms='any',
       python_requires=">=3.9",
       install_requires=[
-                        'numpy<1.24',
+                        'numpy<1.27',
                         'cython',
                         'pyriemann==0.5',
                         'qiskit_machine_learning==0.6.1',
