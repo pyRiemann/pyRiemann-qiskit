@@ -88,7 +88,7 @@ https://doi.org/10.3897/rio.9.e101006.
 _We recommend the use of [Anaconda](https://www.anaconda.com/) to manage python
 environements._
 
-`pyRiemann-qiskit` currently supports Windows, Mac and Linux OS with Python 3.8 and 3.9.
+`pyRiemann-qiskit` currently supports Windows, Mac and Linux OS with Python 3.9 - 3.11.
 
 You can install `pyRiemann-qiskit` release from PyPI:
 
@@ -249,7 +249,7 @@ In some environment, the firebase admin module is not loaded. There is two reaso
    it manually as it is done in the DockerFile:
 
 ```
-touch /usr/local/lib/python3.8/site-packages/protobuf-4.22.1-py3.8-linux-x86_64.egg/google/__init__.py
+touch /usr/local/lib/python3.9/site-packages/protobuf-4.24.4-py3.9.egg/google/__init__.py
 ```
 
 2. The Firestore service contains unused dependency to `google.cloud.location`. You can
@@ -257,10 +257,10 @@ touch /usr/local/lib/python3.8/site-packages/protobuf-4.22.1-py3.8-linux-x86_64.
    too:
 
 ```
-sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.8/site-packages/google_cloud_firestore-2.10.1-py3.8.egg/google/cloud/firestore_v1/services/firestore/client.py'
-sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.8/site-packages/google_cloud_firestore-2.10.1-py3.8.egg/google/cloud/firestore_v1/services/firestore/transports/base.py'
-sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.8/site-packages/google_cloud_firestore-2.10.1-py3.8.egg/google/cloud/firestore_v1/services/firestore/transports/grpc.py'
-sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.8/site-packages/google_cloud_firestore-2.10.1-py3.8.egg/google/cloud/firestore_v1/services/firestore/transports/grpc_asyncio.py'
-sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.8/site-packages/google_cloud_firestore-2.10.1-py3.8.egg/google/cloud/firestore_v1/services/firestore/transports/rest.py'
-sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.8/site-packages/google_cloud_firestore-2.10.1-py3.8.egg/google/cloud/firestore_v1/services/firestore/async_client.py'
+sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.9/site-packages/google_cloud_firestore-2.12.0-py3.9.egg/google/cloud/firestore_v1/services/firestore/client.py'
+sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.9/site-packages/google_cloud_firestore-2.12.0-py3.9.egg/google/cloud/firestore_v1/services/firestore/transports/base.py'
+sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.9/site-packages/google_cloud_firestore-2.12.0-py3.9.egg/google/cloud/firestore_v1/services/firestore/transports/grpc.py'
+sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.9/site-packages/google_cloud_firestore-2.12.0-py3.9.egg/google/cloud/firestore_v1/services/firestore/transports/grpc_asyncio.py'
+sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.9/site-packages/google_cloud_firestore-2.12.0-py3.9.egg/google/cloud/firestore_v1/services/firestore/transports/rest.py'
+sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.9/site-packages/google_cloud_firestore-2.12.0-py3.9.egg/google/cloud/firestore_v1/services/firestore/async_client.py'
 ```

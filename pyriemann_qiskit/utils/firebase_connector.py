@@ -14,8 +14,8 @@ from .firebase_cert import certificate
 
 
 class FirebaseConnector:
-    """
-    A connector to Firebase.
+    """A connector to Firebase.
+
     It gets/adds data to Firestore.
     (noSql database).
 
@@ -138,9 +138,9 @@ class FirebaseConnector:
 
     @property
     def datasets(self):
-        """
-        Get the data from Firestore
-        (or the mock data if provided).
+        """Get the data from Firestore.
+
+        Get the data from Firestore (or the mock data if provided).
         Data are readonly.
 
         Format of the data is as follows:
@@ -159,10 +159,9 @@ class FirebaseConnector:
 
 
 class Cache:
-    """
-    Layer of abstraction over FirebaseConnector.
-    It facilitates adding/removing data
-    for a particular dataset and pipeline.
+    """Layer of abstraction over FirebaseConnector.
+
+    It facilitates adding/removing data for a particular dataset and pipeline.
 
     Parameters
     ----------
@@ -192,16 +191,16 @@ class Cache:
         return self._connector.datasets[self._dataset_name][subject][key]
 
     def add(self, subject, true_labels, predicted_labels):
-        """
-        Add the prediction of the pipeline to the dataset.
+        """Add the prediction of the pipeline to the dataset.
 
         Parameters
         ----------
         subject: int|str
             The subject whom data were used for prediction.
-        true_labels: List
+        true_labels: list
             The true labels
-        predicted_labels: The predicted labels
+        predicted_labels: list
+            The predicted labels
 
         See Also
         --------

@@ -31,32 +31,32 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     """Quantum classification.
 
-    This class implements a SKLearn wrapper around Qiskit library [1]_.
+    This class implements a scikit-learn wrapper around Qiskit library [1]_.
     It provides a mean to run classification tasks on a local and
     simulated quantum computer or a remote and real quantum computer.
     Difference between simulated and real quantum computer will be that:
 
     * there is no noise on a simulated quantum computer
-      (so results are better)
-    * a real quantum computer is quicker than a quantum simulator
+      (so results are better),
+    * a real quantum computer is quicker than a quantum simulator,
     * tasks on a real quantum computer are assigned to a queue
-      before being executed on a back-end (delayed execution)
+      before being executed on a back-end (delayed execution).
 
     Parameters
     ----------
     quantum : bool (default: True)
         - If true will run on local or remote quantum backend
-        (depending on q_account_token value).
-        - If false, will perform classical computing instead
+          (depending on q_account_token value),
+        - If false, will perform classical computing instead.
     q_account_token : string (default:None)
         If quantum==True and q_account_token provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
         token saved with `IBMProvider.save_account()`.
     verbose : bool (default:True)
-        If true will output all intermediate results and logs
+        If true will output all intermediate results and logs.
     shots : int (default:1024)
-        Number of repetitions of each circuit, for sampling
+        Number of repetitions of each circuit, for sampling.
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
                       (default : Callable[int, ZZFeatureMap])
         Function generating a feature map to encode data into a quantum state.
@@ -259,7 +259,7 @@ class QuanticSVM(QuanticClassifierBase):
         Note, if pegasos is enabled you may want to consider
         larger values of C.
     max_iter: int | None (default: None)
-        number of steps in Pegasos or (Q)SVC.
+        Number of steps in Pegasos or (Q)SVC.
         If None, respective default values for Pegasos and SVC
         are used. The default value for Pegasos is 1000.
         For (Q)SVC it is -1 (that is not limit).
@@ -267,17 +267,17 @@ class QuanticSVM(QuanticClassifierBase):
         If true, uses Qiskit's PegasosQSVC instead of QSVC.
     quantum : bool (default: True)
         - If true will run on local or remote backend
-        (depending on q_account_token value).
-        - If false, will perform classical computing instead
+          (depending on q_account_token value),
+        - If false, will perform classical computing instead.
     q_account_token : string (default:None)
         If quantum==True and q_account_token provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
         token saved with `IBMProvider.save_account()`.
     verbose : bool (default:True)
-        If true will output all intermediate results and logs
+        If true will output all intermediate results and logs.
     shots : int (default:1024)
-        Number of repetitions of each circuit, for sampling
+        Number of repetitions of each circuit, for sampling.
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
                       (default : Callable[int, ZZFeatureMap])
         Function generating a feature map to encode data into a quantum state.
@@ -355,10 +355,12 @@ class QuanticSVM(QuanticClassifierBase):
         return classifier
 
     def predict_proba(self, X):
-        """This method is implemented for compatibility purpose
-           as SVM prediction probabilities are not available.
-           This method assigns a boolean value to each trial which
-           depends on whether the label was assigned to class 0 or 1
+        """Return the probabilities associated with predictions.
+
+        This method is implemented for compatibility purpose
+        as SVM prediction probabilities are not available.
+        This method assigns a boolean value to each trial which
+        depends on whether the label was assigned to class 0 or 1
 
         Parameters
         ----------
@@ -576,17 +578,17 @@ class QuanticMDM(QuanticClassifierBase):
     quantum : bool (default: True)
         Only applies if `metric` contains a convex distance or mean.
         - If true will run on local or remote backend
-          (depending on q_account_token value).
-        - If false, will perform classical computing instead
+          (depending on q_account_token value),
+        - If false, will perform classical computing instead.
     q_account_token : string (default:None)
         If quantum==True and q_account_token provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
         token saved with `IBMProvider.save_account()`.
     verbose : bool (default:True)
-        If true will output all intermediate results and logs
+        If true will output all intermediate results and logs.
     shots : int (default:1024)
-        Number of repetitions of each circuit, for sampling
+        Number of repetitions of each circuit, for sampling.
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
                       (default : Callable[int, ZZFeatureMap])
         Function generating a feature map to encode data into a quantum state.
