@@ -18,7 +18,7 @@ from pyriemann_qiskit.classification import QuanticVQC, QuanticSVM, QuanticMDM
 
 class BasePipeline(BaseEstimator, ClassifierMixin, TransformerMixin):
 
-    """Base class for quantum classifiers with riemannian pipeline.
+    """Base class for quantum classifiers with Riemannian pipeline.
 
     Parameters
     ----------
@@ -150,8 +150,6 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
     Data are entangled using a ZZFeatureMap. A SPSA optimizer and a two-local
     circuits are used in addition when the VQC is selected.
 
-
-
     Parameters
     ----------
     nfilter : int (default: 1)
@@ -181,7 +179,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
         Specifies the entanglement structure for the ZZFeatureMap.
         Entanglement structure can be provided with indices or string.
         Possible string values are: 'full', 'linear', 'circular' and 'sca'.
-        Consult [2]_ for more details on entanglement structure.
+        See [2]_ for more details on entanglement structure.
     feature_reps : int (default: 2)
         The number of repeated circuits for the ZZFeatureMap,
         greater or equal to 1.
@@ -193,7 +191,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
         The number of repetition for the two-local cricuit.
         VQC is only enabled if spsa_trials and two_local_reps are not None.
         For VQC, you can use 3 as a default.
-    params: Dict (default: {})
+    params: dict (default: {})
         Additional parameters to pass to the nested instance
         of the quantum classifier.
         See QuanticClassifierBase, QuanticVQC and QuanticSVM for
@@ -293,32 +291,33 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
 
 class QuantumMDMWithRiemannianPipeline(BasePipeline):
 
-    """MDM with riemannian pipeline adapted for convex metrics.
-    It can run on classical or quantum optimizer.
+    """MDM with Riemannian pipeline adapted for convex metrics.
 
+    It can run on classical or quantum optimizer.
 
     Parameters
     ----------
     convex_metric : string (default: "distance")
         `metric` passed to the inner QuanticMDM depends on the
         `convex_metric` as follows (convex_metric => metric):
-        - "distance" => {mean=logeuclid, distance=convex}
-        - "mean" => {mean=convex, distance=euclid}
-        - "both" => {mean=convex, distance=convex}
-        - other => same as "distance"
+
+        - "distance" => {mean=logeuclid, distance=convex},
+        - "mean" => {mean=convex, distance=euclid},
+        - "both" => {mean=convex, distance=convex},
+        - other => same as "distance".
     quantum : bool (default: True)
         - If true will run on local or remote backend
-        (depending on q_account_token value).
-        - If false, will perform classical computing instead
+          (depending on q_account_token value),
+        - If false, will perform classical computing instead.
     q_account_token : string (default:None)
         If quantum==True and q_account_token provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
         token saved with `IBMProvider.save_account()`.
     verbose : bool (default:True)
-        If true will output all intermediate results and logs
+        If true will output all intermediate results and logs.
     shots : int (default:1024)
-        Number of repetitions of each circuit, for sampling
+        Number of repetitions of each circuit, for sampling.
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
                       (default : Callable[int, ZZFeatureMap])
         Function generating a feature map to encode data into a quantum state.
@@ -391,26 +390,29 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
 
 class QuantumMDMVotingClassifier(BasePipeline):
 
-    """Voting classifier with two configuration of
-    QuantumMDMWithRiemannianPipeline :
-    - with mean = convex and distance = euclid
-    - with mean = logeuclid and distance = convex
+    """Voting classifier with two QuantumMDMWithRiemannianPipeline
+
+    Voting classifier with two configurations of
+    QuantumMDMWithRiemannianPipeline:
+
+    - with mean = convex and distance = euclid,
+    - with mean = logeuclid and distance = convex.
 
     Parameters
     ----------
     quantum : bool (default: True)
         - If true will run on local or remote backend
-        (depending on q_account_token value).
-        - If false, will perform classical computing instead
+          (depending on q_account_token value),
+        - If false, will perform classical computing instead.
     q_account_token : string (default:None)
         If quantum==True and q_account_token provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
         token saved with `IBMProvider.save_account()`.
     verbose : bool (default:True)
-        If true will output all intermediate results and logs
+        If true will output all intermediate results and logs.
     shots : int (default:1024)
-        Number of repetitions of each circuit, for sampling
+        Number of repetitions of each circuit, for sampling.
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
                       (default : Callable[int, ZZFeatureMap])
         Function generating a feature map to encode data into a quantum state.

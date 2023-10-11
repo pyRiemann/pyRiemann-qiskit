@@ -23,7 +23,9 @@ def get_provider():
 
 
 def get_simulator():
-    """Return a quantum simulator,
+    """Return a quantum simulator.
+
+    Return a quantum simulator,
     supporting GPU and NVIDIA's cuQuantum optimization
     (if enabled).
 
@@ -45,9 +47,11 @@ def get_simulator():
 
 
 def get_devices(provider, min_qubits):
-    """Returns all real remote quantum backends,
+    """Returns all real remote quantum backends.
+
+    Returns all real remote quantum backends,
     available with the account token and having at least
-    `min_qubits`
+    `min_qubits`.
 
     Parameters
     ----------

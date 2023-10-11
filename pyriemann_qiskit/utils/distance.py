@@ -7,8 +7,7 @@ from pyriemann.utils.base import logm
 
 
 def logeucl_dist_convex(X, y, optimizer=ClassicalOptimizer()):
-    """Convex formulation of the MDM algorithm
-    with log-euclidian metric.
+    """Convex formulation of the MDM algorithm with log-Euclidean metric.
 
     Parameters
     ----------
