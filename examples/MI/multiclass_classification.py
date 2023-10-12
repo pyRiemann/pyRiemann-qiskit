@@ -49,18 +49,18 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 # auto-configure the parameters of the pipelines.
 # Warning: these are not optimal parameters
 
-# Piepeline 1
+# Pipeline 1
 quantum_svm = QuantumClassifierWithDefaultRiemannianPipeline(
     dim_red=PCA(n_components=5),
 )
 
-# Piepeline 2
+# Pipeline 2
 classical_svm = QuantumClassifierWithDefaultRiemannianPipeline(
     shots=None,  # 'None' forces classic SVM
     dim_red=PCA(n_components=5),
 )
 
-# Piepeline 3
+# Pipeline 3
 vqc = QuantumClassifierWithDefaultRiemannianPipeline(
     dim_red=PCA(n_components=5),
     # These parameters are specific to VQC.
@@ -69,10 +69,10 @@ vqc = QuantumClassifierWithDefaultRiemannianPipeline(
     two_local_reps=3,
 )
 
-# Piepeline 4
+# Pipeline 4
 quantum_mdm = QuantumMDMWithRiemannianPipeline()
 
-# Piepeline 5
+# Pipeline 5
 mdm = make_pipeline(ERPCovariances(estimator="lwf"), MDM())
 
 classifiers = [vqc, quantum_svm, classical_svm, quantum_mdm, mdm]
