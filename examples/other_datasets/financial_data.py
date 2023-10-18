@@ -19,7 +19,6 @@ from pyriemann.preprocessing import Whitening
 from pyriemann.estimation import XdawnCovariances
 from pyriemann_qiskit.classification import QuanticSVM
 import warnings
-import seaborn as sns
 import pandas as pd
 import numpy as np
 
@@ -93,9 +92,9 @@ class ToEpochs(TransformerMixin, BaseEstimator):
 
 def slim(x, keep_diagonal=True):
     # Vectorize covariance matrices by removing redundant information.
-    l = len(x) // 2
-    first = range(0, l)
-    last = range(len(x) - l, len(x))
+    length = len(x) // 2
+    first = range(0, length)
+    last = range(len(x) - length, len(x))
     down_cadrans = x[np.ix_(last, last)]
     if keep_diagonal:
         down_cadrans = [down_cadrans[i, j] for i in first for j in first if i <= j]
