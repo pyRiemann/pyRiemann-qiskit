@@ -199,9 +199,8 @@ print(epochs[0])
 
 # ...and the "ERP"
 # (see https://pyriemann.readthedocs.io/en/latest/auto_examples/ERP/plot_ERP.html)
-plot_waveforms(epochs, 'hist')
+plot_waveforms(epochs, "hist")
 plt.show()
-
 
 
 # Let's fit our GridSearchCV, to find the best hyper parameters:
