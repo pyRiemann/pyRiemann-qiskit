@@ -22,6 +22,7 @@ from sklearn.base import TransformerMixin, BaseEstimator
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from imblearn.under_sampling import NearMiss
 from pyriemann.preprocessing import Whitening
@@ -81,6 +82,8 @@ features["IP_TERMINAL"] = features["IP_TERMINAL"].astype("category").cat.codes
 # of the `ToEpochs` transformer (see below)
 features["index"] = features.index
 
+# Apply a StandardScaler to the feature
+features_scaled = StandardScaler().fit_transform(features.to_numpy())
 
 ##############################################################################
 # Pipeline for binary classification
@@ -185,9 +188,9 @@ gs = GridSearchCV(
 # Note: at this stage `features` also contains the `index` column.
 # So `NearMiss` we choose the closest 200 non-fraud epochs to the 200 fraud-epochs
 # based also on this `index` column. This should be improved for real use cases.
-X, y = NearMiss().fit_resample(features.to_numpy(), target.to_numpy())
+X, y = NearMiss().fit_resample(features_scaled, target.to_numpy())
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 labels, counts = np.unique(y_train, return_counts=True)
 print(f"Training set shape: {X_train.shape}, genuine: {counts[0]}, frauds: {counts[1]}")
@@ -195,13 +198,9 @@ print(f"Training set shape: {X_train.shape}, genuine: {counts[0]}, frauds: {coun
 labels, counts = np.unique(y_test, return_counts=True)
 print(f"Testing set shape: {X_test.shape}, genuine: {counts[0]}, frauds: {counts[1]}")
 
-# before fitting the GridSearchCV, let's display a sample of the epochs:
+# before fitting the GridSearchCV, let's display the "ERP" (see [3]_)
 epochs = ToEpochs(n=10).transform(X_train)
-print("Profile of an epoch:")
-print(epochs[0])
 
-# ...and the "ERP"
-# (see https://pyriemann.readthedocs.io/en/latest/auto_examples/ERP/plot_ERP.html)
 plot_waveforms(epochs, "hist")
 plt.show()
 
@@ -213,8 +212,9 @@ plt.show()
 # Let's fit our GridSearchCV, to find the best hyper parameters
 gs.fit(X_train, y_train)
 
-# Print cross-validation results
-print(gs.cv_results_)
+# Print best parameters
+print("Best parameters are:")
+print(gs.best_params_)
 
 # This is the best score with the classical SVM.
 # (with this train/test split at least)
@@ -234,5 +234,8 @@ print(f"Classical: {score_svm} \nQuantum  : {score_qsvm}")
 # ----------
 # .. [1] 'SUSPICIOUS ACTIVITY DETECTION USING QUANTUM COMPUTER',
 #         Patent application number: 18/380799
-# .. [2]  'Synthetic Data of Transactions for Inmediate Loans Fraud'
+# .. [2] 'Synthetic Data of Transactions for Inmediate Loans Fraud'
 #         https://zenodo.org/records/7418458
+# .. [3] https://pyriemann.readthedocs.io/en/latest/auto_examples/ERP/plot_ERP.html
+#
+#
