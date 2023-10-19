@@ -3,8 +3,8 @@
 Suspicious financial activity detection using quantum computer
 ====================================================================
 
-In this example, we will illustrate the use of RG+quantum for
-the detection of suspicious activity on financial data [1]_.
+In this example, we will illustrate the use of Riemannian geometry and quantum
+computing for the detection of suspicious activity on financial data [1]_.
 
 The dataset contains synthethic data generated from a real dataset
 of CaixaBank’s express loans [2]_.
@@ -36,23 +36,24 @@ import numpy as np
 print(__doc__)
 
 ##############################################################################
+
 # getting rid of the warnings about the future
 warnings.simplefilter(action="ignore", category=FutureWarning)
 warnings.simplefilter(action="ignore", category=RuntimeWarning)
-
 warnings.filterwarnings("ignore")
+
 
 ##############################################################################
 # Data pre-processing
-# ----------------
+# -------------------
 #
-# Download financial data (loan transactions)
+# Pre-process financial data (loan transactions)
 
+# Download data
 url = "https://zenodo.org/record/7418458/files/INFINITECH_synthetic_inmediate_loans.csv"
 dataset = pd.read_csv(url, sep=";")
 
-# Transform into binary classification:
-# Regroups frauds and suspicions of fraud
+# Transform into binary classification, regroup frauds and suspicions of fraud
 dataset.FRAUD[dataset.FRAUD == 2] = 1
 
 # Select a few features for the example
@@ -80,9 +81,10 @@ features["IP_TERMINAL"] = features["IP_TERMINAL"].astype("category").cat.codes
 # of the `ToEpochs` transformer (see below)
 features["index"] = features.index
 
+
 ##############################################################################
-# Create the pipeline
-# ----------------
+# Pipeline for binary classification
+# ----------------------------------
 #
 # Let's create the pipeline as suggested in the patent application
 
@@ -148,8 +150,8 @@ class OptionalWhitening(TransformerMixin, BaseEstimator):
         return Whitening(dim_red={"n_components": 4}).fit_transform(X)
 
 
-# Finally put together the transformers, and add at the end
-# the SVM classifier (classical)
+# Classical pipeline: put together the transformers, and add at the end
+# the classical SVM
 pipe = make_pipeline(
     ToEpochs(n=10),
     XdawnCovariances(nfilter=1),
@@ -158,8 +160,8 @@ pipe = make_pipeline(
     SVC(),
 )
 
-# Optimize the pipeline.
-# Let's save some time and run the optimization with a classical SVM.
+# Optimize the pipeline:
+# let's save some time and run the optimization with the classical SVM
 gs = GridSearchCV(
     pipe,
     param_grid={
@@ -172,9 +174,10 @@ gs = GridSearchCV(
     scoring="balanced_accuracy",
 )
 
+
 ##############################################################################
-# Run evaluation
-# ----------------
+# Balance dataset
+# ---------------
 #
 # Balance the data and run the evaluation on a quantum vs classical pipeline.
 
@@ -203,7 +206,11 @@ plot_waveforms(epochs, "hist")
 plt.show()
 
 
-# Let's fit our GridSearchCV, to find the best hyper parameters:
+##############################################################################
+# Run evaluation
+# --------------
+
+# Let's fit our GridSearchCV, to find the best hyper parameters
 gs.fit(X_train, y_train)
 
 # Print cross-validation results
@@ -213,12 +220,14 @@ print(gs.cv_results_)
 # (with this train/test split at least)
 score_svm = gs.best_estimator_.score(X_test, y_test)
 
-# Let's take the same parameters but evaluate the pipeline with a quantum SVM:
+# Quantum pipeline:
+# let's take the same parameters but evaluate the pipeline with a quantum SVM:
 gs.best_estimator_.steps[4] = ("quanticsvm", QuanticSVM(quantum=True))
 score_qsvm = gs.best_estimator_.fit(X_train, y_train).score(X_test, y_test)
 
 # Print the results
-print(f"Classical: {score_svm}; Quantum: {score_qsvm}")
+print(f"Classical: {score_svm} \nQuantum  : {score_qsvm}")
+
 
 ###############################################################################
 # References
@@ -227,6 +236,3 @@ print(f"Classical: {score_svm}; Quantum: {score_qsvm}")
 #         Patent application number: 18/380799
 # .. [2]  'Synthetic Data of Transactions for Inmediate Loans Fraud'
 #         https://zenodo.org/records/7418458
-#
-#
-#
