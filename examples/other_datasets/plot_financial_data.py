@@ -26,7 +26,9 @@ from sklearn.svm import SVC
 from imblearn.under_sampling import NearMiss
 from pyriemann.preprocessing import Whitening
 from pyriemann.estimation import XdawnCovariances
+from pyriemann.utils.viz import plot_waveforms
 from pyriemann_qiskit.classification import QuanticSVM
+from matplotlib import pyplot as plt
 import warnings
 import pandas as pd
 import numpy as np
@@ -182,7 +184,7 @@ gs = GridSearchCV(
 # based also on this `index` column. This should be improved for real use cases.
 X, y = NearMiss().fit_resample(features.to_numpy(), target.to_numpy())
 
-X_train, X_test, y_train, y_test = train_test_split(X, y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5)
 
 labels, counts = np.unique(y_train, return_counts=True)
 print(f"Training set shape: {X_train.shape}, genuine: {counts[0]}, frauds: {counts[1]}")
@@ -191,7 +193,15 @@ labels, counts = np.unique(y_test, return_counts=True)
 print(f"Testing set shape: {X_test.shape}, genuine: {counts[0]}, frauds: {counts[1]}")
 
 # before fitting the GridSearchCV, let's display a sample of the epochs:
-print(ToEpochs(n=10).transform(X_train[0:3]))
+epochs = ToEpochs(n=10).transform(X_train)
+print("Profile of an epoch:")
+print(epochs[0])
+
+# ...and the "ERP"
+# (see https://pyriemann.readthedocs.io/en/latest/auto_examples/ERP/plot_ERP.html)
+plot_waveforms(epochs, 'hist')
+plt.show()
+
 
 
 # Let's fit our GridSearchCV, to find the best hyper parameters:
@@ -201,9 +211,7 @@ gs.fit(X_train, y_train)
 print(pd.DataFrame.from_dict(gs.cv_results_))
 
 # This is the best score with the classical SVM.
-# /!\ Ideally, we should have different datasets for training and validation.
-# In a real scenario, we could use some data augmentation techniques, because
-# we have only a few samples.
+# (with this train/test split at least)
 score_svm = gs.best_estimator_.score(X_test, y_test)
 
 # Let's take the same parameters but evaluate the pipeline with a quantum SVM:
