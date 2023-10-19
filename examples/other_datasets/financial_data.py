@@ -1,6 +1,6 @@
 """
 ====================================================================
-SUSPICIOUS ACTIVITY DETECTION USING QUANTUM COMPUTER
+Suspicious financial activity detection using quantum computer
 ====================================================================
 
 In this example, we will illustrate the use of RG+quantum for
