@@ -190,7 +190,9 @@ gs = GridSearchCV(
 # based also on this `index` column. This should be improved for real use cases.
 X, y = NearMiss().fit_resample(features_scaled, target.to_numpy())
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
 
 labels, counts = np.unique(y_train, return_counts=True)
 print(f"Training set shape: {X_train.shape}, genuine: {counts[0]}, frauds: {counts[1]}")
