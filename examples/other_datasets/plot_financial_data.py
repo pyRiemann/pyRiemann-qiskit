@@ -64,6 +64,8 @@ features = dataset[["IP_TERMINAL", "FK_CONTRATO_PPAL_OPE", "SALDO_ANTES_PRESTAMO
 target = dataset.FRAUD
 
 # let's display a screenshot of the pre-processed dataset
+# We only have about 200 frauds epochs over 30K entries.
+
 features.head()
 print(f"number of fraudulent loans: {target[target == 1].size}")
 print(f"number of genuine loans: {target[target == 0].size}")
@@ -174,7 +176,6 @@ gs = GridSearchCV(
 #
 # Balance the data and run the evaluation on a quantum vs classical pipeline.
 
-# We only have about 200 frauds epochs over 30K entries.
 # Let's balance the problem using NearMiss.
 # Note: at this stage `features` also contains the `index` column.
 # So `NearMiss` we choose the closest 200 non-fraud epochs to the 200 fraud-epochs
