@@ -200,7 +200,7 @@ print(f"Training set shape: {X_train.shape}, genuine: {counts[0]}, frauds: {coun
 labels, counts = np.unique(y_test, return_counts=True)
 print(f"Testing set shape: {X_test.shape}, genuine: {counts[0]}, frauds: {counts[1]}")
 
-# before fitting the GridSearchCV, let's display the "ERP" (see [3]_)
+# before fitting the GridSearchCV, let's display the "ERP" [3]_
 epochs = ToEpochs(n=10).transform(X_train)
 
 plot_waveforms(epochs, "hist")
