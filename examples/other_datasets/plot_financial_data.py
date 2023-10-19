@@ -22,6 +22,7 @@ from sklearn.base import TransformerMixin, BaseEstimator
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
 from imblearn.under_sampling import NearMiss
 from pyriemann.preprocessing import Whitening
 from pyriemann.estimation import XdawnCovariances
@@ -150,7 +151,7 @@ pipe = make_pipeline(
     XdawnCovariances(nfilter=1),
     OptionalWhitening(process=True, n_components=4),
     SlimVector(keep_diagonal=True),
-    QuanticSVM(quantum=False),
+    SVC(),
 )
 
 # Optimize the pipeline.
@@ -189,17 +190,20 @@ labels, counts = np.unique(y_test, return_counts=True)
 print(f"Testing set shape: {X_test.shape}, genuine: {counts[0]}, frauds: {counts[1]}")
 
 # Let's fit our GridSearchCV, to find the best hyper parameters:
-gs.fit(X, y)
+gs.fit(X_train, y_train)
+
+# Print cross-validation results
+print(pd.DataFrame.from_dict(gs.cv_results_))
 
 # This is the best score with the classical SVM.
 # /!\ Ideally, we should have different datasets for training and validation.
 # In a real scenario, we could use some data augmentation techniques, because
 # we have only a few samples.
-score_svm = gs.best_estimator_.score(X, y)
+score_svm = gs.best_estimator_.score(X_test, y_test)
 
 # Let's take the same parameters but evaluate the pipeline with a quantum SVM:
 gs.best_estimator_.steps[4] = ("quanticsvm", QuanticSVM(quantum=True))
-score_qsvm = gs.best_estimator_.fit(X, y).score(X, y)
+score_qsvm = gs.best_estimator_.fit(X_train, y_train).score(X_test, y_test)
 
 # Print the results
 print(f"Classical: {score_svm}; Quantum: {score_qsvm}")
