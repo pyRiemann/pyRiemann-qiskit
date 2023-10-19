@@ -190,6 +190,10 @@ print(f"Training set shape: {X_train.shape}, genuine: {counts[0]}, frauds: {coun
 labels, counts = np.unique(y_test, return_counts=True)
 print(f"Testing set shape: {X_test.shape}, genuine: {counts[0]}, frauds: {counts[1]}")
 
+# before fitting the GridSearchCV, let's display a sample of the epochs:
+print(ToEpochs(n=10).transform(X_train[0:3]))
+
+
 # Let's fit our GridSearchCV, to find the best hyper parameters:
 gs.fit(X_train, y_train)
 
