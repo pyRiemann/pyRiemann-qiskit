@@ -8,7 +8,7 @@ the detection of suspicious activity on financial data [1]_.
 
 The dataset contains synthethic data generated from a real dataset
 of CaixaBank’s express loans [2]_.
-Each entry contains, for example, the date and amount of the loan request, 
+Each entry contains, for example, the date and amount of the loan request,
 the client identification number and the creation date of the account.
 A loan is tagge with either tentative or confirmation of fraud, when a fraudster
 has impersonate the client to claim that type of loan and steal client’s funds.
@@ -180,13 +180,13 @@ gs = GridSearchCV(
 # based also on this `index` column. This should be improved for real use cases.
 X, y = NearMiss().fit_resample(features.to_numpy(), target.to_numpy())
 
-X_train, X_test, y_train, y_test =  train_test_split(X, y)
+X_train, X_test, y_train, y_test = train_test_split(X, y)
 
 labels, counts = np.unique(y_train, return_counts=True)
-print(f'Training set shape: {X_train.shape}, genuine: {counts[0]}, frauds: {counts[1]}')
+print(f"Training set shape: {X_train.shape}, genuine: {counts[0]}, frauds: {counts[1]}")
 
 labels, counts = np.unique(y_test, return_counts=True)
-print(f'Testing set shape: {X_test.shape}, genuine: {counts[0]}, frauds: {counts[1]}')
+print(f"Testing set shape: {X_test.shape}, genuine: {counts[0]}, frauds: {counts[1]}")
 
 # Let's fit our GridSearchCV, to find the best hyper parameters:
 gs.fit(X, y)
