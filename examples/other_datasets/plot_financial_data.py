@@ -68,7 +68,7 @@ target = dataset.FRAUD
 # let's display a screenshot of the pre-processed dataset
 # We only have about 200 frauds epochs over 30K entries.
 
-features.head()
+print(features.head())
 print(f"number of fraudulent loans: {target[target == 1].size}")
 print(f"number of genuine loans: {target[target == 0].size}")
 
@@ -103,7 +103,7 @@ class ToEpochs(TransformerMixin, BaseEstimator):
             epoch = features[features.index > id - self.n]
             epoch = epoch[epoch.index <= id]
             epoch.drop(columns=["index"], inplace=True)
-            all_epochs.append(epoch)
+            all_epochs.append(np.transpose(epoch))
         all_epochs = np.array(all_epochs)
         return all_epochs
 
@@ -184,7 +184,7 @@ gs = GridSearchCV(
 # based also on this `index` column. This should be improved for real use cases.
 X, y = NearMiss().fit_resample(features.to_numpy(), target.to_numpy())
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 labels, counts = np.unique(y_train, return_counts=True)
 print(f"Training set shape: {X_train.shape}, genuine: {counts[0]}, frauds: {counts[1]}")
@@ -207,7 +207,7 @@ plt.show()
 gs.fit(X_train, y_train)
 
 # Print cross-validation results
-print(pd.DataFrame.from_dict(gs.cv_results_))
+print(gs.cv_results_)
 
 # This is the best score with the classical SVM.
 # (with this train/test split at least)
