@@ -32,7 +32,7 @@ warnings.simplefilter(action="ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore")
 
 ##############################################################################
-# Initialization
+# Data pre-processing
 # ----------------
 #
 # Download financial data (loan transactions)
