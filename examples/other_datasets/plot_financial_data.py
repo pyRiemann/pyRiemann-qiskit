@@ -4,16 +4,24 @@ Suspicious financial activity detection using quantum computer
 ====================================================================
 
 In this example, we will illustrate the use of RG+quantum for
-the detection of suspicious activity on financial data.
+the detection of suspicious activity on financial data [1]_.
 
+The dataset contains synthethic data generated from a real dataset
+of CaixaBank’s express loans [2]_.
+Each entry contains, for example, the date and amount of the loan request, 
+the client identification number and the creation date of the account.
+A loan is tagge with either tentative or confirmation of fraud, when a fraudster
+has impersonate the client to claim that type of loan and steal client’s funds.
+
+A detailed description of all features is available in [2]_.
 """
 # Author: Gregoire Cattan, Filipe Barroso
 # License: BSD (3-clause)
-# Patent application number: 18/380799
 
 from sklearn.base import TransformerMixin, BaseEstimator
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import train_test_split
 from imblearn.under_sampling import NearMiss
 from pyriemann.preprocessing import Whitening
 from pyriemann.estimation import XdawnCovariances
@@ -53,6 +61,11 @@ dataset.FRAUD[dataset.FRAUD == 2] = 1
 # 3) Are not "empty"
 features = dataset[["IP_TERMINAL", "FK_CONTRATO_PPAL_OPE", "SALDO_ANTES_PRESTAMO"]]
 target = dataset.FRAUD
+
+# let's display a screenshot of the pre-processed dataset
+features.head()
+print(f"number of fraudulent loans: {target[target == 1].size}")
+print(f"number of genuine loans: {target[target == 0].size}")
 
 # Let's encode our categorical variable (LabelEncoding):
 features["IP_TERMINAL"] = features["IP_TERMINAL"].astype("category").cat.codes
@@ -167,6 +180,14 @@ gs = GridSearchCV(
 # based also on this `index` column. This should be improved for real use cases.
 X, y = NearMiss().fit_resample(features.to_numpy(), target.to_numpy())
 
+X_train, X_test, y_train, y_test =  train_test_split(X, y)
+
+labels, counts = np.unique(y_train, return_counts=True)
+print(f'Training set shape: {X_train.shape}, genuine: {counts[0]}, frauds: {counts[1]}')
+
+labels, counts = np.unique(y_test, return_counts=True)
+print(f'Testing set shape: {X_test.shape}, genuine: {counts[0]}, frauds: {counts[1]}')
+
 # Let's fit our GridSearchCV, to find the best hyper parameters:
 gs.fit(X, y)
 
@@ -182,3 +203,14 @@ score_qsvm = gs.best_estimator_.fit(X, y).score(X, y)
 
 # Print the results
 print(f"Classical: {score_svm}; Quantum: {score_qsvm}")
+
+###############################################################################
+# References
+# ----------
+# .. [1] 'SUSPICIOUS ACTIVITY DETECTION USING QUANTUM COMPUTER',
+#         Patent application number: 18/380799
+# .. [2]  'Synthetic Data of Transactions for Inmediate Loans Fraud'
+#         https://zenodo.org/records/7418458
+#
+#
+#
