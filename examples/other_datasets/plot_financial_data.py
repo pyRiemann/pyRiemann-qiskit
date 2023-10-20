@@ -15,7 +15,7 @@ has impersonate the client to claim that type of loan and steal client’s funds
 
 A detailed description of all features is available in [2]_.
 """
-# Author: Gregoire Cattan, Filipe Barroso
+# Authors: Gregoire Cattan, Filipe Barroso
 # License: BSD (3-clause)
 
 from sklearn.base import TransformerMixin, BaseEstimator
@@ -35,6 +35,7 @@ import pandas as pd
 import numpy as np
 
 print(__doc__)
+
 
 ##############################################################################
 
@@ -82,14 +83,15 @@ features["IP_TERMINAL"] = features["IP_TERMINAL"].astype("category").cat.codes
 # of the `ToEpochs` transformer (see below)
 features["index"] = features.index
 
-# Apply a StandardScaler to the feature
+# Apply a StandardScaler to the features
 features_scaled = StandardScaler().fit_transform(features.to_numpy())
+
 
 ##############################################################################
 # Pipeline for binary classification
 # ----------------------------------
 #
-# Let's create the pipeline as suggested in the patent application
+# Let's create the pipeline as suggested in the patent application [1]_.
 
 # Let's start by creating the required transformers:
 
@@ -182,7 +184,7 @@ gs = GridSearchCV(
 # Balance dataset
 # ---------------
 #
-# Balance the data and run the evaluation on a quantum vs classical pipeline.
+# Balance the data and display the "ERP" [3]_.
 
 # Let's balance the problem using NearMiss.
 # Note: at this stage `features` also contains the `index` column.
@@ -200,7 +202,7 @@ print(f"Training set shape: {X_train.shape}, genuine: {counts[0]}, frauds: {coun
 labels, counts = np.unique(y_test, return_counts=True)
 print(f"Testing set shape: {X_test.shape}, genuine: {counts[0]}, frauds: {counts[1]}")
 
-# before fitting the GridSearchCV, let's display the "ERP" [3]_
+# Before fitting the GridSearchCV, let's display the "ERP"
 epochs = ToEpochs(n=10).transform(X_train)
 
 plot_waveforms(epochs, "hist")
@@ -210,6 +212,8 @@ plt.show()
 ##############################################################################
 # Run evaluation
 # --------------
+#
+# Run the evaluation on a classical vs quantum pipeline.
 
 # Let's fit our GridSearchCV, to find the best hyper parameters
 gs.fit(X_train, y_train)
