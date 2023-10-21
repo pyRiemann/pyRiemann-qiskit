@@ -66,7 +66,9 @@ dataset.FRAUD[dataset.FRAUD == 2] = 1
 # 1) Not correlated
 # 2) Sufficiently descriminant (based on the number of unique values)
 # 3) Are not "empty"
-features = dataset[["IP_TERMINAL", "FK_CONTRATO_PPAL_OPE", "SALDO_ANTES_PRESTAMO"]]
+channels = ["IP_TERMINAL", "FK_CONTRATO_PPAL_OPE", "SALDO_ANTES_PRESTAMO", "FK_NUMPERSO", "FECHA_ALTA_CLIENTE", "FK_TIPREL"]
+digest   = ["IP", "Contract code", "Balance", "ID", "Seniority", "Ownership"]
+features = dataset[channels]
 target = dataset.FRAUD
 
 # let's display a screenshot of the pre-processed dataset
@@ -75,6 +77,13 @@ target = dataset.FRAUD
 print(features.head())
 print(f"number of fraudulent loans: {target[target == 1].size}")
 print(f"number of genuine loans: {target[target == 0].size}")
+
+# Simple treatement for NaN value
+features.fillna(method='ffill', inplace=True)
+
+# Convert date value to linux time
+features['FECHA_ALTA_CLIENTE'] = pd.to_datetime(features['FECHA_ALTA_CLIENTE'])
+features['FECHA_ALTA_CLIENTE'] = features['FECHA_ALTA_CLIENTE'].apply(lambda x: x.value)
 
 # Let's encode our categorical variable (LabelEncoding):
 features["IP_TERMINAL"] = features["IP_TERMINAL"].astype("category").cat.codes
@@ -104,9 +113,9 @@ class ToEpochs(TransformerMixin, BaseEstimator):
     def transform(self, X):
         all_epochs = []
         for x in X:
-            id = x[3]
-            epoch = features[features.index > id - self.n]
-            epoch = epoch[epoch.index <= id]
+            index = x[-1]
+            epoch = features[features.index > index - self.n]
+            epoch = epoch[epoch.index <= index]
             epoch.drop(columns=["index"], inplace=True)
             all_epochs.append(np.transpose(epoch))
         all_epochs = np.array(all_epochs)
@@ -119,7 +128,7 @@ class NDStandardScaler(TransformerMixin):
         self._scaler = StandardScaler(copy=True, **kwargs)
         self._orig_shape = None
 
-    def fit(self, X, y, **kwargs):
+    def fit(self, X, y=None, **kwargs):
         X = np.array(X)
         # Save the original shape to reshape the flattened X later
         # back to its original shape
@@ -224,8 +233,7 @@ gs = GridSearchCV(
 
 # Let's balance the problem using NearMiss.
 # Note: at this stage `features` also contains the `index` column.
-# So `NearMiss` we choose the closest 200 non-fraud epochs to the 200 fraud-epochs
-# based also on this `index` column. This should be improved for real use cases.
+# So `NearMiss` we choose the closest 200 non-fraud epochs to the 200 fraud-epochs.
 X, y = NearMiss().fit_resample(features.to_numpy(), target.to_numpy())
 
 X_train, X_test, y_train, y_test = train_test_split(
@@ -242,7 +250,9 @@ print(f"Testing set shape: {X_test.shape}, genuine: {counts[0]}, frauds: {counts
 epochs = ToEpochs(n=10).transform(X_train)
 reduced_centered_epochs = NDStandardScaler().fit_transform(epochs)
 
-plot_waveforms(reduced_centered_epochs, "hist")
+fig = plot_waveforms(reduced_centered_epochs, "hist")
+for i_channel in range(len(channels)):
+    fig.axes[i_channel].set(ylabel=digest[i_channel])
 plt.show()
 
 
@@ -266,7 +276,7 @@ score_svm = gs.best_estimator_.score(X_test, y_test)
 
 # Quantum pipeline:
 # let's take the same parameters but evaluate the pipeline with a quantum SVM:
-gs.best_estimator_.steps[4] = ("quanticsvm", QuanticSVM(quantum=True))
+gs.best_estimator_.steps[-1] = ("quanticsvm", QuanticSVM(quantum=True))
 train_score_qsvm = gs.best_estimator_.fit(X_train, y_train).score(X_train, y_train)
 score_qsvm = gs.best_estimator_.score(X_test, y_test)
 
