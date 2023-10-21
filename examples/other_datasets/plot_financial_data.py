@@ -66,8 +66,15 @@ dataset.FRAUD[dataset.FRAUD == 2] = 1
 # 1) Not correlated
 # 2) Sufficiently descriminant (based on the number of unique values)
 # 3) Are not "empty"
-channels = ["IP_TERMINAL", "FK_CONTRATO_PPAL_OPE", "SALDO_ANTES_PRESTAMO", "FK_NUMPERSO", "FECHA_ALTA_CLIENTE", "FK_TIPREL"]
-digest   = ["IP", "Contract code", "Balance", "ID", "Seniority", "Ownership"]
+channels = [
+    "IP_TERMINAL",
+    "FK_CONTRATO_PPAL_OPE",
+    "SALDO_ANTES_PRESTAMO",
+    "FK_NUMPERSO",
+    "FECHA_ALTA_CLIENTE",
+    "FK_TIPREL",
+]
+digest = ["IP", "Contract code", "Balance", "ID", "Seniority", "Ownership"]
 features = dataset[channels]
 target = dataset.FRAUD
 
@@ -79,11 +86,11 @@ print(f"number of fraudulent loans: {target[target == 1].size}")
 print(f"number of genuine loans: {target[target == 0].size}")
 
 # Simple treatement for NaN value
-features.fillna(method='ffill', inplace=True)
+features.fillna(method="ffill", inplace=True)
 
 # Convert date value to linux time
-features['FECHA_ALTA_CLIENTE'] = pd.to_datetime(features['FECHA_ALTA_CLIENTE'])
-features['FECHA_ALTA_CLIENTE'] = features['FECHA_ALTA_CLIENTE'].apply(lambda x: x.value)
+features["FECHA_ALTA_CLIENTE"] = pd.to_datetime(features["FECHA_ALTA_CLIENTE"])
+features["FECHA_ALTA_CLIENTE"] = features["FECHA_ALTA_CLIENTE"].apply(lambda x: x.value)
 
 # Let's encode our categorical variable (LabelEncoding):
 features["IP_TERMINAL"] = features["IP_TERMINAL"].astype("category").cat.codes
