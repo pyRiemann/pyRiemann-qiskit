@@ -42,7 +42,7 @@ from pyriemann_qiskit.utils import distance, mean  # noqa
 from pyriemann_qiskit.pipelines import (
     QuantumMDMVotingClassifier,
     QuantumMDMWithRiemannianPipeline,
-    QuantumClassifierWithDefaultRiemannianPipeline
+    QuantumClassifierWithDefaultRiemannianPipeline,
 )
 
 from sklearn.pipeline import make_pipeline
@@ -113,7 +113,7 @@ pipelines["LDA"] = make_pipeline(
         xdawn_estimator="lwf",
     ),
     TangentSpace(),
-    LDA(solver="lsqr", shrinkage="auto")
+    LDA(solver="lsqr", shrinkage="auto"),
 )
 
 pipelines["MDM"] = make_pipeline(
@@ -124,16 +124,16 @@ pipelines["MDM"] = make_pipeline(
         estimator="scm",
         xdawn_estimator="lwf",
     ),
-    MDM()
+    MDM(),
 )
 
 pipelines["Voting Q+C MDM"] = VotingClassifier(
-                [
-                    ("Quantum MDM", pipelines["QuantumMDM-Dist"]),
-                    ("MDM ", pipelines["MDM"]),
-                ],
-                voting="soft",
-            )
+    [
+        ("Quantum MDM", pipelines["QuantumMDM-Dist"]),
+        ("MDM ", pipelines["MDM"]),
+    ],
+    voting="soft",
+)
 
 ##############################################################################
 # Run evaluation
