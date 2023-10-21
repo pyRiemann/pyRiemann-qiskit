@@ -189,7 +189,7 @@ gs = GridSearchCV(
 # Note: at this stage `features` also contains the `index` column.
 # So `NearMiss` we choose the closest 200 non-fraud epochs to the 200 fraud-epochs
 # based also on this `index` column. This should be improved for real use cases.
-X, y = NearMiss().fit_resample(features_scaled, target.to_numpy())
+X, y = NearMiss().fit_resample(features.to_numpy(), target.to_numpy())
 
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
