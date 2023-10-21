@@ -83,9 +83,6 @@ features["IP_TERMINAL"] = features["IP_TERMINAL"].astype("category").cat.codes
 # of the `ToEpochs` transformer (see below)
 features["index"] = features.index
 
-# Apply a StandardScaler to the features
-features_scaled = StandardScaler().fit_transform(features.to_numpy())
-
 
 ##############################################################################
 # Pipeline for binary classification
@@ -159,6 +156,7 @@ class OptionalWhitening(TransformerMixin, BaseEstimator):
 # the classical SVM
 pipe = make_pipeline(
     ToEpochs(n=10),
+    StandardScaler(),
     XdawnCovariances(nfilter=1),
     OptionalWhitening(process=True, n_components=4),
     SlimVector(keep_diagonal=True),
@@ -204,8 +202,9 @@ print(f"Testing set shape: {X_test.shape}, genuine: {counts[0]}, frauds: {counts
 
 # Before fitting the GridSearchCV, let's display the "ERP"
 epochs = ToEpochs(n=10).transform(X_train)
+reduced_centered_epochs = StandardScaler().fit_transform(epochs)
 
-plot_waveforms(epochs, "hist")
+plot_waveforms(reduced_centered_epochs, "hist")
 plt.show()
 
 
