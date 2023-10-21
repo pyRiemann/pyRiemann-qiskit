@@ -119,14 +119,14 @@ class NDStandardScaler(TransformerMixin):
         self._scaler = StandardScaler(copy=True, **kwargs)
         self._orig_shape = None
 
-    def fit(self, X, **kwargs):
+    def fit(self, X, y, **kwargs):
         X = np.array(X)
         # Save the original shape to reshape the flattened X later
         # back to its original shape
         if len(X.shape) > 1:
             self._orig_shape = X.shape[1:]
         X = self._flatten(X)
-        self._scaler.fit(X, **kwargs)
+        self._scaler.fit(X, y, **kwargs)
         return self
 
     def transform(self, X, **kwargs):
