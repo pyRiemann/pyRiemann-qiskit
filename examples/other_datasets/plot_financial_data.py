@@ -23,6 +23,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from imblearn.under_sampling import NearMiss
 from pyriemann.preprocessing import Whitening
@@ -223,15 +224,23 @@ print(gs.best_params_)
 
 # This is the best score with the classical SVM.
 # (with this train/test split at least)
+train_score_svm = gs.best_estimator_.score(X_train, y_train)
 score_svm = gs.best_estimator_.score(X_test, y_test)
 
 # Quantum pipeline:
 # let's take the same parameters but evaluate the pipeline with a quantum SVM:
 gs.best_estimator_.steps[4] = ("quanticsvm", QuanticSVM(quantum=True))
-score_qsvm = gs.best_estimator_.fit(X_train, y_train).score(X_test, y_test)
+train_score_qsvm = gs.best_estimator_.fit(X_train, y_train).score(X_train, y_train)
+score_qsvm = gs.best_estimator_.score(X_test, y_test)
+
+# Additionally, run a RandomForest for baseline comparison:
+rf = RandomForestClassifier()
+train_score_rf = rf.fit(X_train, y_train).score(X_train, y_train)
+score_rf = rf.score(X_test, y_test)
 
 # Print the results
-print(f"Classical: {score_svm} \nQuantum  : {score_qsvm}")
+print(f"(Train) Classical: {train_score_svm} \nQuantum: {train_score_qsvm} \nRF: {train_score_rf}")
+print(f"(Test) Classical: {score_svm} \nQuantum: {score_qsvm} \nRF: {score_rf}")
 
 
 ###############################################################################
