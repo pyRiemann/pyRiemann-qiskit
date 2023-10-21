@@ -28,7 +28,7 @@ import warnings
 import seaborn as sns
 from moabb import set_log_level
 from moabb.datasets import BNCI2014009
-from moabb.datasets.compound_dataset import BI_Il
+from moabb.datasets.compound_dataset import BI_Il, Cattan2019_VR_Il
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann.classification import MDM
@@ -68,7 +68,7 @@ set_log_level("info")
 
 paradigm = P300()
 
-datasets = [BI_Il()]
+datasets = [Cattan2019_VR_Il()]
 
 # reduce the number of subjects, the Quantum pipeline takes a lot of time
 # if executed on the entire dataset
@@ -99,8 +99,6 @@ pipelines["QuantumMDM-Dist"] = QuantumMDMWithRiemannianPipeline(
 pipelines["Voting QuantumMDM"] = QuantumMDMVotingClassifier(quantum=True)
 
 
-# A Riemannian Quantum pipeline provided by pyRiemann-qiskit
-# You can choose between classical SVM and Quantum SVM.
 pipelines["QuantumSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
     shots=1024,
     nfilter=2,
@@ -108,7 +106,6 @@ pipelines["QuantumSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
 )
 
 pipelines["LDA"] = make_pipeline(
-    # applies XDawn and calculates the covariance matrix, output it matrices
     XdawnCovariances(
         nfilter=4,
         classes=[labels_dict["Target"]],
@@ -116,7 +113,7 @@ pipelines["LDA"] = make_pipeline(
         xdawn_estimator="lwf",
     ),
     TangentSpace(),
-    LDA(solver="lsqr", shrinkage="auto"),  # you can use other classifiers
+    LDA(solver="lsqr", shrinkage="auto")
 )
 
 pipelines["MDM"] = make_pipeline(
@@ -175,7 +172,7 @@ sns.stripplot(
     palette="Set1",
 )
 sns.pointplot(data=results, y="score", x="pipeline", ax=ax, palette="Set1").set(
-    title=title
+    title="title"
 )
 
 ax.set_ylabel("ROC AUC")
