@@ -293,10 +293,12 @@ train_score_rf = rf.fit(X_train, y_train).score(X_train, y_train)
 score_rf = rf.score(X_test, y_test)
 
 # Print the results
+print("----Training score:----")
 print(
-    f"(Train) Classical: {train_score_svm} \nQuantum: {train_score_qsvm} \nRF: {train_score_rf}"
+    f"Classical: {train_score_svm} \nQuantum: {train_score_qsvm} \nRF: {train_score_rf}"
 )
-print(f"(Test) Classical: {score_svm} \nQuantum: {score_qsvm} \nRF: {score_rf}")
+print("----Testing score:----")
+print(f"Classical: {score_svm} \nQuantum: {score_qsvm} \nRF: {score_rf}")
 
 
 ###############################################################################
