@@ -105,7 +105,7 @@ pipelines["QuantumSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
     dim_red=PCA(n_components=10),
 )
 
-pipelines["LDA"] = make_pipeline(
+pipelines["xDAWN+Cov+TsLDA"] = make_pipeline(
     XdawnCovariances(
         nfilter=4,
         classes=[labels_dict["Target"]],
