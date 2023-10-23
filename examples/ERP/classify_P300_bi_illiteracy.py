@@ -116,7 +116,7 @@ pipelines["xDAWN+Cov+TsLDA"] = make_pipeline(
     LDA(solver="lsqr", shrinkage="auto"),
 )
 
-pipelines["MDM"] = make_pipeline(
+pipelines["xDAWN+Cov+MDM"] = make_pipeline(
     # applies XDawn and calculates the covariance matrix, output it matrices
     XdawnCovariances(
         nfilter=4,
