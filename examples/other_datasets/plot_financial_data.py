@@ -206,6 +206,9 @@ class OptionalWhitening(TransformerMixin, BaseEstimator):
         return Whitening(dim_red={"n_components": 4}).fit_transform(X)
 
 
+# Create a RandomForest for baseline comparison:
+rf = RandomForestClassifier()
+
 # Classical pipeline: put together the transformers, and add at the end
 # the classical SVM
 pipe = make_pipeline(
@@ -287,8 +290,7 @@ gs.best_estimator_.steps[-1] = ("quanticsvm", QuanticSVM(quantum=True))
 train_score_qsvm = gs.best_estimator_.fit(X_train, y_train).score(X_train, y_train)
 score_qsvm = gs.best_estimator_.score(X_test, y_test)
 
-# Additionally, run a RandomForest for baseline comparison:
-rf = RandomForestClassifier()
+# Create a point of comparison with the RandomForest
 train_score_rf = rf.fit(X_train, y_train).score(X_train, y_train)
 score_rf = rf.score(X_test, y_test)
 
