@@ -59,15 +59,10 @@ print(__doc__)
 
 ########################################## Judge classifier
 
+
 # Grossi et al
 class JudgeClassifier(ClassifierMixin):
-
-    def __init__(
-        self,
-        c1,
-        c2,
-        judge
-    ):
+    def __init__(self, c1, c2, judge):
         self.c1 = c1
         self.c2 = c2
         self.judge = judge
@@ -77,19 +72,19 @@ class JudgeClassifier(ClassifierMixin):
         y1 = self.c1.fit(X, y).predict(X)
         y2 = self.c2.fit(X, y).predict(X)
         mask = np.not_equal(y1, y2)
-        if(mask.all() == False):
+        if mask.all() == False:
             self.judge.fit(X, y)
         else:
             y_diff = y[mask]
             X_diff = X[mask]
             self.judge.fit(X_diff, y_diff)
-    
+
     def predict(self, X):
         y1 = self.c1.predict(X)
         y2 = self.c2.predict(X)
         y_pred = y1
         mask = np.not_equal(y1, y2)
-        if(mask.all() == False):
+        if mask.all() == False:
             return y_pred
         X_diff = X[mask]
         y_pred[mask] = self.judge.predict(X_diff)
@@ -102,11 +97,12 @@ class JudgeClassifier(ClassifierMixin):
         y2 = self.c2.predict(X)
         predict_proba = (y1_proba + y2_proba) / 2
         mask = np.not_equal(y1, y2)
-        if(mask.all() == False):
+        if mask.all() == False:
             return predict_proba
         X_diff = X[mask]
         predict_proba[mask] = self.judge.predict_proba(X_diff)
         return predict_proba
+
 
 ##############################################################################
 # getting rid of the warnings about the future
@@ -148,18 +144,20 @@ labels_dict = {"Target": 1, "NonTarget": 0}
 #
 # Pipelines must be a dict of sklearn pipeline transformer.
 
+
 class PIP(str, Enum):
-    xDAWN_Cov_TsQSVC = 'xDAWN+Cov+TsQSVC'
-    xDAWN_Cov_TsLDA = 'xDAWN+Cov+TsLDA'
-    xDAWN_LDA = 'xDAWN+LDA'
-    xDAWN_Cov_MDM = 'xDAWN+Cov+MDM'
-    xDAWN_Cov_TsGradBoost = 'xDAWN+Cov+TsGradBoost'
-    xDAWN_Cov_TsSVC = 'xDAWN+Cov+TsSVC'
-    ERPCov_QMDM_Dist = 'ERPCov+QMDM+Dist'
-    ERPCov_CvxMDM_Dist = 'ERPCov+CvxMDM+Dist'
-    Vot_QMDM_Dist_Mean = 'Vot+QMDM+Dist+Mean'
-    Vot_QMDM_MDM = 'Vot+QMDM+MDM'
-    GradBoost_ERPCov_QMDM = 'XGBoost_ERPCov_QMDM'
+    xDAWN_Cov_TsQSVC = "xDAWN+Cov+TsQSVC"
+    xDAWN_Cov_TsLDA = "xDAWN+Cov+TsLDA"
+    xDAWN_LDA = "xDAWN+LDA"
+    xDAWN_Cov_MDM = "xDAWN+Cov+MDM"
+    xDAWN_Cov_TsGradBoost = "xDAWN+Cov+TsGradBoost"
+    xDAWN_Cov_TsSVC = "xDAWN+Cov+TsSVC"
+    ERPCov_QMDM_Dist = "ERPCov+QMDM+Dist"
+    ERPCov_CvxMDM_Dist = "ERPCov+CvxMDM+Dist"
+    Vot_QMDM_Dist_Mean = "Vot+QMDM+Dist+Mean"
+    Vot_QMDM_MDM = "Vot+QMDM+MDM"
+    GradBoost_ERPCov_QMDM = "XGBoost_ERPCov_QMDM"
+
 
 pipelines = {}
 
@@ -169,7 +167,7 @@ pipelines[PIP.xDAWN_Cov_TsLDA.value] = make_pipeline(
     XdawnCovariances(
         nfilter=4,
         classes=[labels_dict["Target"]],
-        estimator="scm", # add to classification?
+        estimator="scm",  # add to classification?
         xdawn_estimator="lwf",
     ),
     TangentSpace(),
@@ -241,7 +239,7 @@ pipelines[PIP.GradBoost_ERPCov_QMDM.value] = make_pipeline(
     JudgeClassifier(
         pipelines[PIP.xDAWN_Cov_TsQSVC],
         pipelines[PIP.xDAWN_Cov_TsLDA],
-        pipelines[PIP.xDAWN_Cov_TsGradBoost]
+        pipelines[PIP.xDAWN_Cov_TsGradBoost],
     )
 )
 
@@ -280,7 +278,7 @@ print(results.groupby("pipeline").mean("score")[["score", "time"]])
 
 fig, ax = plt.subplots(facecolor="white", figsize=[8, 4])
 
-order = np.unique(results['pipeline'].to_numpy())
+order = np.unique(results["pipeline"].to_numpy())
 print(order)
 
 plot = sns.stripplot(
@@ -288,12 +286,11 @@ plot = sns.stripplot(
     x="pipeline",
     y="score",
     order=order,
-    hue='pipeline',
+    hue="pipeline",
     hue_order=order,
     jitter=True,
     alpha=0.5,
-    palette="Set1"
-   
+    palette="Set1",
 )
 plot.axvline((len(order) - 1) // 2)
 sns.pointplot(data=results, y="score", x="pipeline", ax=ax, palette="Set1").set(

@@ -297,7 +297,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
             ),
             TangentSpace(),
             self.dim_red,
-            clf
+            clf,
         )
 
 
