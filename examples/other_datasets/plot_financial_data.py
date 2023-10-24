@@ -295,7 +295,7 @@ score_rf = rf.score(X_test, y_test)
 # Print the results
 print("----Training score:----")
 print(
-    f"Classical: {train_score_svm} \nQuantum: {train_score_qsvm} \nRF: {train_score_rf}"
+    f"Classical SVM: {train_score_svm} \nQuantum SVM: {train_score_qsvm} \nClassical RandomForest: {train_score_rf}"
 )
 print("----Testing score:----")
 print(f"Classical: {score_svm} \nQuantum: {score_qsvm} \nRF: {score_rf}")
