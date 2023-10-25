@@ -37,7 +37,7 @@ from pyriemann.spatialfilters import Xdawn
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
 from sklearn.decomposition import PCA
-from sklearn.ensemble import VotingClassifier, GradientBoostingClassifier
+from sklearn.ensemble import VotingClassifier
 from sklearn.base import ClassifierMixin
 from mne.decoding import Vectorizer
 
@@ -146,38 +146,33 @@ labels_dict = {"Target": 1, "NonTarget": 0}
 
 
 class PIP(str, Enum):
-    xDAWN_Cov_TsLDA = "(C) xDAWN+Cov+TsLDA"
-    xDAWN_LDA = "(C) xDAWN+LDA"
-    xDAWN_Cov_MDM = "(C) xDAWN+Cov+MDM"
-    xDAWN_Cov_TsSVC = "(C) xDAWN+Cov+TsSVC"
-    ERPCov_CvxMDM_Dist = "(C) ERPCov+CvxMDM+Dist"
-    ERPCov_QMDM_Dist = "(Q) ERPCov+QMDM+Dist"
-    xDAWN_Cov_TsQSVC = "(Q) xDAWN+Cov+TsQSVC"
-    Vot_QMDM_Dist_Mean = "(Q) Vot+QMDM+Dist+Mean"
-    Vot_QMDM_MDM = "(Q) Vot+QMDM+MDM"
-    GradBoost_ERPCov_QMDM = "(Q) XGBoost_ERPCov_QMDM"
-
+    xDAWN_Cov_TsLDA = '(C) xDAWN+Cov+TsLDA'
+    xDAWN_LDA = '(C) xDAWN+LDA'
+    xDAWN_Cov_MDM = '(C) xDAWN+Cov+MDM'
+    xDAWN_Cov_TsSVC = '(C) xDAWN+Cov+TsSVC'
+    ERPCov_CvxMDM_Dist = '(C) ERPCov+CvxMDM+Dist'
+    ERPCov_QMDM_Dist = '(Q) ERPCov+QMDM+Dist'
+    xDAWN_Cov_TsQSVC = '(Q) xDAWN+Cov+TsQSVC'
+    Vot_QMDM_Dist_Mean = '(Q) Vot+QMDM+Dist+Mean'
+    Vot_QMDM_MDM = '(Q) Vot+QMDM+MDM'
+    Judge_QMDM_MDM_TsLDA = '(Q) GradBoost_QMDM_MDM'
 
 pipelines = {}
 
-
+USE_PLACEHOLDERS = False
 def placeholder(key):
-    pipelines[key] = Pipeline(
-        steps=[
-            (
-                key,
-                XdawnCovariances(
-                    nfilter=4,
-                    classes=[labels_dict["Target"]],
-                    estimator="scm",  # add to classification?
-                    xdawn_estimator="lwf",
-                ),
-            ),
-            ("TS", TangentSpace()),
-            ("LDA", LDA(solver="lsqr", shrinkage="auto")),
-        ]
-    )
-
+    if USE_PLACEHOLDERS:
+        return
+    pipelines[key] = Pipeline(steps=[
+        (key, XdawnCovariances(
+            nfilter=4,
+            classes=[labels_dict["Target"]],
+            estimator="scm", # add to classification?
+            xdawn_estimator="lwf",
+        )),
+        ("TS", TangentSpace()),
+        ("LDA", LDA(solver="lsqr", shrinkage="auto")),
+    ])
 
 ## Classical Pipelines
 
@@ -244,31 +239,21 @@ pipelines[PIP.Vot_QMDM_Dist_Mean.value] = QuantumMDMVotingClassifier(quantum=Tru
 placeholder(PIP.Vot_QMDM_Dist_Mean.value)
 
 pipelines[PIP.xDAWN_Cov_TsQSVC.value] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=1024,
-    nfilter=2,
+    shots=512,
+    nfilter=4,
     classes=[labels_dict["Target"]],
     dim_red=PCA(n_components=10),
 )
 placeholder(PIP.xDAWN_Cov_TsQSVC.value)
 
-xDAWN_Cov_TsGradBoost = make_pipeline(
-    XdawnCovariances(
-        nfilter=4,
-        classes=[labels_dict["Target"]],
-        estimator="scm",
-        xdawn_estimator="lwf",
-    ),
-    TangentSpace(),
-    GradientBoostingClassifier(),
-)
-pipelines[PIP.GradBoost_ERPCov_QMDM.value] = make_pipeline(
+pipelines[PIP.Judge_QMDM_MDM_TsLDA.value] = make_pipeline(
     JudgeClassifier(
-        pipelines[PIP.xDAWN_Cov_TsQSVC],
+        pipelines[PIP.ERPCov_QMDM_Dist],
+        pipelines[PIP.xDAWN_Cov_MDM],
         pipelines[PIP.xDAWN_Cov_TsLDA],
-        xDAWN_Cov_TsGradBoost,
     )
 )
-placeholder(PIP.GradBoost_ERPCov_QMDM.value)
+placeholder(PIP.Judge_QMDM_MDM_TsLDA.value)
 
 pipelines[PIP.Vot_QMDM_MDM.value] = VotingClassifier(
     [
@@ -318,7 +303,7 @@ plot = sns.stripplot(
     alpha=0.5,
     palette="Set1",
 )
-plot.axvline(len(order) // 2 - 0.5)
+plot.axvline(len(order) // 2 - 0.5, ls='--')
 sns.pointplot(
     data=results,
     y="score",
