@@ -146,33 +146,42 @@ labels_dict = {"Target": 1, "NonTarget": 0}
 
 
 class PIP(str, Enum):
-    xDAWN_Cov_TsLDA = '(C) xDAWN+Cov+TsLDA'
-    xDAWN_LDA = '(C) xDAWN+LDA'
-    xDAWN_Cov_MDM = '(C) xDAWN+Cov+MDM'
-    xDAWN_Cov_TsSVC = '(C) xDAWN+Cov+TsSVC'
-    ERPCov_CvxMDM_Dist = '(C) ERPCov+CvxMDM+Dist'
-    ERPCov_QMDM_Dist = '(Q) ERPCov+QMDM+Dist'
-    xDAWN_Cov_TsQSVC = '(Q) xDAWN+Cov+TsQSVC'
-    Vot_QMDM_Dist_Mean = '(Q) Vot+QMDM+Dist+Mean'
-    Vot_QMDM_MDM = '(Q) Vot+QMDM+MDM'
-    Judge_QMDM_MDM_TsLDA = '(Q) GradBoost_QMDM_MDM'
+    xDAWN_Cov_TsLDA = "(C) xDAWN+Cov+TsLDA"
+    xDAWN_LDA = "(C) xDAWN+LDA"
+    xDAWN_Cov_MDM = "(C) xDAWN+Cov+MDM"
+    xDAWN_Cov_TsSVC = "(C) xDAWN+Cov+TsSVC"
+    ERPCov_CvxMDM_Dist = "(C) ERPCov+CvxMDM+Dist"
+    ERPCov_QMDM_Dist = "(Q) ERPCov+QMDM+Dist"
+    xDAWN_Cov_TsQSVC = "(Q) xDAWN+Cov+TsQSVC"
+    Vot_QMDM_Dist_Mean = "(Q) Vot+QMDM+Dist+Mean"
+    Vot_QMDM_MDM = "(Q) Vot+QMDM+MDM"
+    Judge_QMDM_MDM_TsLDA = "(Q) GradBoost_QMDM_MDM"
+
 
 pipelines = {}
 
 USE_PLACEHOLDERS = False
+
+
 def placeholder(key):
     if USE_PLACEHOLDERS:
         return
-    pipelines[key] = Pipeline(steps=[
-        (key, XdawnCovariances(
-            nfilter=4,
-            classes=[labels_dict["Target"]],
-            estimator="scm", # add to classification?
-            xdawn_estimator="lwf",
-        )),
-        ("TS", TangentSpace()),
-        ("LDA", LDA(solver="lsqr", shrinkage="auto")),
-    ])
+    pipelines[key] = Pipeline(
+        steps=[
+            (
+                key,
+                XdawnCovariances(
+                    nfilter=4,
+                    classes=[labels_dict["Target"]],
+                    estimator="scm",  # add to classification?
+                    xdawn_estimator="lwf",
+                ),
+            ),
+            ("TS", TangentSpace()),
+            ("LDA", LDA(solver="lsqr", shrinkage="auto")),
+        ]
+    )
+
 
 ## Classical Pipelines
 
@@ -303,7 +312,7 @@ plot = sns.stripplot(
     alpha=0.5,
     palette="Set1",
 )
-plot.axvline(len(order) // 2 - 0.5, ls='--')
+plot.axvline(len(order) // 2 - 0.5, ls="--")
 sns.pointplot(
     data=results,
     y="score",
