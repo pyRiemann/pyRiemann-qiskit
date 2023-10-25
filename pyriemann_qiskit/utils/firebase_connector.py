@@ -21,7 +21,7 @@ class FirebaseConnector:
 
     Format of the data is as follows:
 
-    ```
+    ``
     datasets: {
         bi2012: {
             subject_01: {
@@ -32,7 +32,7 @@ class FirebaseConnector:
             }
         }
     }
-    ```
+    ``
 
     Parameters
     ----------
@@ -228,8 +228,8 @@ class Cache:
         subject: int|str
             A subject in the dataset.
 
-        Return
-        --------
+        Returns
+        -------
         true_labels: List
             The true labels.
         predicted_labels: List
@@ -270,12 +270,12 @@ def generate_caches(datasets: list, pipelines: list, mock_data=None):
     --------
     FirebaseConnector
 
-    Return
-    --------
+    Returns
+    -------
     caches: Dict
         A dictionnary containing all the generated caches, e.g.:
-        caches[datasetA][pipeline1]
-        contains the cache for the datasetA and the pipeline1.
+        ``caches[datasetA][pipeline1]``
+        contains the cache for the ``datasetA`` and the ``pipeline1``.
 
     Notes
     -----
@@ -312,8 +312,8 @@ def filter_subjects_by_incomplete_results(caches, datasets: list, pipelines: lis
     pipelines: List
         The sklearn Pipelines.
 
-    Return
-    --------
+    Returns
+    -------
     results: Dict
         A dictionnary of existing results, e.g.:
         results[datasetA][subjectA]
@@ -404,8 +404,8 @@ def convert_caches_to_dataframes(caches, datasets, pipelines):
     pipelines: List
         The sklearn Pipelines.
 
-    Return
-    --------
+    Returns
+    -------
     results: pandas.DataFrame
         Results extracted from the caches.
         Headers of the DataFrame are:
