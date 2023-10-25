@@ -23,14 +23,14 @@ class FirebaseConnector:
 
     ``
     datasets: {
-        bi2012: {
-            subject_01: {
-                pipeline1: {
-                    true_labels: [...],
-                    predicted_labels: [...]
-                }
-            }
-        }
+    bi2012: {
+    subject_01: {
+    pipeline1: {
+    true_labels: [...],
+    predicted_labels: [...]
+    }
+    }
+    }
     }
     ``
 
