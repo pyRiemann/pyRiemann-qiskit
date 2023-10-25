@@ -25,7 +25,7 @@ RUN mkdir /home/mne_data
 
 ## Workaround for firestore
 RUN pip install protobuf==4.25.0rc2
-RUN pip install google_cloud_firestore==2.12.0
+RUN pip install google_cloud_firestore==2.13.0
 ### Missing __init__ file in protobuf
 RUN touch /usr/local/lib/python3.9/site-packages/protobuf-4.25.0rc2-py3.9-linux-x86_64.egg/google/__init__.py
 ## google.cloud.location is never used in these files, and is missing in path.
