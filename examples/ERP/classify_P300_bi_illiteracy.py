@@ -59,15 +59,10 @@ print(__doc__)
 
 ########################################## Judge classifier
 
+
 # Grossi et al
 class JudgeClassifier(ClassifierMixin):
-
-    def __init__(
-        self,
-        c1,
-        c2,
-        judge
-    ):
+    def __init__(self, c1, c2, judge):
         self.c1 = c1
         self.c2 = c2
         self.judge = judge
@@ -77,19 +72,19 @@ class JudgeClassifier(ClassifierMixin):
         y1 = self.c1.fit(X, y).predict(X)
         y2 = self.c2.fit(X, y).predict(X)
         mask = np.not_equal(y1, y2)
-        if(mask.all() == False):
+        if mask.all() == False:
             self.judge.fit(X, y)
         else:
             y_diff = y[mask]
             X_diff = X[mask]
             self.judge.fit(X_diff, y_diff)
-    
+
     def predict(self, X):
         y1 = self.c1.predict(X)
         y2 = self.c2.predict(X)
         y_pred = y1
         mask = np.not_equal(y1, y2)
-        if(mask.all() == False):
+        if mask.all() == False:
             return y_pred
         X_diff = X[mask]
         y_pred[mask] = self.judge.predict(X_diff)
@@ -102,11 +97,12 @@ class JudgeClassifier(ClassifierMixin):
         y2 = self.c2.predict(X)
         predict_proba = (y1_proba + y2_proba) / 2
         mask = np.not_equal(y1, y2)
-        if(mask.all() == False):
+        if mask.all() == False:
             return predict_proba
         X_diff = X[mask]
         predict_proba[mask] = self.judge.predict_proba(X_diff)
         return predict_proba
+
 
 ##############################################################################
 # getting rid of the warnings about the future
@@ -148,31 +144,40 @@ labels_dict = {"Target": 1, "NonTarget": 0}
 #
 # Pipelines must be a dict of sklearn pipeline transformer.
 
+
 class PIP(str, Enum):
-    xDAWN_Cov_TsLDA = '(C) xDAWN+Cov+TsLDA'
-    xDAWN_LDA = '(C) xDAWN+LDA'
-    xDAWN_Cov_MDM = '(C) xDAWN+Cov+MDM'
-    xDAWN_Cov_TsSVC = '(C) xDAWN+Cov+TsSVC'
-    ERPCov_CvxMDM_Dist = '(C) ERPCov+CvxMDM+Dist'
-    ERPCov_QMDM_Dist = '(Q) ERPCov+QMDM+Dist'
-    xDAWN_Cov_TsQSVC = '(Q) xDAWN+Cov+TsQSVC'
-    Vot_QMDM_Dist_Mean = '(Q) Vot+QMDM+Dist+Mean'
-    Vot_QMDM_MDM = '(Q) Vot+QMDM+MDM'
-    GradBoost_ERPCov_QMDM = '(Q) XGBoost_ERPCov_QMDM'
+    xDAWN_Cov_TsLDA = "(C) xDAWN+Cov+TsLDA"
+    xDAWN_LDA = "(C) xDAWN+LDA"
+    xDAWN_Cov_MDM = "(C) xDAWN+Cov+MDM"
+    xDAWN_Cov_TsSVC = "(C) xDAWN+Cov+TsSVC"
+    ERPCov_CvxMDM_Dist = "(C) ERPCov+CvxMDM+Dist"
+    ERPCov_QMDM_Dist = "(Q) ERPCov+QMDM+Dist"
+    xDAWN_Cov_TsQSVC = "(Q) xDAWN+Cov+TsQSVC"
+    Vot_QMDM_Dist_Mean = "(Q) Vot+QMDM+Dist+Mean"
+    Vot_QMDM_MDM = "(Q) Vot+QMDM+MDM"
+    GradBoost_ERPCov_QMDM = "(Q) XGBoost_ERPCov_QMDM"
+
 
 pipelines = {}
 
+
 def placeholder(key):
-    pipelines[key] = Pipeline(steps=[
-        (key, XdawnCovariances(
-            nfilter=4,
-            classes=[labels_dict["Target"]],
-            estimator="scm", # add to classification?
-            xdawn_estimator="lwf",
-        )),
-        ("TS", TangentSpace()),
-        ("LDA", LDA(solver="lsqr", shrinkage="auto")),
-    ])
+    pipelines[key] = Pipeline(
+        steps=[
+            (
+                key,
+                XdawnCovariances(
+                    nfilter=4,
+                    classes=[labels_dict["Target"]],
+                    estimator="scm",  # add to classification?
+                    xdawn_estimator="lwf",
+                ),
+            ),
+            ("TS", TangentSpace()),
+            ("LDA", LDA(solver="lsqr", shrinkage="auto")),
+        ]
+    )
+
 
 ## Classical Pipelines
 
@@ -180,7 +185,7 @@ pipelines[PIP.xDAWN_Cov_TsLDA.value] = make_pipeline(
     XdawnCovariances(
         nfilter=4,
         classes=[labels_dict["Target"]],
-        estimator="scm", # add to classification?
+        estimator="scm",  # add to classification?
         xdawn_estimator="lwf",
     ),
     TangentSpace(),
@@ -260,7 +265,7 @@ pipelines[PIP.GradBoost_ERPCov_QMDM.value] = make_pipeline(
     JudgeClassifier(
         pipelines[PIP.xDAWN_Cov_TsQSVC],
         pipelines[PIP.xDAWN_Cov_TsLDA],
-        xDAWN_Cov_TsGradBoost
+        xDAWN_Cov_TsGradBoost,
     )
 )
 placeholder(PIP.GradBoost_ERPCov_QMDM.value)
@@ -300,18 +305,18 @@ print(results.groupby("pipeline").mean("score")[["score", "time"]])
 
 fig, ax = plt.subplots(facecolor="white", figsize=[8, 4])
 
-order = np.sort(np.unique(results['pipeline'].to_numpy()))
+order = np.sort(np.unique(results["pipeline"].to_numpy()))
 
 plot = sns.stripplot(
     data=results,
     x="pipeline",
     y="score",
     order=order,
-    hue='pipeline',
+    hue="pipeline",
     hue_order=order,
     jitter=True,
     alpha=0.5,
-    palette="Set1"
+    palette="Set1",
 )
 plot.axvline(len(order) // 2 - 0.5)
 sns.pointplot(
@@ -320,12 +325,10 @@ sns.pointplot(
     x="pipeline",
     ax=ax,
     palette="Set1",
-    hue='pipeline',
+    hue="pipeline",
     hue_order=order,
-    order=order
-).set(
-    title="title"
-)
+    order=order,
+).set(title="title")
 
 ax.set_ylabel("ROC AUC")
 ax.set_ylim(0.3, 1)
