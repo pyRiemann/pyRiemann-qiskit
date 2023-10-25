@@ -307,19 +307,29 @@ plot = sns.stripplot(
     x="pipeline",
     y="score",
     order=order,
-    # hue='pipeline',
+    hue='pipeline',
     hue_order=order,
     jitter=True,
     alpha=0.5,
     palette="Set1"
 )
 plot.axvline(len(order) // 2 - 0.5)
-sns.pointplot(data=results, y="score", x="pipeline", ax=ax, palette="Set1").set(
+sns.pointplot(
+    data=results,
+    y="score",
+    x="pipeline",
+    ax=ax,
+    palette="Set1",
+    hue='pipeline',
+    hue_order=order,
+    order=order
+).set(
     title="title"
 )
 
 ax.set_ylabel("ROC AUC")
 ax.set_ylim(0.3, 1)
 
+plt.subplots_adjust(bottom=0.3)
 plt.xticks(rotation=45)
 plt.show()
