@@ -125,7 +125,7 @@ class ToEpochs(TransformerMixin, BaseEstimator):
             # Note:
             # here we include the fraud/genuine loan itself in the epochs.
             # we could try without (epoch.index < index) and verify
-            # it is still able to predict the label of the _next_ loan. 
+            # it is still able to predict the label of the _next_ loan.
             epoch = epoch[epoch.index <= index]
             epoch.drop(columns=["index"], inplace=True)
             all_epochs.append(np.transpose(epoch))
