@@ -25,21 +25,25 @@ pip install moabb==0.5.0
 
 from enum import Enum
 from matplotlib import pyplot as plt
-import warnings
+import numpy as np
 import seaborn as sns
+import warnings
+
+from mne.decoding import Vectorizer
 from moabb import set_log_level
-from moabb.datasets import BNCI2014009
-from moabb.datasets.compound_dataset import BI_Il, Cattan2019_VR_Il
+from moabb.datasets.compound_dataset import Cattan2019_VR_Il
+from moabb.evaluations import WithinSessionEvaluation
+from moabb.paradigms import P300
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann.classification import MDM
 from pyriemann.spatialfilters import Xdawn
-from moabb.evaluations import WithinSessionEvaluation
-from moabb.paradigms import P300
 from sklearn.decomposition import PCA
 from sklearn.ensemble import VotingClassifier
 from sklearn.base import ClassifierMixin
-from mne.decoding import Vectorizer
+from sklearn.pipeline import make_pipeline, Pipeline
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.svm import SVC
 
 # inject convex distance and mean to pyriemann (if not done already)
 from pyriemann_qiskit.utils import distance, mean  # noqa
@@ -49,11 +53,6 @@ from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
 )
 
-from sklearn.pipeline import make_pipeline, Pipeline
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from sklearn.svm import SVC
-
-import numpy as np
 
 print(__doc__)
 
@@ -108,10 +107,9 @@ class JudgeClassifier(ClassifierMixin):
 # getting rid of the warnings about the future
 warnings.simplefilter(action="ignore", category=FutureWarning)
 warnings.simplefilter(action="ignore", category=RuntimeWarning)
-
 warnings.filterwarnings("ignore")
-
 set_log_level("info")
+
 
 ##############################################################################
 # Initialization
@@ -132,11 +130,13 @@ for dataset in datasets:
     title = title + " " + dataset.code
     dataset.subject_list = dataset.subject_list[0:n_subjects]
 
+
 ##############################################################################
 # We have to do this because the classes are called 'Target' and 'NonTarget'
 # but the evaluation function uses a LabelEncoder, transforming them
 # to 0 and 1
 labels_dict = {"Target": 1, "NonTarget": 0}
+
 
 ##############################################################################
 # Create Pipelines
@@ -146,13 +146,13 @@ labels_dict = {"Target": 1, "NonTarget": 0}
 
 
 class PIP(str, Enum):
-    xDAWN_Cov_TsLDA = "(C) xDAWN+Cov+TsLDA"
-    xDAWN_LDA = "(C) xDAWN+LDA"
-    xDAWN_Cov_MDM = "(C) xDAWN+Cov+MDM"
-    xDAWN_Cov_TsSVC = "(C) xDAWN+Cov+TsSVC"
+    xDAWNCov_TsLDA = "(C) XdawnCov+TsLDA"
+    xDAWN_LDA = "(C) Xdawn+LDA"
+    xDAWNCov_MDM = "(C) XdawnCov+MDM"
+    xDAWNCov_TsSVC = "(C) XdawnCov+TsSVC"
     ERPCov_CvxMDM_Dist = "(C) ERPCov+CvxMDM+Dist"
     ERPCov_QMDM_Dist = "(Q) ERPCov+QMDM+Dist"
-    xDAWN_Cov_TsQSVC = "(Q) xDAWN+Cov+TsQSVC"
+    xDAWNCov_TsQSVC = "(Q) XdawnCov+TsQSVC"
     Vot_QMDM_Dist_Mean = "(Q) Vot+QMDM+Dist+Mean"
     Vot_QMDM_MDM = "(Q) Vot+QMDM+MDM"
     Judge_QMDM_MDM_TsLDA = "(Q) GradBoost_QMDM_MDM"
@@ -185,7 +185,7 @@ def placeholder(key):
 
 ## Classical Pipelines
 
-pipelines[PIP.xDAWN_Cov_TsLDA.value] = make_pipeline(
+pipelines[PIP.xDAWNCov_TsLDA.value] = make_pipeline(
     XdawnCovariances(
         nfilter=4,
         classes=[labels_dict["Target"]],
@@ -195,9 +195,9 @@ pipelines[PIP.xDAWN_Cov_TsLDA.value] = make_pipeline(
     TangentSpace(),
     LDA(solver="lsqr", shrinkage="auto"),
 )
-placeholder(PIP.xDAWN_Cov_TsLDA.value)
+placeholder(PIP.xDAWNCov_TsLDA.value)
 
-pipelines[PIP.xDAWN_Cov_TsSVC.value] = make_pipeline(
+pipelines[PIP.xDAWNCov_TsSVC.value] = make_pipeline(
     XdawnCovariances(
         nfilter=4,
         classes=[labels_dict["Target"]],
@@ -207,9 +207,9 @@ pipelines[PIP.xDAWN_Cov_TsSVC.value] = make_pipeline(
     TangentSpace(),
     SVC(),
 )
-placeholder(PIP.xDAWN_Cov_TsSVC.value)
+placeholder(PIP.xDAWNCov_TsSVC.value)
 
-pipelines[PIP.xDAWN_Cov_MDM.value] = make_pipeline(
+pipelines[PIP.xDAWNCov_MDM.value] = make_pipeline(
     XdawnCovariances(
         nfilter=4,
         classes=[labels_dict["Target"]],
@@ -218,7 +218,7 @@ pipelines[PIP.xDAWN_Cov_MDM.value] = make_pipeline(
     ),
     MDM(),
 )
-placeholder(PIP.xDAWN_Cov_MDM.value)
+placeholder(PIP.xDAWNCov_MDM.value)
 
 pipelines[PIP.xDAWN_LDA.value] = make_pipeline(
     Xdawn(nfilter=3),
@@ -247,19 +247,19 @@ placeholder(PIP.ERPCov_QMDM_Dist.value)
 pipelines[PIP.Vot_QMDM_Dist_Mean.value] = QuantumMDMVotingClassifier(quantum=True)
 placeholder(PIP.Vot_QMDM_Dist_Mean.value)
 
-pipelines[PIP.xDAWN_Cov_TsQSVC.value] = QuantumClassifierWithDefaultRiemannianPipeline(
+pipelines[PIP.xDAWNCov_TsQSVC.value] = QuantumClassifierWithDefaultRiemannianPipeline(
     shots=512,
     nfilter=4,
     classes=[labels_dict["Target"]],
     dim_red=PCA(n_components=10),
 )
-placeholder(PIP.xDAWN_Cov_TsQSVC.value)
+placeholder(PIP.xDAWNCov_TsQSVC.value)
 
 pipelines[PIP.Judge_QMDM_MDM_TsLDA.value] = make_pipeline(
     JudgeClassifier(
         pipelines[PIP.ERPCov_QMDM_Dist],
-        pipelines[PIP.xDAWN_Cov_MDM],
-        pipelines[PIP.xDAWN_Cov_TsLDA],
+        pipelines[PIP.xDAWNCov_MDM],
+        pipelines[PIP.xDAWNCov_TsLDA],
     )
 )
 placeholder(PIP.Judge_QMDM_MDM_TsLDA.value)
@@ -267,15 +267,16 @@ placeholder(PIP.Judge_QMDM_MDM_TsLDA.value)
 pipelines[PIP.Vot_QMDM_MDM.value] = VotingClassifier(
     [
         ("QMDM", pipelines[PIP.ERPCov_QMDM_Dist.value]),
-        ("MDM ", pipelines[PIP.xDAWN_Cov_MDM]),
+        ("MDM ", pipelines[PIP.xDAWNCov_MDM]),
     ],
     voting="soft",
 )
 placeholder(PIP.Vot_QMDM_MDM.value)
 
+
 ##############################################################################
 # Run evaluation
-# ----------------
+# --------------
 #
 # Compare the pipeline using a within session evaluation.
 
@@ -293,7 +294,7 @@ print(results.groupby("pipeline").mean("score")[["score", "time"]])
 
 # ##############################################################################
 # Plot Results
-# ----------------
+# ------------
 #
 # Here we plot the results to compare two pipelines
 
