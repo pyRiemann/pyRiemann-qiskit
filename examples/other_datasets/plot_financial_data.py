@@ -122,6 +122,10 @@ class ToEpochs(TransformerMixin, BaseEstimator):
         for x in X:
             index = x[-1]
             epoch = features[features.index > index - self.n]
+            # Note:
+            # here we include the fraud/genuine loan itself in the epochs.
+            # we could try without (epoch.index < index) and verify
+            # it is still able to predict the label of the _next_ loan. 
             epoch = epoch[epoch.index <= index]
             epoch.drop(columns=["index"], inplace=True)
             all_epochs.append(np.transpose(epoch))
@@ -129,7 +133,8 @@ class ToEpochs(TransformerMixin, BaseEstimator):
         return all_epochs
 
 
-# Stackoverflow implementation [4]_
+# Apply one standard scaler by channel:
+# See Stackoverflow link for more details [4]_
 class NDStandardScaler(TransformerMixin):
     def __init__(self):
         self._scalers = []
@@ -281,10 +286,16 @@ score_rf = rf.score(X_test, y_test)
 # Print the results
 print("----Training score:----")
 print(
-    f"Classical SVM: {train_score_svm} \nQuantum SVM: {train_score_qsvm} \nClassical RandomForest: {train_score_rf}"
+    f"Classical SVM: {train_score_svm}\
+    \nQuantum SVM: {train_score_qsvm}\
+    \nClassical RandomForest: {train_score_rf}"
 )
 print("----Testing score:----")
-print(f"Classical: {score_svm} \nQuantum: {score_qsvm} \nRF: {score_rf}")
+print(
+    f"Classical SVM: {score_svm}\
+    \nQuantum SVM: {score_qsvm}\
+    \nClassical RandomForest: {score_rf}"
+)
 
 
 ###############################################################################
