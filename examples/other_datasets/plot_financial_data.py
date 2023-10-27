@@ -22,7 +22,7 @@ from sklearn.base import TransformerMixin, BaseEstimator
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import RobustScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from imblearn.under_sampling import NearMiss
@@ -121,12 +121,12 @@ class ToEpochs(TransformerMixin, BaseEstimator):
         all_epochs = []
         for x in X:
             index = x[-1]
-            epoch = features[features.index > index - self.n]
+            epoch = features[features.index > index - self.n - 1]
             # Note:
             # here we include the fraud/genuine loan itself in the epochs.
             # we could try without (epoch.index < index) and verify
             # it is still able to predict the label of the _next_ loan.
-            epoch = epoch[epoch.index <= index]
+            epoch = epoch[epoch.index < index]
             epoch.drop(columns=["index"], inplace=True)
             all_epochs.append(np.transpose(epoch))
         all_epochs = np.array(all_epochs)
@@ -135,7 +135,7 @@ class ToEpochs(TransformerMixin, BaseEstimator):
 
 # Apply one standard scaler by channel:
 # See Stackoverflow link for more details [4]_
-class NDStandardScaler(TransformerMixin):
+class NDRobustScaler(TransformerMixin):
     def __init__(self):
         self._scalers = []
 
@@ -143,7 +143,7 @@ class NDStandardScaler(TransformerMixin):
         _, n_channels, _ = X.shape
         self._scalers = []
         for i in range(n_channels):
-            scaler = StandardScaler()
+            scaler = RobustScaler()
             scaler.fit(X[:, i, :])
             self._scalers.append(scaler)
         return self
@@ -202,7 +202,7 @@ rf = RandomForestClassifier()
 # the classical SVM
 pipe = make_pipeline(
     ToEpochs(n=10),
-    NDStandardScaler(),
+    NDRobustScaler(),
     XdawnCovariances(nfilter=1),
     OptionalWhitening(process=True, n_components=4),
     SlimVector(keep_diagonal=True),
@@ -236,7 +236,7 @@ gs = GridSearchCV(
 X, y = NearMiss().fit_resample(features.to_numpy(), target.to_numpy())
 
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
+    X, y, test_size=0.2, random_state=42, stratify=y
 )
 
 labels, counts = np.unique(y_train, return_counts=True)
@@ -246,8 +246,8 @@ labels, counts = np.unique(y_test, return_counts=True)
 print(f"Testing set shape: {X_test.shape}, genuine: {counts[0]}, frauds: {counts[1]}")
 
 # Before fitting the GridSearchCV, let's display the "ERP"
-epochs = ToEpochs(n=10).transform(X_train)
-reduced_centered_epochs = NDStandardScaler().fit_transform(epochs)
+epochs = ToEpochs(n=10).transform(features[target == 1].to_numpy())
+reduced_centered_epochs = NDRobustScaler().fit_transform(epochs)
 
 fig = plot_waveforms(reduced_centered_epochs, "hist")
 for i_channel in range(len(channels)):
