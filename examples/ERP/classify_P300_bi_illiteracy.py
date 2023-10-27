@@ -56,19 +56,19 @@ from pyriemann_qiskit.pipelines import (
 
 print(__doc__)
 
-########################################## Judge classifier
-
-
-"""
-On this classifier implementation:
-
-"We trained both the quantum and classical algorithms
-on the balanced dataset[...].
-When the two classifiers disagreed on the label of a given transaction
-in the training set, the transaction was noted.
-These transactions, a subset of the training data of the balanced dataset,
-formed an additional dataset on which a metaclassifier was subsequently trained" [1]_.
-"""
+##############################################################################
+# Judge classifier
+# ----------------
+#
+# On this classifier implementation:
+#
+# "We trained both the quantum and classical algorithms
+# on the balanced dataset[...].
+# When the two classifiers disagreed on the label of a given transaction
+# in the training set, the transaction was noted.
+# These transactions, a subset of the training data of the balanced dataset,
+# formed an additional dataset on which a metaclassifier was subsequently
+# trained" [1]_.
 
 
 class JudgeClassifier(ClassifierMixin):
@@ -124,7 +124,7 @@ set_log_level("info")
 
 ##############################################################################
 # Initialization
-# ----------------
+# --------------
 #
 # 1) Create paradigm
 # 2) Load datasets
@@ -307,7 +307,7 @@ print(results.groupby("pipeline").mean("score")[["score", "time"]])
 # Plot Results
 # ------------
 #
-# Here we plot the results to compare two pipelines
+# Here we plot the results to compare pipelines
 
 fig, ax = plt.subplots(facecolor="white", figsize=[8, 4])
 
@@ -347,6 +347,7 @@ plt.show()
 # References
 # ----------
 # .. [1] M. Grossi et al.,
-#       ‘Mixed Quantum–Classical Method for Fraud Detection With Quantum Feature Selection’,
+#       ‘Mixed Quantum–Classical Method for Fraud Detection With Quantum
+#       Feature Selection’,
 #       IEEE Transactions on Quantum Engineering,
 #       doi: 10.1109/TQE.2022.3213474.
