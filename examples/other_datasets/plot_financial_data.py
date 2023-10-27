@@ -18,7 +18,7 @@ A detailed description of all features is available in [2]_.
 # Authors: Gregoire Cattan, Filipe Barroso
 # License: BSD (3-clause)
 
-from sklearn.base import TransformerMixin, BaseEstimator
+from sklearn.base import TransformerMixin, BaseEstimator, ClassifierMixin
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
@@ -206,7 +206,7 @@ pipe = make_pipeline(
     XdawnCovariances(nfilter=1),
     OptionalWhitening(process=True, n_components=4),
     SlimVector(keep_diagonal=True),
-    SVC(),
+    SVC(probability=True),
 )
 
 # Optimize the pipeline:
@@ -275,7 +275,7 @@ score_svm = gs.best_estimator_.score(X_test, y_test)
 
 # Quantum pipeline:
 # let's take the same parameters but evaluate the pipeline with a quantum SVM:
-gs.best_estimator_.steps[-1] = ("quanticsvm", QuanticSVM(quantum=True))
+gs.best_estimator_.steps[-1] = ("quanticsvm", QuanticSVM(quantum=True, C=5))
 train_score_qsvm = gs.best_estimator_.fit(X_train, y_train).score(X_train, y_train)
 score_qsvm = gs.best_estimator_.score(X_test, y_test)
 
@@ -297,7 +297,32 @@ print(
     \nClassical RandomForest: {score_rf}"
 )
 
+##############################################################################
+#
+# Unsupervised classification (collusion vs no-collusion)
+#
 
+class ERP_CollusionClassifier(ClassifierMixin):
+    def __init__(self, row_clf, erp_clf, threshold=0.8):
+        self.row_clf = row_clf
+        self.erp_clf = erp_clf
+        self.threshold = threshold
+
+    def fit(self, X, y):
+        # Do not apply: Classifiers are already fitted
+        return self
+
+    def predict(self, X):
+        y_pred = self.row_clf.predict(X)
+        collusion_prob = self.erp_clf.predict_proba(X)
+        y_pred[y_pred == 1] = collusion_prob[y_pred == 1, 1].transpose()
+        y_pred[y_pred >= self.threshold] = 1
+        y_pred[y_pred < self.threshold] = 0
+        return y_pred
+
+y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X_test)
+
+print("probable collusion:", y_pred)
 ###############################################################################
 # References
 # ----------
