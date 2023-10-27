@@ -69,6 +69,8 @@ in the training set, the transaction was noted.
 These transactions, a subset of the training data of the balanced dataset,
 formed an additional dataset on which a metaclassifier was subsequently trained" [1]_.
 """
+
+
 class JudgeClassifier(ClassifierMixin):
     def __init__(self, c1, c2, judge):
         self.c1 = c1
