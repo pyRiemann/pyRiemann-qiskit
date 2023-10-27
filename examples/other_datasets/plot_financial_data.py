@@ -10,10 +10,18 @@ The dataset contains synthethic data generated from a real dataset
 of CaixaBank’s express loans [2]_.
 Each entry contains, for example, the date and amount of the loan request,
 the client identification number and the creation date of the account.
-A loan is tagge with either tentative or confirmation of fraud, when a fraudster
+A loan is tagged with either tentative or confirmation of fraud, when a fraudster
 has impersonate the client to claim that type of loan and steal client’s funds.
 
-A detailed description of all features is available in [2]_.
+Once the fraud is caractized, a complex task is to identify whether or not a collusion
+is taking place. One fraudster can for example corrupt a client having already a good
+history with the bank. The fraud can also involves a bank agent who is mandated by the client.
+The scam perdurate over time, sometime over month or years.
+Identifying these participants is essential to prevent similar scam to happen in the future.
+
+In this example, we will use RG to identify whether or not a fraud is a probable collusion.
+Because this method work one a small number of components, it is also compatible with Quantum.
+
 """
 # Authors: Gregoire Cattan, Filipe Barroso
 # License: BSD (3-clause)
@@ -122,10 +130,6 @@ class ToEpochs(TransformerMixin, BaseEstimator):
         for x in X:
             index = x[-1]
             epoch = features[features.index > index - self.n - 1]
-            # Note:
-            # here we include the fraud/genuine loan itself in the epochs.
-            # we could try without (epoch.index < index) and verify
-            # it is still able to predict the label of the _next_ loan.
             epoch = epoch[epoch.index < index]
             epoch.drop(columns=["index"], inplace=True)
             all_epochs.append(np.transpose(epoch))
@@ -133,7 +137,7 @@ class ToEpochs(TransformerMixin, BaseEstimator):
         return all_epochs
 
 
-# Apply one standard scaler by channel:
+# Apply one scaler by channel:
 # See Stackoverflow link for more details [4]_
 class NDRobustScaler(TransformerMixin):
     def __init__(self):
@@ -195,7 +199,7 @@ class OptionalWhitening(TransformerMixin, BaseEstimator):
         return Whitening(dim_red={"n_components": 4}).fit_transform(X)
 
 
-# Create a RandomForest for baseline comparison:
+# Create a RandomForest for baseline comparison of direct classification:
 rf = RandomForestClassifier()
 
 # Classical pipeline: put together the transformers, and add at the end
@@ -259,6 +263,8 @@ plt.show()
 # Run evaluation
 # --------------
 #
+# (Supervised classification)
+#
 # Run the evaluation on a classical vs quantum pipeline.
 
 # Let's fit our GridSearchCV, to find the best hyper parameters
@@ -283,7 +289,11 @@ score_qsvm = gs.best_estimator_.score(X_test, y_test)
 train_score_rf = rf.fit(X_train, y_train).score(X_train, y_train)
 score_rf = rf.score(X_test, y_test)
 
-# Print the results
+# Print the results of direct classification of fraud record itself
+# Note:
+# SVM/QSVM pipeline use the loans preceding the actual fraud, without the fraud itself
+# RandomForest use only the fraud record itself
+# 
 print("----Training score:----")
 print(
     f"Classical SVM: {train_score_svm}\
@@ -301,7 +311,13 @@ print(
 #
 # Unsupervised classification (collusion vs no-collusion)
 #
-
+# We will now predict whether or not the fraud was a collusion or not.
+# This is a two steps process:
+# 1) We have the no-aware ERP method (namely RandomForest)
+#    to predict whether not the transaction is a fraud
+# 2) If the fraud is caracterized, we use the QSVC pipeline to
+#    predict whether or not it is a collusion or not
+#
 class ERP_CollusionClassifier(ClassifierMixin):
     def __init__(self, row_clf, erp_clf, threshold=0.8):
         self.row_clf = row_clf
@@ -320,9 +336,19 @@ class ERP_CollusionClassifier(ClassifierMixin):
         y_pred[y_pred < self.threshold] = 0
         return y_pred
 
+
+# The y_pred here contains 1 if the fraud is a possible collusion or 0 else.
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X_test)
 
-print("probable collusion:", y_pred)
+# We will get the epochs associated with these frauds
+high_warning_loan = np.concatenate(ToEpochs(n=10).transform(X_test[y_pred == 1]))
+
+# and from there the incriminated terminal IP and customer ID, for investigation:
+high_warning_ip = high_warning_loan[:, 0].astype(str)
+high_warning_id = high_warning_loan[:, 3].astype(str)
+print("IP involved in probable collusion: ", high_warning_ip)
+print("ID involved in probable collusion: ", high_warning_id)
+
 ###############################################################################
 # References
 # ----------
