@@ -250,13 +250,13 @@ labels, counts = np.unique(y_test, return_counts=True)
 print(f"Testing set shape: {X_test.shape}, genuine: {counts[0]}, frauds: {counts[1]}")
 
 # Before fitting the GridSearchCV, let's display the "ERP"
-epochs = ToEpochs(n=10).transform(features[target == 1].to_numpy())
-reduced_centered_epochs = NDRobustScaler().fit_transform(epochs)
+# epochs = ToEpochs(n=10).transform(features[target == 1].to_numpy())
+# reduced_centered_epochs = NDRobustScaler().fit_transform(epochs)
 
-fig = plot_waveforms(reduced_centered_epochs, "hist")
-for i_channel in range(len(channels)):
-    fig.axes[i_channel].set(ylabel=digest[i_channel])
-plt.show()
+# fig = plot_waveforms(reduced_centered_epochs, "hist")
+# for i_channel in range(len(channels)):
+#     fig.axes[i_channel].set(ylabel=digest[i_channel])
+# plt.show()
 
 
 ##############################################################################
@@ -285,6 +285,9 @@ gs.best_estimator_.steps[-1] = ("quanticsvm", QuanticSVM(quantum=True, C=5))
 train_score_qsvm = gs.best_estimator_.fit(X_train, y_train).score(X_train, y_train)
 score_qsvm = gs.best_estimator_.score(X_test, y_test)
 
+
+
+
 # Create a point of comparison with the RandomForest
 train_score_rf = rf.fit(X_train, y_train).score(X_train, y_train)
 score_rf = rf.score(X_test, y_test)
@@ -306,6 +309,16 @@ print(
     \nQuantum SVM: {score_qsvm}\
     \nClassical RandomForest: {score_rf}"
 )
+
+proba_qsvm = gs.best_estimator_.predict_proba(X)
+
+epochs = ToEpochs(n=10).transform(X[proba_qsvm[:, 1] > 0.7])
+reduced_centered_epochs = NDRobustScaler().fit_transform(epochs)
+
+fig = plot_waveforms(reduced_centered_epochs, "hist")
+for i_channel in range(len(channels)):
+    fig.axes[i_channel].set(ylabel=digest[i_channel])
+plt.show()
 
 ##############################################################################
 #
