@@ -20,7 +20,7 @@ The scam perdurate over time, sometime over month or years.
 Identifying these participants is essential to prevent similar scam to happen in the future.
 
 In this example, we will use RG to identify whether or not a fraud is a probable collusion.
-Because this method work one a small number of components, it is also compatible with Quantum.
+Because this method work on a small number of components, it is also compatible with Quantum.
 
 """
 # Authors: Gregoire Cattan, Filipe Barroso
@@ -30,7 +30,7 @@ from sklearn.base import TransformerMixin, BaseEstimator, ClassifierMixin
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import RobustScaler
+from sklearn.preprocessing import RobustScaler, LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from imblearn.under_sampling import NearMiss
@@ -101,7 +101,10 @@ features["FECHA_ALTA_CLIENTE"] = pd.to_datetime(features["FECHA_ALTA_CLIENTE"])
 features["FECHA_ALTA_CLIENTE"] = features["FECHA_ALTA_CLIENTE"].apply(lambda x: x.value)
 
 # Let's encode our categorical variable (LabelEncoding):
-features["IP_TERMINAL"] = features["IP_TERMINAL"].astype("category").cat.codes
+# features["IP_TERMINAL"] = features["IP_TERMINAL"].astype("category").cat.codes
+le = LabelEncoder()
+le.fit(features["IP_TERMINAL"].astype("category"))
+features["IP_TERMINAL"] = le.transform(features["IP_TERMINAL"].astype("category"))
 
 # ... and create an 'index' column in the dataset
 # Note: this is done only for progamming reason, due to our implementation
@@ -357,8 +360,8 @@ y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X_test)
 high_warning_loan = np.concatenate(ToEpochs(n=10).transform(X_test[y_pred == 1]))
 
 # and from there the incriminated terminal IP and customer ID, for investigation:
-high_warning_ip = high_warning_loan[:, 0].astype(str)
-high_warning_id = high_warning_loan[:, 3].astype(str)
+high_warning_ip = le.inverse_transform(high_warning_loan[0, :].astype(int))
+high_warning_id = high_warning_loan[3, :].astype(str)
 print("IP involved in probable collusion: ", high_warning_ip)
 print("ID involved in probable collusion: ", high_warning_id)
 
