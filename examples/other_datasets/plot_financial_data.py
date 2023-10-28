@@ -134,7 +134,7 @@ channels = [
     "FK_NUMPERSO",
     "FECHA_ALTA_CLIENTE",
     "FK_IMPORTE_PRINCIPAL",
-] #IND_MFA_OPE 
+] # Change seniority and contract code?
 digest = ["IP", "Contract code", "Balance", "ID", "Seniority", "Amount"]
 features = dataset[channels]
 target = dataset.FRAUD
@@ -356,10 +356,6 @@ print(
     \nClassical RandomForest: {score_rf}"
 )
 
-proba_qsvm = gs.best_estimator_.predict_proba(X)
-proba_rf = rf.predict_proba(X)
-plot_ERPs(X, proba_qsvm[:, 1] > 0.7 & proba_rf[:, 1] > 0.5)
-
 ##############################################################################
 #
 # Unsupervised classification (collusion vs no-collusion)
@@ -389,6 +385,9 @@ class ERP_CollusionClassifier(ClassifierMixin):
         y_pred[y_pred < self.threshold] = 0
         return y_pred
 
+
+y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X)
+plot_ERPs(X, y_pred)
 
 # The y_pred here contains 1 if the fraud is a possible collusion or 0 else, i.e:
 # not a fraud or not a collusion fraud
