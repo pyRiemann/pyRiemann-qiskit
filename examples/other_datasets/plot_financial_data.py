@@ -53,6 +53,59 @@ warnings.simplefilter(action="ignore", category=FutureWarning)
 warnings.simplefilter(action="ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore")
 
+##############################################################################
+# Some utils function for plotting
+# -------------------
+#
+
+def plot_ERP(X, title, add_digest=False):
+    epochs = ToEpochs(n=10).transform(X)
+    reduced_centered_epochs = NDRobustScaler().fit_transform(epochs)
+    fig = plot_waveforms(reduced_centered_epochs, "hist")
+    fig.axes[0].set_title(f"{title} ({len(X)})")
+    if not add_digest:
+        return fig
+    for i_channel in range(len(channels)):
+        fig.axes[i_channel].set(ylabel=digest[i_channel])
+    return fig
+    
+def merge_2axes(fig1,fig2,file_name1="f1.png",file_name2="f2.png"):
+  # Modified from [5]_
+  fig1.savefig(file_name1)
+  fig2.savefig(file_name2)
+  plt.close(fig1)
+  plt.close(fig2)
+  
+  # inherit figures' dimensions, partially
+  w1, w2 = [int(np.ceil(fig.get_figwidth())) for fig in (fig1, fig2)]
+  hmax = int(np.ceil(max([fig.get_figheight() for fig in (fig1, fig2)])))
+
+  fig, axes = plt.subplots(1, w1 + w2, figsize=(w1 + w2, hmax))
+  
+  # make two axes of desired height proportion
+  gs = axes[0].get_gridspec()
+  for ax in axes.flat:
+      ax.remove()
+  ax1 = fig.add_subplot(gs[0, :w1])
+  ax2 = fig.add_subplot(gs[0, w1:])
+
+  ax1.imshow(plt.imread(file_name1))
+  ax2.imshow(plt.imread(file_name2))
+
+  for ax in (ax1, ax2):
+      for side in ('top', 'left', 'bottom', 'right'):
+          ax.spines[side].set_visible(False)
+      ax.tick_params(left=False, right=False, labelleft=False,
+                     labelbottom=False, bottom=False)
+  
+  return fig
+
+def plot_ERPs(X, y):
+    fig0 = plot_ERP(X[y == 1], "Fraud", add_digest=True)
+    fig1 = plot_ERP(X[y == 0], "Genuine")
+    merge_2axes(fig0, fig1)
+    plt.show()
+
 
 ##############################################################################
 # Data pre-processing
@@ -77,12 +130,12 @@ dataset.FRAUD[dataset.FRAUD == 2] = 1
 channels = [
     "IP_TERMINAL",
     "FK_CONTRATO_PPAL_OPE",
-    "SALDO_ANTES_PRESTAMO",
+    "POSICION_GLOBAL_ANTES_PRESTAMO",
     "FK_NUMPERSO",
     "FECHA_ALTA_CLIENTE",
-    "PK_TSINSERCION",
-]
-digest = ["IP", "Contract code", "Balance", "ID", "Seniority", "PK_TSINSERCION"]
+    "FK_IMPORTE_PRINCIPAL",
+] #IND_MFA_OPE 
+digest = ["IP", "Contract code", "Balance", "ID", "Seniority", "Amount"]
 features = dataset[channels]
 target = dataset.FRAUD
 
@@ -98,10 +151,10 @@ features.fillna(method="ffill", inplace=True)
 
 # Convert date value to linux time
 features["FECHA_ALTA_CLIENTE"] = pd.to_datetime(features["FECHA_ALTA_CLIENTE"])
-features["FECHA_ALTA_CLIENTE"] = features["FECHA_ALTA_CLIENTE"].apply(lambda x: x.value)
+features["FECHA_ALTA_CLIENTE"] = features["FECHA_ALTA_CLIENTE"].apply(lambda x: x.year)
 
-features["PK_TSINSERCION"] = pd.to_datetime(features["PK_TSINSERCION"])
-features["PK_TSINSERCION"] = features["PK_TSINSERCION"].apply(lambda x: x.value)
+# features["PK_TSINSERCION"] = pd.to_datetime(features["PK_TSINSERCION"])
+# features["PK_TSINSERCION"] = features["PK_TSINSERCION"].apply(lambda x: x.value)
 
 # Let's encode our categorical variable (LabelEncoding):
 # features["IP_TERMINAL"] = features["IP_TERMINAL"].astype("category").cat.codes
@@ -255,60 +308,6 @@ print(f"Training set shape: {X_train.shape}, genuine: {counts[0]}, frauds: {coun
 labels, counts = np.unique(y_test, return_counts=True)
 print(f"Testing set shape: {X_test.shape}, genuine: {counts[0]}, frauds: {counts[1]}")
 
-def plot_ERP(X, add_digest=False):
-    epochs = ToEpochs(n=10).transform(X)
-    reduced_centered_epochs = NDRobustScaler().fit_transform(epochs)
-    fig = plot_waveforms(reduced_centered_epochs, "hist")
-    if not add_digest:
-        return fig
-    for i_channel in range(len(channels)):
-        fig.axes[i_channel].set(ylabel=digest[i_channel])
-    return fig
-    
-def merge_2axes(fig1,fig2,file_name1="f1.png",file_name2="f2.png"):
-  # https://stackoverflow.com/questions/16748577/matplotlib-combine-different-figures-and-put-them-in-a-single-subplot-sharing-a
-  fig1.savefig(file_name1)
-  fig2.savefig(file_name2)
-  plt.close(fig1)
-  plt.close(fig2)
-  
-  # inherit figures' dimensions, partially
-  w1, w2 = [int(np.ceil(fig.get_figwidth())) for fig in (fig1, fig2)]
-  hmax = int(np.ceil(max([fig.get_figheight() for fig in (fig1, fig2)])))
-
-  fig, axes = plt.subplots(1, w1 + w2, figsize=(w1 + w2, hmax))
-  
-  # make two axes of desired height proportion
-  gs = axes[0].get_gridspec()
-  for ax in axes.flat:
-      ax.remove()
-  ax1 = fig.add_subplot(gs[0, :w1])
-  ax2 = fig.add_subplot(gs[0, w1:])
-
-  ax1.imshow(plt.imread(file_name1))
-  ax2.imshow(plt.imread(file_name2))
-
-  for ax in (ax1, ax2):
-      for side in ('top', 'left', 'bottom', 'right'):
-          ax.spines[side].set_visible(False)
-      ax.tick_params(left=False, right=False, labelleft=False,
-                     labelbottom=False, bottom=False)
-
-  return fig
-
-# Before fitting the GridSearchCV, let's display the "ERP"
-# epochs = ToEpochs(n=10).transform(features[target == 1].to_numpy())
-# reduced_centered_epochs = NDRobustScaler().fit_transform(epochs)
-# fig = plot_waveforms(reduced_centered_epochs, "hist")
-# for i_channel in range(len(channels)):
-#     fig.axes[i_channel].set(ylabel=digest[i_channel])
-# plt.show()
-fig0 = plot_ERP(X[y == 1], add_digest=True)
-fig1 = plot_ERP(X[y == 0])
-fig = merge_2axes(fig0, fig1)
-plt.show()
-# plt.show()
-
 ##############################################################################
 # Run evaluation
 # --------------
@@ -335,9 +334,6 @@ gs.best_estimator_.steps[-1] = ("quanticsvm", QuanticSVM(quantum=True, C=5))
 train_score_qsvm = gs.best_estimator_.fit(X_train, y_train).score(X_train, y_train)
 score_qsvm = gs.best_estimator_.score(X_test, y_test)
 
-
-
-
 # Create a point of comparison with the RandomForest
 train_score_rf = rf.fit(X_train, y_train).score(X_train, y_train)
 score_rf = rf.score(X_test, y_test)
@@ -361,14 +357,8 @@ print(
 )
 
 proba_qsvm = gs.best_estimator_.predict_proba(X)
-
-# epochs = ToEpochs(n=10).transform(X[proba_qsvm[:, 1] <= 0.7])
-# reduced_centered_epochs = NDRobustScaler().fit_transform(epochs)
-
-# fig = plot_waveforms(reduced_centered_epochs, "hist")
-# for i_channel in range(len(channels)):
-#     fig.axes[i_channel].set(ylabel=digest[i_channel])
-# plt.show()
+proba_rf = rf.predict_proba(X)
+plot_ERPs(X, proba_qsvm[:, 1] > 0.7 & proba_rf[:, 1] > 0.5)
 
 ##############################################################################
 #
@@ -382,7 +372,7 @@ proba_qsvm = gs.best_estimator_.predict_proba(X)
 #    predict whether or not it is a collusion or not
 #
 class ERP_CollusionClassifier(ClassifierMixin):
-    def __init__(self, row_clf, erp_clf, threshold=0.8):
+    def __init__(self, row_clf, erp_clf, threshold=0.7):
         self.row_clf = row_clf
         self.erp_clf = erp_clf
         self.threshold = threshold
@@ -400,18 +390,11 @@ class ERP_CollusionClassifier(ClassifierMixin):
         return y_pred
 
 
-# The y_pred here contains 1 if the fraud is a possible collusion or 0 else.
+# The y_pred here contains 1 if the fraud is a possible collusion or 0 else, i.e:
+# not a fraud or not a collusion fraud
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X_test)
-
-print(y_pred[y_pred == 1].shape)
-epochs = ToEpochs(n=10).transform(X_test[y_pred == 0])
-reduced_centered_epochs = NDRobustScaler().fit_transform(epochs)
-
-fig = plot_waveforms(reduced_centered_epochs, "hist")
-for i_channel in range(len(channels)):
-    fig.axes[i_channel].set(ylabel=digest[i_channel])
-plt.show()
-
+# plot the temporal response of collusion vs non-co
+plot_ERPs(X_test, y_pred)
 
 # We will get the epochs associated with these frauds
 high_warning_loan = np.concatenate(ToEpochs(n=10).transform(X_test[y_pred == 1]))
@@ -431,5 +414,5 @@ print("ID involved in probable collusion: ", high_warning_id)
 #         https://zenodo.org/records/7418458
 # .. [3] https://pyriemann.readthedocs.io/en/latest/auto_examples/ERP/plot_ERP.html
 # .. [4] https://stackoverflow.com/questions/50125844/how-to-standard-scale-a-3d-matrix
-#
+# .. [5] https://stackoverflow.com/questions/16748577/matplotlib-combine-different-figures-and-put-them-in-a-single-subplot-sharing-a
 #
