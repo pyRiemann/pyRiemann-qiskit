@@ -58,18 +58,22 @@ warnings.filterwarnings("ignore")
 # -------------------
 #
 
-def plot_ERP(X, title, n=10, add_digest=False):
+def plot_ERP(X, title, n=10, ylim=None, add_digest=False):
     epochs = ToEpochs(n=n).transform(X)
     reduced_centered_epochs = NDRobustScaler().fit_transform(epochs)
-    fig = plot_waveforms(reduced_centered_epochs, "hist")
+    fig = plot_waveforms(reduced_centered_epochs, "mean+/-std")
     fig.axes[0].set_title(f"{title} ({len(X)})")
+    if ylim is None:
+        ylim = []
+        for i_channel in range(len(channels)):
+            ylim.append(fig.axes[i_channel].get_ylim())
     for i_channel in range(len(channels)):
-        fig.axes[i_channel].set_ylim([-2, 2])
+        fig.axes[i_channel].set_ylim(ylim[i_channel])
     if not add_digest:
-        return fig
+        return fig, ylim
     for i_channel in range(len(channels)):
         fig.axes[i_channel].set(ylabel=digest[i_channel])
-    return fig
+    return fig, ylim
     
 def merge_2axes(fig1,fig2,file_name1="f1.png",file_name2="f2.png"):
   # Modified from [5]_
@@ -103,8 +107,8 @@ def merge_2axes(fig1,fig2,file_name1="f1.png",file_name2="f2.png"):
   return fig
 
 def plot_ERPs(X, y, n=10):
-    fig0 = plot_ERP(X[y == 1], "Fraud", n, add_digest=True)
-    fig1 = plot_ERP(X[y == 0], "Genuine", n)
+    fig0, ylim = plot_ERP(X[y == 1], "Fraud", n, add_digest=True)
+    fig1, _ = plot_ERP(X[y == 0], "Genuine", n, ylim)
     merge_2axes(fig0, fig1)
     plt.show()
 
