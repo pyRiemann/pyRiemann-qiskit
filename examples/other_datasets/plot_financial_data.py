@@ -58,11 +58,13 @@ warnings.filterwarnings("ignore")
 # -------------------
 #
 
-def plot_ERP(X, title, add_digest=False):
-    epochs = ToEpochs(n=10).transform(X)
+def plot_ERP(X, title, n=10, add_digest=False):
+    epochs = ToEpochs(n=n).transform(X)
     reduced_centered_epochs = NDRobustScaler().fit_transform(epochs)
     fig = plot_waveforms(reduced_centered_epochs, "hist")
     fig.axes[0].set_title(f"{title} ({len(X)})")
+    for i_channel in range(len(channels)):
+        fig.axes[i_channel].set_ylim([-2, 2])
     if not add_digest:
         return fig
     for i_channel in range(len(channels)):
@@ -100,9 +102,9 @@ def merge_2axes(fig1,fig2,file_name1="f1.png",file_name2="f2.png"):
   
   return fig
 
-def plot_ERPs(X, y):
-    fig0 = plot_ERP(X[y == 1], "Fraud", add_digest=True)
-    fig1 = plot_ERP(X[y == 0], "Genuine")
+def plot_ERPs(X, y, n=10):
+    fig0 = plot_ERP(X[y == 1], "Fraud", n, add_digest=True)
+    fig1 = plot_ERP(X[y == 0], "Genuine", n)
     merge_2axes(fig0, fig1)
     plt.show()
 
@@ -135,7 +137,15 @@ channels = [
     "FECHA_ALTA_CLIENTE",
     "FK_IMPORTE_PRINCIPAL",
 ] # Change seniority and contract code?
-digest = ["IP", "Contract code", "Balance", "ID", "Seniority", "Amount"]
+# channels = [
+#     "IP_TERMINAL",
+#     "FK_CONTRATO_PPAL_OPE",
+#     "SALDO_ANTES_PRESTAMO",
+#     "FK_NUMPERSO",
+#     "FECHA_ALTA_CLIENTE",
+#     "FK_TIPREL",
+# ]
+digest = ["IP", "Contract", "Balance", "ID", "Date", "Ownership"]
 features = dataset[channels]
 target = dataset.FRAUD
 
@@ -151,7 +161,7 @@ features.fillna(method="ffill", inplace=True)
 
 # Convert date value to linux time
 features["FECHA_ALTA_CLIENTE"] = pd.to_datetime(features["FECHA_ALTA_CLIENTE"])
-features["FECHA_ALTA_CLIENTE"] = features["FECHA_ALTA_CLIENTE"].apply(lambda x: x.year)
+features["FECHA_ALTA_CLIENTE"] = features["FECHA_ALTA_CLIENTE"].apply(lambda x: 2023 - x.year)
 
 # features["PK_TSINSERCION"] = pd.to_datetime(features["PK_TSINSERCION"])
 # features["PK_TSINSERCION"] = features["PK_TSINSERCION"].apply(lambda x: x.value)
@@ -277,11 +287,12 @@ pipe = make_pipeline(
 gs = GridSearchCV(
     pipe,
     param_grid={
-        "toepochs__n": [10, 20],
+        "toepochs__n": [10, 20, 30],
         "xdawncovariances__nfilter": [1, 2],
         "optionalwhitening__process": [True, False],
         "optionalwhitening__n_components": [2, 4],
         "slimvector__keep_diagonal": [True, False],
+        "svc__C": [0.1, 1, 10, 100]
     },
     scoring="balanced_accuracy",
 )
@@ -330,7 +341,7 @@ score_svm = gs.best_estimator_.score(X_test, y_test)
 
 # Quantum pipeline:
 # let's take the same parameters but evaluate the pipeline with a quantum SVM:
-gs.best_estimator_.steps[-1] = ("quanticsvm", QuanticSVM(quantum=True, C=5))
+gs.best_estimator_.steps[-1] = ("quanticsvm", QuanticSVM(quantum=True, C=gs.best_params_['svc__C']))
 train_score_qsvm = gs.best_estimator_.fit(X_train, y_train).score(X_train, y_train)
 score_qsvm = gs.best_estimator_.score(X_test, y_test)
 
@@ -355,6 +366,7 @@ print(
     \nQuantum SVM: {score_qsvm}\
     \nClassical RandomForest: {score_rf}"
 )
+
 
 ##############################################################################
 #
@@ -385,24 +397,24 @@ class ERP_CollusionClassifier(ClassifierMixin):
         y_pred[y_pred < self.threshold] = 0
         return y_pred
 
-
+# plot the temporal response of collusion vs non-co
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X)
-plot_ERPs(X, y_pred)
+plot_ERPs(X, y_pred, gs.best_params_['toepochs__n'])
 
 # The y_pred here contains 1 if the fraud is a possible collusion or 0 else, i.e:
 # not a fraud or not a collusion fraud
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X_test)
-# plot the temporal response of collusion vs non-co
-plot_ERPs(X_test, y_pred)
 
 # We will get the epochs associated with these frauds
-high_warning_loan = np.concatenate(ToEpochs(n=10).transform(X_test[y_pred == 1]))
+high_warning_loan = np.concatenate(ToEpochs(n=gs.best_params_['toepochs__n']).transform(X_test[y_pred == 1]))
 
 # and from there the incriminated terminal IP and customer ID, for investigation:
 high_warning_ip = le.inverse_transform(high_warning_loan[0, :].astype(int))
 high_warning_id = high_warning_loan[3, :].astype(str)
 print("IP involved in probable collusion: ", high_warning_ip)
 print("ID involved in probable collusion: ", high_warning_id)
+
+
 
 ###############################################################################
 # References
