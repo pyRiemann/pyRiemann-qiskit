@@ -47,7 +47,7 @@ setup(name='pyriemann-qiskit',
                         'firebase_admin==6.2.0',
                         'tqdm'
                         ],
-      extras_require={'docs': ['sphinx-gallery', 'sphinx-bootstrap_theme', 'numpydoc', 'mne', 'seaborn', 'moabb>=0.4.6'],
+      extras_require={'docs': ['sphinx-gallery', 'sphinx-bootstrap_theme', 'numpydoc', 'mne', 'seaborn', 'moabb>=1.0.0'],
                       'tests': ['pytest', 'seaborn', 'flake8', 'mne', 'pooch'],
                       # GPU optimization not available on all platform.
                       # See https://github.com/Qiskit/qiskit-aer/issues/929#issuecomment-691716936
