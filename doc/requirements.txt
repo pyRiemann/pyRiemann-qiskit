@@ -4,7 +4,7 @@ sphinx-bootstrap_theme
 numpydoc
 cython
 mne[data]>=0.24
-seaborn
+seaborn==0.13.0
 scikit-learn
 joblib
 pandas
