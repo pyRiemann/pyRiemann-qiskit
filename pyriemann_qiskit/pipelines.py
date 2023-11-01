@@ -49,7 +49,7 @@ class BasePipeline(BaseEstimator, ClassifierMixin, TransformerMixin):
             print("[" + self.code + "] ", trace)
 
     def fit(self, X, y):
-        """Train the riemann quantum classifier.
+        """Train the Riemannian quantum classifier.
 
         Parameters
         ----------
@@ -70,6 +70,7 @@ class BasePipeline(BaseEstimator, ClassifierMixin, TransformerMixin):
 
     def score(self, X, y):
         """Return the accuracy.
+
         You might want to use a different metric by using sklearn
         cross_val_score
 
@@ -139,7 +140,7 @@ class BasePipeline(BaseEstimator, ClassifierMixin, TransformerMixin):
 
 class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
 
-    """Default pipeline with Riemann Geometry and a quantum classifier.
+    """Default pipeline with Riemannian geometry and a quantum classifier.
 
     Projects the data into the tangent space of the Riemannian manifold
     and applies quantum classification.
@@ -310,12 +311,12 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
           (depending on q_account_token value),
         - If false, will perform classical computing instead.
     q_account_token : string (default:None)
-        If quantum==True and q_account_token provided,
+        If `quantum` is True and `q_account_token` provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
         token saved with `IBMProvider.save_account()`.
     verbose : bool (default:True)
-        If true will output all intermediate results and logs.
+        If true, will output all intermediate results and logs.
     shots : int (default:1024)
         Number of repetitions of each circuit, for sampling.
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
@@ -405,12 +406,12 @@ class QuantumMDMVotingClassifier(BasePipeline):
           (depending on q_account_token value),
         - If false, will perform classical computing instead.
     q_account_token : string (default:None)
-        If quantum==True and q_account_token provided,
+        If `quantum` is True and `q_account_token` provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
         token saved with `IBMProvider.save_account()`.
     verbose : bool (default:True)
-        If true will output all intermediate results and logs.
+        If true, will output all intermediate results and logs.
     shots : int (default:1024)
         Number of repetitions of each circuit, for sampling.
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \

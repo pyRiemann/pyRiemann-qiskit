@@ -1,8 +1,7 @@
 """
-====================================================================
-Classification of MI datasets from MOABB using MDM
-and quantum-enhanced MDM
-====================================================================
+============================================================================
+Classification of MI datasets from MOABB using MDM and quantum-enhanced MDM
+============================================================================
 
 This example demonstrates how to use quantum pipeline on a MI dataset.
 
