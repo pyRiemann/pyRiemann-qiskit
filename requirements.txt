@@ -1,4 +1,4 @@
-numpy<1.24
+numpy<1.27
 cython
 git+https://github.com/pyRiemann/pyRiemann#egg=pyriemann
 qiskit_machine_learning==0.6.1
