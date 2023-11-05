@@ -4,18 +4,10 @@ as well as several quantum classifiers than can run
 in several modes quantum/classical and simulated/real
 quantum computer.
 """
-import numpy as np
-from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.svm import SVC
-from qiskit_ibm_provider import IBMProvider, least_busy
-from qiskit.utils import QuantumInstance, algorithm_globals
-from qiskit.utils.quantum_instance import logger
-from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
-from qiskit_machine_learning.kernels.quantum_kernel import QuantumKernel
 from datetime import datetime
 import logging
-from .utils.hyper_params_factory import gen_zz_feature_map, gen_two_local, get_spsa
-from .utils import get_provider, get_devices, get_simulator
+import numpy as np
+
 from pyriemann.classification import MDM
 from pyriemann_qiskit.datasets import get_feature_dimension
 from pyriemann_qiskit.utils import (
@@ -23,13 +15,23 @@ from pyriemann_qiskit.utils import (
     NaiveQAOAOptimizer,
     set_global_optimizer,
 )
+from qiskit.utils import QuantumInstance, algorithm_globals
+from qiskit.utils.quantum_instance import logger
+from qiskit_ibm_provider import IBMProvider, least_busy
+from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
+from qiskit_machine_learning.kernels.quantum_kernel import QuantumKernel
+from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.svm import SVC
+
+from .utils.hyper_params_factory import gen_zz_feature_map, gen_two_local, get_spsa
+from .utils import get_provider, get_devices, get_simulator
 
 logger.level = logging.INFO
 
 
 class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
-    """Quantum classification.
+    """Quantum classifier
 
     This class implements a scikit-learn wrapper around Qiskit library [1]_.
     It provides a mean to run classification tasks on a local and
@@ -49,12 +51,12 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
           (depending on q_account_token value),
         - If false, will perform classical computing instead.
     q_account_token : string (default:None)
-        If quantum==True and q_account_token provided,
+        If `quantum` is True and `q_account_token` provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
         token saved with `IBMProvider.save_account()`.
     verbose : bool (default:True)
-        If true will output all intermediate results and logs.
+        If true, will output all intermediate results and logs.
     shots : int (default:1024)
         Number of repetitions of each circuit, for sampling.
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
@@ -76,6 +78,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     --------
     QuanticSVM
     QuanticVQC
+    QuanticMDM
 
     References
     ----------
@@ -234,9 +237,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
 class QuanticSVM(QuanticClassifierBase):
 
-    """Quantum-enhanced SVM classification.
+    """Quantum-enhanced SVM classifier
 
-    This class implements SVC [1]_ on a quantum machine [2]_.
+    This class implements a support-vector machine (SVM) classifier [1]_,
+    called SVC, on a quantum machine [2]_.
     Note that if `quantum` parameter is set to `False`
     then a classical SVC will be perfomed instead.
 
@@ -270,12 +274,12 @@ class QuanticSVM(QuanticClassifierBase):
           (depending on q_account_token value),
         - If false, will perform classical computing instead.
     q_account_token : string (default:None)
-        If quantum==True and q_account_token provided,
+        If `quantum` is True and `q_account_token` provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
         token saved with `IBMProvider.save_account()`.
     verbose : bool (default:True)
-        If true will output all intermediate results and logs.
+        If true, will output all intermediate results and logs.
     shots : int (default:1024)
         Number of repetitions of each circuit, for sampling.
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
@@ -401,8 +405,9 @@ class QuanticSVM(QuanticClassifierBase):
 
 class QuanticVQC(QuanticClassifierBase):
 
-    """Variational Quantum Classifier
+    """Variational quantum classifier
 
+    This class implements a variational quantum classifier (VQC).
     Note that there is no classical version of this algorithm.
     This will always run on a quantum computer (simulated or not).
 
@@ -419,12 +424,12 @@ class QuanticVQC(QuanticClassifierBase):
           (depending on q_account_token value).
         - If false, will perform classical computing instead.
     q_account_token : string (default:None)
-        If quantum==True and q_account_token provided,
+        If `quantum` is True and `q_account_token` provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
         token saved with `IBMProvider.save_account()`.
     verbose : bool (default:True)
-        If true will output all intermediate results and logs
+        If true, will output all intermediate results and logs
     shots : int (default:1024)
         Number of repetitions of each circuit, for sampling
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
@@ -552,11 +557,11 @@ class QuanticVQC(QuanticClassifierBase):
 
 class QuanticMDM(QuanticClassifierBase):
 
-    """Quantum-enhanced MDM
+    """Quantum-enhanced MDM classifier
 
-    This class is a convex implementation of the MDM [1]_,
-    that can runs with quantum optimization.
-    Only log-euclidian distance between trial and class prototypes is supported
+    This class is a convex implementation of the Minimum Distance to Mean (MDM)
+    [1]_, which can run with quantum optimization.
+    Only log-Euclidean distance between trial and class prototypes is supported
     at the moment, but any type of metric can be used for centroid estimation.
 
     Notes
@@ -577,16 +582,17 @@ class QuanticMDM(QuanticClassifierBase):
         distance in order to keep the good sensitivity for the classification.
     quantum : bool (default: True)
         Only applies if `metric` contains a convex distance or mean.
+
         - If true will run on local or remote backend
           (depending on q_account_token value),
         - If false, will perform classical computing instead.
     q_account_token : string (default:None)
-        If quantum==True and q_account_token provided,
+        If `quantum` is True and `q_account_token` provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
         token saved with `IBMProvider.save_account()`.
     verbose : bool (default:True)
-        If true will output all intermediate results and logs.
+        If true, will output all intermediate results and logs.
     shots : int (default:1024)
         Number of repetitions of each circuit, for sampling.
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
