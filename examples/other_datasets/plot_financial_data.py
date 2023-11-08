@@ -11,12 +11,12 @@ of CaixaBank’s express loans [2]_.
 Each entry contains, for example, the date and amount of the loan request,
 the client identification number and the creation date of the account.
 A loan is tagged with either tentative or confirmation of fraud, when a fraudster
-has impersonate the client to claim that type of loan and steal client’s funds.
+has impersonates the client to claim the loan and steal the client funds.
 
-Once the fraud is caractized, a complex task is to identify whether or not a collusion
+Once the fraud is caracterized, a complex task is to identify whether or not a collusion
 is taking place. One fraudster can for example corrupt a client having already a good
 history with the bank. The fraud can also involves a bank agent who is mandated by the client.
-The scam perdurate over time, sometime over month or years.
+The scam perdurates over time, sometime over month or years.
 Identifying these participants is essential to prevent similar scam to happen in the future.
 
 In this example, we will use RG to identify whether or not a fraud is a probable collusion.
@@ -127,12 +127,6 @@ dataset = pd.read_csv(url, sep=";")
 dataset.FRAUD[dataset.FRAUD == 2] = 1
 
 # Select a few features for the example
-# Note: The choice of these features is not really arbitrary.
-# You can use `ydata_profiling` and check these variable are:
-#
-# 1) Not correlated
-# 2) Sufficiently descriminant (based on the number of unique values)
-# 3) Are not "empty"
 channels = [
     "IP_TERMINAL",
     "FK_CONTRATO_PPAL_OPE",
@@ -141,21 +135,20 @@ channels = [
     "FECHA_ALTA_CLIENTE",
     "FK_IMPORTE_PRINCIPAL",
 ] # Change seniority and contract code?
-# channels = [
-#     "IP_TERMINAL",
-#     "FK_CONTRATO_PPAL_OPE",
-#     "SALDO_ANTES_PRESTAMO",
-#     "FK_NUMPERSO",
-#     "FECHA_ALTA_CLIENTE",
-#     "FK_TIPREL",
-# ]
+channels = [
+    "IP_TERMINAL",
+    "FK_CONTRATO_PPAL_OPE",
+    "SALDO_ANTES_PRESTAMO",
+    "FK_NUMPERSO",
+    "FECHA_ALTA_CLIENTE",
+    "FK_TIPREL",
+]
 digest = ["IP", "Contract", "Balance", "ID", "Date", "Ownership"]
 features = dataset[channels]
 target = dataset.FRAUD
 
 # let's display a screenshot of the pre-processed dataset
 # We only have about 200 frauds epochs over 30K entries.
-
 print(features.head())
 print(f"number of fraudulent loans: {target[target == 1].size}")
 print(f"number of genuine loans: {target[target == 0].size}")
@@ -170,14 +163,14 @@ features["FECHA_ALTA_CLIENTE"] = features["FECHA_ALTA_CLIENTE"].apply(lambda x: 
 # features["PK_TSINSERCION"] = pd.to_datetime(features["PK_TSINSERCION"])
 # features["PK_TSINSERCION"] = features["PK_TSINSERCION"].apply(lambda x: x.value)
 
-# Let's encode our categorical variable (LabelEncoding):
+# Let's encode our categorical variables (LabelEncoding):
 # features["IP_TERMINAL"] = features["IP_TERMINAL"].astype("category").cat.codes
 le = LabelEncoder()
 le.fit(features["IP_TERMINAL"].astype("category"))
 features["IP_TERMINAL"] = le.transform(features["IP_TERMINAL"].astype("category"))
 
 # ... and create an 'index' column in the dataset
-# Note: this is done only for progamming reason, due to our implementation
+# Note: this is done only for progamming reasons, due to our implementation
 # of the `ToEpochs` transformer (see below)
 features["index"] = features.index
 
@@ -275,8 +268,8 @@ class OptionalWhitening(TransformerMixin, BaseEstimator):
 # Create a RandomForest for baseline comparison of direct classification:
 rf = RandomForestClassifier()
 
-# Classical pipeline: put together the transformers, and add at the end
-# the classical SVM
+# Classical pipeline: puts together transformers,
+# then adds at the end a classical SVM
 pipe = make_pipeline(
     ToEpochs(n=10),
     NDRobustScaler(),
@@ -296,7 +289,8 @@ gs = GridSearchCV(
         "optionalwhitening__process": [True, False],
         "optionalwhitening__n_components": [2, 4],
         "slimvector__keep_diagonal": [True, False],
-        "svc__C": [0.1, 1, 10, 100]
+        "svc__C": [0.1, 1, 10, 100],
+        "svc__gamma": ['auto', 'scale', 1, 10]
     },
     scoring="balanced_accuracy",
 )
@@ -312,7 +306,8 @@ gs = GridSearchCV(
 # Note: at this stage `features` also contains the `index` column.
 # So `NearMiss` we choose the closest 200 non-fraud epochs to the 200 fraud-epochs.
 X, y = NearMiss().fit_resample(features.to_numpy(), target.to_numpy())
-
+# X = features.to_numpy()
+# y = target.to_numpy()
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
@@ -337,6 +332,8 @@ gs.fit(X_train, y_train)
 # Print best parameters
 print("Best parameters are:")
 print(gs.best_params_)
+best_C = gs.best_params_['svc__C']
+best_gamma = gs.best_params_['svc__gamma']
 
 # This is the best score with the classical SVM.
 # (with this train/test split at least)
@@ -345,7 +342,7 @@ score_svm = gs.best_estimator_.score(X_test, y_test)
 
 # Quantum pipeline:
 # let's take the same parameters but evaluate the pipeline with a quantum SVM:
-gs.best_estimator_.steps[-1] = ("quanticsvm", QuanticSVM(quantum=True, C=gs.best_params_['svc__C']))
+gs.best_estimator_.steps[-1] = ("quanticsvm", QuanticSVM(quantum=True, C=best_C, gamma=best_gamma))
 train_score_qsvm = gs.best_estimator_.fit(X_train, y_train).score(X_train, y_train)
 score_qsvm = gs.best_estimator_.score(X_test, y_test)
 
@@ -353,10 +350,10 @@ score_qsvm = gs.best_estimator_.score(X_test, y_test)
 train_score_rf = rf.fit(X_train, y_train).score(X_train, y_train)
 score_rf = rf.score(X_test, y_test)
 
-# Print the results of direct classification of fraud record itself
+# Print the results of direct classification of fraud records
 # Note:
 # SVM/QSVM pipeline use the loans preceding the actual fraud, without the fraud itself
-# RandomForest use only the fraud record itself
+# RandomForest uses only the fraud record itself
 # 
 print("----Training score:----")
 print(
@@ -377,11 +374,11 @@ print(
 # Unsupervised classification (collusion vs no-collusion)
 #
 # We will now predict whether or not the fraud was a collusion or not.
-# This is a two steps process:
+# This is a two-stages process:
 # 1) We have the no-aware ERP method (namely RandomForest)
-#    to predict whether not the transaction is a fraud
+#    to predict whether or not the transaction is a fraud
 # 2) If the fraud is caracterized, we use the QSVC pipeline to
-#    predict whether or not it is a collusion or not
+#    predict whether or not it is a collusion
 #
 class ERP_CollusionClassifier(ClassifierMixin):
     def __init__(self, row_clf, erp_clf, threshold=0.7):
@@ -412,7 +409,8 @@ y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X_test)
 # We will get the epochs associated with these frauds
 high_warning_loan = np.concatenate(ToEpochs(n=gs.best_params_['toepochs__n']).transform(X_test[y_pred == 1]))
 
-# and from there the incriminated terminal IP and customer ID, for investigation:
+# and from there the IPs of incriminated terminals and and the IDs of the suspicious customers
+# for further investigation:
 high_warning_ip = le.inverse_transform(high_warning_loan[0, :].astype(int))
 high_warning_id = high_warning_loan[3, :].astype(str)
 print("IP involved in probable collusion: ", high_warning_ip)
