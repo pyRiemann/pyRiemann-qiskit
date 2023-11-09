@@ -27,13 +27,13 @@ Because this method work on a small number of components, it is also compatible 
 # License: BSD (3-clause)
 
 from sklearn.base import TransformerMixin, BaseEstimator, ClassifierMixin
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, HalvingGridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import RobustScaler, LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
-from imblearn.under_sampling import NearMiss
+from imblearn.under_sampling import NearMiss, TomekLinks
 from pyriemann.preprocessing import Whitening
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.utils.viz import plot_waveforms
@@ -106,9 +106,9 @@ def merge_2axes(fig1,fig2,file_name1="f1.png",file_name2="f2.png"):
   
   return fig
 
-def plot_ERPs(X, y, n=10):
-    fig0, ylim = plot_ERP(X[y == 1], "Fraud", n, add_digest=True)
-    fig1, _ = plot_ERP(X[y == 0], "Genuine", n, ylim)
+def plot_ERPs(X, y, n=10, label0="Fraud", label1="Genuine"):
+    fig0, ylim = plot_ERP(X[y == 1], label0, n, add_digest=True)
+    fig1, _ = plot_ERP(X[y == 0], label1, n, ylim)
     merge_2axes(fig0, fig1)
     plt.show()
 
@@ -281,11 +281,11 @@ pipe = make_pipeline(
 
 # Optimize the pipeline:
 # let's save some time and run the optimization with the classical SVM
-gs = GridSearchCV(
+gs = HalvingGridSearchCV(
     pipe,
     param_grid={
         "toepochs__n": [10, 20, 30],
-        "xdawncovariances__nfilter": [1, 2],
+        "xdawncovariances__nfilter": [1, 2, 3],
         "optionalwhitening__process": [True, False],
         "optionalwhitening__n_components": [2, 4],
         "slimvector__keep_diagonal": [True, False],
@@ -305,7 +305,7 @@ gs = GridSearchCV(
 # Let's balance the problem using NearMiss.
 # Note: at this stage `features` also contains the `index` column.
 # So `NearMiss` we choose the closest 200 non-fraud epochs to the 200 fraud-epochs.
-X, y = NearMiss().fit_resample(features.to_numpy(), target.to_numpy())
+X, y = TomekLinks().fit_resample(features.to_numpy(), target.to_numpy())
 # X = features.to_numpy()
 # y = target.to_numpy()
 X_train, X_test, y_train, y_test = train_test_split(
@@ -334,6 +334,7 @@ print("Best parameters are:")
 print(gs.best_params_)
 best_C = gs.best_params_['svc__C']
 best_gamma = gs.best_params_['svc__gamma']
+best_n = gs.best_params_['toepochs__n']
 
 # This is the best score with the classical SVM.
 # (with this train/test split at least)
@@ -400,14 +401,14 @@ class ERP_CollusionClassifier(ClassifierMixin):
 
 # plot the temporal response of collusion vs non-co
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X)
-plot_ERPs(X, y_pred, gs.best_params_['toepochs__n'])
+plot_ERPs(X, y_pred, best_n)
 
 # The y_pred here contains 1 if the fraud is a possible collusion or 0 else, i.e:
 # not a fraud or not a collusion fraud
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X_test)
 
 # We will get the epochs associated with these frauds
-high_warning_loan = np.concatenate(ToEpochs(n=gs.best_params_['toepochs__n']).transform(X_test[y_pred == 1]))
+high_warning_loan = np.concatenate(ToEpochs(n=best_n).transform(X_test[y_pred == 1]))
 
 # and from there the IPs of incriminated terminals and and the IDs of the suspicious customers
 # for further investigation:
