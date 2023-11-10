@@ -22,12 +22,15 @@ initial study is available in [5], and it can be downloaded from
 topic at the time of writing, this could be an interesting research direction to
 investigate BCI illiteracy.
 
-pyRiemann-qiskit implements a wrapper around QSVC and VQC, to use quantum classification
+`pyRiemann-qiskit` implements a wrapper around QSVC and VQC, to use quantum classification
 with Riemannian geometry. A use case would be to use vectorized covariance matrices in the
 tangent space as an input for these classifiers, enabling a possible sandbox for
 researchers and engineers in the field.
 
-The remaining details some of the quantum drawbacks and will guide you through
+`pyRiemann-qiskit` also introduces a quantum version of the famous MDM algorithms.
+There is a dedicated example on quantum-MDM [here](https://github.com/pyRiemann/pyRiemann-qiskit/blob/main/examples/ERP/classify_P300_bi_quantum_mdm.py).
+
+The remaining of this readme details some of the quantum drawbacks and will guide you through
 installation. Full documentation, including API description, is available at
 <https://pyriemann-qiskit.readthedocs.io/>. The repository also includes a
 [wiki](https://github.com/pyRiemann/pyRiemann-qiskit/wiki) where you can find additional
@@ -54,7 +57,7 @@ information.
   Although these aspects are less important in a remote backend, it may happen that the
   quantum algorithm is queued depending on the number of concurrent users.
 
-  For all these aspects, the use of pyRiemann-qiskit should be limited to offline analysis
+  For all these aspects, the use of `pyRiemann-qiskit` should be limited to offline analysis
   only.
 
 ## References
@@ -161,14 +164,14 @@ everything went smoothly by typing:
 import pyriemann_qiskit
 ```
 
-Alternatively you can from the console (Windows or Linux) build the docker image from our
-Dockerfile. Go to the root folder of pyRiemann-qiskit and type:
+Alternatively, you can from the console (Windows or Linux) build the docker image from our
+Dockerfile. Go to the root folder of `pyRiemann-qiskit` and type:
 
 ```
 docker build -t pyrq .
 ```
 
-Next use `docker run --detach pyrq` to enter the pyRiemann-qiskit image.
+Next use `docker run --detach pyrq` to enter the `pyRiemann-qiskit` image.
 
 If you wish, you can also download docker images directly from github docker registry:
 https://github.com/pyRiemann/pyRiemann-qiskit/pkgs/container/pyriemann-qiskit
