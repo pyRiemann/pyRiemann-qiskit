@@ -27,7 +27,7 @@ with Riemannian geometry. A use case would be to use vectorized covariance matri
 tangent space as an input for these classifiers, enabling a possible sandbox for
 researchers and engineers in the field.
 
-`pyRiemann-qiskit` also introduces a quantum version of the famous MDM algorithms. There
+`pyRiemann-qiskit` also introduces a quantum version of the famous MDM algorithm. There
 is a dedicated example on quantum-MDM
 [here](https://github.com/pyRiemann/pyRiemann-qiskit/blob/main/examples/ERP/classify_P300_bi_quantum_mdm.py).
 
