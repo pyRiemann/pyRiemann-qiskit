@@ -27,11 +27,12 @@ with Riemannian geometry. A use case would be to use vectorized covariance matri
 tangent space as an input for these classifiers, enabling a possible sandbox for
 researchers and engineers in the field.
 
-`pyRiemann-qiskit` also introduces a quantum version of the famous MDM algorithms.
-There is a dedicated example on quantum-MDM [here](https://github.com/pyRiemann/pyRiemann-qiskit/blob/main/examples/ERP/classify_P300_bi_quantum_mdm.py).
+`pyRiemann-qiskit` also introduces a quantum version of the famous MDM algorithms. There
+is a dedicated example on quantum-MDM
+[here](https://github.com/pyRiemann/pyRiemann-qiskit/blob/main/examples/ERP/classify_P300_bi_quantum_mdm.py).
 
-The remaining of this readme details some of the quantum drawbacks and will guide you through
-installation. Full documentation, including API description, is available at
+The remaining of this readme details some of the quantum drawbacks and will guide you
+through installation. Full documentation, including API description, is available at
 <https://pyriemann-qiskit.readthedocs.io/>. The repository also includes a
 [wiki](https://github.com/pyRiemann/pyRiemann-qiskit/wiki) where you can find additional
 information.
@@ -57,8 +58,8 @@ information.
   Although these aspects are less important in a remote backend, it may happen that the
   quantum algorithm is queued depending on the number of concurrent users.
 
-  For all these aspects, the use of `pyRiemann-qiskit` should be limited to offline analysis
-  only.
+  For all these aspects, the use of `pyRiemann-qiskit` should be limited to offline
+  analysis only.
 
 ## References
 
