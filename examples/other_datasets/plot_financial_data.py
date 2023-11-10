@@ -27,13 +27,14 @@ Because this method work on a small number of components, it is also compatible 
 # License: BSD (3-clause)
 
 from sklearn.base import TransformerMixin, BaseEstimator, ClassifierMixin
-from sklearn.model_selection import GridSearchCV, HalvingGridSearchCV
+from sklearn.experimental import enable_halving_search_cv # noqa
+from sklearn.model_selection import HalvingGridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import RobustScaler, LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
-from imblearn.under_sampling import NearMiss, TomekLinks
+from imblearn.under_sampling import NearMiss, TomekLinks, EditedNearestNeighbours
 from pyriemann.preprocessing import Whitening
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.utils.viz import plot_waveforms
@@ -133,16 +134,16 @@ channels = [
     "POSICION_GLOBAL_ANTES_PRESTAMO",
     "FK_NUMPERSO",
     "FECHA_ALTA_CLIENTE",
-    "FK_IMPORTE_PRINCIPAL",
-] # Change seniority and contract code?
-channels = [
-    "IP_TERMINAL",
-    "FK_CONTRATO_PPAL_OPE",
-    "SALDO_ANTES_PRESTAMO",
-    "FK_NUMPERSO",
-    "FECHA_ALTA_CLIENTE",
     "FK_TIPREL",
-]
+] # Change seniority and contract code?
+# channels = [
+#     "IP_TERMINAL",
+#     "FK_CONTRATO_PPAL_OPE",
+#     "SALDO_ANTES_PRESTAMO",
+#     "FK_NUMPERSO",
+#     "FECHA_ALTA_CLIENTE",
+#     "FK_TIPREL",
+# ]
 digest = ["IP", "Contract", "Balance", "ID", "Date", "Ownership"]
 features = dataset[channels]
 target = dataset.FRAUD
@@ -287,12 +288,14 @@ gs = HalvingGridSearchCV(
         "toepochs__n": [10, 20, 30],
         "xdawncovariances__nfilter": [1, 2, 3],
         "optionalwhitening__process": [True, False],
-        "optionalwhitening__n_components": [2, 4],
+        "optionalwhitening__n_components": [2, 4, 6],
         "slimvector__keep_diagonal": [True, False],
         "svc__C": [0.1, 1, 10, 100],
         "svc__gamma": ['auto', 'scale', 1, 10]
     },
     scoring="balanced_accuracy",
+    cv=4,
+    verbose=1,
 )
 
 
@@ -303,13 +306,16 @@ gs = HalvingGridSearchCV(
 # Balance the data and display the "ERP" [3]_.
 
 # Let's balance the problem using NearMiss.
+# There is no special need to do this with SVM, as we could also play with the `class_weight`
+# parameter. However, reducing the data is practical for Ci/Cd.
 # Note: at this stage `features` also contains the `index` column.
 # So `NearMiss` we choose the closest 200 non-fraud epochs to the 200 fraud-epochs.
-X, y = TomekLinks().fit_resample(features.to_numpy(), target.to_numpy())
+X, y = NearMiss().fit_resample(features.to_numpy(), target.to_numpy())
+# X, y = EditedNearestNeighbours().fit_resample(features.to_numpy(), target.to_numpy())
 # X = features.to_numpy()
 # y = target.to_numpy()
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42, stratify=y
+    X, y, test_size=0.3, random_state=42, stratify=y
 )
 
 labels, counts = np.unique(y_train, return_counts=True)
@@ -375,7 +381,7 @@ print(
 # Unsupervised classification (collusion vs no-collusion)
 #
 # We will now predict whether or not the fraud was a collusion or not.
-# This is a two-stages process:
+# This is a two-stage process:
 # 1) We have the no-aware ERP method (namely RandomForest)
 #    to predict whether or not the transaction is a fraud
 # 2) If the fraud is caracterized, we use the QSVC pipeline to
@@ -401,7 +407,7 @@ class ERP_CollusionClassifier(ClassifierMixin):
 
 # plot the temporal response of collusion vs non-co
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X)
-plot_ERPs(X, y_pred, best_n)
+plot_ERPs(X, y_pred, best_n, "Collusion", "No-fraud & Fraud without collusion")
 
 # The y_pred here contains 1 if the fraud is a possible collusion or 0 else, i.e:
 # not a fraud or not a collusion fraud
