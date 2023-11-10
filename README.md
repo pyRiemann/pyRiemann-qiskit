@@ -2,9 +2,9 @@
 
 # pyRiemann-qiskit
 
-Literature on quantum computing suggests it may offer an advantage compared with
-classical computing in terms of computational time and outcomes, such as for pattern
-recognition or when using limited training sets [1, 2].
+Literature on quantum computing suggests it may offer an advantage compared with classical
+computing in terms of computational time and outcomes, such as for pattern recognition or
+when using limited training sets [1, 2].
 
 A ubiquitous library on quantum computing is Qiskit [3]. Qiskit is an IBM library
 distributed under Apache 2.0 which provides both quantum algorithms and backends. A
@@ -13,11 +13,11 @@ a quantum machine. Qiskit abstraction over the type of machine you want to use, 
 designing quantum algorithms seamless.
 
 Qiskit implements a quantum version of support vector-like classifiers, known as
-quantum-enhanced support vector classifiers (QSVCs) and variational quantum classifiers (VQCs)
-[4]. These classifiers likely offer an advantage over classical SVM in situations where
-the classification task is complex. Task complexity is raised by the encoding of the data
-into a quantum state, the number of available data, and the quality of the data. An initial
-study is available in [5], and it can be downloaded from
+quantum-enhanced support vector classifiers (QSVCs) and variational quantum classifiers
+(VQCs) [4]. These classifiers likely offer an advantage over classical SVM in situations
+where the classification task is complex. Task complexity is raised by the encoding of the
+data into a quantum state, the number of available data, and the quality of the data. An
+initial study is available in [5], and it can be downloaded from
 [here](doc/Presentations/QuantumERPClassification.pdf). Although there is no study on this
 topic at the time of writing, this could be an interesting research direction to
 investigate BCI illiteracy.
@@ -233,4 +233,5 @@ automation.
 
 # Troubleshooting
 
-See our [dedicated](https://github.com/pyRiemann/pyRiemann-qiskit/wiki/Troubleshooting) wiki page.
+See our [dedicated](https://github.com/pyRiemann/pyRiemann-qiskit/wiki/Troubleshooting)
+wiki page.
