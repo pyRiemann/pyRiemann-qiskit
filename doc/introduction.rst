@@ -29,6 +29,7 @@ pyRiemann-qiskit implements a wrapper around QSVC and VQC, to use quantum
 classification with Riemannian geometry. A use case would be to use vectorized
 covariance matrices in the TangentSpace as an input for these classifiers,
 enabling a possible sandbox for researchers and engineers in the field.
+`pyRiemann-qiskit` also introduces a quantum version of the famous MDM algorithm.
 
 Quantum drawbacks
 ================================
