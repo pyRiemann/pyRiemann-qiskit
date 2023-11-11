@@ -34,6 +34,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import RobustScaler, LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
+from sklearn.metrics import balanced_accuracy_score
 from imblearn.under_sampling import NearMiss, TomekLinks, EditedNearestNeighbours
 from pyriemann.preprocessing import Whitening
 from pyriemann.estimation import XdawnCovariances
@@ -132,6 +133,7 @@ channels = [
     "IP_TERMINAL",
     "FK_CONTRATO_PPAL_OPE",
     "POSICION_GLOBAL_ANTES_PRESTAMO",
+    "SALDO_ANTES_PRESTAMO",
     "FK_NUMPERSO",
     "FECHA_ALTA_CLIENTE",
     "FK_TIPREL",
@@ -144,7 +146,7 @@ channels = [
 #     "FECHA_ALTA_CLIENTE",
 #     "FK_TIPREL",
 # ]
-digest = ["IP", "Contract", "Balance", "ID", "Date", "Ownership"]
+digest = ["IP", "Contract", "Balance", "Balance2", "ID", "Date", "Ownership"]
 features = dataset[channels]
 target = dataset.FRAUD
 
@@ -295,6 +297,7 @@ gs = HalvingGridSearchCV(
     },
     scoring="balanced_accuracy",
     cv=4,
+    min_resources='smallest',
     verbose=1,
 )
 
@@ -310,12 +313,12 @@ gs = HalvingGridSearchCV(
 # parameter. However, reducing the data is practical for Ci/Cd.
 # Note: at this stage `features` also contains the `index` column.
 # So `NearMiss` we choose the closest 200 non-fraud epochs to the 200 fraud-epochs.
-X, y = NearMiss().fit_resample(features.to_numpy(), target.to_numpy())
+X, y = NearMiss(sampling_strategy=0.6).fit_resample(features.to_numpy(), target.to_numpy())
 # X, y = EditedNearestNeighbours().fit_resample(features.to_numpy(), target.to_numpy())
 # X = features.to_numpy()
 # y = target.to_numpy()
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.3, random_state=42, stratify=y
+    X, y, test_size=0.2, random_state=42, stratify=y
 )
 
 labels, counts = np.unique(y_train, return_counts=True)
@@ -344,18 +347,25 @@ best_n = gs.best_params_['toepochs__n']
 
 # This is the best score with the classical SVM.
 # (with this train/test split at least)
-train_score_svm = gs.best_estimator_.score(X_train, y_train)
-score_svm = gs.best_estimator_.score(X_test, y_test)
+train_pred_svm = gs.best_estimator_.predict(X_train)
+train_score_svm = balanced_accuracy_score(y_train, train_pred_svm)
+pred_svm = gs.best_estimator_.predict(X_test)
+score_svm = balanced_accuracy_score(y_test, pred_svm)
 
 # Quantum pipeline:
-# let's take the same parameters but evaluate the pipeline with a quantum SVM:
+# let's take the same parameters but evaluate the pipeline with a quantum SVM.
+# We will just unconstraint the regularization a little bit as the quantum SVM tends to overfit very quickly.
 gs.best_estimator_.steps[-1] = ("quanticsvm", QuanticSVM(quantum=True, C=best_C, gamma=best_gamma))
-train_score_qsvm = gs.best_estimator_.fit(X_train, y_train).score(X_train, y_train)
-score_qsvm = gs.best_estimator_.score(X_test, y_test)
+train_pred_qsvm = gs.best_estimator_.fit(X_train, y_train).predict(X_train)
+train_score_qsvm = balanced_accuracy_score(y_train, train_pred_qsvm)
+pred_qsvm = gs.best_estimator_.predict(X_test)
+score_qsvm = balanced_accuracy_score(y_test, pred_qsvm)
 
 # Create a point of comparison with the RandomForest
-train_score_rf = rf.fit(X_train, y_train).score(X_train, y_train)
-score_rf = rf.score(X_test, y_test)
+train_pred_rf = rf.fit(X_train, y_train).predict(X_train)
+train_score_rf = balanced_accuracy_score(y_train, train_pred_rf)
+pred_rf = rf.predict(X_test)
+score_rf = balanced_accuracy_score(y_test, pred_rf)
 
 # Print the results of direct classification of fraud records
 # Note:
