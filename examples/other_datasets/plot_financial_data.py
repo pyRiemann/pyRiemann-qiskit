@@ -27,7 +27,7 @@ Because this method work on a small number of components, it is also compatible 
 # License: BSD (3-clause)
 
 from sklearn.base import TransformerMixin, BaseEstimator, ClassifierMixin
-from sklearn.experimental import enable_halving_search_cv # noqa
+from sklearn.experimental import enable_halving_search_cv  # noqa
 from sklearn.model_selection import HalvingGridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
@@ -60,6 +60,7 @@ warnings.filterwarnings("ignore")
 # -------------------
 #
 
+
 def plot_ERP(X, title, n=10, ylim=None, add_digest=False):
     epochs = ToEpochs(n=n).transform(X)
     reduced_centered_epochs = NDRobustScaler().fit_transform(epochs)
@@ -76,37 +77,40 @@ def plot_ERP(X, title, n=10, ylim=None, add_digest=False):
     for i_channel in range(len(channels)):
         fig.axes[i_channel].set(ylabel=digest[i_channel])
     return fig, ylim
-    
-def merge_2axes(fig1,fig2,file_name1="f1.png",file_name2="f2.png"):
-  # Modified from [5]_
-  fig1.savefig(file_name1)
-  fig2.savefig(file_name2)
-  plt.close(fig1)
-  plt.close(fig2)
-  
-  # inherit figures' dimensions, partially
-  w1, w2 = [int(np.ceil(fig.get_figwidth())) for fig in (fig1, fig2)]
-  hmax = int(np.ceil(max([fig.get_figheight() for fig in (fig1, fig2)])))
 
-  fig, axes = plt.subplots(1, w1 + w2, figsize=(w1 + w2, hmax))
-  
-  # make two axes of desired height proportion
-  gs = axes[0].get_gridspec()
-  for ax in axes.flat:
-      ax.remove()
-  ax1 = fig.add_subplot(gs[0, :w1])
-  ax2 = fig.add_subplot(gs[0, w1:])
 
-  ax1.imshow(plt.imread(file_name1))
-  ax2.imshow(plt.imread(file_name2))
+def merge_2axes(fig1, fig2, file_name1="f1.png", file_name2="f2.png"):
+    # Modified from [5]_
+    fig1.savefig(file_name1)
+    fig2.savefig(file_name2)
+    plt.close(fig1)
+    plt.close(fig2)
 
-  for ax in (ax1, ax2):
-      for side in ('top', 'left', 'bottom', 'right'):
-          ax.spines[side].set_visible(False)
-      ax.tick_params(left=False, right=False, labelleft=False,
-                     labelbottom=False, bottom=False)
-  
-  return fig
+    # inherit figures' dimensions, partially
+    w1, w2 = [int(np.ceil(fig.get_figwidth())) for fig in (fig1, fig2)]
+    hmax = int(np.ceil(max([fig.get_figheight() for fig in (fig1, fig2)])))
+
+    fig, axes = plt.subplots(1, w1 + w2, figsize=(w1 + w2, hmax))
+
+    # make two axes of desired height proportion
+    gs = axes[0].get_gridspec()
+    for ax in axes.flat:
+        ax.remove()
+    ax1 = fig.add_subplot(gs[0, :w1])
+    ax2 = fig.add_subplot(gs[0, w1:])
+
+    ax1.imshow(plt.imread(file_name1))
+    ax2.imshow(plt.imread(file_name2))
+
+    for ax in (ax1, ax2):
+        for side in ("top", "left", "bottom", "right"):
+            ax.spines[side].set_visible(False)
+        ax.tick_params(
+            left=False, right=False, labelleft=False, labelbottom=False, bottom=False
+        )
+
+    return fig
+
 
 def plot_ERPs(X, y, n=10, label0="Fraud", label1="Genuine"):
     fig0, ylim = plot_ERP(X[y == 1], label0, n, add_digest=True)
@@ -138,7 +142,15 @@ channels = [
     "FECHA_ALTA_CLIENTE",
     "FK_TIPREL",
 ]
-digest = ["IP", "Contract", "Account balance", "Global balance", "ID", "Date", "Ownership"]
+digest = [
+    "IP",
+    "Contract",
+    "Account balance",
+    "Global balance",
+    "ID",
+    "Date",
+    "Ownership",
+]
 features = dataset[channels]
 target = dataset.FRAUD
 
@@ -153,7 +165,9 @@ features.fillna(method="ffill", inplace=True)
 
 # Convert date value to linux time
 features["FECHA_ALTA_CLIENTE"] = pd.to_datetime(features["FECHA_ALTA_CLIENTE"])
-features["FECHA_ALTA_CLIENTE"] = features["FECHA_ALTA_CLIENTE"].apply(lambda x: 2023 - x.year)
+features["FECHA_ALTA_CLIENTE"] = features["FECHA_ALTA_CLIENTE"].apply(
+    lambda x: 2023 - x.year
+)
 
 # features["PK_TSINSERCION"] = pd.to_datetime(features["PK_TSINSERCION"])
 # features["PK_TSINSERCION"] = features["PK_TSINSERCION"].apply(lambda x: x.value)
@@ -285,11 +299,11 @@ gs = HalvingGridSearchCV(
         "optionalwhitening__n_components": [2, 4, 6],
         "slimvector__keep_diagonal": [True, False],
         "svc__C": [0.1, 1, 10, 100],
-        "svc__gamma": ['auto', 'scale', 1, 10]
+        "svc__gamma": ["auto", "scale", 1, 10],
     },
     scoring="balanced_accuracy",
     cv=4,
-    min_resources='smallest',
+    min_resources="smallest",
     verbose=1,
 )
 
@@ -306,7 +320,9 @@ gs = HalvingGridSearchCV(
 # So `NearMiss` we choose the closest non-fraud epochs to the fraud-epochs.
 # Here we will keep a ratio of 2 non-fraud epochs for 1 fraud epochs.
 # Note: at this stage `features` also contains the `index` column.
-X, y = NearMiss(sampling_strategy=0.5).fit_resample(features.to_numpy(), target.to_numpy())
+X, y = NearMiss(sampling_strategy=0.5).fit_resample(
+    features.to_numpy(), target.to_numpy()
+)
 # X, y = EditedNearestNeighbours().fit_resample(features.to_numpy(), target.to_numpy())
 # X = features.to_numpy()
 # y = target.to_numpy()
@@ -334,9 +350,9 @@ gs.fit(X_train, y_train)
 # Print best parameters
 print("Best parameters are:")
 print(gs.best_params_)
-best_C = gs.best_params_['svc__C']
-best_gamma = gs.best_params_['svc__gamma']
-best_n = gs.best_params_['toepochs__n']
+best_C = gs.best_params_["svc__C"]
+best_gamma = gs.best_params_["svc__gamma"]
+best_n = gs.best_params_["toepochs__n"]
 
 # This is the best score with the classical SVM.
 # (with this train/test split at least)
@@ -347,9 +363,12 @@ score_svm = balanced_accuracy_score(y_test, pred_svm)
 
 # Quantum pipeline:
 # let's take the same parameters but evaluate the pipeline with a quantum SVM.
-# Note: From experience, quantum SVM tends to overfit quickly. 
+# Note: From experience, quantum SVM tends to overfit quickly.
 # So it is debatable if we want to keep the same penalties for the quantum SVM as for the classical one.
-gs.best_estimator_.steps[-1] = ("quanticsvm", QuanticSVM(quantum=True, C=best_C, gamma=best_gamma))
+gs.best_estimator_.steps[-1] = (
+    "quanticsvm",
+    QuanticSVM(quantum=True, C=best_C, gamma=best_gamma),
+)
 train_pred_qsvm = gs.best_estimator_.fit(X_train, y_train).predict(X_train)
 train_score_qsvm = balanced_accuracy_score(y_train, train_pred_qsvm)
 pred_qsvm = gs.best_estimator_.predict(X_test)
@@ -365,7 +384,7 @@ score_rf = balanced_accuracy_score(y_test, pred_rf)
 # Note:
 # SVM/QSVM pipeline use the loans preceding the actual fraud, without the fraud itself
 # RandomForest uses only the fraud record itself
-# 
+#
 print("----Training score:----")
 print(
     f"Classical SVM: {train_score_svm}\
@@ -409,6 +428,7 @@ class ERP_CollusionClassifier(ClassifierMixin):
         y_pred[y_pred < self.threshold] = 0
         return y_pred
 
+
 # plot the temporal response of collusion vs no-collusion.
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X)
 plot_ERPs(X, y_pred, best_n, "Collusion", "No-fraud & Fraud without collusion")
@@ -427,7 +447,6 @@ high_warning_ip = le.inverse_transform(high_warning_loan[0, :].astype(int))
 high_warning_id = high_warning_loan[3, :].astype(str)
 print("IP involved in probable collusion: ", high_warning_ip)
 print("ID involved in probable collusion: ", high_warning_id)
-
 
 
 ###############################################################################
