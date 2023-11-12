@@ -1,0 +1,4 @@
+{
+  "dependencies_files": ["requirements.txt"],
+  "extra_dependencies": ["pytest", "seaborn", "flake8", "mne", "pooch"]
+}
