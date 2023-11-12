@@ -137,16 +137,8 @@ channels = [
     "FK_NUMPERSO",
     "FECHA_ALTA_CLIENTE",
     "FK_TIPREL",
-] # Change seniority and contract code?
-# channels = [
-#     "IP_TERMINAL",
-#     "FK_CONTRATO_PPAL_OPE",
-#     "SALDO_ANTES_PRESTAMO",
-#     "FK_NUMPERSO",
-#     "FECHA_ALTA_CLIENTE",
-#     "FK_TIPREL",
-# ]
-digest = ["IP", "Contract", "Balance", "Balance2", "ID", "Date", "Ownership"]
+]
+digest = ["IP", "Contract", "Account balance", "Global balance", "ID", "Date", "Ownership"]
 features = dataset[channels]
 target = dataset.FRAUD
 
