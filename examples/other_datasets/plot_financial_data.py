@@ -15,12 +15,16 @@ has impersonates the client to claim the loan and steal the client funds.
 
 Once the fraud is caracterized, a complex task is to identify whether or not a collusion
 is taking place. One fraudster can for example corrupt a client having already a good
-history with the bank. The fraud can also involves a bank agent who is mandated by the client.
+history with the bank.
+The fraud can also involves a bank agent who is mandated by the client.
 The scam perdurates over time, sometime over month or years.
-Identifying these participants is essential to prevent similar scam to happen in the future.
+Identifying these participants is essential to prevent similar
+scam to happen in the future.
 
-In this example, we will use RG to identify whether or not a fraud is a probable collusion.
-Because this method work on a small number of components, it is also compatible with Quantum.
+In this example, we will use RG to identify whether or no
+a fraud is a probable collusion.
+Because this method work on a small number of components,
+it is also compatible with Quantum.
 
 """
 # Authors: Gregoire Cattan, Filipe Barroso
@@ -35,7 +39,7 @@ from sklearn.preprocessing import RobustScaler, LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import balanced_accuracy_score
-from imblearn.under_sampling import NearMiss, TomekLinks, EditedNearestNeighbours
+from imblearn.under_sampling import NearMiss
 from pyriemann.preprocessing import Whitening
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.utils.viz import plot_waveforms
@@ -315,7 +319,8 @@ gs = HalvingGridSearchCV(
 # Balance the data and display the "ERP" [3]_.
 
 # Let's balance the problem using NearMiss.
-# There is no special need to do this with SVM, as we could also play with the `class_weight`
+# There is no special need to do this with SVM,
+# as we could also play with the `class_weight` parameter.
 # parameter. However, reducing the data is practical for Ci/Cd.
 # So `NearMiss` we choose the closest non-fraud epochs to the fraud-epochs.
 # Here we will keep a ratio of 2 non-fraud epochs for 1 fraud epochs.
@@ -364,7 +369,8 @@ score_svm = balanced_accuracy_score(y_test, pred_svm)
 # Quantum pipeline:
 # let's take the same parameters but evaluate the pipeline with a quantum SVM.
 # Note: From experience, quantum SVM tends to overfit quickly.
-# So it is debatable if we want to keep the same penalties for the quantum SVM as for the classical one.
+# So it is debatable if we want to keep the same penalties
+# for the quantum SVM as for the classical one.
 gs.best_estimator_.steps[-1] = (
     "quanticsvm",
     QuanticSVM(quantum=True, C=best_C, gamma=best_gamma),
@@ -441,7 +447,8 @@ y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X_test)
 # We will get the epochs associated with these frauds
 high_warning_loan = np.concatenate(ToEpochs(n=best_n).transform(X_test[y_pred == 1]))
 
-# and from there the IPs of incriminated terminals and and the IDs of the suspicious customers
+# and from there the IPs of incriminated terminals 
+# and the IDs of the suspicious customers
 # for further investigation:
 high_warning_ip = le.inverse_transform(high_warning_loan[0, :].astype(int))
 high_warning_id = high_warning_loan[3, :].astype(str)
@@ -458,5 +465,5 @@ print("ID involved in probable collusion: ", high_warning_id)
 #         https://zenodo.org/records/7418458
 # .. [3] https://pyriemann.readthedocs.io/en/latest/auto_examples/ERP/plot_ERP.html
 # .. [4] https://stackoverflow.com/questions/50125844/how-to-standard-scale-a-3d-matrix
-# .. [5] https://stackoverflow.com/questions/16748577/matplotlib-combine-different-figures-and-put-them-in-a-single-subplot-sharing-a
+# .. [5] https://stackoverflow.com/questions/16748577
 #
