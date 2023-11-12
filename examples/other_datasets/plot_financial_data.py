@@ -311,9 +311,10 @@ gs = HalvingGridSearchCV(
 # Let's balance the problem using NearMiss.
 # There is no special need to do this with SVM, as we could also play with the `class_weight`
 # parameter. However, reducing the data is practical for Ci/Cd.
+# So `NearMiss` we choose the closest non-fraud epochs to the fraud-epochs.
+# Here we will keep a ratio of 2 non-fraud epochs for 1 fraud epochs.
 # Note: at this stage `features` also contains the `index` column.
-# So `NearMiss` we choose the closest 200 non-fraud epochs to the 200 fraud-epochs.
-X, y = NearMiss(sampling_strategy=0.6).fit_resample(features.to_numpy(), target.to_numpy())
+X, y = NearMiss(sampling_strategy=0.5).fit_resample(features.to_numpy(), target.to_numpy())
 # X, y = EditedNearestNeighbours().fit_resample(features.to_numpy(), target.to_numpy())
 # X = features.to_numpy()
 # y = target.to_numpy()
@@ -354,7 +355,8 @@ score_svm = balanced_accuracy_score(y_test, pred_svm)
 
 # Quantum pipeline:
 # let's take the same parameters but evaluate the pipeline with a quantum SVM.
-# We will just unconstraint the regularization a little bit as the quantum SVM tends to overfit very quickly.
+# Note: From experience, quantum SVM tends to overfit quickly. 
+# So it is debatable if we want to keep the same penalties for the quantum SVM as for the classical one.
 gs.best_estimator_.steps[-1] = ("quanticsvm", QuanticSVM(quantum=True, C=best_C, gamma=best_gamma))
 train_pred_qsvm = gs.best_estimator_.fit(X_train, y_train).predict(X_train)
 train_score_qsvm = balanced_accuracy_score(y_train, train_pred_qsvm)
@@ -415,10 +417,11 @@ class ERP_CollusionClassifier(ClassifierMixin):
         y_pred[y_pred < self.threshold] = 0
         return y_pred
 
-# plot the temporal response of collusion vs non-co
+# plot the temporal response of collusion vs no-collusion.
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X)
 plot_ERPs(X, y_pred, best_n, "Collusion", "No-fraud & Fraud without collusion")
 
+# Let's predict the type of fraud using our two-stage:
 # The y_pred here contains 1 if the fraud is a possible collusion or 0 else, i.e:
 # not a fraud or not a collusion fraud
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X_test)
