@@ -192,9 +192,7 @@ features["index"] = features.index
 # ----------------------------------
 #
 # Let's create the pipeline as suggested in the patent application [1]_.
-
 # Let's start by creating the required transformers:
-
 
 class ToEpochs(TransformerMixin, BaseEstimator):
     def __init__(self, n):
