@@ -404,8 +404,8 @@ print(
 
 
 ##############################################################################
-#
-# Unsupervised classification (collusion vs no-collusion)
+# Unsupervised classification
+# ---------------------------
 #
 # We will now predict whether or not the fraud was a collusion or not.
 # This is a two-stage process:
