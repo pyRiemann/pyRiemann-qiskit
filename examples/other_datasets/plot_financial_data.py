@@ -399,9 +399,9 @@ print(
 )
 print("----Testing score:----")
 print(
-    f"Classical SVM: {score_svm}\
-    \nQuantum SVM: {score_qsvm}\
-    \nClassical RandomForest: {score_rf}"
+    f"Classical SVM: {score_svm:.3f}\
+    \nQuantum SVM: {score_qsvm:.3f}\
+    \nClassical RandomForest: {score_rf:.3f}"
 )
 
 
