@@ -342,10 +342,8 @@ labels, counts = np.unique(y_test, return_counts=True)
 print(f"Testing set shape: {X_test.shape}, genuine: {counts[0]}, frauds: {counts[1]}")
 
 ##############################################################################
-# Run evaluation
-# --------------
-#
-# (Supervised classification)
+# Supervised classification
+# -------------------------
 #
 # Run the evaluation on a classical vs quantum pipeline.
 
