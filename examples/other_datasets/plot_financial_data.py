@@ -381,6 +381,8 @@ train_score_rf = balanced_accuracy_score(y_train, train_pred_rf)
 pred_rf = rf.predict(X_test)
 score_rf = balanced_accuracy_score(y_test, pred_rf)
 
+##############################################################################
+
 # Print the results of direct classification of fraud records
 # Note:
 # SVM/QSVM pipeline use the loans preceding the actual fraud, without the fraud itself
