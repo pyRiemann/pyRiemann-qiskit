@@ -408,10 +408,11 @@ print(
 #
 # We will now predict whether or not the fraud was a collusion or not.
 # This is a two-stage process:
+#
 # 1) We have the no-aware ERP method (namely RandomForest)
-#    to predict whether or not the transaction is a fraud
+#   to predict whether or not the transaction is a fraud;
 # 2) If the fraud is caracterized, we use the QSVC pipeline to
-#    predict whether or not it is a collusion
+#   predict whether or not it is a collusion.
 #
 class ERP_CollusionClassifier(ClassifierMixin):
     def __init__(self, row_clf, erp_clf, threshold=0.7):
