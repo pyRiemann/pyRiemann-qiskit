@@ -61,8 +61,7 @@ warnings.filterwarnings("ignore")
 
 ##############################################################################
 # Some utils function for plotting
-# -------------------
-#
+# --------------------------------
 
 
 def plot_ERP(X, title, n=10, ylim=None, add_digest=False):
