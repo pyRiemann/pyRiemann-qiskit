@@ -393,9 +393,9 @@ score_rf = balanced_accuracy_score(y_test, pred_rf)
 #
 print("----Training score:----")
 print(
-    f"Classical SVM: {train_score_svm}\
-    \nQuantum SVM: {train_score_qsvm}\
-    \nClassical RandomForest: {train_score_rf}"
+    f"Classical SVM: {train_score_svm:.3f}\
+    \nQuantum SVM: {train_score_qsvm:.3f}\
+    \nClassical RandomForest: {train_score_rf:.3f}"
 )
 print("----Testing score:----")
 print(
