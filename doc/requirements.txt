@@ -6,6 +6,7 @@ cython
 mne[data]>=0.24
 seaborn>=0.12.1
 scikit-learn
+imbalanced-learn==0.11.0
 joblib
 pandas
 cvxpy==1.4.1
