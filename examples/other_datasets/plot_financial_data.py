@@ -10,12 +10,13 @@ The dataset contains synthethic data generated from a real dataset
 of CaixaBank’s express loans [2]_.
 Each entry contains, for example, the date and amount of the loan request,
 the client identification number and the creation date of the account.
-A loan is tagged with either tentative or confirmation of fraud, when a fraudster
-has impersonates the client to claim the loan and steal the client funds.
+A loan is tagged with either tentative or confirmation of fraud, when a
+fraudster has impersonates the client to claim the loan and steal the client
+funds.
 
-Once the fraud is caracterized, a complex task is to identify whether or not a collusion
-is taking place. One fraudster can for example corrupt a client having already a good
-history with the bank.
+Once the fraud is caracterized, a complex task is to identify whether or not a 
+collusion is taking place. One fraudster can for example corrupt a client 
+having already a good history with the bank.
 The fraud can also involves a bank agent who is mandated by the client.
 The scam perdurates over time, sometime over month or years.
 Identifying these participants is essential to prevent similar
@@ -24,7 +25,7 @@ scam to happen in the future.
 In this example, we will use RG to identify whether or no
 a fraud is a probable collusion.
 Because this method work on a small number of components,
-it is also compatible with Quantum.
+it is also compatible with quantum computing.
 
 """
 # Authors: Gregoire Cattan, Filipe Barroso
@@ -52,17 +53,17 @@ import numpy as np
 print(__doc__)
 
 
-##############################################################################
+###############################################################################
 
 # getting rid of the warnings about the future
 warnings.simplefilter(action="ignore", category=FutureWarning)
 warnings.simplefilter(action="ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore")
 
-##############################################################################
-# Some utils function for plotting
-# --------------------------------
 
+###############################################################################
+# Some utils functions for plotting
+# ---------------------------------
 
 def plot_ERP(X, title, n=10, ylim=None, add_digest=False):
     epochs = ToEpochs(n=n).transform(X)
@@ -109,7 +110,8 @@ def merge_2axes(fig1, fig2, file_name1="f1.png", file_name2="f2.png"):
         for side in ("top", "left", "bottom", "right"):
             ax.spines[side].set_visible(False)
         ax.tick_params(
-            left=False, right=False, labelleft=False, labelbottom=False, bottom=False
+            left=False, right=False, labelleft=False, labelbottom=False,
+            bottom=False
         )
 
     return fig
@@ -122,7 +124,7 @@ def plot_ERPs(X, y, n=10, label0="Fraud", label1="Genuine"):
     plt.show()
 
 
-##############################################################################
+###############################################################################
 # Data pre-processing
 # -------------------
 #
@@ -179,7 +181,9 @@ features["FECHA_ALTA_CLIENTE"] = features["FECHA_ALTA_CLIENTE"].apply(
 # features["IP_TERMINAL"] = features["IP_TERMINAL"].astype("category").cat.codes
 le = LabelEncoder()
 le.fit(features["IP_TERMINAL"].astype("category"))
-features["IP_TERMINAL"] = le.transform(features["IP_TERMINAL"].astype("category"))
+features["IP_TERMINAL"] = le.transform(
+    features["IP_TERMINAL"].astype("category")
+)
 
 # ... and create an 'index' column in the dataset
 # Note: this is done only for progamming reasons, due to our implementation
@@ -187,13 +191,12 @@ features["IP_TERMINAL"] = le.transform(features["IP_TERMINAL"].astype("category"
 features["index"] = features.index
 
 
-##############################################################################
+###############################################################################
 # Pipeline for binary classification
 # ----------------------------------
 #
 # Let's create the pipeline as suggested in the patent application [1]_.
 # Let's start by creating the required transformers:
-
 
 class ToEpochs(TransformerMixin, BaseEstimator):
     def __init__(self, n):
@@ -243,9 +246,13 @@ def slim(x, keep_diagonal=True):
     last = range(len(x) - length, len(x))
     down_cadrans = x[np.ix_(last, last)]
     if keep_diagonal:
-        down_cadrans = [down_cadrans[i, j] for i in first for j in first if i <= j]
+        down_cadrans = [
+            down_cadrans[i, j] for i in first for j in first if i <= j
+        ]
     else:
-        down_cadrans = [down_cadrans[i, j] for i in first for j in first if i < j]
+        down_cadrans = [
+            down_cadrans[i, j] for i in first for j in first if i < j
+        ]
     first_cadrans = np.reshape(x[np.ix_(last, first)], (1, len(x)))
     ret = np.append(first_cadrans, down_cadrans)
     return ret
@@ -310,7 +317,7 @@ gs = HalvingGridSearchCV(
 )
 
 
-##############################################################################
+###############################################################################
 # Balance dataset
 # ---------------
 #
@@ -334,12 +341,19 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 labels, counts = np.unique(y_train, return_counts=True)
-print(f"Training set shape: {X_train.shape}, genuine: {counts[0]}, frauds: {counts[1]}")
+print(
+    f"Training set shape: {X_train.shape}, genuine: {counts[0]}, \
+    frauds: {counts[1]}"
+)
 
 labels, counts = np.unique(y_test, return_counts=True)
-print(f"Testing set shape: {X_test.shape}, genuine: {counts[0]}, frauds: {counts[1]}")
+print(
+    f"Testing set shape: {X_test.shape}, genuine: {counts[0]}, \
+    frauds: {counts[1]}"
+)
 
-##############################################################################
+
+###############################################################################
 # Supervised classification
 # -------------------------
 #
@@ -382,13 +396,14 @@ train_score_rf = balanced_accuracy_score(y_train, train_pred_rf)
 pred_rf = rf.predict(X_test)
 score_rf = balanced_accuracy_score(y_test, pred_rf)
 
-##############################################################################
 
+###############################################################################
 # Print the results of direct classification of fraud records
-# Note:
-# SVM/QSVM pipeline use the loans preceding the actual fraud, without the fraud itself
-# RandomForest uses only the fraud record itself
 #
+# SVM/QSVM pipeline use the loans preceding the actual fraud, without the
+# fraud itself.
+# RandomForest uses only the fraud record itself.
+
 print("----Training score:----")
 print(
     f"Classical SVM: {train_score_svm:.3f}\
@@ -403,7 +418,7 @@ print(
 )
 
 
-##############################################################################
+###############################################################################
 # Unsupervised classification
 # ---------------------------
 #
@@ -411,10 +426,10 @@ print(
 # This is a two-stage process:
 #
 # 1) We have the no-aware ERP method (namely RandomForest)
-#   to predict whether or not the transaction is a fraud;
+#    to predict whether or not the transaction is a fraud;
 # 2) If the fraud is caracterized, we use the QSVC pipeline to
-#   predict whether or not it is a collusion.
-#
+#    predict whether or not it is a collusion.
+
 class ERP_CollusionClassifier(ClassifierMixin):
     def __init__(self, row_clf, erp_clf, threshold=0.7):
         self.row_clf = row_clf
@@ -433,18 +448,19 @@ class ERP_CollusionClassifier(ClassifierMixin):
         y_pred[y_pred < self.threshold] = 0
         return y_pred
 
-
-# plot the temporal response of collusion vs no-collusion.
+# Plot the temporal response of collusion vs no-collusion.
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X)
 plot_ERPs(X, y_pred, best_n, "Collusion", "No-fraud & Fraud without collusion")
 
 # Let's predict the type of fraud using our two-stage:
-# The y_pred here contains 1 if the fraud is a possible collusion or 0 else, i.e:
-# not a fraud or not a collusion fraud
+# The y_pred here contains 1 if the fraud is a possible collusion or 0 else,
+# i.e: not a fraud or not a collusion fraud
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X_test)
 
 # We will get the epochs associated with these frauds
-high_warning_loan = np.concatenate(ToEpochs(n=best_n).transform(X_test[y_pred == 1]))
+high_warning_loan = np.concatenate(
+    ToEpochs(n=best_n).transform(X_test[y_pred == 1])
+)
 
 # and from there the IPs of incriminated terminals
 # and the IDs of the suspicious customers
@@ -465,4 +481,3 @@ print("ID involved in probable collusion: ", high_warning_id)
 # .. [3] https://pyriemann.readthedocs.io/en/latest/auto_examples/ERP/plot_ERP.html
 # .. [4] https://stackoverflow.com/questions/50125844/how-to-standard-scale-a-3d-matrix
 # .. [5] https://stackoverflow.com/questions/16748577
-#
