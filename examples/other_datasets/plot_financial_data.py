@@ -14,8 +14,8 @@ A loan is tagged with either tentative or confirmation of fraud, when a
 fraudster has impersonates the client to claim the loan and steal the client
 funds.
 
-Once the fraud is caracterized, a complex task is to identify whether or not a 
-collusion is taking place. One fraudster can for example corrupt a client 
+Once the fraud is caracterized, a complex task is to identify whether or not a
+collusion is taking place. One fraudster can for example corrupt a client
 having already a good history with the bank.
 The fraud can also involves a bank agent who is mandated by the client.
 The scam perdurates over time, sometime over month or years.
@@ -65,6 +65,7 @@ warnings.filterwarnings("ignore")
 # Some utils functions for plotting
 # ---------------------------------
 
+
 def plot_ERP(X, title, n=10, ylim=None, add_digest=False):
     epochs = ToEpochs(n=n).transform(X)
     reduced_centered_epochs = NDRobustScaler().fit_transform(epochs)
@@ -110,8 +111,7 @@ def merge_2axes(fig1, fig2, file_name1="f1.png", file_name2="f2.png"):
         for side in ("top", "left", "bottom", "right"):
             ax.spines[side].set_visible(False)
         ax.tick_params(
-            left=False, right=False, labelleft=False, labelbottom=False,
-            bottom=False
+            left=False, right=False, labelleft=False, labelbottom=False, bottom=False
         )
 
     return fig
@@ -181,9 +181,7 @@ features["FECHA_ALTA_CLIENTE"] = features["FECHA_ALTA_CLIENTE"].apply(
 # features["IP_TERMINAL"] = features["IP_TERMINAL"].astype("category").cat.codes
 le = LabelEncoder()
 le.fit(features["IP_TERMINAL"].astype("category"))
-features["IP_TERMINAL"] = le.transform(
-    features["IP_TERMINAL"].astype("category")
-)
+features["IP_TERMINAL"] = le.transform(features["IP_TERMINAL"].astype("category"))
 
 # ... and create an 'index' column in the dataset
 # Note: this is done only for progamming reasons, due to our implementation
@@ -197,6 +195,7 @@ features["index"] = features.index
 #
 # Let's create the pipeline as suggested in the patent application [1]_.
 # Let's start by creating the required transformers:
+
 
 class ToEpochs(TransformerMixin, BaseEstimator):
     def __init__(self, n):
@@ -246,13 +245,9 @@ def slim(x, keep_diagonal=True):
     last = range(len(x) - length, len(x))
     down_cadrans = x[np.ix_(last, last)]
     if keep_diagonal:
-        down_cadrans = [
-            down_cadrans[i, j] for i in first for j in first if i <= j
-        ]
+        down_cadrans = [down_cadrans[i, j] for i in first for j in first if i <= j]
     else:
-        down_cadrans = [
-            down_cadrans[i, j] for i in first for j in first if i < j
-        ]
+        down_cadrans = [down_cadrans[i, j] for i in first for j in first if i < j]
     first_cadrans = np.reshape(x[np.ix_(last, first)], (1, len(x)))
     ret = np.append(first_cadrans, down_cadrans)
     return ret
@@ -430,6 +425,7 @@ print(
 # 2) If the fraud is caracterized, we use the QSVC pipeline to
 #    predict whether or not it is a collusion.
 
+
 class ERP_CollusionClassifier(ClassifierMixin):
     def __init__(self, row_clf, erp_clf, threshold=0.7):
         self.row_clf = row_clf
@@ -448,6 +444,7 @@ class ERP_CollusionClassifier(ClassifierMixin):
         y_pred[y_pred < self.threshold] = 0
         return y_pred
 
+
 # Plot the temporal response of collusion vs no-collusion.
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X)
 plot_ERPs(X, y_pred, best_n, "Collusion", "No-fraud & Fraud without collusion")
@@ -458,9 +455,7 @@ plot_ERPs(X, y_pred, best_n, "Collusion", "No-fraud & Fraud without collusion")
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X_test)
 
 # We will get the epochs associated with these frauds
-high_warning_loan = np.concatenate(
-    ToEpochs(n=best_n).transform(X_test[y_pred == 1])
-)
+high_warning_loan = np.concatenate(ToEpochs(n=best_n).transform(X_test[y_pred == 1]))
 
 # and from there the IPs of incriminated terminals
 # and the IDs of the suspicious customers
