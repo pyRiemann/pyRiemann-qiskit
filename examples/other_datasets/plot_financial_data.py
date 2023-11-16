@@ -22,11 +22,10 @@ The scam perdurates over time, sometime over month or years.
 Identifying these participants is essential to prevent similar
 scam to happen in the future.
 
-In this example, we will use RG to identify whether or no
-a fraud is a probable collusion.
-Because this method work on a small number of components,
-it is also compatible with quantum computing.
-
+In this example, we will use RG to identify whether or no a fraud is a probable
+collusion.
+Because this method work on a small number of components, it is also compatible
+with quantum computing.
 """
 # Authors: Gregoire Cattan, Filipe Barroso
 # License: BSD (3-clause)
@@ -84,7 +83,7 @@ def plot_ERP(X, title, n=10, ylim=None, add_digest=False):
 
 
 def merge_2axes(fig1, fig2, file_name1="f1.png", file_name2="f2.png"):
-    # Modified from [5]_
+    # Modified from [5]
     fig1.savefig(file_name1)
     fig2.savefig(file_name2)
     plt.close(fig1)
@@ -218,7 +217,7 @@ class ToEpochs(TransformerMixin, BaseEstimator):
 
 
 # Apply one scaler by channel:
-# See Stackoverflow link for more details [4]_
+# See Stackoverflow link for more details [4]
 class NDRobustScaler(TransformerMixin):
     def __init__(self):
         self._scalers = []
@@ -479,5 +478,7 @@ print("ID involved in probable collusion: ", high_warning_id)
 # .. [2] 'Synthetic Data of Transactions for Inmediate Loans Fraud'
 #         https://zenodo.org/records/7418458
 # .. [3] https://pyriemann.readthedocs.io/en/latest/auto_examples/ERP/plot_ERP.html
-# .. [4] https://stackoverflow.com/questions/50125844/how-to-standard-scale-a-3d-matrix
-# .. [5] https://stackoverflow.com/questions/16748577
+#
+#    [4] https://stackoverflow.com/questions/50125844/how-to-standard-scale-a-3d-matrix
+#
+#    [5] https://stackoverflow.com/questions/16748577
