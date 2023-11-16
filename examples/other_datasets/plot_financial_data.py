@@ -10,22 +10,22 @@ The dataset contains synthethic data generated from a real dataset
 of CaixaBank’s express loans [2]_.
 Each entry contains, for example, the date and amount of the loan request,
 the client identification number and the creation date of the account.
-A loan is tagged with either tentative or confirmation of fraud, when a fraudster
-has impersonates the client to claim the loan and steal the client funds.
+A loan is tagged with either tentative or confirmation of fraud, when a
+fraudster has impersonates the client to claim the loan and steal the client
+funds.
 
-Once the fraud is caracterized, a complex task is to identify whether or not a collusion
-is taking place. One fraudster can for example corrupt a client having already a good
-history with the bank.
+Once the fraud is caracterized, a complex task is to identify whether or not a
+collusion is taking place. One fraudster can for example corrupt a client
+having already a good history with the bank.
 The fraud can also involves a bank agent who is mandated by the client.
 The scam perdurates over time, sometime over month or years.
 Identifying these participants is essential to prevent similar
 scam to happen in the future.
 
-In this example, we will use RG to identify whether or no
-a fraud is a probable collusion.
-Because this method work on a small number of components,
-it is also compatible with Quantum.
-
+In this example, we will use RG to identify whether or no a fraud is a probable
+collusion.
+Because this method work on a small number of components, it is also compatible
+with quantum computing.
 """
 # Authors: Gregoire Cattan, Filipe Barroso
 # License: BSD (3-clause)
@@ -52,16 +52,17 @@ import numpy as np
 print(__doc__)
 
 
-##############################################################################
+###############################################################################
 
 # getting rid of the warnings about the future
 warnings.simplefilter(action="ignore", category=FutureWarning)
 warnings.simplefilter(action="ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore")
 
-##############################################################################
-# Some utils function for plotting
-# --------------------------------
+
+###############################################################################
+# Some utils functions for plotting
+# ---------------------------------
 
 
 def plot_ERP(X, title, n=10, ylim=None, add_digest=False):
@@ -83,7 +84,7 @@ def plot_ERP(X, title, n=10, ylim=None, add_digest=False):
 
 
 def merge_2axes(fig1, fig2, file_name1="f1.png", file_name2="f2.png"):
-    # Modified from [5]_
+    # Modified from [5]
     fig1.savefig(file_name1)
     fig2.savefig(file_name2)
     plt.close(fig1)
@@ -122,7 +123,7 @@ def plot_ERPs(X, y, n=10, label0="Fraud", label1="Genuine"):
     plt.show()
 
 
-##############################################################################
+###############################################################################
 # Data pre-processing
 # -------------------
 #
@@ -187,7 +188,7 @@ features["IP_TERMINAL"] = le.transform(features["IP_TERMINAL"].astype("category"
 features["index"] = features.index
 
 
-##############################################################################
+###############################################################################
 # Pipeline for binary classification
 # ----------------------------------
 #
@@ -215,7 +216,7 @@ class ToEpochs(TransformerMixin, BaseEstimator):
 
 
 # Apply one scaler by channel:
-# See Stackoverflow link for more details [4]_
+# See Stackoverflow link for more details [4]
 class NDRobustScaler(TransformerMixin):
     def __init__(self):
         self._scalers = []
@@ -310,7 +311,7 @@ gs = HalvingGridSearchCV(
 )
 
 
-##############################################################################
+###############################################################################
 # Balance dataset
 # ---------------
 #
@@ -334,12 +335,19 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 labels, counts = np.unique(y_train, return_counts=True)
-print(f"Training set shape: {X_train.shape}, genuine: {counts[0]}, frauds: {counts[1]}")
+print(
+    f"Training set shape: {X_train.shape}, genuine: {counts[0]}, \
+    frauds: {counts[1]}"
+)
 
 labels, counts = np.unique(y_test, return_counts=True)
-print(f"Testing set shape: {X_test.shape}, genuine: {counts[0]}, frauds: {counts[1]}")
+print(
+    f"Testing set shape: {X_test.shape}, genuine: {counts[0]}, \
+    frauds: {counts[1]}"
+)
 
-##############################################################################
+
+###############################################################################
 # Supervised classification
 # -------------------------
 #
@@ -382,13 +390,14 @@ train_score_rf = balanced_accuracy_score(y_train, train_pred_rf)
 pred_rf = rf.predict(X_test)
 score_rf = balanced_accuracy_score(y_test, pred_rf)
 
-##############################################################################
 
+###############################################################################
 # Print the results of direct classification of fraud records
-# Note:
-# SVM/QSVM pipeline use the loans preceding the actual fraud, without the fraud itself
-# RandomForest uses only the fraud record itself
 #
+# SVM/QSVM pipeline use the loans preceding the actual fraud, without the
+# fraud itself.
+# RandomForest uses only the fraud record itself.
+
 print("----Training score:----")
 print(
     f"Classical SVM: {train_score_svm:.3f}\
@@ -403,7 +412,7 @@ print(
 )
 
 
-##############################################################################
+###############################################################################
 # Unsupervised classification
 # ---------------------------
 #
@@ -411,10 +420,11 @@ print(
 # This is a two-stage process:
 #
 # 1) We have the no-aware ERP method (namely RandomForest)
-#   to predict whether or not the transaction is a fraud;
+#    to predict whether or not the transaction is a fraud;
 # 2) If the fraud is caracterized, we use the QSVC pipeline to
-#   predict whether or not it is a collusion.
-#
+#    predict whether or not it is a collusion.
+
+
 class ERP_CollusionClassifier(ClassifierMixin):
     def __init__(self, row_clf, erp_clf, threshold=0.7):
         self.row_clf = row_clf
@@ -434,13 +444,13 @@ class ERP_CollusionClassifier(ClassifierMixin):
         return y_pred
 
 
-# plot the temporal response of collusion vs no-collusion.
+# Plot the temporal response of collusion vs no-collusion.
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X)
 plot_ERPs(X, y_pred, best_n, "Collusion", "No-fraud & Fraud without collusion")
 
 # Let's predict the type of fraud using our two-stage:
-# The y_pred here contains 1 if the fraud is a possible collusion or 0 else, i.e:
-# not a fraud or not a collusion fraud
+# The y_pred here contains 1 if the fraud is a possible collusion or 0 else,
+# i.e: not a fraud or not a collusion fraud
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X_test)
 
 # We will get the epochs associated with these frauds
@@ -463,6 +473,7 @@ print("ID involved in probable collusion: ", high_warning_id)
 # .. [2] 'Synthetic Data of Transactions for Inmediate Loans Fraud'
 #         https://zenodo.org/records/7418458
 # .. [3] https://pyriemann.readthedocs.io/en/latest/auto_examples/ERP/plot_ERP.html
-# .. [4] https://stackoverflow.com/questions/50125844/how-to-standard-scale-a-3d-matrix
-# .. [5] https://stackoverflow.com/questions/16748577
 #
+#    [4] https://stackoverflow.com/questions/50125844/how-to-standard-scale-a-3d-matrix
+#
+#    [5] https://stackoverflow.com/questions/16748577
