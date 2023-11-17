@@ -308,7 +308,7 @@ gs = HalvingGridSearchCV(
     cv=4,
     min_resources="smallest",
     verbose=1,
-    random_state=0
+    random_state=0,
 )
 
 
