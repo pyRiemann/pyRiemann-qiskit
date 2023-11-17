@@ -302,7 +302,7 @@ gs = HalvingGridSearchCV(
         "optionalwhitening__n_components": [2, 4, 6],
         "slimvector__keep_diagonal": [True, False],
         "svc__C": [0.1, 1, 10, 100],
-        "svc__gamma": ["auto", "scale", 1, 10],
+        "svc__gamma": ["auto", "scale", 1],
     },
     scoring="balanced_accuracy",
     cv=4,
