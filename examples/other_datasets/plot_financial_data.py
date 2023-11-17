@@ -297,17 +297,18 @@ gs = HalvingGridSearchCV(
     pipe,
     param_grid={
         "toepochs__n": [10, 20, 30],
-        "xdawncovariances__nfilter": [1, 2, 3],
+        "xdawncovariances__nfilter": [1, 2],
         "optionalwhitening__process": [True, False],
         "optionalwhitening__n_components": [2, 4, 6],
         "slimvector__keep_diagonal": [True, False],
-        "svc__C": [0.1, 1, 10, 100],
+        "svc__C": [0.1, 1, 10],
         "svc__gamma": ["auto", "scale", 1],
     },
     scoring="balanced_accuracy",
     cv=4,
     min_resources="smallest",
     verbose=1,
+    random_state=0
 )
 
 
