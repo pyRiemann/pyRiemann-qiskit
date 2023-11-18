@@ -291,7 +291,7 @@ pipe = make_pipeline(
     SVC(probability=True),
 )
 
-param_grid: dict={
+param_grid: dict = {
     "toepochs__n": [20, 30],
     "xdawncovariances__nfilter": [1, 2],
     "optionalwhitening__process": [True, False],
