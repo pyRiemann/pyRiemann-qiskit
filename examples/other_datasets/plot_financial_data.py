@@ -31,8 +31,7 @@ with quantum computing.
 # License: BSD (3-clause)
 
 from sklearn.base import TransformerMixin, BaseEstimator, ClassifierMixin
-from sklearn.experimental import enable_halving_search_cv  # noqa
-from sklearn.model_selection import HalvingGridSearchCV
+from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import RobustScaler, LabelEncoder
@@ -303,13 +302,12 @@ param_grid: dict = {
 
 # Optimize the pipeline:
 # let's save some time and run the optimization with the classical SVM
-gs = HalvingGridSearchCV(
+gs = GridSearchCV(
     pipe,
     param_grid=param_grid,
     scoring="balanced_accuracy",
     cv=4,
     verbose=1,
-    random_state=0,
 )
 
 
