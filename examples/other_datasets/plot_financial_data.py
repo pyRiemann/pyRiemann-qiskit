@@ -291,19 +291,21 @@ pipe = make_pipeline(
     SVC(probability=True),
 )
 
+param_grid: dict={
+    "toepochs__n": [20, 30],
+    "xdawncovariances__nfilter": [1, 2],
+    "optionalwhitening__process": [True, False],
+    "optionalwhitening__n_components": [2, 4],
+    "slimvector__keep_diagonal": [True, False],
+    "svc__C": [0.1, 1],
+    "svc__gamma": ["auto", "scale"],
+}
+
 # Optimize the pipeline:
 # let's save some time and run the optimization with the classical SVM
 gs = HalvingGridSearchCV(
     pipe,
-    param_grid={
-        "toepochs__n": [10, 20, 30],
-        "xdawncovariances__nfilter": [1, 2],
-        "optionalwhitening__process": [True, False],
-        "optionalwhitening__n_components": [2, 4, 6],
-        "slimvector__keep_diagonal": [True, False],
-        "svc__C": [0.1, 1, 10],
-        "svc__gamma": ["auto", "scale", 1],
-    },
+    param_grid=param_grid,
     scoring="balanced_accuracy",
     cv=4,
     min_resources="smallest",
