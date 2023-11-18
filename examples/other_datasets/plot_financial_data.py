@@ -308,7 +308,6 @@ gs = HalvingGridSearchCV(
     param_grid=param_grid,
     scoring="balanced_accuracy",
     cv=4,
-    min_resources="smallest",
     verbose=1,
     random_state=0,
 )
