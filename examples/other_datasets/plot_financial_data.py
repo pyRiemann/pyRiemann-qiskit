@@ -31,7 +31,8 @@ with quantum computing.
 # License: BSD (3-clause)
 
 from sklearn.base import TransformerMixin, BaseEstimator, ClassifierMixin
-from sklearn.model_selection import GridSearchCV
+from sklearn.experimental import enable_halving_search_cv  # noqa
+from sklearn.model_selection import HalvingGridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import RobustScaler, LabelEncoder
@@ -47,6 +48,7 @@ from matplotlib import pyplot as plt
 import warnings
 import pandas as pd
 import numpy as np
+import os
 
 print(__doc__)
 
@@ -290,24 +292,46 @@ pipe = make_pipeline(
     SVC(probability=True),
 )
 
+# if os.getenv("CI") == "true":
+#     param_grid: dict = {
+#         "toepochs__n": [30],
+#         "xdawncovariances__nfilter": [1],
+#         "optionalwhitening__process": [True],
+#         "optionalwhitening__n_components": [4],
+#         "slimvector__keep_diagonal": [True],
+#         "svc__C": [1],
+#         "svc__gamma": ["auto"],
+#     }
+# else:
+#     param_grid: dict = {
+#         "toepochs__n": [20, 30],
+#         "xdawncovariances__nfilter": [1, 2],
+#         "optionalwhitening__process": [True, False],
+#         "optionalwhitening__n_components": [2, 4],
+#         "slimvector__keep_diagonal": [True, False],
+#         "svc__C": [0.1, 1],
+#         "svc__gamma": ["auto", "scale"],
+#     }
+
 param_grid: dict = {
-    "toepochs__n": [20, 30],
-    "xdawncovariances__nfilter": [1, 2],
-    "optionalwhitening__process": [True, False],
-    "optionalwhitening__n_components": [2, 4],
-    "slimvector__keep_diagonal": [True, False],
-    "svc__C": [0.1, 1],
-    "svc__gamma": ["auto", "scale"],
-}
+        "toepochs__n": [20, 30],
+        "xdawncovariances__nfilter": [1, 2],
+        "optionalwhitening__process": [True, False],
+        "optionalwhitening__n_components": [2, 4],
+        "slimvector__keep_diagonal": [True, False],
+        "svc__C": [0.1, 1],
+        "svc__gamma": ["auto", "scale"],
+    }
 
 # Optimize the pipeline:
 # let's save some time and run the optimization with the classical SVM
-gs = GridSearchCV(
+gs = HalvingGridSearchCV(
     pipe,
     param_grid=param_grid,
     scoring="balanced_accuracy",
     cv=4,
     verbose=1,
+    random_state=0,
 )
 
 
@@ -453,6 +477,7 @@ plot_ERPs(X, y_pred, best_n, "Collusion", "No-fraud & Fraud without collusion")
 # i.e: not a fraud or not a collusion fraud
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X_test)
 
+print(gs.best_params_)
 # We will get the epochs associated with these frauds
 high_warning_loan = np.concatenate(ToEpochs(n=best_n).transform(X_test[y_pred == 1]))
 
