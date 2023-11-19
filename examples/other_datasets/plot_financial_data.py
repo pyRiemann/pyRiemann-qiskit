@@ -292,36 +292,26 @@ pipe = make_pipeline(
     SVC(probability=True),
 )
 
-# if os.getenv("CI") == "true":
-#     param_grid: dict = {
-#         "toepochs__n": [30],
-#         "xdawncovariances__nfilter": [1],
-#         "optionalwhitening__process": [True],
-#         "optionalwhitening__n_components": [4],
-#         "slimvector__keep_diagonal": [True],
-#         "svc__C": [1],
-#         "svc__gamma": ["auto"],
-#     }
-# else:
-#     param_grid: dict = {
-#         "toepochs__n": [20, 30],
-#         "xdawncovariances__nfilter": [1, 2],
-#         "optionalwhitening__process": [True, False],
-#         "optionalwhitening__n_components": [2, 4],
-#         "slimvector__keep_diagonal": [True, False],
-#         "svc__C": [0.1, 1],
-#         "svc__gamma": ["auto", "scale"],
-#     }
-
-param_grid: dict = {
-    "toepochs__n": [20, 30],
-    "xdawncovariances__nfilter": [1, 2],
-    "optionalwhitening__process": [True, False],
-    "optionalwhitening__n_components": [2, 4],
-    "slimvector__keep_diagonal": [True, False],
-    "svc__C": [0.1, 1],
-    "svc__gamma": ["auto", "scale"],
-}
+if os.getenv("CI") == "true":
+    param_grid: dict = {
+        "toepochs__n": [30],
+        "xdawncovariances__nfilter": [1],
+        "optionalwhitening__process": [True],
+        "optionalwhitening__n_components": [4],
+        "slimvector__keep_diagonal": [True],
+        "svc__C": [1],
+        "svc__gamma": ["auto"],
+    }
+else:
+    param_grid: dict = {
+        "toepochs__n": [20, 30],
+        "xdawncovariances__nfilter": [1, 2],
+        "optionalwhitening__process": [True, False],
+        "optionalwhitening__n_components": [2, 4],
+        "slimvector__keep_diagonal": [True, False],
+        "svc__C": [0.1, 1],
+        "svc__gamma": ["auto", "scale"],
+    }
 
 # Optimize the pipeline:
 # let's save some time and run the optimization with the classical SVM
@@ -450,7 +440,7 @@ print(
 
 
 class ERP_CollusionClassifier(ClassifierMixin):
-    def __init__(self, row_clf, erp_clf, threshold=0.7):
+    def __init__(self, row_clf, erp_clf, threshold=0.6):
         self.row_clf = row_clf
         self.erp_clf = erp_clf
         self.threshold = threshold
