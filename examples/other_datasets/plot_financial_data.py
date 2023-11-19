@@ -314,14 +314,14 @@ pipe = make_pipeline(
 #     }
 
 param_grid: dict = {
-        "toepochs__n": [20, 30],
-        "xdawncovariances__nfilter": [1, 2],
-        "optionalwhitening__process": [True, False],
-        "optionalwhitening__n_components": [2, 4],
-        "slimvector__keep_diagonal": [True, False],
-        "svc__C": [0.1, 1],
-        "svc__gamma": ["auto", "scale"],
-    }
+    "toepochs__n": [20, 30],
+    "xdawncovariances__nfilter": [1, 2],
+    "optionalwhitening__process": [True, False],
+    "optionalwhitening__n_components": [2, 4],
+    "slimvector__keep_diagonal": [True, False],
+    "svc__C": [0.1, 1],
+    "svc__gamma": ["auto", "scale"],
+}
 
 # Optimize the pipeline:
 # let's save some time and run the optimization with the classical SVM
