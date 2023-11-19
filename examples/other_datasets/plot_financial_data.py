@@ -468,9 +468,7 @@ plot_ERPs(X, y_pred, best_n, "Collusion", "No-fraud & Fraud without collusion")
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X_test)
 
 # We will get the epochs associated with these frauds
-high_warning_loan = np.concatenate(
-    ToEpochs(n=best_n).transform(X_test[y_pred == 1])
-)
+high_warning_loan = np.concatenate(ToEpochs(n=best_n).transform(X_test[y_pred == 1]))
 
 # and from there the IPs of incriminated terminals
 # and the IDs of the suspicious customers
