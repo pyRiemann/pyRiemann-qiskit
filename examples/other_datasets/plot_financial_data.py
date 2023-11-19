@@ -477,17 +477,19 @@ plot_ERPs(X, y_pred, best_n, "Collusion", "No-fraud & Fraud without collusion")
 # i.e: not a fraud or not a collusion fraud
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X_test)
 
-print(gs.best_params_)
-# We will get the epochs associated with these frauds
-high_warning_loan = np.concatenate(ToEpochs(n=best_n).transform(X_test[y_pred == 1]))
+try:
+    # We will get the epochs associated with these frauds
+    high_warning_loan = np.concatenate(ToEpochs(n=best_n).transform(X_test[y_pred == 1]))
 
-# and from there the IPs of incriminated terminals
-# and the IDs of the suspicious customers
-# for further investigation:
-high_warning_ip = le.inverse_transform(high_warning_loan[0, :].astype(int))
-high_warning_id = high_warning_loan[3, :].astype(str)
-print("IP involved in probable collusion: ", high_warning_ip)
-print("ID involved in probable collusion: ", high_warning_id)
+    # and from there the IPs of incriminated terminals
+    # and the IDs of the suspicious customers
+    # for further investigation:
+    high_warning_ip = le.inverse_transform(high_warning_loan[0, :].astype(int))
+    high_warning_id = high_warning_loan[3, :].astype(str)
+    print("IP involved in probable collusion: ", high_warning_ip)
+    print("ID involved in probable collusion: ", high_warning_id)
+except:
+    print("Error happened")
 
 
 ###############################################################################
