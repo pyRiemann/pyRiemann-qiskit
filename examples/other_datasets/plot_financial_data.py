@@ -44,6 +44,7 @@ from pyriemann.preprocessing import Whitening
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.utils.viz import plot_waveforms
 from pyriemann_qiskit.classification import QuanticSVM
+from qiskit.utils import algorithm_globals
 from matplotlib import pyplot as plt
 import warnings
 import pandas as pd
@@ -293,6 +294,7 @@ pipe = make_pipeline(
 )
 
 if os.getenv("CI") == "true":
+    print("Feeding a good estimator for CI (skipping grid search)")
     param_grid: dict = {
         "toepochs__n": [30],
         "xdawncovariances__nfilter": [1],
@@ -465,16 +467,13 @@ plot_ERPs(X, y_pred, best_n, "Collusion", "No-fraud & Fraud without collusion")
 # Let's predict the type of fraud using our two-stage:
 # The y_pred here contains 1 if the fraud is a possible collusion or 0 else,
 # i.e: not a fraud or not a collusion fraud
+algorithm_globals.random_seed = 0
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X_test)
 
 # We will get the epochs associated with these frauds
-try:
-    idx = X_test[y_pred == 1]
-    print(best_n)
-    epochs = ToEpochs(n=best_n).transform(X_test[y_pred == 1])
-    high_warning_loan = np.concatenate(epochs)
-except:
-    print("error")
+high_warning_loan = np.concatenate(
+    ToEpochs(n=best_n).transform(X_test[y_pred == 1])
+)
 
 # and from there the IPs of incriminated terminals
 # and the IDs of the suspicious customers
