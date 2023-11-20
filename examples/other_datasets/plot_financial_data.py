@@ -24,7 +24,7 @@ scam to happen in the future.
 
 In this example, we will use RG to identify whether or no a fraud is a probable
 collusion.
-Because this method work on a small number of components, it is also compatible
+Because this method works on a small number of components, it is also compatible
 with quantum computing.
 """
 # Authors: Gregoire Cattan, Filipe Barroso
@@ -292,7 +292,7 @@ pipe = make_pipeline(
     SVC(probability=True),
 )
 
-if not os.getenv("CI") == "true":
+if os.getenv("CI") == "true":
     print("Feeding a good estimator for CI (skipping grid search)")
     param_grid: dict = {
         "toepochs__n": [30],
@@ -322,7 +322,7 @@ gs = HalvingGridSearchCV(
     scoring="balanced_accuracy",
     cv=4,
     verbose=1,
-    random_state=42,
+    random_state=0,
 )
 
 
