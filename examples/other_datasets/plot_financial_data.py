@@ -279,7 +279,7 @@ class OptionalWhitening(TransformerMixin, BaseEstimator):
 
 
 # Create a RandomForest for baseline comparison of direct classification:
-rf = RandomForestClassifier()
+rf = RandomForestClassifier(random_state=42)
 
 # Classical pipeline: puts together transformers,
 # then adds at the end a classical SVM
@@ -339,12 +339,14 @@ gs = HalvingGridSearchCV(
 # So `NearMiss` we choose the closest non-fraud epochs to the fraud-epochs.
 # Here we will keep a ratio of 2 non-fraud epochs for 1 fraud epochs.
 # Note: at this stage `features` also contains the `index` column.
+
+# Possibly avoids tie-break situations
+np.random.seed(42)
+
 X, y = NearMiss(sampling_strategy=0.5, n_jobs=-1, n_neighbors=3).fit_resample(
     features.to_numpy(), target.to_numpy()
 )
-# X, y = EditedNearestNeighbours().fit_resample(features.to_numpy(), target.to_numpy())
-# X = features.to_numpy()
-# y = target.to_numpy()
+
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
