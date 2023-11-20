@@ -472,9 +472,7 @@ try:
     idx = X_test[y_pred == 1]
     print(best_n)
     epochs = ToEpochs(n=best_n).transform(X_test[y_pred == 1])
-    high_warning_loan = np.concatenate(
-        epochs
-    )
+    high_warning_loan = np.concatenate(epochs)
 except:
     print("error")
 
