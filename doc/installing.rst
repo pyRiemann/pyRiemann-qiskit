@@ -49,6 +49,6 @@ The project relies mainly on:
 
 - `pyRiemann==0.5.0 <https://github.com/pyRiemann/pyRiemann-qiskit>`
 
-- `qiskit==0.44.3 <https://qiskit.org/>`__
+- `qiskit==0.45.0 <https://qiskit.org/>`__
 
 Other dependencies can be checked in the `setup.py` file.
