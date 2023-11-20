@@ -331,7 +331,7 @@ class QuanticSVM(QuanticClassifierBase):
         verbose=True,
         shots=1024,
         gen_feature_map=gen_zz_feature_map(),
-        seed=None
+        seed=None,
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, gen_feature_map, seed
@@ -489,7 +489,7 @@ class QuanticVQC(QuanticClassifierBase):
         verbose=True,
         shots=1024,
         gen_feature_map=gen_zz_feature_map(),
-        seed=None
+        seed=None,
     ):
         if quantum is False:
             raise ValueError(
@@ -643,7 +643,7 @@ class QuanticMDM(QuanticClassifierBase):
         verbose=True,
         shots=1024,
         gen_feature_map=gen_zz_feature_map(),
-        seed=None
+        seed=None,
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, gen_feature_map, seed
