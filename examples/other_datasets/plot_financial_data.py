@@ -442,7 +442,7 @@ print(
 
 
 class ERP_CollusionClassifier(ClassifierMixin):
-    def __init__(self, row_clf, erp_clf, threshold=0.6):
+    def __init__(self, row_clf, erp_clf, threshold=0.5):
         self.row_clf = row_clf
         self.erp_clf = erp_clf
         self.threshold = threshold
