@@ -44,7 +44,6 @@ from pyriemann.preprocessing import Whitening
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.utils.viz import plot_waveforms
 from pyriemann_qiskit.classification import QuanticSVM
-from qiskit.utils import algorithm_globals
 from matplotlib import pyplot as plt
 import warnings
 import pandas as pd
@@ -293,7 +292,7 @@ pipe = make_pipeline(
     SVC(probability=True),
 )
 
-if os.getenv("CI") == "true":
+if not os.getenv("CI") == "true":
     print("Feeding a good estimator for CI (skipping grid search)")
     param_grid: dict = {
         "toepochs__n": [30],
@@ -323,7 +322,7 @@ gs = HalvingGridSearchCV(
     scoring="balanced_accuracy",
     cv=4,
     verbose=1,
-    random_state=0,
+    random_state=42,
 )
 
 
@@ -393,7 +392,7 @@ score_svm = balanced_accuracy_score(y_test, pred_svm)
 # for the quantum SVM as for the classical one.
 gs.best_estimator_.steps[-1] = (
     "quanticsvm",
-    QuanticSVM(quantum=True, C=best_C, gamma=best_gamma),
+    QuanticSVM(quantum=True, C=best_C, gamma=best_gamma, seed=42),
 )
 train_pred_qsvm = gs.best_estimator_.fit(X_train, y_train).predict(X_train)
 train_score_qsvm = balanced_accuracy_score(y_train, train_pred_qsvm)
@@ -467,7 +466,6 @@ plot_ERPs(X, y_pred, best_n, "Collusion", "No-fraud & Fraud without collusion")
 # Let's predict the type of fraud using our two-stage:
 # The y_pred here contains 1 if the fraud is a possible collusion or 0 else,
 # i.e: not a fraud or not a collusion fraud
-algorithm_globals.random_seed = 0
 y_pred = ERP_CollusionClassifier(gs.best_estimator_, rf).predict(X_test)
 
 # We will get the epochs associated with these frauds
