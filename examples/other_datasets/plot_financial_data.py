@@ -24,7 +24,7 @@ scam to happen in the future.
 
 In this example, we will use RG to identify whether or no a fraud is a probable
 collusion.
-Because this method work on a small number of components, it is also compatible
+Because this method works on a small number of components, it is also compatible
 with quantum computing.
 """
 # Authors: Gregoire Cattan, Filipe Barroso
@@ -48,6 +48,7 @@ from matplotlib import pyplot as plt
 import warnings
 import pandas as pd
 import numpy as np
+import os
 
 print(__doc__)
 
@@ -278,7 +279,7 @@ class OptionalWhitening(TransformerMixin, BaseEstimator):
 
 
 # Create a RandomForest for baseline comparison of direct classification:
-rf = RandomForestClassifier()
+rf = RandomForestClassifier(random_state=42)
 
 # Classical pipeline: puts together transformers,
 # then adds at the end a classical SVM
@@ -291,23 +292,37 @@ pipe = make_pipeline(
     SVC(probability=True),
 )
 
+if os.getenv("CI") == "true":
+    print("Feeding a good estimator for CI (skipping grid search)")
+    param_grid: dict = {
+        "toepochs__n": [30],
+        "xdawncovariances__nfilter": [1],
+        "optionalwhitening__process": [True],
+        "optionalwhitening__n_components": [4],
+        "slimvector__keep_diagonal": [True],
+        "svc__C": [1],
+        "svc__gamma": ["auto"],
+    }
+else:
+    param_grid: dict = {
+        "toepochs__n": [20, 30],
+        "xdawncovariances__nfilter": [1, 2],
+        "optionalwhitening__process": [True, False],
+        "optionalwhitening__n_components": [2, 4],
+        "slimvector__keep_diagonal": [True, False],
+        "svc__C": [0.1, 1],
+        "svc__gamma": ["auto", "scale"],
+    }
+
 # Optimize the pipeline:
 # let's save some time and run the optimization with the classical SVM
 gs = HalvingGridSearchCV(
     pipe,
-    param_grid={
-        "toepochs__n": [10, 20, 30],
-        "xdawncovariances__nfilter": [1, 2, 3],
-        "optionalwhitening__process": [True, False],
-        "optionalwhitening__n_components": [2, 4, 6],
-        "slimvector__keep_diagonal": [True, False],
-        "svc__C": [0.1, 1, 10, 100],
-        "svc__gamma": ["auto", "scale", 1, 10],
-    },
+    param_grid=param_grid,
     scoring="balanced_accuracy",
     cv=4,
-    min_resources="smallest",
     verbose=1,
+    random_state=0,
 )
 
 
@@ -324,12 +339,14 @@ gs = HalvingGridSearchCV(
 # So `NearMiss` we choose the closest non-fraud epochs to the fraud-epochs.
 # Here we will keep a ratio of 2 non-fraud epochs for 1 fraud epochs.
 # Note: at this stage `features` also contains the `index` column.
-X, y = NearMiss(sampling_strategy=0.5).fit_resample(
+
+# Possibly avoids tie-break situations
+np.random.seed(42)
+
+X, y = NearMiss(sampling_strategy=0.5, n_jobs=-1, n_neighbors=3).fit_resample(
     features.to_numpy(), target.to_numpy()
 )
-# X, y = EditedNearestNeighbours().fit_resample(features.to_numpy(), target.to_numpy())
-# X = features.to_numpy()
-# y = target.to_numpy()
+
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
@@ -377,7 +394,7 @@ score_svm = balanced_accuracy_score(y_test, pred_svm)
 # for the quantum SVM as for the classical one.
 gs.best_estimator_.steps[-1] = (
     "quanticsvm",
-    QuanticSVM(quantum=True, C=best_C, gamma=best_gamma),
+    QuanticSVM(quantum=True, C=best_C, gamma=best_gamma, seed=42),
 )
 train_pred_qsvm = gs.best_estimator_.fit(X_train, y_train).predict(X_train)
 train_score_qsvm = balanced_accuracy_score(y_train, train_pred_qsvm)
@@ -426,7 +443,7 @@ print(
 
 
 class ERP_CollusionClassifier(ClassifierMixin):
-    def __init__(self, row_clf, erp_clf, threshold=0.7):
+    def __init__(self, row_clf, erp_clf, threshold=0.5):
         self.row_clf = row_clf
         self.erp_clf = erp_clf
         self.threshold = threshold
