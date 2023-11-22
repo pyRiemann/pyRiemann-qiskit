@@ -15,7 +15,7 @@ from pyriemann_qiskit.utils import (
     NaiveQAOAOptimizer,
     set_global_optimizer,
 )
-from qiskit.utils import QuantumInstance, algorithm_globals
+from qiskit.utils import QuantumInstance
 from qiskit.utils.quantum_instance import logger
 from qiskit_ibm_provider import IBMProvider, least_busy
 from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
@@ -62,12 +62,16 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
                       (default : Callable[int, ZZFeatureMap])
         Function generating a feature map to encode data into a quantum state.
+    seed: int | None (default: None)
+        Random seed for the simulation
 
     Notes
     -----
     .. versionadded:: 0.0.1
     .. versionchanged:: 0.1.0
         Added support for multi-class classification.
+    .. versionchanged:: 0.2.0
+        Add seed parameter
 
     Attributes
     ----------
@@ -95,20 +99,20 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         verbose=True,
         shots=1024,
         gen_feature_map=gen_zz_feature_map(),
+        seed=None,
     ):
         self.verbose = verbose
         self._log("Initializing Quantum Classifier")
         self.q_account_token = q_account_token
         self.quantum = quantum
         self.shots = shots
+        self.seed = datetime.now().microsecond if seed is None else seed
         self.gen_feature_map = gen_feature_map
         # protected field for child classes
         self._training_input = {}
 
     def _init_quantum(self):
         if self.quantum:
-            algorithm_globals.random_seed = datetime.now().microsecond
-            self._log("seed = ", algorithm_globals.random_seed)
             if self.q_account_token:
                 self._log("Real quantum computation will be performed")
                 if not self.q_account_token == "load_account":
@@ -186,14 +190,13 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                 except Exception:
                     self._log("Devices are all busy. Getting the first one...")
                     self._backend = devices[0]
-                self._log("Quantum backend = ", self._backend)
-            seed_sim = algorithm_globals.random_seed
-            seed_trs = algorithm_globals.random_seed
+            self._log("Quantum backend = ", self._backend)
+            self._log("seed = ", self.seed)
             self._quantum_instance = QuantumInstance(
                 self._backend,
                 shots=self.shots,
-                seed_simulator=seed_sim,
-                seed_transpiler=seed_trs,
+                seed_simulator=self.seed,
+                seed_transpiler=self.seed,
             )
         self._classifier = self._init_algo(n_features)
         self._train(X, y)
@@ -248,9 +251,11 @@ class QuanticSVM(QuanticClassifierBase):
     -----
     .. versionadded:: 0.0.1
     .. versionchanged:: 0.0.2
-       Qiskit's Pegasos implementation [4]_, [5]_.
+        Qiskit's Pegasos implementation [4]_, [5]_.
     .. versionchanged:: 0.1.0
-       Fix: copy estimator not keeping base class parameters.
+        Fix: copy estimator not keeping base class parameters.
+    .. versionchanged:: 0.2.0
+        Add seed parameter
 
     Parameters
     ----------
@@ -285,6 +290,8 @@ class QuanticSVM(QuanticClassifierBase):
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
                       (default : Callable[int, ZZFeatureMap])
         Function generating a feature map to encode data into a quantum state.
+    seed: int | None (default: None)
+        Random seed for the simulation
 
     See Also
     --------
@@ -324,9 +331,10 @@ class QuanticSVM(QuanticClassifierBase):
         verbose=True,
         shots=1024,
         gen_feature_map=gen_zz_feature_map(),
+        seed=None,
     ):
         QuanticClassifierBase.__init__(
-            self, quantum, q_account_token, verbose, shots, gen_feature_map
+            self, quantum, q_account_token, verbose, shots, gen_feature_map, seed
         )
         self.gamma = gamma
         self.C = C
@@ -435,13 +443,17 @@ class QuanticVQC(QuanticClassifierBase):
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
                       (default : Callable[int, ZZFeatureMap])
         Function generating a feature map to encode data into a quantum state.
+    seed: int | None (default: None)
+        Random seed for the simulation
 
     Notes
     -----
     .. versionadded:: 0.0.1
     .. versionchanged:: 0.1.0
-       Fix: copy estimator not keeping base class parameters.
-       Added support for multi-class classification.
+        Fix: copy estimator not keeping base class parameters.
+        Added support for multi-class classification.
+    .. versionchanged:: 0.2.0
+        Add seed parameter
 
     See Also
     --------
@@ -477,6 +489,7 @@ class QuanticVQC(QuanticClassifierBase):
         verbose=True,
         shots=1024,
         gen_feature_map=gen_zz_feature_map(),
+        seed=None,
     ):
         if quantum is False:
             raise ValueError(
@@ -484,7 +497,7 @@ class QuanticVQC(QuanticClassifierBase):
                               computer or simulator."
             )
         QuanticClassifierBase.__init__(
-            self, quantum, q_account_token, verbose, shots, gen_feature_map
+            self, quantum, q_account_token, verbose, shots, gen_feature_map, seed
         )
         self.optimizer = optimizer
         self.gen_var_form = gen_var_form
@@ -568,7 +581,9 @@ class QuanticMDM(QuanticClassifierBase):
     -----
     .. versionadded:: 0.0.4
     .. versionchanged:: 0.1.0
-       Fix: copy estimator not keeping base class parameters.
+        Fix: copy estimator not keeping base class parameters.
+    .. versionchanged:: 0.2.0
+        Add seed parameter
 
     Parameters
     ----------
@@ -598,6 +613,8 @@ class QuanticMDM(QuanticClassifierBase):
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
                       (default : Callable[int, ZZFeatureMap])
         Function generating a feature map to encode data into a quantum state.
+    seed: int | None (default: None)
+        Random seed for the simulation
 
     See Also
     --------
@@ -626,9 +643,10 @@ class QuanticMDM(QuanticClassifierBase):
         verbose=True,
         shots=1024,
         gen_feature_map=gen_zz_feature_map(),
+        seed=None,
     ):
         QuanticClassifierBase.__init__(
-            self, quantum, q_account_token, verbose, shots, gen_feature_map
+            self, quantum, q_account_token, verbose, shots, gen_feature_map, seed
         )
         self.metric = metric
 
