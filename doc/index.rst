@@ -68,6 +68,7 @@ pyRiemann-qiskit provides through Qiskit:
 
 A typical use case would be to use vectorized covariance matrices in
 tangent space as an input for quantum classifiers.
+You could also try the quantum version of the MDM algorithm.
 
 For a brief introduction to the ideas behind the package, you can read the
 :ref:`introductory notes <introduction>`. More practical information is on the

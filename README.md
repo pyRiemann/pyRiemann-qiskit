@@ -1,32 +1,38 @@
+[<img src=https://github.com/Qiskit/ecosystem/blob/main/badges/pyRiemann-qiskit.svg>](https://qiskit.org/ecosystem)
+
 # pyRiemann-qiskit
 
-Litterature on quantum computing suggests it may offer an advantage as compared with
-classical computing in terms of computational time and outcomes, such as for pattern
-recognition or when using limited training sets [1, 2].
+Literature on quantum computing suggests it may offer an advantage compared with classical
+computing in terms of computational time and outcomes, such as for pattern recognition or
+when using limited training sets [1, 2].
 
 A ubiquitous library on quantum computing is Qiskit [3]. Qiskit is an IBM library
 distributed under Apache 2.0 which provides both quantum algorithms and backends. A
-backend can be either your local machine or a remote machine, which one can emulates or be
-a quantum machine. Qiskit abstraction over the type of machine you want to use, make
-designing quantum algorithm seamless.
+backend can be either your local machine or a remote machine, which one can emulate or be
+a quantum machine. Qiskit abstraction over the type of machine you want to use, makes
+designing quantum algorithms seamless.
 
-Qiskit implements a quantum version of support vector -like classifiers, known as
-quantum-enhanced support vector classifier (QSVC) and varitional quantum classifier (VQC)
-[4]. These classifiers likely offer an advantage over classical SVM in situations where
-the classification task is complex. Task complexity is raised by the encoding of the data
-into a quantum state, the number of available data and the quality of the data. An initial
-study is available in [5], and it can be downloaded from
+Qiskit implements a quantum version of support vector-like classifiers, known as
+quantum-enhanced support vector classifiers (QSVCs) and variational quantum classifiers
+(VQCs) [4]. These classifiers likely offer an advantage over classical SVM in situations
+where the classification task is complex. Task complexity is raised by the encoding of the
+data into a quantum state, the number of available data, and the quality of the data. An
+initial study is available in [5], and it can be downloaded from
 [here](doc/Presentations/QuantumERPClassification.pdf). Although there is no study on this
-topic at the time of writting, this could be an interesting research direction to
+topic at the time of writing, this could be an interesting research direction to
 investigate BCI illiteracy.
 
-pyRiemann-qiskit implements a wrapper around QSVC and VQC, to use quantum classification
+`pyRiemann-qiskit` implements a wrapper around QSVC and VQC, to use quantum classification
 with Riemannian geometry. A use case would be to use vectorized covariance matrices in the
 tangent space as an input for these classifiers, enabling a possible sandbox for
 researchers and engineers in the field.
 
-The remaining details some of the quantum drawbacks and will guide you through
-installation. Full documentation, including API description, is available at
+`pyRiemann-qiskit` also introduces a quantum version of the famous MDM algorithm. There is
+a dedicated example on quantum-MDM
+[here](https://github.com/pyRiemann/pyRiemann-qiskit/blob/main/examples/ERP/classify_P300_bi_quantum_mdm.py).
+
+The remaining of this readme details some of the quantum drawbacks and will guide you
+through installation. Full documentation, including API description, is available at
 <https://pyriemann-qiskit.readthedocs.io/>. The repository also includes a
 [wiki](https://github.com/pyRiemann/pyRiemann-qiskit/wiki) where you can find additional
 information.
@@ -37,14 +43,14 @@ information.
 
   The number of qubits (and therefore the feature dimension) is limited to:
 
-  - 24 on a local quantum simulator, and up to:
+  - ~36 (depends on system memory size) on a local quantum simulator, and up to:
   - 5000 on a remote quantum simulator;
-  - 5 on free real quantum computers, and up to:
-  - 65 on exploratory quantum computers (not available for public use).
+  - 7 on free real quantum computers, and up to:
+  - 127 on exploratory quantum computers (not available for public use).
 
 - Time complexity
 
-  A higher number of trials or dimension increases time to completion of the quantum
+  A higher number of trials or dimensions increases the time to completion of the quantum
   algorithm, especially when running on a local machine. This is why the number of trials
   is limited in the examples we provided. However, you should avoid such practices in your
   own analysis.
@@ -52,8 +58,8 @@ information.
   Although these aspects are less important in a remote backend, it may happen that the
   quantum algorithm is queued depending on the number of concurrent users.
 
-  For all these aspects, the use of pyRiemann-qiskit should be limited to offline analysis
-  only.
+  For all these aspects, the use of `pyRiemann-qiskit` should be limited to offline
+  analysis only.
 
 ## References
 
@@ -82,6 +88,8 @@ Anton Andreev, Grégoire Cattan, Sylvain Chevallier, and Quentin Barthélemy.
 ‘pyRiemann-qiskit: A Sandbox for Quantum Classification Experiments with Riemannian
 Geometry’. Research Ideas and Outcomes 9 (20 March 2023).
 https://doi.org/10.3897/rio.9.e101006.
+
+This library is part of the [Qiskit Ecosystem](https://qiskit.org/ecosystem)
 
 ## Installation
 
@@ -157,14 +165,14 @@ everything went smoothly by typing:
 import pyriemann_qiskit
 ```
 
-Alternatively you can from the console (Windows or Linux) build the docker image from our
-Dockerfile. Go to the root folder of pyRiemann-qiskit and type:
+Alternatively, you can from the console (Windows or Linux) build the docker image from our
+Dockerfile. Go to the root folder of `pyRiemann-qiskit` and type:
 
 ```
 docker build -t pyrq .
 ```
 
-Next use `docker run --detach pyrq` to enter the pyRiemann-qiskit image.
+Next use `docker run --detach pyrq` to enter the `pyRiemann-qiskit` image.
 
 If you wish, you can also download docker images directly from github docker registry:
 https://github.com/pyRiemann/pyRiemann-qiskit/pkgs/container/pyriemann-qiskit
@@ -229,38 +237,5 @@ automation.
 
 # Troubleshooting
 
-## Version of pyRiemann not updated
-
-There is a known issue when you install `pyRiemann-qiskit` in an environement where there
-is already `pyRiemann` installed. In such case, the `pyRiemann` version is not updated.
-Therefore before installing or updating `pyRiemann-qiskit`, we recommend to install
-`pyRiemann` as it follows:
-
-```
-pip uninstall pyriemann
-pip install pyriemann@git+https://github.com/pyRiemann/pyRiemann#egg=pyriemann
-```
-
-## Firebase admin not loading
-
-In some environment, the firebase admin module is not loaded. There is two reasons:
-
-1. The protobuf package is missing an `__init__.py` file. You can fix this issue by adding
-   it manually as it is done in the DockerFile:
-
-```
-touch /usr/local/lib/python3.9/site-packages/protobuf-4.24.4-py3.9.egg/google/__init__.py
-```
-
-2. The Firestore service contains unused dependency to `google.cloud.location`. You can
-   fix this issue by removing the dependencies manually, as it is done in the DockerFile
-   too:
-
-```
-sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.9/site-packages/google_cloud_firestore-2.12.0-py3.9.egg/google/cloud/firestore_v1/services/firestore/client.py'
-sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.9/site-packages/google_cloud_firestore-2.12.0-py3.9.egg/google/cloud/firestore_v1/services/firestore/transports/base.py'
-sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.9/site-packages/google_cloud_firestore-2.12.0-py3.9.egg/google/cloud/firestore_v1/services/firestore/transports/grpc.py'
-sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.9/site-packages/google_cloud_firestore-2.12.0-py3.9.egg/google/cloud/firestore_v1/services/firestore/transports/grpc_asyncio.py'
-sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.9/site-packages/google_cloud_firestore-2.12.0-py3.9.egg/google/cloud/firestore_v1/services/firestore/transports/rest.py'
-sed -i 's/from google.cloud.location import locations_pb2//g' '/usr/local/lib/python3.9/site-packages/google_cloud_firestore-2.12.0-py3.9.egg/google/cloud/firestore_v1/services/firestore/async_client.py'
-```
+See our [dedicated](https://github.com/pyRiemann/pyRiemann-qiskit/wiki/Troubleshooting)
+wiki page.

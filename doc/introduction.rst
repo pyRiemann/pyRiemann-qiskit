@@ -29,6 +29,7 @@ pyRiemann-qiskit implements a wrapper around QSVC and VQC, to use quantum
 classification with Riemannian geometry. A use case would be to use vectorized
 covariance matrices in the TangentSpace as an input for these classifiers,
 enabling a possible sandbox for researchers and engineers in the field.
+`pyRiemann-qiskit` also introduces a quantum version of the famous MDM algorithm.
 
 Quantum drawbacks
 ================================
@@ -37,10 +38,10 @@ Quantum drawbacks
 
     The number of qubits (and therefore the feature dimension) is limited to:
 
-    - 24 on a local quantum simulator, and up to:
+    - ~36 (depends on system memory size) on a local quantum simulator, and up to:
     - 5000 on a remote quantum simulator;
-    - 5 on free real quantum computers, and up to:
-    - 65 on exploratory quantum computers (not available for public use).
+    - 7 on free real quantum computers, and up to:
+    - 127 on exploratory quantum computers (not available for public use).
 
 - Time complexity
 
