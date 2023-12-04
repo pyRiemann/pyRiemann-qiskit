@@ -1,7 +1,40 @@
-from qiskit.circuit.library import ZZFeatureMap
+from qiskit.circuit.library import ZZFeatureMap, ZFeatureMap
 from qiskit.algorithms.optimizers import SPSA
 from qiskit.circuit.library import TwoLocal
 import inspect
+
+
+def gen_z_feature_map(reps=2):
+    """Return a callable that generate a ZZFeatureMap.
+
+    A feature map encodes data into a quantum state.
+    A ZZFeatureMap is a second-order Pauli-Z evolution circuit.
+
+    Parameters
+    ----------
+    reps : int (default 2)
+        The number of repeated circuits, greater or equal to 1.
+
+    Returns
+    -------
+    ret : ZFeatureMap
+        An instance of ZFeatureMap
+
+    Raises
+    ------
+    ValueError
+        Raised if ``reps`` is lower than 1.
+    """
+    if reps < 1:
+        raise ValueError(
+            "Parameter reps must be superior \
+                          or equal to 1 (Got %d)"
+            % reps
+        )
+
+    return lambda n_features: ZFeatureMap(
+        feature_dimension=n_features, reps=reps
+    )
 
 
 def gen_zz_feature_map(reps=2, entanglement="linear"):
