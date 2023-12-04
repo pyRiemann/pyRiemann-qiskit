@@ -21,6 +21,7 @@ class TestGenXFeatureMapParams:
         feature_map = gen_x_feature_map(reps=reps)(n_features)
         assert isinstance(feature_map.parameters, ParameterView)
 
+
 class TestGenZFeatureMapParams:
     @pytest.mark.parametrize("reps", [2, 3])
     def test_reps(self, reps):
