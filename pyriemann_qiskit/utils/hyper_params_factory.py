@@ -1,14 +1,55 @@
-from qiskit.circuit.library import ZZFeatureMap, ZFeatureMap
+from qiskit.circuit.library import ZZFeatureMap, ZFeatureMap, PauliFeatureMap
 from qiskit.algorithms.optimizers import SPSA
 from qiskit.circuit.library import TwoLocal
 import inspect
 
 
-def gen_z_feature_map(reps=2):
-    """Return a callable that generate a ZZFeatureMap.
+def gen_x_feature_map(reps=2):
+    """Return a callable that generate a XFeatureMap.
 
     A feature map encodes data into a quantum state.
-    A ZZFeatureMap is a second-order Pauli-Z evolution circuit.
+    A XFeatureMap is a first-order Pauli-X evolution circuit
+    (no entanglement)
+
+    Parameters
+    ----------
+    reps : int (default 2)
+        The number of repeated circuits, greater or equal to 1.
+
+    Returns
+    -------
+    ret : PauliFeatureMap
+        An instance of PauliFeatureMap
+
+    Raises
+    ------
+    ValueError
+        Raised if ``reps`` is lower than 1.
+    """
+    if reps < 1:
+        raise ValueError(
+            "Parameter reps must be superior \
+                          or equal to 1 (Got %d)"
+            % reps
+        )
+
+    return lambda n_features: PauliFeatureMap(
+            feature_dimension=n_features,
+            paulis=["X"],
+            reps=reps,
+            data_map_func=None,
+            parameter_prefix='x',
+            insert_barriers=False,
+            name='XFeatureMap',
+        )
+
+
+def gen_z_feature_map(reps=2):
+    """Return a callable that generate a ZFeatureMap.
+
+    A feature map encodes data into a quantum state.
+    A ZFeatureMap is a first-order Pauli-Z evolution circuit
+    (no entanglement)
 
     Parameters
     ----------
