@@ -47,6 +47,7 @@ Hyper-parameters generation
 .. autosummary::
     :toctree: generated/
 
+    gen_z_feature_map
     gen_zz_feature_map
     gen_two_local
     get_spsa
