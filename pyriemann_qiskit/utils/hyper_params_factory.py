@@ -92,7 +92,7 @@ def gen_zz_feature_map(reps=2, entanglement="linear"):
     A feature map encodes data into a quantum state.
     A ZZFeatureMap is a second-order Pauli-Z evolution circuit.
     See [1]_ for more details.
-    
+
 
     Parameters
     ----------
