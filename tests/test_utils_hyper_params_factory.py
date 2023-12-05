@@ -14,9 +14,7 @@ from pyriemann_qiskit.utils.hyper_params_factory import (
 class TestGenXFeatureMapParams:
     @pytest.mark.parametrize("reps", [2, 3])
     def test_reps(self, reps):
-        """Test gen_z_feature_map with different
-        number of repetitions
-        """
+        """Test gen_z_feature_map with different number of repetitions"""
         n_features = 2
         feature_map = gen_x_feature_map(reps=reps)(n_features)
         assert isinstance(feature_map.parameters, ParameterView)
@@ -25,9 +23,7 @@ class TestGenXFeatureMapParams:
 class TestGenZFeatureMapParams:
     @pytest.mark.parametrize("reps", [2, 3])
     def test_reps(self, reps):
-        """Test gen_z_feature_map with different
-        number of repetitions
-        """
+        """Test gen_z_feature_map with different number of repetitions"""
         n_features = 2
         feature_map = gen_z_feature_map(reps=reps)(n_features)
         assert isinstance(feature_map.parameters, ParameterView)

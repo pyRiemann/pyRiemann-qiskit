@@ -8,8 +8,7 @@ def gen_x_feature_map(reps=2):
     """Return a callable that generate a XFeatureMap.
 
     A feature map encodes data into a quantum state.
-    A XFeatureMap is a first-order Pauli-X evolution circuit
-    (no entanglement)
+    A XFeatureMap is a first-order Pauli-X evolution circuit (no entanglement).
 
     Parameters
     ----------
@@ -19,7 +18,7 @@ def gen_x_feature_map(reps=2):
     Returns
     -------
     ret : PauliFeatureMap
-        An instance of PauliFeatureMap
+        An instance of PauliFeatureMap.
 
     Raises
     ------
@@ -28,9 +27,7 @@ def gen_x_feature_map(reps=2):
     """
     if reps < 1:
         raise ValueError(
-            "Parameter reps must be superior \
-                          or equal to 1 (Got %d)"
-            % reps
+            f"Parameter reps must be superior or equal to 1 (Got {reps})"
         )
 
     return lambda n_features: PauliFeatureMap(
@@ -48,8 +45,7 @@ def gen_z_feature_map(reps=2):
     """Return a callable that generate a ZFeatureMap.
 
     A feature map encodes data into a quantum state.
-    A ZFeatureMap is a first-order Pauli-Z evolution circuit
-    (no entanglement)
+    A ZFeatureMap is a first-order Pauli-Z evolution circuit (no entanglement).
 
     Parameters
     ----------
@@ -59,7 +55,7 @@ def gen_z_feature_map(reps=2):
     Returns
     -------
     ret : ZFeatureMap
-        An instance of ZFeatureMap
+        An instance of ZFeatureMap.
 
     Raises
     ------
@@ -68,9 +64,7 @@ def gen_z_feature_map(reps=2):
     """
     if reps < 1:
         raise ValueError(
-            "Parameter reps must be superior \
-                          or equal to 1 (Got %d)"
-            % reps
+            f"Parameter reps must be superior or equal to 1 (Got {reps})"
         )
 
     return lambda n_features: ZFeatureMap(feature_dimension=n_features, reps=reps)
@@ -110,9 +104,7 @@ def gen_zz_feature_map(reps=2, entanglement="linear"):
     """
     if reps < 1:
         raise ValueError(
-            "Parameter reps must be superior \
-                          or equal to 1 (Got %d)"
-            % reps
+            f"Parameter reps must be superior or equal to 1 (Got {reps})"
         )
 
     return lambda n_features: ZZFeatureMap(
