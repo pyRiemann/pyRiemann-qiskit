@@ -30,6 +30,10 @@ def gen_x_feature_map(reps=2):
     ----------
     .. [1] \
         https://docs.quantum.ibm.com/api/qiskit/0.44/qiskit.circuit.library.PauliFeatureMap
+
+    Notes
+    -----
+    .. versionadded:: 0.2.0
     """
     if reps < 1:
         raise ValueError(f"Parameter reps must be superior or equal to 1 (Got {reps})")
@@ -71,6 +75,10 @@ def gen_z_feature_map(reps=2):
     ----------
     .. [1] \
         https://docs.quantum.ibm.com/api/qiskit/0.44/qiskit.circuit.library.ZFeatureMap
+
+    Notes
+    -----
+    .. versionadded:: 0.2.0
     """
     if reps < 1:
         raise ValueError(f"Parameter reps must be superior or equal to 1 (Got {reps})")
@@ -83,6 +91,8 @@ def gen_zz_feature_map(reps=2, entanglement="linear"):
 
     A feature map encodes data into a quantum state.
     A ZZFeatureMap is a second-order Pauli-Z evolution circuit.
+    See [1]_ for more details.
+    
 
     Parameters
     ----------
@@ -93,7 +103,7 @@ def gen_zz_feature_map(reps=2, entanglement="linear"):
         Specifies the entanglement structure.
         Entanglement structure can be provided with indices or string.
         Possible string values are: 'full', 'linear', 'circular' and 'sca'.
-        See [1]_ for more details on entanglement structure.
+        See [2]_ for more details on entanglement structure.
 
     Returns
     -------
@@ -108,7 +118,13 @@ def gen_zz_feature_map(reps=2, entanglement="linear"):
     References
     ----------
     .. [1] \
+        https://docs.quantum.ibm.com/api/qiskit/0.44/qiskit.circuit.library.ZZFeatureMap
+    .. [2] \
         https://qiskit.org/documentation/stable/0.19/stubs/qiskit.circuit.library.NLocal.html
+
+    Notes
+    -----
+    .. versionadded:: 0.0.1
     """
     if reps < 1:
         raise ValueError(f"Parameter reps must be superior or equal to 1 (Got {reps})")
