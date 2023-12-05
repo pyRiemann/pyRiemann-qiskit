@@ -5,10 +5,11 @@ import inspect
 
 
 def gen_x_feature_map(reps=2):
-    """Return a callable that generate a XFeatureMap.
+    """Return a callable that generates a XFeatureMap.
 
     A feature map encodes data into a quantum state.
     A XFeatureMap is a first-order Pauli-X evolution circuit (no entanglement).
+    See [1]_ for more details.
 
     Parameters
     ----------
@@ -24,6 +25,11 @@ def gen_x_feature_map(reps=2):
     ------
     ValueError
         Raised if ``reps`` is lower than 1.
+
+    References
+    ----------
+    .. [1] \
+        https://docs.quantum.ibm.com/api/qiskit/0.44/qiskit.circuit.library.PauliFeatureMap
     """
     if reps < 1:
         raise ValueError(f"Parameter reps must be superior or equal to 1 (Got {reps})")
@@ -44,6 +50,7 @@ def gen_z_feature_map(reps=2):
 
     A feature map encodes data into a quantum state.
     A ZFeatureMap is a first-order Pauli-Z evolution circuit (no entanglement).
+    See [1]_ for more details.
 
     Parameters
     ----------
@@ -59,6 +66,11 @@ def gen_z_feature_map(reps=2):
     ------
     ValueError
         Raised if ``reps`` is lower than 1.
+
+    References
+    ----------
+    .. [1] \
+        https://docs.quantum.ibm.com/api/qiskit/0.44/qiskit.circuit.library.ZFeatureMap
     """
     if reps < 1:
         raise ValueError(f"Parameter reps must be superior or equal to 1 (Got {reps})")
