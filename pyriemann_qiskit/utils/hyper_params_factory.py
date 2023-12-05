@@ -26,9 +26,7 @@ def gen_x_feature_map(reps=2):
         Raised if ``reps`` is lower than 1.
     """
     if reps < 1:
-        raise ValueError(
-            f"Parameter reps must be superior or equal to 1 (Got {reps})"
-        )
+        raise ValueError(f"Parameter reps must be superior or equal to 1 (Got {reps})")
 
     return lambda n_features: PauliFeatureMap(
         feature_dimension=n_features,
@@ -63,9 +61,7 @@ def gen_z_feature_map(reps=2):
         Raised if ``reps`` is lower than 1.
     """
     if reps < 1:
-        raise ValueError(
-            f"Parameter reps must be superior or equal to 1 (Got {reps})"
-        )
+        raise ValueError(f"Parameter reps must be superior or equal to 1 (Got {reps})")
 
     return lambda n_features: ZFeatureMap(feature_dimension=n_features, reps=reps)
 
@@ -103,9 +99,7 @@ def gen_zz_feature_map(reps=2, entanglement="linear"):
         https://qiskit.org/documentation/stable/0.19/stubs/qiskit.circuit.library.NLocal.html
     """
     if reps < 1:
-        raise ValueError(
-            f"Parameter reps must be superior or equal to 1 (Got {reps})"
-        )
+        raise ValueError(f"Parameter reps must be superior or equal to 1 (Got {reps})")
 
     return lambda n_features: ZZFeatureMap(
         feature_dimension=n_features, reps=reps, entanglement=entanglement
