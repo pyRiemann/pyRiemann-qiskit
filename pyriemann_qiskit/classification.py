@@ -454,7 +454,7 @@ class QuanticSVM(QuanticClassifierBase):
         """
         if(isinstance(self._classifier, QSVC)):
             probs = self.predict_proba(X)
-            labels = [1 if prob[0] < prob[1] else 0 for prob in probs]
+            labels = [np.argmax(prob) for prob in probs]
         else:
             labels = self._predict(X)
         self._log("Prediction finished.")
