@@ -142,7 +142,6 @@ class TestQuanticSVM_MultiClass(MultiClassFVT):
     (multi-label classification)"""
 
     def get_params(self):
-        # multi-inheritance pattern
         return TestQuanticSVM.get_params(self)
 
     def check(self):
@@ -226,7 +225,6 @@ class TestQuanticMDM_MultiClass(MultiClassFVT):
     (multi-label classification)"""
 
     def get_params(self):
-        # multi-inheritance pattern
         return TestClassicalMDM.get_params(self)
 
     def check(self):

@@ -98,10 +98,9 @@ def get_dataset(rndstate):
             labels = _get_labels(n_samples, n_classes)
         elif type == "bin_cov":
             samples_0 = make_covariances(
-                n_samples // n_classes, n_features, 0, return_params=False
+                    n_samples // n_classes, n_features, 0, return_params=False
             )
-            samples_1 = samples_0 * 2
-            samples = np.concatenate((samples_0, samples_1), axis=0)
+            samples = np.concatenate([samples_0 * (i + 1) for i in range(n_classes)], axis=0)
             labels = _get_labels(n_samples, n_classes)
         else:
             samples, labels = get_mne_sample()
