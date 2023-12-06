@@ -237,6 +237,40 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         result = self._classifier.predict(X)
         self._log("Prediction finished.")
         return result
+    
+    def predict_proba(self, X):
+        """Return the probabilities associated with predictions.
+
+        The default behavior is to return the nested classifier probabilities.
+        In case where no `predict_proba` method is available inside the classifier,
+        the method the predicted label number (0 or 1 for examples) and applies a
+        softmax in top of it.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_samples, n_features)
+            Input vector, where `n_samples` is the number of samples and
+            `n_features` is the number of features.
+
+        Returns
+        -------
+        prob : ndarray, shape (n_samples, n_classes)
+            prob[n, i] == 1 if the nth sample is assigned to class `i`;
+        """
+
+        if(not hasattr(self._classifier, "predict_proba")):
+            # Classifier has no predict_proba
+            # Use the result from predict and apply a softmax
+            proba = self._classifier.predict(X)
+            proba = [
+                np.array([1 if c == self.classes_[i] else 0 for i in range(len(self.classes_))])
+                for c in proba
+            ]
+            proba = softmax(proba, axis=0)
+        else:
+            proba = self._classifier.predict_proba(X)
+
+        return np.array(proba)
 
 
 class QuanticSVM(QuanticClassifierBase):
@@ -257,7 +291,8 @@ class QuanticSVM(QuanticClassifierBase):
         Fix: copy estimator not keeping base class parameters.
     .. versionchanged:: 0.2.0
         Add seed parameter
-        Predict is now using predict_proba with a softmax.
+        SVC and QSVC now compute probability (may impact time performance)
+        Predict is now using predict_proba with a softmax, when using QSVC.
 
     Parameters
     ----------
@@ -353,7 +388,9 @@ class QuanticSVM(QuanticClassifierBase):
                 self._log("[Warning] `gamma` is not supported by PegasosQSVC")
                 num_steps = 1000 if self.max_iter is None else self.max_iter
                 classifier = PegasosQSVC(
-                    quantum_kernel=quantum_kernel, C=self.C, num_steps=num_steps
+                    quantum_kernel=quantum_kernel,
+                    C=self.C,
+                    num_steps=num_steps
                 )
             else:
                 max_iter = -1 if self.max_iter is None else self.max_iter
@@ -366,7 +403,12 @@ class QuanticSVM(QuanticClassifierBase):
                 )
         else:
             max_iter = -1 if self.max_iter is None else self.max_iter
-            classifier = SVC(gamma=self.gamma, C=self.C, max_iter=max_iter)
+            classifier = SVC(
+                    gamma=self.gamma,
+                    C=self.C,
+                    max_iter=max_iter,
+                    probability=True
+                )
         return classifier
 
     def predict_proba(self, X):
@@ -386,14 +428,15 @@ class QuanticSVM(QuanticClassifierBase):
         Returns
         -------
         prob : ndarray, shape (n_samples, n_classes)
-            prob[n, 0] == True if the nth sample is assigned to 1st class;
-            prob[n, 1] == True if the nth sample is assigned to 2nd class.
+            prob[n, i] == 1 if the nth sample is assigned to class `i`;
         """
 
-        proba = self._classifier.predict_proba(X)
-        ret = softmax(proba, axis=0)
+        proba = super().predict_proba(X)
+        if(isinstance(self._classifier, QSVC)):
+            # apply additional softmax 
+            proba = softmax(proba)
 
-        return np.array(ret)
+        return np.array(proba)
 
     def predict(self, X):
         """Calculates the predictions.
@@ -409,8 +452,11 @@ class QuanticSVM(QuanticClassifierBase):
         pred : array, shape (n_samples,)
             Class labels for samples in X.
         """
-        probs = self.predict_proba(X)
-        labels = [1 if prob[0] < prob[1] else 0 for prob in probs]
+        if(isinstance(self._classifier, QSVC)):
+            probs = self.predict_proba(X)
+            labels = [1 if prob[0] < prob[1] else 0 for prob in probs]
+        else:
+            labels = self._predict(X)
         self._log("Prediction finished.")
         return self._map_indices_to_classes(labels)
 
@@ -517,24 +563,6 @@ class QuanticVQC(QuanticClassifierBase):
             num_qubits=n_features,
         )
         return vqc
-
-    def predict_proba(self, X):
-        """Returns the probabilities associated with predictions.
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_samples, n_features)
-            Input vector, where `n_samples` is the number of samples and
-            `n_features` is the number of features.
-
-        Returns
-        -------
-        prob : ndarray, shape (n_samples, n_classes)
-            prob[n, 0] == True if the nth sample is assigned to 1st class;
-            prob[n, 1] == True if the nth sample is assigned to 2nd class.
-        """
-        proba, _ = self._predict(X)
-        return proba
 
     def predict(self, X):
         """Calculates the predictions.
@@ -667,22 +695,6 @@ class QuanticMDM(QuanticClassifierBase):
             self._optimizer = ClassicalOptimizer()
         set_global_optimizer(self._optimizer)
         return classifier
-
-    def predict_proba(self, X):
-        """Return the probabilities associated with predictions.
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_trials, n_channels, n_channels)
-            ndarray of trials.
-
-        Returns
-        -------
-        prob : ndarray, shape (n_samples, n_classes)
-            prob[n, 0] == True if the nth sample is assigned to 1st class;
-            prob[n, 1] == True if the nth sample is assigned to 2nd class.
-        """
-        return self._classifier.predict_proba(X)
 
     def predict(self, X):
         """Calculates the predictions.
