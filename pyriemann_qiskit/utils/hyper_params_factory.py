@@ -1,14 +1,98 @@
-from qiskit.circuit.library import ZZFeatureMap
+from qiskit.circuit.library import ZZFeatureMap, ZFeatureMap, PauliFeatureMap
 from qiskit.algorithms.optimizers import SPSA
 from qiskit.circuit.library import TwoLocal
 import inspect
 
 
+def gen_x_feature_map(reps=2):
+    """Return a callable that generates a XFeatureMap.
+
+    A feature map encodes data into a quantum state.
+    A XFeatureMap is a first-order Pauli-X evolution circuit (no entanglement).
+    See [1]_ for more details.
+
+    Parameters
+    ----------
+    reps : int (default 2)
+        The number of repeated circuits, greater or equal to 1.
+
+    Returns
+    -------
+    ret : XFeatureMap
+        An instance of XFeatureMap.
+
+    Raises
+    ------
+    ValueError
+        Raised if ``reps`` is lower than 1.
+
+    References
+    ----------
+    .. [1] \
+        https://docs.quantum.ibm.com/api/qiskit/0.44/qiskit.circuit.library.PauliFeatureMap
+
+    Notes
+    -----
+    .. versionadded:: 0.2.0
+    """
+    if reps < 1:
+        raise ValueError(f"Parameter reps must be superior or equal to 1 (Got {reps})")
+
+    return lambda n_features: PauliFeatureMap(
+        feature_dimension=n_features,
+        paulis=["X"],
+        reps=reps,
+        data_map_func=None,
+        parameter_prefix="x",
+        insert_barriers=False,
+        name="XFeatureMap",
+    )
+
+
+def gen_z_feature_map(reps=2):
+    """Return a callable that generates a ZFeatureMap.
+
+    A feature map encodes data into a quantum state.
+    A ZFeatureMap is a first-order Pauli-Z evolution circuit (no entanglement).
+    See [1]_ for more details.
+
+    Parameters
+    ----------
+    reps : int (default 2)
+        The number of repeated circuits, greater or equal to 1.
+
+    Returns
+    -------
+    ret : ZFeatureMap
+        An instance of ZFeatureMap.
+
+    Raises
+    ------
+    ValueError
+        Raised if ``reps`` is lower than 1.
+
+    References
+    ----------
+    .. [1] \
+        https://docs.quantum.ibm.com/api/qiskit/0.44/qiskit.circuit.library.ZFeatureMap
+
+    Notes
+    -----
+    .. versionadded:: 0.2.0
+    """
+    if reps < 1:
+        raise ValueError(f"Parameter reps must be superior or equal to 1 (Got {reps})")
+
+    return lambda n_features: ZFeatureMap(feature_dimension=n_features, reps=reps)
+
+
 def gen_zz_feature_map(reps=2, entanglement="linear"):
-    """Return a callable that generate a ZZFeatureMap.
+    """Return a callable that generates a ZZFeatureMap.
 
     A feature map encodes data into a quantum state.
     A ZZFeatureMap is a second-order Pauli-Z evolution circuit.
+    See [1]_ for more details.
+
 
     Parameters
     ----------
@@ -19,12 +103,12 @@ def gen_zz_feature_map(reps=2, entanglement="linear"):
         Specifies the entanglement structure.
         Entanglement structure can be provided with indices or string.
         Possible string values are: 'full', 'linear', 'circular' and 'sca'.
-        See [1]_ for more details on entanglement structure.
+        See [2]_ for more details on entanglement structure.
 
     Returns
     -------
     ret : ZZFeatureMap
-        An instance of ZZFeatureMap
+        An instance of ZZFeatureMap.
 
     Raises
     ------
@@ -34,14 +118,16 @@ def gen_zz_feature_map(reps=2, entanglement="linear"):
     References
     ----------
     .. [1] \
+        https://docs.quantum.ibm.com/api/qiskit/0.44/qiskit.circuit.library.ZZFeatureMap
+    .. [2] \
         https://qiskit.org/documentation/stable/0.19/stubs/qiskit.circuit.library.NLocal.html
+
+    Notes
+    -----
+    .. versionadded:: 0.0.1
     """
     if reps < 1:
-        raise ValueError(
-            "Parameter reps must be superior \
-                          or equal to 1 (Got %d)"
-            % reps
-        )
+        raise ValueError(f"Parameter reps must be superior or equal to 1 (Got {reps})")
 
     return lambda n_features: ZZFeatureMap(
         feature_dimension=n_features, reps=reps, entanglement=entanglement
@@ -91,6 +177,7 @@ def _check_gates_in_blocks(blocks):
 
 def gen_two_local(reps=3, rotation_blocks=["ry", "rz"], entanglement_blocks="cz"):
     """Return a callable that generate a TwoLocal circuit.
+
     The two-local circuit is a parameterized circuit consisting
     of alternating rotation layers and entanglement layers [1]_.
 
@@ -109,13 +196,13 @@ def gen_two_local(reps=3, rotation_blocks=["ry", "rz"], entanglement_blocks="cz"
     Returns
     -------
     ret : TwoLocal
-        An instance of a TwoLocal circuit
+        An instance of a TwoLocal circuit.
 
     Raises
     ------
     ValueError
         Raised if ``rotation_blocks`` or ``entanglement_blocks`` contain
-        a non valid gate
+        a non valid gate.
 
     References
     ----------
@@ -140,6 +227,7 @@ def gen_two_local(reps=3, rotation_blocks=["ry", "rz"], entanglement_blocks="cz"
 
 def get_spsa(max_trials=40, c=(None, None, None, None, 4.0)):
     """Return an instance of SPSA.
+
     SPSA [1]_, [2]_ is an algorithmic method for optimizing systems
     with multiple unknown parameters.
     For more details, see [3]_ and [4]_.
@@ -156,11 +244,10 @@ def get_spsa(max_trials=40, c=(None, None, None, None, 4.0)):
         default value of the control parameters for the `calibrate` method of
         the implementation.
 
-
     Returns
     -------
     ret : SPSA
-        An instance of SPSA
+        An instance of SPSA.
 
     References
     ----------
@@ -217,8 +304,9 @@ def get_spsa(max_trials=40, c=(None, None, None, None, 4.0)):
 
 
 def get_spsa_parameters(spsa):
-    """Return the default values of the `calibrate` method of
-    an SPSA instance. See [1]_ for implementation details.
+    """Return the default values of the `calibrate` method of an SPSA instance.
+
+    See [1]_ for implementation details.
 
     Parameters
     ----------
