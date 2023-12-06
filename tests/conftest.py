@@ -179,6 +179,7 @@ class BinaryFVT(BinaryTest):
     def additional_steps(self):
         self.quantum_instance.fit(self.samples, self.labels)
         self.prediction = self.quantum_instance.predict(self.samples)
+        self.predict_proab = self.quantum_instance.predict_proba(self.samples)
         print(self.labels, self.prediction)
 
 

@@ -114,13 +114,15 @@ class TestClassicalSVM(BinaryFVT):
         }
 
     def check(self):
-        assert (
-            self.prediction[: self.class_len].all() == self.quantum_instance.classes_[0]
-        )
-        assert (
-            self.prediction[self.class_len :].all() == self.quantum_instance.classes_[1]
-        )
-
+        # Check that all classes are predicted
+        assert len(self.prediction) == len(self.labels)
+        # Check the proba for each classes are returned
+        assert self.predict_proab.shape[1] == len(self.labels)
+        for i in len(self.quantum_instance.classes_):
+            assert (
+                self.prediction[self.class_len * i : self.class_len * (i + 1)].all() == \
+                    self.quantum_instance.classes_[i]
+            )
 
 class TestQuanticSVM(TestClassicalSVM):
     """Tests the Quantum version of Quantic SVM.
@@ -140,6 +142,16 @@ class TestQuanticSVM(TestClassicalSVM):
             "type": "bin",
         }
 
+class TestQuanticSVM_MultiClass(MultiClassFVT):
+    """Perform SVM on a simulated quantum computer
+    (multi-label classification)"""
+
+    def get_params(self):
+        # multi-inheritance pattern
+        return TestQuanticSVM.get_params(self)
+
+    def check(self):
+        TestQuanticSVM.check(self)
 
 class TestQuanticPegasosSVM(TestClassicalSVM):
     """Same as TestQuanticSVM, except it uses
@@ -176,6 +188,8 @@ class TestQuanticVQC(BinaryFVT):
         assert len(self.prediction) == len(self.labels)
         # Check the number of classes is consistent
         assert len(np.unique(self.prediction)) == len(np.unique(self.labels))
+        # Check the proba for each classes are returned
+        assert self.predict_proab.shape[1] == len(self.labels)
 
 
 class TestQuanticVQC_MultiClass(MultiClassFVT):
