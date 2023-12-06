@@ -50,7 +50,7 @@ def gen_x_feature_map(reps=2):
 
 
 def gen_z_feature_map(reps=2):
-    """Return a callable that generate a ZFeatureMap.
+    """Return a callable that generates a ZFeatureMap.
 
     A feature map encodes data into a quantum state.
     A ZFeatureMap is a first-order Pauli-Z evolution circuit (no entanglement).
@@ -87,7 +87,7 @@ def gen_z_feature_map(reps=2):
 
 
 def gen_zz_feature_map(reps=2, entanglement="linear"):
-    """Return a callable that generate a ZZFeatureMap.
+    """Return a callable that generates a ZZFeatureMap.
 
     A feature map encodes data into a quantum state.
     A ZZFeatureMap is a second-order Pauli-Z evolution circuit.
@@ -108,7 +108,7 @@ def gen_zz_feature_map(reps=2, entanglement="linear"):
     Returns
     -------
     ret : ZZFeatureMap
-        An instance of ZZFeatureMap
+        An instance of ZZFeatureMap.
 
     Raises
     ------
@@ -177,6 +177,7 @@ def _check_gates_in_blocks(blocks):
 
 def gen_two_local(reps=3, rotation_blocks=["ry", "rz"], entanglement_blocks="cz"):
     """Return a callable that generate a TwoLocal circuit.
+
     The two-local circuit is a parameterized circuit consisting
     of alternating rotation layers and entanglement layers [1]_.
 
@@ -195,13 +196,13 @@ def gen_two_local(reps=3, rotation_blocks=["ry", "rz"], entanglement_blocks="cz"
     Returns
     -------
     ret : TwoLocal
-        An instance of a TwoLocal circuit
+        An instance of a TwoLocal circuit.
 
     Raises
     ------
     ValueError
         Raised if ``rotation_blocks`` or ``entanglement_blocks`` contain
-        a non valid gate
+        a non valid gate.
 
     References
     ----------
@@ -226,6 +227,7 @@ def gen_two_local(reps=3, rotation_blocks=["ry", "rz"], entanglement_blocks="cz"
 
 def get_spsa(max_trials=40, c=(None, None, None, None, 4.0)):
     """Return an instance of SPSA.
+
     SPSA [1]_, [2]_ is an algorithmic method for optimizing systems
     with multiple unknown parameters.
     For more details, see [3]_ and [4]_.
@@ -242,11 +244,10 @@ def get_spsa(max_trials=40, c=(None, None, None, None, 4.0)):
         default value of the control parameters for the `calibrate` method of
         the implementation.
 
-
     Returns
     -------
     ret : SPSA
-        An instance of SPSA
+        An instance of SPSA.
 
     References
     ----------
@@ -303,8 +304,9 @@ def get_spsa(max_trials=40, c=(None, None, None, None, 4.0)):
 
 
 def get_spsa_parameters(spsa):
-    """Return the default values of the `calibrate` method of
-    an SPSA instance. See [1]_ for implementation details.
+    """Return the default values of the `calibrate` method of an SPSA instance.
+
+    See [1]_ for implementation details.
 
     Parameters
     ----------
