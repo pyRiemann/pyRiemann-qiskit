@@ -119,6 +119,7 @@ class TestClassicalSVM(BinaryFVT):
         # Check the proba for each classes are returned
         assert self.predict_proab.shape[1] == len(np.unique(self.labels))
 
+
 class TestQuanticSVM(TestClassicalSVM):
     """Tests the Quantum version of Quantic SVM.
     It is executed on a simulated quantum computer.
@@ -137,6 +138,7 @@ class TestQuanticSVM(TestClassicalSVM):
             "type": "bin",
         }
 
+
 class TestQuanticSVM_MultiClass(MultiClassFVT):
     """Perform SVM on a simulated quantum computer
     (multi-label classification)"""
@@ -146,6 +148,7 @@ class TestQuanticSVM_MultiClass(MultiClassFVT):
 
     def check(self):
         TestQuanticSVM.check(self)
+
 
 class TestQuanticPegasosSVM(TestClassicalSVM):
     """Same as TestQuanticSVM, except it uses
@@ -220,6 +223,7 @@ class TestClassicalMDM(BinaryFVT):
         assert len(np.unique(self.prediction)) == len(np.unique(self.labels))
         # Check the proba for each classes are returned
         assert self.predict_proab.shape[1] == len(np.unique(self.labels))
+
 
 class TestQuanticMDM_MultiClass(MultiClassFVT):
     """Perform MDM on a simulated quantum computer

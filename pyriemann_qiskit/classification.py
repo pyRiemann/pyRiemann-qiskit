@@ -237,7 +237,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         result = self._classifier.predict(X)
         self._log("Prediction finished.")
         return result
-    
+
     def predict_proba(self, X):
         """Return the probabilities associated with predictions.
 
@@ -258,12 +258,17 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
             prob[n, i] == 1 if the nth sample is assigned to class `i`;
         """
 
-        if(not hasattr(self._classifier, "predict_proba")):
+        if not hasattr(self._classifier, "predict_proba"):
             # Classifier has no predict_proba
             # Use the result from predict and apply a softmax
             proba = self._classifier.predict(X)
             proba = [
-                np.array([1 if c == self.classes_[i] else 0 for i in range(len(self.classes_))])
+                np.array(
+                    [
+                        1 if c == self.classes_[i] else 0
+                        for i in range(len(self.classes_))
+                    ]
+                )
                 for c in proba
             ]
             proba = softmax(proba, axis=0)
@@ -388,9 +393,7 @@ class QuanticSVM(QuanticClassifierBase):
                 self._log("[Warning] `gamma` is not supported by PegasosQSVC")
                 num_steps = 1000 if self.max_iter is None else self.max_iter
                 classifier = PegasosQSVC(
-                    quantum_kernel=quantum_kernel,
-                    C=self.C,
-                    num_steps=num_steps
+                    quantum_kernel=quantum_kernel, C=self.C, num_steps=num_steps
                 )
             else:
                 max_iter = -1 if self.max_iter is None else self.max_iter
@@ -399,16 +402,13 @@ class QuanticSVM(QuanticClassifierBase):
                     gamma=self.gamma,
                     C=self.C,
                     max_iter=max_iter,
-                    probability=True
+                    probability=True,
                 )
         else:
             max_iter = -1 if self.max_iter is None else self.max_iter
             classifier = SVC(
-                    gamma=self.gamma,
-                    C=self.C,
-                    max_iter=max_iter,
-                    probability=True
-                )
+                gamma=self.gamma, C=self.C, max_iter=max_iter, probability=True
+            )
         return classifier
 
     def predict_proba(self, X):
@@ -432,8 +432,8 @@ class QuanticSVM(QuanticClassifierBase):
         """
 
         proba = super().predict_proba(X)
-        if(isinstance(self._classifier, QSVC)):
-            # apply additional softmax 
+        if isinstance(self._classifier, QSVC):
+            # apply additional softmax
             proba = softmax(proba)
 
         return np.array(proba)
@@ -452,7 +452,7 @@ class QuanticSVM(QuanticClassifierBase):
         pred : array, shape (n_samples,)
             Class labels for samples in X.
         """
-        if(isinstance(self._classifier, QSVC)):
+        if isinstance(self._classifier, QSVC):
             probs = self.predict_proba(X)
             labels = [np.argmax(prob) for prob in probs]
         else:
