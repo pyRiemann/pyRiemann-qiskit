@@ -10,6 +10,7 @@ from pyriemann.preprocessing import Whitening
 from pyriemann_qiskit.utils.filtering import NoDimRed
 from pyriemann_qiskit.utils.hyper_params_factory import (
     gen_zz_feature_map,
+    gen_x_feature_map,
     gen_two_local,
     get_spsa,
 )
@@ -175,12 +176,6 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
     shots : int | None (default: 1024)
         Number of repetitions of each circuit, for sampling.
         If None, classical computation will be performed.
-    feature_entanglement : str | list[list[list[int]]] | \
-                   Callable[int, list[list[list[int]]]]
-        Specifies the entanglement structure for the ZZFeatureMap.
-        Entanglement structure can be provided with indices or string.
-        Possible string values are: 'full', 'linear', 'circular' and 'sca'.
-        See [2]_ for more details on entanglement structure.
     feature_reps : int (default: 2)
         The number of repeated circuits for the ZZFeatureMap,
         greater or equal to 1.
@@ -206,12 +201,15 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
     Notes
     -----
     .. versionadded:: 0.0.1
+    .. versionchanged:: 0.2.0
+        Change feature map from ZZFeatureMap to XFeatureMap.
+        Therefore remove unused parameter `feature_entanglement`.
 
     See Also
     --------
     XdawnCovariances
     TangentSpace
-    gen_zz_feature_map
+    gen_x_feature_map
     gen_two_local
     get_spsa
     QuanticVQC
@@ -236,7 +234,6 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
         C=1.0,
         max_iter=None,
         shots=1024,
-        feature_entanglement="full",
         feature_reps=2,
         spsa_trials=None,
         two_local_reps=None,
@@ -248,7 +245,6 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
         self.C = C
         self.max_iter = max_iter
         self.shots = shots
-        self.feature_entanglement = feature_entanglement
         self.feature_reps = feature_reps
         self.spsa_trials = spsa_trials
         self.two_local_reps = two_local_reps
@@ -261,7 +257,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
         is_vqc = self.spsa_trials and self.two_local_reps
         is_quantum = self.shots is not None
 
-        feature_map = gen_zz_feature_map(self.feature_reps, self.feature_entanglement)
+        feature_map = gen_x_feature_map(self.feature_reps)
 
         if is_vqc:
             self._log("QuanticVQC chosen.")
@@ -320,7 +316,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
     shots : int (default:1024)
         Number of repetitions of each circuit, for sampling.
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
-                      (default : Callable[int, ZZFeatureMap])
+                      (default : Callable[int, XFeatureMap])
         Function generating a feature map to encode data into a quantum state.
 
     Attributes

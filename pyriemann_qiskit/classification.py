@@ -5,6 +5,7 @@ in several modes quantum/classical and simulated/real
 quantum computer.
 """
 from datetime import datetime
+from scipy.special import softmax
 import logging
 import numpy as np
 
@@ -256,6 +257,7 @@ class QuanticSVM(QuanticClassifierBase):
         Fix: copy estimator not keeping base class parameters.
     .. versionchanged:: 0.2.0
         Add seed parameter
+        Predict is now using predict_proba with a softmax.
 
     Parameters
     ----------
@@ -360,6 +362,7 @@ class QuanticSVM(QuanticClassifierBase):
                     gamma=self.gamma,
                     C=self.C,
                     max_iter=max_iter,
+                    probability=True
                 )
         else:
             max_iter = -1 if self.max_iter is None else self.max_iter
@@ -386,11 +389,10 @@ class QuanticSVM(QuanticClassifierBase):
             prob[n, 0] == True if the nth sample is assigned to 1st class;
             prob[n, 1] == True if the nth sample is assigned to 2nd class.
         """
-        predicted_labels = self.predict(X)
-        ret = [
-            np.array([c == self.classes_[0], c == self.classes_[1]])
-            for c in predicted_labels
-        ]
+
+        proba = self._classifier.predict_proba(X)
+        ret = softmax(proba, axis=0)
+
         return np.array(ret)
 
     def predict(self, X):
@@ -407,7 +409,9 @@ class QuanticSVM(QuanticClassifierBase):
         pred : array, shape (n_samples,)
             Class labels for samples in X.
         """
-        labels = self._predict(X)
+        probs = self.predict_proba(X)
+        labels = [1 if prob[0] < prob[1] else 0 for prob in probs]
+        self._log("Prediction finished.")
         return self._map_indices_to_classes(labels)
 
 
