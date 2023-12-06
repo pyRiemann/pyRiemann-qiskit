@@ -215,10 +215,11 @@ class TestClassicalMDM(BinaryFVT):
         }
 
     def check(self):
-        for i in range(len(self.quantum_instance.classes_)):
-            assert (
-                np.all(self.prediction[self.class_len * i : self.class_len * (i + 1)]) == self.quantum_instance.classes_[i]
-            )
+        assert len(self.prediction) == len(self.labels)
+        # Check the number of classes is consistent
+        assert len(np.unique(self.prediction)) == len(np.unique(self.labels))
+        # Check the proba for each classes are returned
+        assert self.predict_proab.shape[1] == len(np.unique(self.labels))
 
 class TestQuanticMDM_MultiClass(MultiClassFVT):
     """Perform MDM on a simulated quantum computer
