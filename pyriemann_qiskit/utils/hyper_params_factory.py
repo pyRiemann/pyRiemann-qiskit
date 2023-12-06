@@ -18,8 +18,8 @@ def gen_x_feature_map(reps=2):
 
     Returns
     -------
-    ret : PauliFeatureMap
-        An instance of PauliFeatureMap.
+    ret : XFeatureMap
+        An instance of XFeatureMap.
 
     Raises
     ------
