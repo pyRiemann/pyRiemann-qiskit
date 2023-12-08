@@ -261,7 +261,6 @@ placeholder(PIP.Vot_QMDM_Dist_Mean.value)
 pipelines[PIP.xDAWNCov_TsQSVC.value] = QuantumClassifierWithDefaultRiemannianPipeline(
     shots=512,
     nfilter=4,
-    classes=[labels_dict["Target"]],
     dim_red=PCA(n_components=10),
 )
 placeholder(PIP.xDAWNCov_TsQSVC.value)
