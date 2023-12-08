@@ -443,7 +443,7 @@ print(
 
 
 class ERP_CollusionClassifier(ClassifierMixin):
-    def __init__(self, row_clf, erp_clf, threshold=0.5):
+    def __init__(self, erp_clf, row_clf, threshold=0.5):
         self.row_clf = row_clf
         self.erp_clf = erp_clf
         self.threshold = threshold
@@ -453,7 +453,7 @@ class ERP_CollusionClassifier(ClassifierMixin):
         return self
 
     def predict(self, X):
-        y_pred = self.row_clf.predict(X)
+        y_pred = self.row_clf.predict(X).astype(float)
         collusion_prob = self.erp_clf.predict_proba(X)
         y_pred[y_pred == 1] = collusion_prob[y_pred == 1, 1].transpose()
         y_pred[y_pred >= self.threshold] = 1

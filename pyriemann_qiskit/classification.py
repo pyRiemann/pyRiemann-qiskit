@@ -415,33 +415,6 @@ class QuanticSVM(QuanticClassifierBase):
             )
         return classifier
 
-    def predict_proba(self, X):
-        """Return the probabilities associated with predictions.
-
-        This method is implemented for compatibility purpose
-        as SVM prediction probabilities are not available.
-        This method assigns a boolean value to each trial which
-        depends on whether the label was assigned to class 0 or 1
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_samples, n_features)
-            Input vector, where `n_samples` is the number of samples and
-            `n_features` is the number of features.
-
-        Returns
-        -------
-        prob : ndarray, shape (n_samples, n_classes)
-            prob[n, i] == 1 if the nth sample is assigned to class `i`;
-        """
-
-        proba = super().predict_proba(X)
-        if isinstance(self._classifier, QSVC):
-            # apply additional softmax
-            proba = softmax(proba)
-
-        return np.array(proba)
-
     def predict(self, X):
         """Calculates the predictions.
 
@@ -457,7 +430,7 @@ class QuanticSVM(QuanticClassifierBase):
             Class labels for samples in X.
         """
         if isinstance(self._classifier, QSVC):
-            probs = self.predict_proba(X)
+            probs = softmax(self.predict_proba(X))
             labels = [np.argmax(prob) for prob in probs]
         else:
             labels = self._predict(X)
