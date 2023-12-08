@@ -39,11 +39,7 @@ default_params = {
     # Determine the number of "run" on the quantum machine (simulated or real)
     # the higher is this number, the lower the variability.
     "shots": [1024],  # [512, 1024, 2048]
-    # This defines how we entangle the data into a quantum state
-    # the more complex is the kernel, the more outcomes we can expect from
-    # a quantum vs classical classifier.
-    "feature_entanglement": ["linear"],  # ['linear', 'sca', 'full'],
-    # This parameter change the depth of the circuit when entangling data.
+    # This parameter changes the depth of the circuit when entangling data.
     # There is a trade-off between accuracy and noise when the depth of the
     # circuit increases.
     "feature_reps": [2],  # [2, 3, 4]

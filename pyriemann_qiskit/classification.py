@@ -5,6 +5,7 @@ in several modes quantum/classical and simulated/real
 quantum computer.
 """
 from datetime import datetime
+from scipy.special import softmax
 import logging
 import numpy as np
 
@@ -145,11 +146,11 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         return y_copy
 
     def _map_indices_to_classes(self, y):
-        y_copy = y.copy()
+        y_copy = np.array(y.copy())
         n_classes = len(self.classes_)
         for idx in range(n_classes):
-            y_copy[y == idx] = self.classes_[idx]
-        return y_copy
+            y_copy[np.array(y).transpose() == idx] = self.classes_[idx]
+        return np.array(y_copy)
 
     def fit(self, X, y):
         """Uses a quantum backend and fits the training data.
@@ -237,6 +238,49 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._log("Prediction finished.")
         return result
 
+    def predict_proba(self, X):
+        """Return the probabilities associated with predictions.
+
+        The default behavior is to return the nested classifier probabilities.
+        In case where no `predict_proba` method is available inside the classifier,
+        the method predicts the label number (0 or 1 for examples) and applies a
+        softmax in top of it.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_samples, n_features)
+            Input vector, where `n_samples` is the number of samples and
+            `n_features` is the number of features.
+
+        Returns
+        -------
+        prob : ndarray, shape (n_samples, n_classes)
+            prob[n, i] == 1 if the nth sample is assigned to class `i`.
+        """
+
+        if not hasattr(self._classifier, "predict_proba"):
+            # Classifier has no predict_proba
+            # Use the result from predict and apply a softmax
+            self._log(
+                "No predict_proba method available.\
+                       Computing softmax probabilities..."
+            )
+            proba = self._classifier.predict(X)
+            proba = [
+                np.array(
+                    [
+                        1 if c == self.classes_[i] else 0
+                        for i in range(len(self.classes_))
+                    ]
+                )
+                for c in proba
+            ]
+            proba = softmax(proba, axis=0)
+        else:
+            proba = self._classifier.predict_proba(X)
+
+        return np.array(proba)
+
 
 class QuanticSVM(QuanticClassifierBase):
 
@@ -256,6 +300,8 @@ class QuanticSVM(QuanticClassifierBase):
         Fix: copy estimator not keeping base class parameters.
     .. versionchanged:: 0.2.0
         Add seed parameter
+        SVC and QSVC now compute probability (may impact performance)
+        Predict is now using predict_proba with a softmax, when using QSVC.
 
     Parameters
     ----------
@@ -360,38 +406,14 @@ class QuanticSVM(QuanticClassifierBase):
                     gamma=self.gamma,
                     C=self.C,
                     max_iter=max_iter,
+                    probability=True,
                 )
         else:
             max_iter = -1 if self.max_iter is None else self.max_iter
-            classifier = SVC(gamma=self.gamma, C=self.C, max_iter=max_iter)
+            classifier = SVC(
+                gamma=self.gamma, C=self.C, max_iter=max_iter, probability=True
+            )
         return classifier
-
-    def predict_proba(self, X):
-        """Return the probabilities associated with predictions.
-
-        This method is implemented for compatibility purpose
-        as SVM prediction probabilities are not available.
-        This method assigns a boolean value to each trial which
-        depends on whether the label was assigned to class 0 or 1
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_samples, n_features)
-            Input vector, where `n_samples` is the number of samples and
-            `n_features` is the number of features.
-
-        Returns
-        -------
-        prob : ndarray, shape (n_samples, n_classes)
-            prob[n, 0] == True if the nth sample is assigned to 1st class;
-            prob[n, 1] == True if the nth sample is assigned to 2nd class.
-        """
-        predicted_labels = self.predict(X)
-        ret = [
-            np.array([c == self.classes_[0], c == self.classes_[1]])
-            for c in predicted_labels
-        ]
-        return np.array(ret)
 
     def predict(self, X):
         """Calculates the predictions.
@@ -407,7 +429,12 @@ class QuanticSVM(QuanticClassifierBase):
         pred : array, shape (n_samples,)
             Class labels for samples in X.
         """
-        labels = self._predict(X)
+        if isinstance(self._classifier, QSVC):
+            probs = softmax(self.predict_proba(X))
+            labels = [np.argmax(prob) for prob in probs]
+        else:
+            labels = self._predict(X)
+        self._log("Prediction finished.")
         return self._map_indices_to_classes(labels)
 
 
@@ -513,24 +540,6 @@ class QuanticVQC(QuanticClassifierBase):
             num_qubits=n_features,
         )
         return vqc
-
-    def predict_proba(self, X):
-        """Returns the probabilities associated with predictions.
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_samples, n_features)
-            Input vector, where `n_samples` is the number of samples and
-            `n_features` is the number of features.
-
-        Returns
-        -------
-        prob : ndarray, shape (n_samples, n_classes)
-            prob[n, 0] == True if the nth sample is assigned to 1st class;
-            prob[n, 1] == True if the nth sample is assigned to 2nd class.
-        """
-        proba, _ = self._predict(X)
-        return proba
 
     def predict(self, X):
         """Calculates the predictions.
@@ -663,22 +672,6 @@ class QuanticMDM(QuanticClassifierBase):
             self._optimizer = ClassicalOptimizer()
         set_global_optimizer(self._optimizer)
         return classifier
-
-    def predict_proba(self, X):
-        """Return the probabilities associated with predictions.
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_trials, n_channels, n_channels)
-            ndarray of trials.
-
-        Returns
-        -------
-        prob : ndarray, shape (n_samples, n_classes)
-            prob[n, 0] == True if the nth sample is assigned to 1st class;
-            prob[n, 1] == True if the nth sample is assigned to 2nd class.
-        """
-        return self._classifier.predict_proba(X)
 
     def predict(self, X):
         """Calculates the predictions.

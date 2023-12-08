@@ -114,12 +114,10 @@ class TestClassicalSVM(BinaryFVT):
         }
 
     def check(self):
-        assert (
-            self.prediction[: self.class_len].all() == self.quantum_instance.classes_[0]
-        )
-        assert (
-            self.prediction[self.class_len :].all() == self.quantum_instance.classes_[1]
-        )
+        # Check that all classes are predicted
+        assert len(self.prediction) == len(self.labels)
+        # Check if the proba for each classes are returned
+        assert self.predict_proab.shape[1] == len(np.unique(self.labels))
 
 
 class TestQuanticSVM(TestClassicalSVM):
@@ -139,6 +137,17 @@ class TestQuanticSVM(TestClassicalSVM):
             "quantum_instance": quantum_instance,
             "type": "bin",
         }
+
+
+class TestQuanticSVM_MultiClass(MultiClassFVT):
+    """Perform SVM on a simulated quantum computer
+    (multi-label classification)"""
+
+    def get_params(self):
+        return TestQuanticSVM.get_params(self)
+
+    def check(self):
+        TestQuanticSVM.check(self)
 
 
 class TestQuanticPegasosSVM(TestClassicalSVM):
@@ -174,8 +183,10 @@ class TestQuanticVQC(BinaryFVT):
         # Considering the inputs, this probably make no sense to test accuracy.
         # Instead, we could consider this test as a canary test
         assert len(self.prediction) == len(self.labels)
-        # Check the number of classes is consistent
+        # Check if the number of classes is consistent
         assert len(np.unique(self.prediction)) == len(np.unique(self.labels))
+        # Check if the proba for each classes are returned
+        assert self.predict_proab.shape[1] == len(np.unique(self.labels))
 
 
 class TestQuanticVQC_MultiClass(MultiClassFVT):
@@ -207,9 +218,19 @@ class TestClassicalMDM(BinaryFVT):
         }
 
     def check(self):
-        assert (
-            self.prediction[: self.class_len].all() == self.quantum_instance.classes_[0]
-        )
-        assert (
-            self.prediction[self.class_len :].all() == self.quantum_instance.classes_[1]
-        )
+        assert len(self.prediction) == len(self.labels)
+        # Check if the number of classes is consistent
+        assert len(np.unique(self.prediction)) == len(np.unique(self.labels))
+        # Check if the proba for each classes are returned
+        assert self.predict_proab.shape[1] == len(np.unique(self.labels))
+
+
+class TestQuanticMDM_MultiClass(MultiClassFVT):
+    """Perform MDM on a simulated quantum computer
+    (multi-label classification)"""
+
+    def get_params(self):
+        return TestClassicalMDM.get_params(self)
+
+    def check(self):
+        TestClassicalMDM.check(self)

@@ -99,13 +99,21 @@ for idx in range(n_classifiers):
     # A confusion matrix is reported for each classifier. A perfectly performing
     # classifier will have only its diagonal filled and the rest will be zeros.
     names = ["aud left", "aud right", "vis left", "vis right"]
-    title = (
-        ("VQC (" if idx == 0 else "Quantum SVM (" if idx == 1 else "Classical SVM (")
-        if idx == 2
-        else "Quantum MDM ("
-        if idx == 3
-        else "R-MDM (" + acc_str + ")"
-    )
+    if idx == 0:
+        title = "VQC"
+    elif idx == 1:
+        title = "Q-SVM"
+    elif idx == 2:
+        title = "SVM"
+    elif idx == 3:
+        title = "Q-MDM"
+    else:
+        title = "MDM"
+
+    title = f"{title} (" + acc_str + ")"
+
+    print(title)
+
     axe = axes[idx]
     cm = confusion_matrix(y_pred, y_test)
     disp = ConfusionMatrixDisplay(cm, display_labels=names)

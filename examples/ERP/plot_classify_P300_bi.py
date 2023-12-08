@@ -67,7 +67,7 @@ datasets = [bi2012()]  # MOABB provides several other P300 datasets
 
 # reduce the number of subjects, the Quantum pipeline takes a lot of time
 # if executed on the entire dataset
-n_subjects = 5
+n_subjects = 2
 for dataset in datasets:
     dataset.subject_list = dataset.subject_list[0:n_subjects]
 
@@ -78,7 +78,7 @@ pipelines = {}
 # A Riemannian Quantum pipeline provided by pyRiemann-qiskit
 # You can choose between classical SVM and Quantum SVM.
 pipelines["RG+QuantumSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=None,  # 'None' forces classic SVM
+    shots=512,  # 'None' forces classic SVM
     nfilter=2,  # default 2
     # default n_components=10, a higher value renders better performance with
     # the non-qunatum SVM version used in qiskit
