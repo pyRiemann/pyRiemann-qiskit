@@ -150,7 +150,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         n_classes = len(self.classes_)
         for idx in range(n_classes):
             y_copy[y == idx] = self.classes_[idx]
-        return y_copy
+        return np.array(y_copy)
 
     def fit(self, X, y):
         """Uses a quantum backend and fits the training data.
@@ -261,6 +261,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         if not hasattr(self._classifier, "predict_proba"):
             # Classifier has no predict_proba
             # Use the result from predict and apply a softmax
+            self._log("No predict_proba method available.\
+                       Computing softmax probabilities...")
             proba = self._classifier.predict(X)
             proba = [
                 np.array(
