@@ -82,7 +82,7 @@ class JudgeClassifier(ClassifierMixin):
         y1 = self.c1.fit(X, y).predict(X)
         y2 = self.c2.fit(X, y).predict(X)
         mask = np.not_equal(y1, y2)
-        if mask.all() == False:
+        if not mask.all():
             self.judge.fit(X, y)
         else:
             y_diff = y[mask]
@@ -94,7 +94,7 @@ class JudgeClassifier(ClassifierMixin):
         y2 = self.c2.predict(X)
         y_pred = y1
         mask = np.not_equal(y1, y2)
-        if mask.all() == False:
+        if not mask.all():
             return y_pred
         X_diff = X[mask]
         y_pred[mask] = self.judge.predict(X_diff)
@@ -107,7 +107,7 @@ class JudgeClassifier(ClassifierMixin):
         y2 = self.c2.predict(X)
         predict_proba = (y1_proba + y2_proba) / 2
         mask = np.not_equal(y1, y2)
-        if mask.all() == False:
+        if not mask.all():
             return predict_proba
         X_diff = X[mask]
         predict_proba[mask] = self.judge.predict_proba(X_diff)
@@ -194,7 +194,7 @@ def placeholder(key):
     )
 
 
-## Classical Pipelines
+# Classical Pipelines
 
 pipelines[PIP.xDAWNCov_TsLDA.value] = make_pipeline(
     XdawnCovariances(
@@ -243,7 +243,7 @@ pipelines[PIP.ERPCov_CvxMDM_Dist.value] = QuantumMDMWithRiemannianPipeline(
 )
 placeholder(PIP.ERPCov_CvxMDM_Dist.value)
 
-## Quantum Pipelines
+# Quantum Pipelines
 
 pipelines[PIP.ERPCov_QMDM_Dist.value] = QuantumMDMWithRiemannianPipeline(
     convex_metric="distance", quantum=True
