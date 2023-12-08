@@ -4,18 +4,11 @@ as well as several quantum classifiers than can run
 in several modes quantum/classical and simulated/real
 quantum computer.
 """
-import numpy as np
-from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.svm import SVC
-from qiskit_ibm_provider import IBMProvider, least_busy
-from qiskit.utils import QuantumInstance, algorithm_globals
-from qiskit.utils.quantum_instance import logger
-from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
-from qiskit_machine_learning.kernels.quantum_kernel import QuantumKernel
 from datetime import datetime
+from scipy.special import softmax
 import logging
-from .utils.hyper_params_factory import gen_zz_feature_map, gen_two_local, get_spsa
-from .utils import get_provider, get_devices, get_simulator
+import numpy as np
+
 from pyriemann.classification import MDM
 from pyriemann_qiskit.datasets import get_feature_dimension
 from pyriemann_qiskit.utils import (
@@ -23,13 +16,23 @@ from pyriemann_qiskit.utils import (
     NaiveQAOAOptimizer,
     set_global_optimizer,
 )
+from qiskit.utils import QuantumInstance
+from qiskit.utils.quantum_instance import logger
+from qiskit_ibm_provider import IBMProvider, least_busy
+from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
+from qiskit_machine_learning.kernels.quantum_kernel import QuantumKernel
+from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.svm import SVC
+
+from .utils.hyper_params_factory import gen_zz_feature_map, gen_two_local, get_spsa
+from .utils import get_provider, get_devices, get_simulator
 
 logger.level = logging.INFO
 
 
 class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
-    """Quantum classification.
+    """Quantum classifier
 
     This class implements a scikit-learn wrapper around Qiskit library [1]_.
     It provides a mean to run classification tasks on a local and
@@ -49,23 +52,27 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
           (depending on q_account_token value),
         - If false, will perform classical computing instead.
     q_account_token : string (default:None)
-        If quantum==True and q_account_token provided,
+        If `quantum` is True and `q_account_token` provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
         token saved with `IBMProvider.save_account()`.
     verbose : bool (default:True)
-        If true will output all intermediate results and logs.
+        If true, will output all intermediate results and logs.
     shots : int (default:1024)
         Number of repetitions of each circuit, for sampling.
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
                       (default : Callable[int, ZZFeatureMap])
         Function generating a feature map to encode data into a quantum state.
+    seed: int | None (default: None)
+        Random seed for the simulation
 
     Notes
     -----
     .. versionadded:: 0.0.1
     .. versionchanged:: 0.1.0
         Added support for multi-class classification.
+    .. versionchanged:: 0.2.0
+        Add seed parameter
 
     Attributes
     ----------
@@ -76,6 +83,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
     --------
     QuanticSVM
     QuanticVQC
+    QuanticMDM
 
     References
     ----------
@@ -92,20 +100,20 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         verbose=True,
         shots=1024,
         gen_feature_map=gen_zz_feature_map(),
+        seed=None,
     ):
         self.verbose = verbose
         self._log("Initializing Quantum Classifier")
         self.q_account_token = q_account_token
         self.quantum = quantum
         self.shots = shots
+        self.seed = datetime.now().microsecond if seed is None else seed
         self.gen_feature_map = gen_feature_map
         # protected field for child classes
         self._training_input = {}
 
     def _init_quantum(self):
         if self.quantum:
-            algorithm_globals.random_seed = datetime.now().microsecond
-            self._log("seed = ", algorithm_globals.random_seed)
             if self.q_account_token:
                 self._log("Real quantum computation will be performed")
                 if not self.q_account_token == "load_account":
@@ -138,11 +146,11 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         return y_copy
 
     def _map_indices_to_classes(self, y):
-        y_copy = y.copy()
+        y_copy = np.array(y.copy())
         n_classes = len(self.classes_)
         for idx in range(n_classes):
-            y_copy[y == idx] = self.classes_[idx]
-        return y_copy
+            y_copy[np.array(y).transpose() == idx] = self.classes_[idx]
+        return np.array(y_copy)
 
     def fit(self, X, y):
         """Uses a quantum backend and fits the training data.
@@ -183,14 +191,13 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                 except Exception:
                     self._log("Devices are all busy. Getting the first one...")
                     self._backend = devices[0]
-                self._log("Quantum backend = ", self._backend)
-            seed_sim = algorithm_globals.random_seed
-            seed_trs = algorithm_globals.random_seed
+            self._log("Quantum backend = ", self._backend)
+            self._log("seed = ", self.seed)
             self._quantum_instance = QuantumInstance(
                 self._backend,
                 shots=self.shots,
-                seed_simulator=seed_sim,
-                seed_transpiler=seed_trs,
+                seed_simulator=self.seed,
+                seed_transpiler=self.seed,
             )
         self._classifier = self._init_algo(n_features)
         self._train(X, y)
@@ -231,12 +238,56 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._log("Prediction finished.")
         return result
 
+    def predict_proba(self, X):
+        """Return the probabilities associated with predictions.
+
+        The default behavior is to return the nested classifier probabilities.
+        In case where no `predict_proba` method is available inside the classifier,
+        the method predicts the label number (0 or 1 for examples) and applies a
+        softmax in top of it.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_samples, n_features)
+            Input vector, where `n_samples` is the number of samples and
+            `n_features` is the number of features.
+
+        Returns
+        -------
+        prob : ndarray, shape (n_samples, n_classes)
+            prob[n, i] == 1 if the nth sample is assigned to class `i`.
+        """
+
+        if not hasattr(self._classifier, "predict_proba"):
+            # Classifier has no predict_proba
+            # Use the result from predict and apply a softmax
+            self._log(
+                "No predict_proba method available.\
+                       Computing softmax probabilities..."
+            )
+            proba = self._classifier.predict(X)
+            proba = [
+                np.array(
+                    [
+                        1 if c == self.classes_[i] else 0
+                        for i in range(len(self.classes_))
+                    ]
+                )
+                for c in proba
+            ]
+            proba = softmax(proba, axis=0)
+        else:
+            proba = self._classifier.predict_proba(X)
+
+        return np.array(proba)
+
 
 class QuanticSVM(QuanticClassifierBase):
 
-    """Quantum-enhanced SVM classification.
+    """Quantum-enhanced SVM classifier
 
-    This class implements SVC [1]_ on a quantum machine [2]_.
+    This class implements a support-vector machine (SVM) classifier [1]_,
+    called SVC, on a quantum machine [2]_.
     Note that if `quantum` parameter is set to `False`
     then a classical SVC will be perfomed instead.
 
@@ -244,9 +295,13 @@ class QuanticSVM(QuanticClassifierBase):
     -----
     .. versionadded:: 0.0.1
     .. versionchanged:: 0.0.2
-       Qiskit's Pegasos implementation [4]_, [5]_.
+        Qiskit's Pegasos implementation [4]_, [5]_.
     .. versionchanged:: 0.1.0
-       Fix: copy estimator not keeping base class parameters.
+        Fix: copy estimator not keeping base class parameters.
+    .. versionchanged:: 0.2.0
+        Add seed parameter
+        SVC and QSVC now compute probability (may impact performance)
+        Predict is now using predict_proba with a softmax, when using QSVC.
 
     Parameters
     ----------
@@ -270,17 +325,19 @@ class QuanticSVM(QuanticClassifierBase):
           (depending on q_account_token value),
         - If false, will perform classical computing instead.
     q_account_token : string (default:None)
-        If quantum==True and q_account_token provided,
+        If `quantum` is True and `q_account_token` provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
         token saved with `IBMProvider.save_account()`.
     verbose : bool (default:True)
-        If true will output all intermediate results and logs.
+        If true, will output all intermediate results and logs.
     shots : int (default:1024)
         Number of repetitions of each circuit, for sampling.
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
                       (default : Callable[int, ZZFeatureMap])
         Function generating a feature map to encode data into a quantum state.
+    seed: int | None (default: None)
+        Random seed for the simulation
 
     See Also
     --------
@@ -320,9 +377,10 @@ class QuanticSVM(QuanticClassifierBase):
         verbose=True,
         shots=1024,
         gen_feature_map=gen_zz_feature_map(),
+        seed=None,
     ):
         QuanticClassifierBase.__init__(
-            self, quantum, q_account_token, verbose, shots, gen_feature_map
+            self, quantum, q_account_token, verbose, shots, gen_feature_map, seed
         )
         self.gamma = gamma
         self.C = C
@@ -348,38 +406,14 @@ class QuanticSVM(QuanticClassifierBase):
                     gamma=self.gamma,
                     C=self.C,
                     max_iter=max_iter,
+                    probability=True,
                 )
         else:
             max_iter = -1 if self.max_iter is None else self.max_iter
-            classifier = SVC(gamma=self.gamma, C=self.C, max_iter=max_iter)
+            classifier = SVC(
+                gamma=self.gamma, C=self.C, max_iter=max_iter, probability=True
+            )
         return classifier
-
-    def predict_proba(self, X):
-        """Return the probabilities associated with predictions.
-
-        This method is implemented for compatibility purpose
-        as SVM prediction probabilities are not available.
-        This method assigns a boolean value to each trial which
-        depends on whether the label was assigned to class 0 or 1
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_samples, n_features)
-            Input vector, where `n_samples` is the number of samples and
-            `n_features` is the number of features.
-
-        Returns
-        -------
-        prob : ndarray, shape (n_samples, n_classes)
-            prob[n, 0] == True if the nth sample is assigned to 1st class;
-            prob[n, 1] == True if the nth sample is assigned to 2nd class.
-        """
-        predicted_labels = self.predict(X)
-        ret = [
-            np.array([c == self.classes_[0], c == self.classes_[1]])
-            for c in predicted_labels
-        ]
-        return np.array(ret)
 
     def predict(self, X):
         """Calculates the predictions.
@@ -395,14 +429,20 @@ class QuanticSVM(QuanticClassifierBase):
         pred : array, shape (n_samples,)
             Class labels for samples in X.
         """
-        labels = self._predict(X)
+        if isinstance(self._classifier, QSVC):
+            probs = softmax(self.predict_proba(X))
+            labels = [np.argmax(prob) for prob in probs]
+        else:
+            labels = self._predict(X)
+        self._log("Prediction finished.")
         return self._map_indices_to_classes(labels)
 
 
 class QuanticVQC(QuanticClassifierBase):
 
-    """Variational Quantum Classifier
+    """Variational quantum classifier
 
+    This class implements a variational quantum classifier (VQC).
     Note that there is no classical version of this algorithm.
     This will always run on a quantum computer (simulated or not).
 
@@ -419,24 +459,28 @@ class QuanticVQC(QuanticClassifierBase):
           (depending on q_account_token value).
         - If false, will perform classical computing instead.
     q_account_token : string (default:None)
-        If quantum==True and q_account_token provided,
+        If `quantum` is True and `q_account_token` provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
         token saved with `IBMProvider.save_account()`.
     verbose : bool (default:True)
-        If true will output all intermediate results and logs
+        If true, will output all intermediate results and logs
     shots : int (default:1024)
         Number of repetitions of each circuit, for sampling
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
                       (default : Callable[int, ZZFeatureMap])
         Function generating a feature map to encode data into a quantum state.
+    seed: int | None (default: None)
+        Random seed for the simulation
 
     Notes
     -----
     .. versionadded:: 0.0.1
     .. versionchanged:: 0.1.0
-       Fix: copy estimator not keeping base class parameters.
-       Added support for multi-class classification.
+        Fix: copy estimator not keeping base class parameters.
+        Added support for multi-class classification.
+    .. versionchanged:: 0.2.0
+        Add seed parameter
 
     See Also
     --------
@@ -472,6 +516,7 @@ class QuanticVQC(QuanticClassifierBase):
         verbose=True,
         shots=1024,
         gen_feature_map=gen_zz_feature_map(),
+        seed=None,
     ):
         if quantum is False:
             raise ValueError(
@@ -479,7 +524,7 @@ class QuanticVQC(QuanticClassifierBase):
                               computer or simulator."
             )
         QuanticClassifierBase.__init__(
-            self, quantum, q_account_token, verbose, shots, gen_feature_map
+            self, quantum, q_account_token, verbose, shots, gen_feature_map, seed
         )
         self.optimizer = optimizer
         self.gen_var_form = gen_var_form
@@ -495,24 +540,6 @@ class QuanticVQC(QuanticClassifierBase):
             num_qubits=n_features,
         )
         return vqc
-
-    def predict_proba(self, X):
-        """Returns the probabilities associated with predictions.
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_samples, n_features)
-            Input vector, where `n_samples` is the number of samples and
-            `n_features` is the number of features.
-
-        Returns
-        -------
-        prob : ndarray, shape (n_samples, n_classes)
-            prob[n, 0] == True if the nth sample is assigned to 1st class;
-            prob[n, 1] == True if the nth sample is assigned to 2nd class.
-        """
-        proba, _ = self._predict(X)
-        return proba
 
     def predict(self, X):
         """Calculates the predictions.
@@ -552,18 +579,20 @@ class QuanticVQC(QuanticClassifierBase):
 
 class QuanticMDM(QuanticClassifierBase):
 
-    """Quantum-enhanced MDM
+    """Quantum-enhanced MDM classifier
 
-    This class is a convex implementation of the MDM [1]_,
-    that can runs with quantum optimization.
-    Only log-euclidian distance between trial and class prototypes is supported
+    This class is a convex implementation of the Minimum Distance to Mean (MDM)
+    [1]_, which can run with quantum optimization.
+    Only log-Euclidean distance between trial and class prototypes is supported
     at the moment, but any type of metric can be used for centroid estimation.
 
     Notes
     -----
     .. versionadded:: 0.0.4
     .. versionchanged:: 0.1.0
-       Fix: copy estimator not keeping base class parameters.
+        Fix: copy estimator not keeping base class parameters.
+    .. versionchanged:: 0.2.0
+        Add seed parameter
 
     Parameters
     ----------
@@ -577,21 +606,24 @@ class QuanticMDM(QuanticClassifierBase):
         distance in order to keep the good sensitivity for the classification.
     quantum : bool (default: True)
         Only applies if `metric` contains a convex distance or mean.
+
         - If true will run on local or remote backend
           (depending on q_account_token value),
         - If false, will perform classical computing instead.
     q_account_token : string (default:None)
-        If quantum==True and q_account_token provided,
+        If `quantum` is True and `q_account_token` provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
         token saved with `IBMProvider.save_account()`.
     verbose : bool (default:True)
-        If true will output all intermediate results and logs.
+        If true, will output all intermediate results and logs.
     shots : int (default:1024)
         Number of repetitions of each circuit, for sampling.
     gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
                       (default : Callable[int, ZZFeatureMap])
         Function generating a feature map to encode data into a quantum state.
+    seed: int | None (default: None)
+        Random seed for the simulation
 
     See Also
     --------
@@ -620,9 +652,10 @@ class QuanticMDM(QuanticClassifierBase):
         verbose=True,
         shots=1024,
         gen_feature_map=gen_zz_feature_map(),
+        seed=None,
     ):
         QuanticClassifierBase.__init__(
-            self, quantum, q_account_token, verbose, shots, gen_feature_map
+            self, quantum, q_account_token, verbose, shots, gen_feature_map, seed
         )
         self.metric = metric
 
@@ -639,22 +672,6 @@ class QuanticMDM(QuanticClassifierBase):
             self._optimizer = ClassicalOptimizer()
         set_global_optimizer(self._optimizer)
         return classifier
-
-    def predict_proba(self, X):
-        """Return the probabilities associated with predictions.
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_trials, n_channels, n_channels)
-            ndarray of trials.
-
-        Returns
-        -------
-        prob : ndarray, shape (n_samples, n_classes)
-            prob[n, 0] == True if the nth sample is assigned to 1st class;
-            prob[n, 1] == True if the nth sample is assigned to 2nd class.
-        """
-        return self._classifier.predict_proba(X)
 
     def predict(self, X):
         """Calculates the predictions.

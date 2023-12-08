@@ -1,12 +1,32 @@
 import pytest
 from qiskit.circuit.parametertable import ParameterView
 from pyriemann_qiskit.utils.hyper_params_factory import (
+    gen_x_feature_map,
+    gen_z_feature_map,
     gen_zz_feature_map,
     gen_two_local,
     gates,
     get_spsa,
     get_spsa_parameters,
 )
+
+
+class TestGenXFeatureMapParams:
+    @pytest.mark.parametrize("reps", [2, 3])
+    def test_reps(self, reps):
+        """Test gen_z_feature_map with different number of repetitions"""
+        n_features = 2
+        feature_map = gen_x_feature_map(reps=reps)(n_features)
+        assert isinstance(feature_map.parameters, ParameterView)
+
+
+class TestGenZFeatureMapParams:
+    @pytest.mark.parametrize("reps", [2, 3])
+    def test_reps(self, reps):
+        """Test gen_z_feature_map with different number of repetitions"""
+        n_features = 2
+        feature_map = gen_z_feature_map(reps=reps)(n_features)
+        assert isinstance(feature_map.parameters, ParameterView)
 
 
 class TestGenZZFeatureMapParams:

@@ -14,16 +14,16 @@ from sklearn.datasets import make_classification
 
 
 def get_mne_sample(n_trials=10, include_auditory=False):
-    """Return sample data from the mne dataset.
+    """Return sample data from the MNE dataset.
 
-    ```
+    ``
     In this experiment, checkerboard patterns were presented to the subject
     into the left and right visual field, interspersed by tones to the
     left or right ear. The interval between the stimuli was 750 ms.
     Occasionally a smiley face was presented at the center of the visual field.
     The subject was asked to press a key with the right index finger
     as soon as possible after the appearance of the face.
-    ``` [1]_
+    `` [1]_
 
     The samples returned by this method are epochs of duration 1s.
     Only visual left and right trials are selected.
@@ -35,8 +35,7 @@ def get_mne_sample(n_trials=10, include_auditory=False):
         Number of trials to return.
         If -1, then all trials are returned.
     include_auditory : boolean (default:False)
-        If True, it returns also the auditory stimulation
-        in the MNE dataset.
+        If True, it returns also the auditory stimulation in the MNE dataset.
 
     Returns
     -------
@@ -236,19 +235,12 @@ class MockDataset:
     Attributes
     ----------
     code_ : str
-        The code of the dataset.
-        The code of the dataset is also the string representation
+        The code of the dataset, which is also the string representation
         of the dataset.
-    data_ : Dict
-        A dictionnary representing the dataset. Ex:
-        ```
-        {
-            subject1: (samples1, labels1),
-            subject2: (samples2, labels2),
-            ...
-        }
-        ```
-    subjects_ : List[int]
+    data_ : dict
+        A dictionnary representing the dataset, e.g.:
+        ``{subject1: (samples1, labels1), subject2: (samples2, labels2), ...}``
+    subjects_ : list[int]
         The subjects of the dataset.
 
     Notes

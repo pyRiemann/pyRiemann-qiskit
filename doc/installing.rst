@@ -3,44 +3,52 @@
 Installing pyRiemann-qiskit
 ===========================
 
-There is no yet stable version of pyRiemann-qiskit.
+_We recommend the use of [Anaconda](https://www.anaconda.com/) to manage python
+environements._
 
-Therefore, it is recommanded to clone the source code on `github <https://github.com/pyRiemann/pyRiemann-qiskit>`__ and install directly the package from source.
+`pyRiemann-qiskit` currently supports Windows, Mac and Linux OS with Python 3.9 - 3.11.
 
-``pip install -e .``
+You can install `pyRiemann-qiskit` release from PyPI:
 
-The install script will install the required dependencies. If you want also to build the documentation and to run the test locally, you could install all development dependencies with
+```
+pip install pyriemann-qiskit
+```
 
-``pip install -e .[docs,tests]``
+The development version can be installed by cloning this repository and installing the
+package on your local machine using the `setup.py` script:
 
-If you use a zsh shell, you need to write `pip install -e .\[docs,tests\]`. If you do not know what zsh is, you could use the above command.
+```
+python setup.py develop
+```
 
-You may check that the package was correctly installed by starting a python shell and writing:
+Or directly pip:
 
-``import pyriemann_qiskit``
+```
+pip install .
+```
+
+Note that the steps above need to be re-executed in your local environment after any
+changes inside your local copy of the `pyriemann_qiskit` folder, including pulling from
+remote.
+
+To check the installation, open a python shell and type:
+
+```
+import pyriemann_qiskit
+```
 
 Dependencies
 ~~~~~~~~~~~~
 
--  Python (>= 3.6)
+-  Python (>= 3.9)
 
 Mandatory dependencies
 ^^^^^^^^^^^^^^^^^^^^^^
 
--  `cython <https://cython.org/>`__
+The project relies mainly on:
 
--  `pyriemann <https://github.com/pyRiemann/pyRiemann-qiskit>`__
+- `pyRiemann==0.5.0 <https://github.com/pyRiemann/pyRiemann>`
 
--  `qiskit==0.20.0 <https://qiskit.org/>`__
+- `qiskit==0.45.0 <https://qiskit.org/>`__
 
--  `cvxpy=1.1.12 <https://www.cvxpy.org/>`__
-
-Recommended dependencies
-^^^^^^^^^^^^^^^^^^^^^^^^
-These dependencies are recommanded to use the plotting functions of pyriemann or to run examples and tutorials, but they are not mandatory:
-
--  `matplotlib>=2.2 <https://matplotlib.org/>`__
-
--  `mne-python <http://mne-tools.github.io/>`__
-
--  `seaborn <https://seaborn.pydata.org>`__
+Other dependencies can be checked in the `setup.py` file.
