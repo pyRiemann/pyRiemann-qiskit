@@ -243,7 +243,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         The default behavior is to return the nested classifier probabilities.
         In case where no `predict_proba` method is available inside the classifier,
-        the method the predicted label number (0 or 1 for examples) and applies a
+        the method predicts the label number (0 or 1 for examples) and applies a
         softmax in top of it.
 
         Parameters
@@ -300,7 +300,7 @@ class QuanticSVM(QuanticClassifierBase):
         Fix: copy estimator not keeping base class parameters.
     .. versionchanged:: 0.2.0
         Add seed parameter
-        SVC and QSVC now compute probability (may impact time performance)
+        SVC and QSVC now compute probability (may impact performance)
         Predict is now using predict_proba with a softmax, when using QSVC.
 
     Parameters

@@ -116,7 +116,7 @@ class TestClassicalSVM(BinaryFVT):
     def check(self):
         # Check that all classes are predicted
         assert len(self.prediction) == len(self.labels)
-        # Check the proba for each classes are returned
+        # Check if the proba for each classes are returned
         assert self.predict_proab.shape[1] == len(np.unique(self.labels))
 
 
@@ -183,9 +183,9 @@ class TestQuanticVQC(BinaryFVT):
         # Considering the inputs, this probably make no sense to test accuracy.
         # Instead, we could consider this test as a canary test
         assert len(self.prediction) == len(self.labels)
-        # Check the number of classes is consistent
+        # Check if the number of classes is consistent
         assert len(np.unique(self.prediction)) == len(np.unique(self.labels))
-        # Check the proba for each classes are returned
+        # Check if the proba for each classes are returned
         assert self.predict_proab.shape[1] == len(np.unique(self.labels))
 
 
@@ -219,9 +219,9 @@ class TestClassicalMDM(BinaryFVT):
 
     def check(self):
         assert len(self.prediction) == len(self.labels)
-        # Check the number of classes is consistent
+        # Check if the number of classes is consistent
         assert len(np.unique(self.prediction)) == len(np.unique(self.labels))
-        # Check the proba for each classes are returned
+        # Check if the proba for each classes are returned
         assert self.predict_proab.shape[1] == len(np.unique(self.labels))
 
 

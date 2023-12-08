@@ -177,7 +177,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
         Number of repetitions of each circuit, for sampling.
         If None, classical computation will be performed.
     feature_reps : int (default: 2)
-        The number of repeated circuits for the ZZFeatureMap,
+        The number of repeated circuits for the FeatureMap,
         greater or equal to 1.
     spsa_trials : int (default: None)
         Maximum number of iterations to perform using SPSA optimizer.
@@ -202,7 +202,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
     -----
     .. versionadded:: 0.0.1
     .. versionchanged:: 0.2.0
-        Change feature map from ZZFeatureMap to XFeatureMap.
+        Changed feature map from ZZFeatureMap to XFeatureMap.
         Therefore remove unused parameter `feature_entanglement`.
 
     See Also
