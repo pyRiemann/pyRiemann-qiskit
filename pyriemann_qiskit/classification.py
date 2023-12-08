@@ -146,10 +146,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         return y_copy
 
     def _map_indices_to_classes(self, y):
-        y_copy = y.copy()
+        y_copy = np.array(y.copy())
         n_classes = len(self.classes_)
         for idx in range(n_classes):
-            y_copy[y == idx] = self.classes_[idx]
+            y_copy[np.array(y).transpose() == idx] = self.classes_[idx]     
         return np.array(y_copy)
 
     def fit(self, X, y):
