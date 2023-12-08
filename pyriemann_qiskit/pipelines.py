@@ -257,6 +257,10 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
         is_vqc = self.spsa_trials and self.two_local_reps
         is_quantum = self.shots is not None
 
+        # Different feature maps can be used.
+        # Currently the best results are produced by the x_feature_map.
+        # This can change in the future as the code for the different feature maps
+        # is updated in the new versions of Qiskit.
         feature_map = gen_x_feature_map(self.feature_reps)
 
         if is_vqc:

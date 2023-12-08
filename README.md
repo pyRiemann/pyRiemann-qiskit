@@ -96,7 +96,7 @@ This library is part of the [Qiskit Ecosystem](https://qiskit.org/ecosystem)
 _We recommend the use of [Anaconda](https://www.anaconda.com/) to manage python
 environements._
 
-`pyRiemann-qiskit` currently supports Windows, Mac and Linux OS with Python 3.9 - 3.11.
+`pyRiemann-qiskit` currently supports Windows, Mac and Linux OS with **Python 3.9 - 3.11**.
 
 You can install `pyRiemann-qiskit` release from PyPI:
 
@@ -105,13 +105,8 @@ pip install pyriemann-qiskit
 ```
 
 The development version can be installed by cloning this repository and installing the
-package on your local machine using the `setup.py` script:
-
-```
-python setup.py develop
-```
-
-Or directly pip:
+package on your local machine using the `setup.py` script.
+We recommand to do it using `pip`:
 
 ```
 pip install .
