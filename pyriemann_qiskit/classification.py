@@ -255,7 +255,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         Returns
         -------
         prob : ndarray, shape (n_samples, n_classes)
-            prob[n, i] == 1 if the nth sample is assigned to class `i`;
+            prob[n, i] == 1 if the nth sample is assigned to class `i`.
         """
 
         if not hasattr(self._classifier, "predict_proba"):
