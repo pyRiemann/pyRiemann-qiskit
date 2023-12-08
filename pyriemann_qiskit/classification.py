@@ -149,7 +149,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         y_copy = np.array(y.copy())
         n_classes = len(self.classes_)
         for idx in range(n_classes):
-            y_copy[np.array(y).transpose() == idx] = self.classes_[idx]     
+            y_copy[np.array(y).transpose() == idx] = self.classes_[idx]
         return np.array(y_copy)
 
     def fit(self, X, y):
