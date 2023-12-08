@@ -100,15 +100,15 @@ for idx in range(n_classifiers):
     # classifier will have only its diagonal filled and the rest will be zeros.
     names = ["aud left", "aud right", "vis left", "vis right"]
     if idx == 0:
-        title="VQC"
+        title = "VQC"
     elif idx == 1:
-        title="Q-SVM"
+        title = "Q-SVM"
     elif idx == 2:
-        title="SVM"
+        title = "SVM"
     elif idx == 3:
-        title="Q-MDM"
+        title = "Q-MDM"
     else:
-        title="MDM"
+        title = "MDM"
 
     title = f"{title} (" + acc_str + ")"
 
