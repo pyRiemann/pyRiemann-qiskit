@@ -261,8 +261,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         if not hasattr(self._classifier, "predict_proba"):
             # Classifier has no predict_proba
             # Use the result from predict and apply a softmax
-            self._log("No predict_proba method available.\
-                       Computing softmax probabilities...")
+            self._log(
+                "No predict_proba method available.\
+                       Computing softmax probabilities..."
+            )
             proba = self._classifier.predict(X)
             proba = [
                 np.array(
