@@ -31,14 +31,13 @@ import warnings
 
 from mne.decoding import Vectorizer
 from moabb import set_log_level
-from moabb.datasets.compound_dataset import Cattan2019_VR_Il
+from moabb.datasets.compound_dataset import BI_Il
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann.classification import MDM
 from pyriemann.spatialfilters import Xdawn
-from sklearn.decomposition import PCA
 from sklearn.ensemble import VotingClassifier
 from sklearn.base import ClassifierMixin
 from sklearn.pipeline import make_pipeline, Pipeline
@@ -131,7 +130,7 @@ set_log_level("info")
 
 paradigm = P300()
 
-datasets = [Cattan2019_VR_Il()]
+datasets = [BI_Il()]
 
 # reduce the number of subjects, the Quantum pipeline takes a lot of time
 # if executed on the entire dataset
@@ -175,7 +174,7 @@ USE_PLACEHOLDERS = False
 
 
 def placeholder(key):
-    if USE_PLACEHOLDERS:
+    if not USE_PLACEHOLDERS:
         return
     pipelines[key] = Pipeline(
         steps=[
@@ -259,9 +258,9 @@ pipelines[PIP.Vot_QMDM_Dist_Mean.value] = QuantumMDMVotingClassifier(quantum=Tru
 placeholder(PIP.Vot_QMDM_Dist_Mean.value)
 
 pipelines[PIP.xDAWNCov_TsQSVC.value] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=512,
-    nfilter=4,
-    dim_red=PCA(n_components=10),
+    # shots=512,
+    # nfilter=4,
+    # dim_red=PCA(n_components=10),
 )
 placeholder(PIP.xDAWNCov_TsQSVC.value)
 
@@ -293,7 +292,8 @@ placeholder(PIP.Vot_QMDM_MDM.value)
 evaluation = WithinSessionEvaluation(
     paradigm=paradigm,
     datasets=datasets,
-    overwrite=True,
+    overwrite=False,
+    hdf5_path='hdf5'
 )
 
 results = evaluation.process(pipelines)
@@ -338,6 +338,7 @@ sns.pointplot(
 ax.set_ylabel("ROC AUC")
 ax.set_ylim(0.3, 1)
 
+plt.legend([],[], frameon=False)
 plt.subplots_adjust(bottom=0.3)
 plt.xticks(rotation=45)
 plt.show()
