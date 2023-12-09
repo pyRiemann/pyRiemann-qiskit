@@ -290,10 +290,7 @@ placeholder(PIP.Vot_QMDM_MDM.value)
 # Compare the pipeline using a within session evaluation.
 
 evaluation = WithinSessionEvaluation(
-    paradigm=paradigm,
-    datasets=datasets,
-    overwrite=False,
-    hdf5_path='hdf5'
+    paradigm=paradigm, datasets=datasets, overwrite=False, hdf5_path="hdf5"
 )
 
 results = evaluation.process(pipelines)
@@ -338,7 +335,7 @@ sns.pointplot(
 ax.set_ylabel("ROC AUC")
 ax.set_ylim(0.3, 1)
 
-plt.legend([],[], frameon=False)
+plt.legend([], [], frameon=False)
 plt.subplots_adjust(bottom=0.3)
 plt.xticks(rotation=45)
 plt.show()
