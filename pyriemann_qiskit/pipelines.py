@@ -157,6 +157,8 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
     nfilter : int (default: 1)
         The number of filter for the xDawnFilter.
         The number of components selected is 2 x nfilter.
+    classes: list[int] (default: None)
+        Classes for the XdawnCovariances.
     dim_red : TransformerMixin (default: PCA())
         A transformer that will reduce the dimension of the feature,
         after the data are projected into the tangent space.
@@ -229,6 +231,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
     def __init__(
         self,
         nfilter=1,
+        classes=None,
         dim_red=PCA(),
         gamma="scale",
         C=1.0,
@@ -240,6 +243,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
         params={},
     ):
         self.nfilter = nfilter
+        self.classes = classes
         self.dim_red = dim_red
         self.gamma = gamma
         self.C = C
@@ -286,7 +290,15 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
             )
 
         return make_pipeline(
-            XdawnCovariances(nfilter=self.nfilter), TangentSpace(), self.dim_red, clf
+            XdawnCovariances(
+                nfilter=self.nfilter,
+                classes=self.classes,
+                estimator="scm",
+                xdawn_estimator="lwf",
+            ),
+            TangentSpace(),
+            self.dim_red,
+            clf,
         )
 
 
