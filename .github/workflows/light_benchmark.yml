@@ -43,4 +43,4 @@ jobs:
         if: ${{env.SUCCESS}} != "0"
         run: |
           echo Performance regression
-          exit 1 
+          exit 1
