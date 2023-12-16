@@ -21,6 +21,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from moabb import set_log_level
 from moabb.datasets import bi2012
 from moabb.paradigms import P300
+from pyriemann_qiskit.utils import distance, mean  # noqa
 from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
     QuantumMDMWithRiemannianPipeline,
