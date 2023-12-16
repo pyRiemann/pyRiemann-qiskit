@@ -54,7 +54,7 @@ dataset = bi2012()  # MOABB provides several other P300 datasets
 X, y, _ = paradigm.get_data(dataset, subjects=[1])
 
 # Reduce the dataset size for Ci
-X, _, y, _ = train_test_split(X, y, test_size=0.5, random_state=42, stratify=y)
+_, X, _, y = train_test_split(X, y, test_size=0.7, random_state=42, stratify=y)
 
 y = LabelEncoder().fit_transform(y)
 
@@ -74,21 +74,25 @@ X_train, X_test, y_train, y_test = train_test_split(
 pipelines = {}
 
 pipelines["RG+QSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=512,
+    shots=100,
     nfilter=2,
     dim_red=PCA(n_components=5),
 )
 
 pipelines["RG+VQC"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=512, spsa_trials=40, two_local_reps=2
+    shots=100,
+    spsa_trials=40,
+    two_local_reps=2
 )
 
 pipelines["QMDM-mean"] = QuantumMDMWithRiemannianPipeline(
-    convex_metric="mean", quantum=True
+    convex_metric="mean",
+    quantum=True
 )
 
 pipelines["QMDM-dist"] = QuantumMDMWithRiemannianPipeline(
-    convex_metric="distance", quantum=True
+    convex_metric="distance",
+    quantum=True
 )
 
 pipelines["RG+LDA"] = make_pipeline(
@@ -128,7 +132,6 @@ print("Mean score: ", mean_score)
 # ---------------------------------
 #
 ##############################################################################
-
 
 pr_score = os.getenv("PR_SCORE")
 if pr_score is None:
