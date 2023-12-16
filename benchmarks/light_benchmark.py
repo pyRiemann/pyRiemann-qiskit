@@ -91,10 +91,13 @@ for key, pipeline in pipelines.items():
 mean_score /= len(pipelines)
 
 print("Scores: ", scores)
+print("Mean score: ", mean_score)
 
 pr_score = os.getenv("PR_SCORE")
 if pr_score is None:
     os.environ["PR_SCORE"] = str(mean_score)
 else:
+    success = "1" if float(pr_score) >= mean_score else "0"
+    print("Success: ", success)
     # mean_score is score in main branch
-    os.environ["SUCCESS"] = "1" if float(pr_score) >= mean_score else "0"
+    os.environ["SUCCESS"] = success
