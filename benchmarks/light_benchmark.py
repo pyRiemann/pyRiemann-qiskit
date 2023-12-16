@@ -56,7 +56,7 @@ paradigm = P300(resample=128)
 
 dataset = bi2012()  # MOABB provides several other P300 datasets
 
-X, y = dataset.get_data(subjects=[1])
+X, y, _ = paradigm.get_data(dataset, subjects=[1])
 
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.33, random_state=42
