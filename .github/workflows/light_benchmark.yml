@@ -40,7 +40,8 @@ jobs:
         run: |
           python benchmarks/light_benchmark.py
       - name: Compare performance
-        if: "$SUCCESS" == "0"
         run: |
-          echo Performance regression "$PR_SCORE"
-          exit 1
+          if [[ "$SUCCESS" == "0" ]]; then
+            echo Performance regression "$PR_SCORE"
+            exit 1
+          fi
