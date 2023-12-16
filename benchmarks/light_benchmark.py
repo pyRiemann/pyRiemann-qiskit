@@ -16,6 +16,7 @@ from pyriemann.tangentspace import TangentSpace
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import balanced_accuracy_score
+from sklearn.preprocessing import LabelEncoder
 from matplotlib import pyplot as plt
 import warnings
 import seaborn as sns
@@ -47,16 +48,14 @@ set_log_level("info")
 # Pipelines must be a dict of sklearn pipeline transformer.
 
 ##############################################################################
-# We have to do this because the classes are called 'Target' and 'NonTarget'
-# but the evaluation function uses a LabelEncoder, transforming them
-# to 0 and 1
-labels_dict = {"Target": 1, "NonTarget": 0}
 
 paradigm = P300(resample=128)
 
 dataset = bi2012()  # MOABB provides several other P300 datasets
 
 X, y, _ = paradigm.get_data(dataset, subjects=[1])
+
+y = LabelEncoder().fit_transform(y)
 
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.33, random_state=42
@@ -74,7 +73,6 @@ pipelines["RG+LDA"] = make_pipeline(
     # applies XDawn and calculates the covariance matrix, output it matrices
     XdawnCovariances(
         nfilter=2,
-        classes=[labels_dict["Target"]],
         estimator="lwf",
         xdawn_estimator="scm",
     ),
