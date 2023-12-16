@@ -85,7 +85,7 @@ pipelines["RG+LDA"] = make_pipeline(
 
 scores = {}
 
-for key, pipeline in pipelines:
+for key, pipeline in pipelines.items():
     pipeline.fit(X_train, y_train)
     y_pred = pipeline.predict(X_test)
     score = balanced_accuracy_score(y_test, y_pred)
