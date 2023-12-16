@@ -6,11 +6,13 @@ on:
     - 'pyriemann_qiskit/**'
     - 'examples/**'
     - '.github/workflows/light_benchmark.yml'
+    - 'benchmarks/light_benchmark.py'
   pull_request:
     paths:
     - 'pyriemann_qiskit/**'
     - 'examples/**'
     - '.github/workflows/light_benchmark.yml'
+    - 'benchmarks/light_benchmark.py'
 
 jobs:
   light_benchmark:
