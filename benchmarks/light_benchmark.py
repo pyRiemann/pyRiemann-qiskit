@@ -23,6 +23,7 @@ from moabb.datasets import bi2012
 from moabb.paradigms import P300
 from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
+    QuantumMDMWithRiemannianPipeline
 )
 from sklearn.decomposition import PCA
 import warnings
@@ -61,10 +62,24 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 pipelines = {}
 
-pipelines["RG+QuantumSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
+pipelines["RG+QSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
     shots=512,
     nfilter=2,
     dim_red=PCA(n_components=5),
+)
+
+pipelines["RG+VQC"] = QuantumClassifierWithDefaultRiemannianPipeline(
+    shots=512,
+    spsa_trials=40,
+    two_local_reps=2
+)
+
+pipelines["QMDM-mean"] = QuantumMDMWithRiemannianPipeline(
+    convex_metric="mean", quantum=True
+)
+
+pipelines["QMDM-dist"] = QuantumMDMWithRiemannianPipeline(
+    convex_metric="distance", quantum=True
 )
 
 pipelines["RG+LDA"] = make_pipeline(
@@ -74,7 +89,7 @@ pipelines["RG+LDA"] = make_pipeline(
         xdawn_estimator="scm",
     ),
     TangentSpace(),
-    PCA(n_components=10),
+    PCA(n_components=5),
     LDA(solver="lsqr", shrinkage="auto"),
 )
 
