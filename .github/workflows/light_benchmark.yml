@@ -25,6 +25,14 @@ jobs:
       - name: Install dependencies
         run: |
           pip install .[docs]
-      - name: Run benchmark script
+      - name: Run benchmark script (PR)
+        run: |
+          python benchmarks/light_benchmark.py
+      - uses: actions/checkout@v4
+        ref: 'main'
+      - name: Install dependencies
+         run: |
+          pip install .[docs]
+      - name: Run benchmark script (main)
         run: |
           python benchmarks/light_benchmark.py
