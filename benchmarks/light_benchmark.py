@@ -98,4 +98,3 @@ if pr_score is None:
 else:
     # mean_score is score in main branch
     os.setenv("SUCCESS", pr_score >= mean_score)
-
