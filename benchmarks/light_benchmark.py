@@ -94,7 +94,7 @@ print("Scores: ", scores)
 
 pr_score = os.getenv("PR_SCORE")
 if pr_score is None:
-    os.environ["PR_SCORE"] = mean_score
+    os.environ["PR_SCORE"] = str(mean_score)
 else:
     # mean_score is score in main branch
-    os.environ["SUCCESS"] = pr_score >= mean_score
+    os.environ["SUCCESS"] = "1" if float(pr_score) >= mean_score else "0"
