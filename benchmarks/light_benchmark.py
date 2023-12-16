@@ -18,6 +18,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.preprocessing import LabelEncoder
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.decomposition import PCA
 from moabb import set_log_level
 from moabb.datasets import bi2012
 from moabb.paradigms import P300
@@ -26,7 +27,7 @@ from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
     QuantumMDMWithRiemannianPipeline,
 )
-from sklearn.decomposition import PCA
+from imblearn.under_sampling import NearMiss
 import warnings
 import os
 
@@ -54,6 +55,11 @@ paradigm = P300(resample=128)
 dataset = bi2012()  # MOABB provides several other P300 datasets
 
 X, y, _ = paradigm.get_data(dataset, subjects=[1])
+
+# Reduce the dataset size for Ci
+X, y = NearMiss(sampling_strategy='majority', n_jobs=-1, n_neighbors=2).fit_resample(
+    X, y
+)
 
 y = LabelEncoder().fit_transform(y)
 
