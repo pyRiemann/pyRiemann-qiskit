@@ -27,7 +27,6 @@ from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
     QuantumMDMWithRiemannianPipeline,
 )
-from imblearn.under_sampling import RandomUnderSampler
 import warnings
 import os
 
@@ -57,14 +56,15 @@ dataset = bi2012()  # MOABB provides several other P300 datasets
 X, y, _ = paradigm.get_data(dataset, subjects=[1])
 
 # Reduce the dataset size for Ci
-X, y = RandomUnderSampler(sampling_strategy="majority", random_state=42).fit_resample(
-    X, y
+X, y = train_test_split(
+    X, y, test_size=0.5, random_state=42, stratify=y
 )
 
 y = LabelEncoder().fit_transform(y)
 
+# Separate into train and test
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.33, random_state=42
+    X, y, test_size=0.33, random_state=42, stratify=y
 )
 
 pipelines = {}
