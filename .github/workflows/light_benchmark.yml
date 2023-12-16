@@ -42,5 +42,5 @@ jobs:
       - name: Compare performance
         if: ${{env.SUCCESS}} != "0"
         run: |
-          echo Performance regression
+          echo Performance regression ${{env.PR_SCORE}}
           exit 1
