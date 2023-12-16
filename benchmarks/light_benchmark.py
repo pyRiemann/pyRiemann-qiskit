@@ -17,7 +17,6 @@ from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.preprocessing import LabelEncoder
-import warnings
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from moabb import set_log_level
 from moabb.datasets import bi2012
@@ -26,6 +25,8 @@ from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
 )
 from sklearn.decomposition import PCA
+import warnings
+import os
 
 print(__doc__)
 
@@ -78,12 +79,23 @@ pipelines["RG+LDA"] = make_pipeline(
 )
 
 scores = {}
+mean_score = 0
 
 for key, pipeline in pipelines.items():
     pipeline.fit(X_train, y_train)
     y_pred = pipeline.predict(X_test)
     score = balanced_accuracy_score(y_test, y_pred)
     scores[key] = score
+    mean_score += score
 
+mean_score /= len(pipelines)
 
 print("Scores: ", scores)
+
+pr_score = os.getenv("PR_SCORE")
+if pr_score is None:
+    os.setenv("PR_SCORE", mean_score)
+else:
+    # mean_score is score in main branch
+    os.setenv("SUCCESS", pr_score >= mean_score)
+
