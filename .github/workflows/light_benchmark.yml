@@ -29,7 +29,8 @@ jobs:
         run: |
           python benchmarks/light_benchmark.py
       - uses: actions/checkout@v4
-        ref: 'main'
+        with:
+          ref: 'main'
       - name: Install dependencies
         run: |
           pip install .[docs]
