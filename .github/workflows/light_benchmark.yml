@@ -39,3 +39,8 @@ jobs:
       - name: Run benchmark script (main)
         run: |
           python benchmarks/light_benchmark.py
+      - name: Compare performance
+        if: ${{env.SUCCESS}} != "0"
+        run: |
+          echo Performance regression
+          exit 1 
