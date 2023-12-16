@@ -42,11 +42,9 @@ warnings.filterwarnings("ignore")
 set_log_level("info")
 
 ##############################################################################
-# Create Pipelines
+# Prepare data
 # ----------------
 #
-# Pipelines must be a dict of sklearn pipeline transformer.
-
 ##############################################################################
 
 paradigm = P300(resample=128)
@@ -64,6 +62,14 @@ y = LabelEncoder().fit_transform(y)
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.33, random_state=42, stratify=y
 )
+
+##############################################################################
+# Create Pipelines
+# ----------------
+#
+# Pipelines must be a dict of sklearn pipeline transformer.
+# 
+##############################################################################
 
 pipelines = {}
 
@@ -96,6 +102,12 @@ pipelines["RG+LDA"] = make_pipeline(
     LDA(solver="lsqr", shrinkage="auto"),
 )
 
+##############################################################################
+# Compute score
+# --------------
+#
+##############################################################################
+
 scores = {}
 mean_score = 0
 
@@ -110,6 +122,13 @@ mean_score /= len(pipelines)
 
 print("Scores: ", scores)
 print("Mean score: ", mean_score)
+
+##############################################################################
+# Compare score between PR and main
+# ---------------------------------
+#
+##############################################################################
+
 
 pr_score = os.getenv("PR_SCORE")
 if pr_score is None:
