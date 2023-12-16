@@ -23,7 +23,7 @@ from moabb.datasets import bi2012
 from moabb.paradigms import P300
 from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
-    QuantumMDMWithRiemannianPipeline
+    QuantumMDMWithRiemannianPipeline,
 )
 from sklearn.decomposition import PCA
 import warnings
@@ -69,9 +69,7 @@ pipelines["RG+QSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
 )
 
 pipelines["RG+VQC"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=512,
-    spsa_trials=40,
-    two_local_reps=2
+    shots=512, spsa_trials=40, two_local_reps=2
 )
 
 pipelines["QMDM-mean"] = QuantumMDMWithRiemannianPipeline(
