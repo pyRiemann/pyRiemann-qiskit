@@ -1,0 +1,39 @@
+name: Light Benchmark
+
+on:
+  push:
+    paths:
+    - 'pyriemann_qiskit/**'
+    - 'examples/**'
+    - '.github/workflows/light_benchmark.yml'
+  pull_request:
+    paths:
+    - 'pyriemann_qiskit/**'
+    - 'examples/**'
+    - '.github/workflows/light_benchmark.yml'
+
+jobs:
+  light_benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: light_benchmark.yml
+      - name: Install dependencies
+        run: |
+          pip install .[docs]
+      - name: Run benchmark script (PR)
+        run: |
+          python benchmarks/light_benchmark.py
+      - uses: actions/checkout@v4
+        with:
+          ref: 'main'
+      - name: Install dependencies
+        run: |
+          pip install .[docs]
+      - name: Run benchmark script (main)
+        run: |
+          python benchmarks/light_benchmark.py
