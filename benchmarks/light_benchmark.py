@@ -27,7 +27,7 @@ from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
     QuantumMDMWithRiemannianPipeline,
 )
-from imblearn.under_sampling import NearMiss
+from imblearn.under_sampling import RandomUnderSampler
 import warnings
 import os
 
@@ -57,7 +57,7 @@ dataset = bi2012()  # MOABB provides several other P300 datasets
 X, y, _ = paradigm.get_data(dataset, subjects=[1])
 
 # Reduce the dataset size for Ci
-X, y = NearMiss(sampling_strategy="majority", n_jobs=-1, n_neighbors=2).fit_resample(
+X, y = RandomUnderSampler(sampling_strategy='majority', n_jobs=-1, random_state=42).fit_resample(
     X, y
 )
 
