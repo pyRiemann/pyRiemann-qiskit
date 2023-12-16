@@ -57,9 +57,9 @@ dataset = bi2012()  # MOABB provides several other P300 datasets
 X, y, _ = paradigm.get_data(dataset, subjects=[1])
 
 # Reduce the dataset size for Ci
-X, y = RandomUnderSampler(
-    sampling_strategy="majority", n_jobs=-1, random_state=42
-).fit_resample(X, y)
+X, y = RandomUnderSampler(sampling_strategy='majority', random_state=42).fit_resample(
+    X, y
+)
 
 y = LabelEncoder().fit_transform(y)
 
