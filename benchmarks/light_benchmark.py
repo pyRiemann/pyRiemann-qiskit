@@ -56,9 +56,7 @@ dataset = bi2012()  # MOABB provides several other P300 datasets
 X, y, _ = paradigm.get_data(dataset, subjects=[1])
 
 # Reduce the dataset size for Ci
-X, y = train_test_split(
-    X, y, test_size=0.5, random_state=42, stratify=y
-)
+X, y = train_test_split(X, y, test_size=0.5, random_state=42, stratify=y)
 
 y = LabelEncoder().fit_transform(y)
 
