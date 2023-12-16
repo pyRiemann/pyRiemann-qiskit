@@ -17,13 +17,10 @@ from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.preprocessing import LabelEncoder
-from matplotlib import pyplot as plt
 import warnings
-import seaborn as sns
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from moabb import set_log_level
 from moabb.datasets import bi2012
-from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
 from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
@@ -70,7 +67,6 @@ pipelines["RG+QuantumSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
 )
 
 pipelines["RG+LDA"] = make_pipeline(
-    # applies XDawn and calculates the covariance matrix, output it matrices
     XdawnCovariances(
         nfilter=2,
         estimator="lwf",
@@ -78,7 +74,7 @@ pipelines["RG+LDA"] = make_pipeline(
     ),
     TangentSpace(),
     PCA(n_components=10),
-    LDA(solver="lsqr", shrinkage="auto"),  # you can use other classifiers
+    LDA(solver="lsqr", shrinkage="auto"),
 )
 
 scores = {}
