@@ -24,11 +24,7 @@ jobs:
           key: light_benchmark.yml
       - name: Install dependencies
         run: |
-          apt-get --allow-releaseinfo-change update
-          python -m pip install --upgrade pip
-          apt-get -y install --fix-missing git-core
-          apt-get -y install build-essential
-          pip install -r doc/requirements.txt
+          pip install .[docs]
       - name: Run benchmark script
         run: |
           python benchmarks/light_benchmark.py
