@@ -80,7 +80,7 @@ pipelines["RG+QSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
 )
 
 pipelines["RG+VQC"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=100, spsa_trials=40, two_local_reps=2
+    shots=100, spsa_trials=5, two_local_reps=2
 )
 
 pipelines["QMDM-mean"] = QuantumMDMWithRiemannianPipeline(
