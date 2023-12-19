@@ -450,13 +450,13 @@ class QuantumMDMVotingClassifier(BasePipeline):
         q_account_token=None,
         verbose=True,
         shots=1024,
-        gen_feature_map=gen_zz_feature_map(),
+        upper_bound=7
     ):
         self.quantum = quantum
         self.q_account_token = q_account_token
         self.verbose = verbose
         self.shots = shots
-        self.gen_feature_map = gen_feature_map
+        self.upper_bound = upper_bound
         BasePipeline.__init__(self, "QuantumMDMVotingClassifier")
 
     def _create_pipe(self):
@@ -466,7 +466,7 @@ class QuantumMDMVotingClassifier(BasePipeline):
             self.q_account_token,
             self.verbose,
             self.shots,
-            self.gen_feature_map,
+            self.upper_bound,
         )
         clf_mean_convex_dist_euclid = QuantumMDMWithRiemannianPipeline(
             "mean",
@@ -474,7 +474,7 @@ class QuantumMDMVotingClassifier(BasePipeline):
             self.q_account_token,
             self.verbose,
             self.shots,
-            self.gen_feature_map,
+            self.upper_bound,
         )
 
         return make_pipeline(
