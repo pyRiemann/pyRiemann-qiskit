@@ -182,7 +182,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         n_features = get_feature_dimension(self._training_input)
         self._log("Feature dimension = ", n_features)
-        self._feature_map = self.gen_feature_map(n_features)
+        if hasattr(self, "gen_feature_map") and self.gen_feature_map is not None: 
+            self._feature_map = self.gen_feature_map(n_features)
         if self.quantum:
             if not hasattr(self, "_backend"):
                 devices = get_devices(self._provider, n_features)
