@@ -109,19 +109,14 @@ pipelines["RG+LDA"] = make_pipeline(
 ##############################################################################
 
 scores = {}
-mean_score = 0
 
 for key, pipeline in pipelines.items():
     pipeline.fit(X_train, y_train)
     y_pred = pipeline.predict(X_test)
     score = balanced_accuracy_score(y_test, y_pred)
     scores[key] = score
-    mean_score += score
-
-mean_score /= len(pipelines)
 
 print("Scores: ", scores)
-print("Mean score: ", mean_score)
 
 ##############################################################################
 # Compare score between PR and main
@@ -129,11 +124,16 @@ print("Mean score: ", mean_score)
 #
 ##############################################################################
 
-pr_score = os.getenv("PR_SCORE")
-if pr_score is None:
-    os.environ["PR_SCORE"] = str(mean_score)
-else:
-    success = "1" if float(pr_score) >= mean_score else "0"
-    print("Success: ", success)
-    # mean_score is score in main branch
-    os.environ["SUCCESS"] = success
+success = True
+
+for key, score in scores.items():
+    pr_score = os.getenv(f"PR_SCORE_{key}")
+    if pr_score is None:
+        # PR branch
+        os.environ["PR_SCORE_{key}"] = str(score)
+    else:
+        # Main branch
+        success = success and (True if float(pr_score) >= score else False)
+        
+print("Success: ", success)
+os.environ["SUCCESS"] = success
