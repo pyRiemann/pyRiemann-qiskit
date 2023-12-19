@@ -331,9 +331,8 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         If true, will output all intermediate results and logs.
     shots : int (default:1024)
         Number of repetitions of each circuit, for sampling.
-    gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
-                      (default : Callable[int, XFeatureMap])
-        Function generating a feature map to encode data into a quantum state.
+    upper_bound : int (default: 7)
+        The maximum integer value for matrix normalization.
 
     Attributes
     ----------
@@ -352,19 +351,19 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
 
     def __init__(
         self,
-        convex_metric="distance",
-        quantum=True,
-        q_account_token=None,
-        verbose=True,
-        shots=1024,
-        gen_feature_map=gen_zz_feature_map(),
+        convex_metric = "distance",
+        quantum = True,
+        q_account_token = None,
+        verbose = True,
+        shots = 1024,
+        upper_bound = 7
     ):
         self.convex_metric = convex_metric
         self.quantum = quantum
         self.q_account_token = q_account_token
         self.verbose = verbose
         self.shots = shots
-        self.gen_feature_map = gen_feature_map
+        self.upper_bound = upper_bound
 
         BasePipeline.__init__(self, "QuantumMDMWithRiemannianPipeline")
 
@@ -390,12 +389,12 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
             filtering = NoDimRed()
 
         clf = QuanticMDM(
-            metric,
-            self.quantum,
-            self.q_account_token,
-            self.verbose,
-            self.shots,
-            self.gen_feature_map,
+            metric = metric,
+            quantum = self.quantum,
+            q_account_token = self.q_account_token,
+            verbose = self.verbose,
+            shots = self.shots,
+            upper_bound = self.upper_bound,
         )
 
         return make_pipeline(covariances, filtering, clf)

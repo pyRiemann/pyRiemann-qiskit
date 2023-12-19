@@ -619,11 +619,10 @@ class QuanticMDM(QuanticClassifierBase):
         If true, will output all intermediate results and logs.
     shots : int (default:1024)
         Number of repetitions of each circuit, for sampling.
-    gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
-                      (default : Callable[int, ZZFeatureMap])
-        Function generating a feature map to encode data into a quantum state.
     seed: int | None (default: None)
         Random seed for the simulation
+    upper_bound : int (default: 7)
+        The maximum integer value for matrix normalization.
 
     See Also
     --------
@@ -651,13 +650,14 @@ class QuanticMDM(QuanticClassifierBase):
         q_account_token=None,
         verbose=True,
         shots=1024,
-        gen_feature_map=gen_zz_feature_map(),
         seed=None,
+        upper_bound = 7,
     ):
         QuanticClassifierBase.__init__(
-            self, quantum, q_account_token, verbose, shots, gen_feature_map, seed
+            self, quantum, q_account_token, verbose, shots, None, seed
         )
         self.metric = metric
+        self.upper_bound = upper_bound
 
     def _init_algo(self, n_features):
         self._log("Convex MDM initiating algorithm")
@@ -665,7 +665,7 @@ class QuanticMDM(QuanticClassifierBase):
         if self.quantum:
             self._log("Using NaiveQAOAOptimizer")
             self._optimizer = NaiveQAOAOptimizer(
-                quantum_instance=self._quantum_instance, upper_bound=7
+                quantum_instance=self._quantum_instance, upper_bound = self.upper_bound
             )
         else:
             self._log("Using ClassicalOptimizer (COBYLA)")
