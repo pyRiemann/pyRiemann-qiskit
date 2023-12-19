@@ -134,6 +134,6 @@ for key, score in scores.items():
     else:
         # Main branch
         success = success and (True if float(pr_score) >= score else False)
-        
+
 print("Success: ", success)
 os.environ["SUCCESS"] = success
