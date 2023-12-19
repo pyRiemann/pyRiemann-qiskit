@@ -17,15 +17,18 @@ from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.preprocessing import LabelEncoder
-import warnings
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.decomposition import PCA
 from moabb import set_log_level
 from moabb.datasets import bi2012
 from moabb.paradigms import P300
+from pyriemann_qiskit.utils import distance, mean  # noqa
 from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
+    QuantumMDMWithRiemannianPipeline,
 )
-from sklearn.decomposition import PCA
+import warnings
+import os
 
 print(__doc__)
 
@@ -39,11 +42,9 @@ warnings.filterwarnings("ignore")
 set_log_level("info")
 
 ##############################################################################
-# Create Pipelines
+# Prepare data
 # ----------------
 #
-# Pipelines must be a dict of sklearn pipeline transformer.
-
 ##############################################################################
 
 paradigm = P300(resample=128)
@@ -52,18 +53,42 @@ dataset = bi2012()  # MOABB provides several other P300 datasets
 
 X, y, _ = paradigm.get_data(dataset, subjects=[1])
 
+# Reduce the dataset size for Ci
+_, X, _, y = train_test_split(X, y, test_size=0.7, random_state=42, stratify=y)
+
 y = LabelEncoder().fit_transform(y)
 
+# Separate into train and test
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.33, random_state=42
+    X, y, test_size=0.33, random_state=42, stratify=y
 )
+
+##############################################################################
+# Create Pipelines
+# ----------------
+#
+# Pipelines must be a dict of sklearn pipeline transformer.
+#
+##############################################################################
 
 pipelines = {}
 
-pipelines["RG+QuantumSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=512,
+pipelines["RG+QSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
+    shots=100,
     nfilter=2,
     dim_red=PCA(n_components=5),
+)
+
+pipelines["RG+VQC"] = QuantumClassifierWithDefaultRiemannianPipeline(
+    shots=100, spsa_trials=5, two_local_reps=2
+)
+
+pipelines["QMDM-mean"] = QuantumMDMWithRiemannianPipeline(
+    convex_metric="mean", quantum=True
+)
+
+pipelines["QMDM-dist"] = QuantumMDMWithRiemannianPipeline(
+    convex_metric="distance", quantum=True
 )
 
 pipelines["RG+LDA"] = make_pipeline(
@@ -73,9 +98,15 @@ pipelines["RG+LDA"] = make_pipeline(
         xdawn_estimator="scm",
     ),
     TangentSpace(),
-    PCA(n_components=10),
+    PCA(n_components=5),
     LDA(solver="lsqr", shrinkage="auto"),
 )
+
+##############################################################################
+# Compute score
+# --------------
+#
+##############################################################################
 
 scores = {}
 
@@ -85,5 +116,24 @@ for key, pipeline in pipelines.items():
     score = balanced_accuracy_score(y_test, y_pred)
     scores[key] = score
 
-
 print("Scores: ", scores)
+
+##############################################################################
+# Compare score between PR and main
+# ---------------------------------
+#
+##############################################################################
+
+success = True
+
+for key, score in scores.items():
+    pr_score = os.getenv(f"PR_SCORE_{key}")
+    if pr_score is None:
+        # PR branch
+        os.environ["PR_SCORE_{key}"] = str(score)
+    else:
+        # Main branch
+        success = success and (True if float(pr_score) >= score else False)
+
+print("Success: ", success)
+os.environ["SUCCESS"] = "1" if success else "0"

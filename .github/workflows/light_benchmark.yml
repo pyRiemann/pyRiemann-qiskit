@@ -6,11 +6,13 @@ on:
     - 'pyriemann_qiskit/**'
     - 'examples/**'
     - '.github/workflows/light_benchmark.yml'
+    - 'benchmarks/light_benchmark.py'
   pull_request:
     paths:
     - 'pyriemann_qiskit/**'
     - 'examples/**'
     - '.github/workflows/light_benchmark.yml'
+    - 'benchmarks/light_benchmark.py'
 
 jobs:
   light_benchmark:
@@ -37,3 +39,9 @@ jobs:
       - name: Run benchmark script (main)
         run: |
           python benchmarks/light_benchmark.py
+      - name: Compare performance
+        run: |
+          echo $PR_SCORE
+          if [[ "$SUCCESS" == "0" ]]; then
+            exit 1
+          fi

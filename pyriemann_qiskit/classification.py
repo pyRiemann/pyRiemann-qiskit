@@ -27,7 +27,7 @@ from sklearn.svm import SVC
 from .utils.hyper_params_factory import gen_zz_feature_map, gen_two_local, get_spsa
 from .utils import get_provider, get_devices, get_simulator
 
-logger.level = logging.INFO
+logger.level = logging.WARNING
 
 
 class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
