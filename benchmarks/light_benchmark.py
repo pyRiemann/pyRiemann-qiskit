@@ -136,4 +136,4 @@ for key, score in scores.items():
         success = success and (True if float(pr_score) >= score else False)
 
 print("Success: ", success)
-os.environ["SUCCESS"] = success
+os.environ["SUCCESS"] = "1" if success else "0"
