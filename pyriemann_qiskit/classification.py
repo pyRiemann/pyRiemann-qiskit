@@ -182,7 +182,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
         n_features = get_feature_dimension(self._training_input)
         self._log("Feature dimension = ", n_features)
-        if hasattr(self, "gen_feature_map") and self.gen_feature_map is not None: 
+        if hasattr(self, "gen_feature_map") and self.gen_feature_map is not None:
             self._feature_map = self.gen_feature_map(n_features)
         if self.quantum:
             if not hasattr(self, "_backend"):
@@ -652,7 +652,7 @@ class QuanticMDM(QuanticClassifierBase):
         verbose=True,
         shots=1024,
         seed=None,
-        upper_bound = 7,
+        upper_bound=7,
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -666,7 +666,7 @@ class QuanticMDM(QuanticClassifierBase):
         if self.quantum:
             self._log("Using NaiveQAOAOptimizer")
             self._optimizer = NaiveQAOAOptimizer(
-                quantum_instance=self._quantum_instance, upper_bound = self.upper_bound
+                quantum_instance=self._quantum_instance, upper_bound=self.upper_bound
             )
         else:
             self._log("Using ClassicalOptimizer (COBYLA)")

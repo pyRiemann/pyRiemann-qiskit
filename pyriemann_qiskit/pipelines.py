@@ -351,12 +351,12 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
 
     def __init__(
         self,
-        convex_metric = "distance",
-        quantum = True,
-        q_account_token = None,
-        verbose = True,
-        shots = 1024,
-        upper_bound = 7
+        convex_metric="distance",
+        quantum=True,
+        q_account_token=None,
+        verbose=True,
+        shots=1024,
+        upper_bound=7,
     ):
         self.convex_metric = convex_metric
         self.quantum = quantum
@@ -389,12 +389,12 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
             filtering = NoDimRed()
 
         clf = QuanticMDM(
-            metric = metric,
-            quantum = self.quantum,
-            q_account_token = self.q_account_token,
-            verbose = self.verbose,
-            shots = self.shots,
-            upper_bound = self.upper_bound,
+            metric=metric,
+            quantum=self.quantum,
+            q_account_token=self.q_account_token,
+            verbose=self.verbose,
+            shots=self.shots,
+            upper_bound=self.upper_bound,
         )
 
         return make_pipeline(covariances, filtering, clf)
