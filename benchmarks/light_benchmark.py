@@ -28,7 +28,7 @@ from pyriemann_qiskit.pipelines import (
     QuantumMDMWithRiemannianPipeline,
 )
 import warnings
-import os
+import sys
 
 print(__doc__)
 
@@ -43,7 +43,7 @@ set_log_level("info")
 
 ##############################################################################
 # Prepare data
-# ----------------
+# -------------
 #
 ##############################################################################
 
@@ -73,25 +73,25 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 pipelines = {}
 
-pipelines["RG+QSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
+pipelines["RG_QSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
     shots=100,
     nfilter=2,
     dim_red=PCA(n_components=5),
 )
 
-pipelines["RG+VQC"] = QuantumClassifierWithDefaultRiemannianPipeline(
+pipelines["RG_VQC"] = QuantumClassifierWithDefaultRiemannianPipeline(
     shots=100, spsa_trials=5, two_local_reps=2
 )
 
-pipelines["QMDM-mean"] = QuantumMDMWithRiemannianPipeline(
+pipelines["QMDM_mean"] = QuantumMDMWithRiemannianPipeline(
     convex_metric="mean", quantum=True
 )
 
-pipelines["QMDM-dist"] = QuantumMDMWithRiemannianPipeline(
+pipelines["QMDM_dist"] = QuantumMDMWithRiemannianPipeline(
     convex_metric="distance", quantum=True
 )
 
-pipelines["RG+LDA"] = make_pipeline(
+pipelines["RG_LDA"] = make_pipeline(
     XdawnCovariances(
         nfilter=2,
         estimator="lwf",
@@ -119,21 +119,26 @@ for key, pipeline in pipelines.items():
 print("Scores: ", scores)
 
 ##############################################################################
-# Compare score between PR and main
-# ---------------------------------
+# Compare scores between PR and main branches
+# -------------------------------------------
 #
 ##############################################################################
 
-success = True
 
-for key, score in scores.items():
-    pr_score = os.getenv(f"PR_SCORE_{key}")
-    if pr_score is None:
-        # PR branch
-        os.environ["PR_SCORE_{key}"] = str(score)
-    else:
-        # Main branch
+def set_output(key: str, value: str):
+    print(f"::set-output name={key}::{value}")
+
+
+is_pr = sys.argv[1] == "pr"
+
+if is_pr:
+    for key, score in scores.items():
+        set_output(key, score)
+else:
+    success = True
+    i = 0
+    for key, score in scores.items():
+        i = i + 1
+        pr_score = sys.argv[i]
         success = success and (True if float(pr_score) >= score else False)
-
-print("Success: ", success)
-os.environ["SUCCESS"] = "1" if success else "0"
+    set_output("success", "1" if success else "0")
