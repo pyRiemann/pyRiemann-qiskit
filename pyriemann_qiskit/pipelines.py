@@ -9,7 +9,7 @@ from pyriemann.tangentspace import TangentSpace
 from pyriemann.preprocessing import Whitening
 from pyriemann_qiskit.utils.filtering import NoDimRed
 from pyriemann_qiskit.utils.hyper_params_factory import (
-    #gen_zz_feature_map,
+    # gen_zz_feature_map,
     gen_x_feature_map,
     gen_two_local,
     get_spsa,
