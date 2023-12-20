@@ -450,7 +450,7 @@ class QuantumMDMVotingClassifier(BasePipeline):
         q_account_token=None,
         verbose=True,
         shots=1024,
-        upper_bound=7
+        upper_bound=7,
     ):
         self.quantum = quantum
         self.q_account_token = q_account_token
