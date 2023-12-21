@@ -7,6 +7,7 @@ on:
     - 'examples/**'
     - '.github/workflows/light_benchmark.yml'
     - 'benchmarks/light_benchmark.py'
+    - 'setup.py'
 
 jobs:
   light_benchmark:
