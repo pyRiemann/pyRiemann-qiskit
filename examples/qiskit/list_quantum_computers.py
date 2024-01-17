@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 
-Lists information for 3 real Quantum computers each with 127 qubits: 'ibm_brisbane','ibm_kyoto', 'ibm_osaka'
+Lists information for 3 real Quantum computers each with 127 qubits:
+'ibm_brisbane','ibm_kyoto', 'ibm_osaka'
 
 Author: Anton Andreev
 
