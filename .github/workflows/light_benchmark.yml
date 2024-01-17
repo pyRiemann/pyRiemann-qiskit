@@ -1,12 +1,6 @@
 name: Light Benchmark
 
 on:
-  push:
-    paths:
-    - 'pyriemann_qiskit/**'
-    - 'examples/**'
-    - '.github/workflows/light_benchmark.yml'
-    - 'benchmarks/light_benchmark.py'
   pull_request:
     paths:
     - 'pyriemann_qiskit/**'
@@ -28,8 +22,9 @@ jobs:
         run: |
           pip install .[docs]
       - name: Run benchmark script (PR)
+        id: run-benchmark-pr
         run: |
-          python benchmarks/light_benchmark.py
+          python benchmarks/light_benchmark.py pr
       - uses: actions/checkout@v4
         with:
           ref: 'main'
@@ -37,11 +32,12 @@ jobs:
         run: |
           pip install .[docs]
       - name: Run benchmark script (main)
+        id: run-benchmark-main
         run: |
-          python benchmarks/light_benchmark.py
+          python benchmarks/light_benchmark.py ${{steps.run-benchmark-pr.outputs.RG_QSVM}} ${{steps.run-benchmark-pr.outputs.RG_VQC}} ${{steps.run-benchmark-pr.outputs.QMDM_mean}} ${{steps.run-benchmark-pr.outputs.QMDM_dist}} ${{steps.run-benchmark-pr.outputs.RG_LDA}}
       - name: Compare performance
         run: |
-          echo $PR_SCORE
-          if [[ "$SUCCESS" == "0" ]]; then
+          echo ${{steps.run-benchmark-main.outputs.success}}
+          if [[ "${{steps.run-benchmark-main.outputs.success}}" == "0" ]]; then
             exit 1
           fi
