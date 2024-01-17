@@ -19,12 +19,12 @@ def get_provider():
     .. versionchanged:: 0.1.0
         IBMProvider is not a static API anymore but need to be instanciated.
     """
-    
+
     from qiskit.providers.ibmq import IBMQ
     IBMQ.load_account()
-    
+
     provider = IBMQ.get_provider(hub='ibm-q')
-    
+
     return provider
 
 
@@ -44,19 +44,19 @@ def get_simulator():
     -----
     .. versionadded:: 0.0.4
     """
-    
+
     from qiskit.providers.ibmq import IBMQ
     IBMQ.load_account() #use q_account_token="load_account" in your main code
-    
+
     provider = IBMQ.get_provider(hub='ibm-q')
     backend_names = ['ibm_brisbane','ibm_kyoto', 'ibm_osaka']
     backend = provider.get_backend(backend_names[1])
-    
+
     if "GPU" in backend.available_devices():
         backend.set_options(device="GPU")
     else:
         print("GPU optimization disabled. No device found.")
-    
+
     return backend
 
 
