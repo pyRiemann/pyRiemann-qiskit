@@ -118,7 +118,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                 self._log("Real quantum computation will be performed")
                 if not self.q_account_token == "load_account":
                     IBMProvider.delete_account()
-                    IBMProvider.save_account(token=self.q_account_token, hub="ibm-q")
+                    IBMProvider.save_account(token=self.q_account_token)
                 self._log("Getting provider...")
                 self._provider = get_provider()
             else:
