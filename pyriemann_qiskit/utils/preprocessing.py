@@ -1,5 +1,5 @@
 from sklearn.base import TransformerMixin
-
+from sklearn.preprocessing import RobustScaler
 
 class NDRobustScaler(TransformerMixin):
     """Apply one robust scaler by feature.
