@@ -35,7 +35,7 @@ from sklearn.experimental import enable_halving_search_cv  # noqa
 from sklearn.model_selection import HalvingGridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import RobustScaler, LabelEncoder
+from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import balanced_accuracy_score
@@ -44,6 +44,7 @@ from pyriemann.preprocessing import Whitening
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.utils.viz import plot_waveforms
 from pyriemann_qiskit.classification import QuanticSVM
+from pyriemann_qiskit.utils.preprocessing import NDRobustScaler
 from matplotlib import pyplot as plt
 import warnings
 import pandas as pd
@@ -85,7 +86,7 @@ def plot_ERP(X, title, n=10, ylim=None, add_digest=False):
 
 
 def merge_2axes(fig1, fig2, file_name1="f1.png", file_name2="f2.png"):
-    # Modified from [5]
+    # Modified from [4]
     fig1.savefig(file_name1)
     fig2.savefig(file_name2)
     plt.close(fig1)
@@ -174,9 +175,6 @@ features["FECHA_ALTA_CLIENTE"] = features["FECHA_ALTA_CLIENTE"].apply(
     lambda x: 2023 - x.year
 )
 
-# features["PK_TSINSERCION"] = pd.to_datetime(features["PK_TSINSERCION"])
-# features["PK_TSINSERCION"] = features["PK_TSINSERCION"].apply(lambda x: x.value)
-
 # Let's encode our categorical variables (LabelEncoding):
 # features["IP_TERMINAL"] = features["IP_TERMINAL"].astype("category").cat.codes
 le = LabelEncoder()
@@ -214,28 +212,6 @@ class ToEpochs(TransformerMixin, BaseEstimator):
             all_epochs.append(np.transpose(epoch))
         all_epochs = np.array(all_epochs)
         return all_epochs
-
-
-# Apply one scaler by channel:
-# See Stackoverflow link for more details [4]
-class NDRobustScaler(TransformerMixin):
-    def __init__(self):
-        self._scalers = []
-
-    def fit(self, X, y=None, **kwargs):
-        _, n_channels, _ = X.shape
-        self._scalers = []
-        for i in range(n_channels):
-            scaler = RobustScaler()
-            scaler.fit(X[:, i, :])
-            self._scalers.append(scaler)
-        return self
-
-    def transform(self, X, **kwargs):
-        n_channels = len(self._scalers)
-        for i in range(n_channels):
-            X[:, i, :] = self._scalers[i].transform(X[:, i, :])
-        return X
 
 
 def slim(x, keep_diagonal=True):
@@ -491,6 +467,4 @@ print("ID involved in probable collusion: ", high_warning_id)
 #         https://zenodo.org/records/7418458
 # .. [3] https://pyriemann.readthedocs.io/en/latest/auto_examples/ERP/plot_ERP.html
 #
-#    [4] https://stackoverflow.com/questions/50125844/how-to-standard-scale-a-3d-matrix
-#
-#    [5] https://stackoverflow.com/questions/16748577
+#    [4] https://stackoverflow.com/questions/16748577
