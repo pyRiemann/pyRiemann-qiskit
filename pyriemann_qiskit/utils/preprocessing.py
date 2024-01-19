@@ -1,5 +1,6 @@
 from sklearn.base import TransformerMixin
 
+
 class NDRobustScaler(TransformerMixin):
     """Apply one robust scaler by feature.
 
@@ -14,6 +15,7 @@ class NDRobustScaler(TransformerMixin):
     -----
     .. versionadded:: 0.2.0
     """
+
     def __init__(self):
         self._scalers = []
 
@@ -30,7 +32,8 @@ class NDRobustScaler(TransformerMixin):
     -------
     self : NDRobustScaler instance
         The NDRobustScaler instance.
-    """  
+    """
+
     def fit(self, X, _y=None, **kwargs):
         _, n_features, _ = X.shape
         self._scalers = []
@@ -53,7 +56,8 @@ class NDRobustScaler(TransformerMixin):
     -------
     self : NDRobustScaler instance
         The NDRobustScaler instance.
-    """ 
+    """
+
     def transform(self, X, **kwargs):
         n_features = len(self._scalers)
         for i in range(n_features):
