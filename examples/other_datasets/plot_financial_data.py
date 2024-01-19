@@ -467,4 +467,4 @@ print("ID involved in probable collusion: ", high_warning_id)
 #         https://zenodo.org/records/7418458
 # .. [3] https://pyriemann.readthedocs.io/en/latest/auto_examples/ERP/plot_ERP.html
 #
-#    [4] https://stackoverflow.com/questions/16748577
+# .. [4] https://stackoverflow.com/questions/16748577
