@@ -1,4 +1,3 @@
-import pytest
 import numpy as np
 from pyriemann_qiskit.utils.preprocessing import NDRobustScaler
 from sklearn.preprocessing import RobustScaler
