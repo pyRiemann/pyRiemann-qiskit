@@ -10,6 +10,8 @@ class NdRobustScaler(TransformerMixin):
     References
     ----------
     .. [1] \
+        https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.RobustScaler.html
+    .. [2] \
         https://stackoverflow.com/questions/50125844/how-to-standard-scale-a-3d-matrix
 
     Notes
