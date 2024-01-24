@@ -5,7 +5,7 @@ from sklearn.preprocessing import RobustScaler
 class NdRobustScaler(TransformerMixin):
     """Apply one robust scaler by feature.
 
-    See [1]_ for more details.
+    RobustScaler of scikit-learn [1]_ is adapted to 3d inputs [2]_.
 
     References
     ----------
