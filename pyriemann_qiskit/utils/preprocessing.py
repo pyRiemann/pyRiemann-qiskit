@@ -60,7 +60,9 @@ class NdRobustScaler(TransformerMixin):
     """
 
     def transform(self, X, **kwargs):
-        n_features = len(self._scalers)
+        _, n_features, _ = X.shape
+        if (n_features != len(self._scalers))
+            raise ValueError('Input has not the same number of features as the fitted scaler')
         for i in range(n_features):
             X[:, i, :] = self._scalers[i].transform(X[:, i, :])
         return X
