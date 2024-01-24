@@ -54,6 +54,16 @@ Hyper-parameters generation
     get_spsa
     get_spsa_parameters
 
+Preprocessing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _preprocessing_api:
+.. currentmodule:: pyriemann_qiskit.utils.preprocessing
+
+.. autosummary::
+    :toctree: generated/
+
+    NdRobustScaler
+
 Filtering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. _filtering_api:

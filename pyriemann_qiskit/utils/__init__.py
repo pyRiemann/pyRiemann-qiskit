@@ -1,4 +1,4 @@
-from . import hyper_params_factory, filtering
+from . import hyper_params_factory, filtering, preprocessing
 from .quantum_provider import get_provider, get_devices, get_simulator
 from .math import cov_to_corr_matrix
 from .docplex import (
@@ -23,6 +23,7 @@ from .distance import logeucl_dist_convex
 __all__ = [
     "hyper_params_factory",
     "filtering",
+    "preprocessing",
     "get_provider",
     "get_devices",
     "get_simulator",
