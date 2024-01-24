@@ -62,7 +62,7 @@ Preprocessing
 .. autosummary::
     :toctree: generated/
 
-    NDRobustScaler
+    NdRobustScaler
 
 Filtering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

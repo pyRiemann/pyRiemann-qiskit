@@ -44,7 +44,7 @@ from pyriemann.preprocessing import Whitening
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.utils.viz import plot_waveforms
 from pyriemann_qiskit.classification import QuanticSVM
-from pyriemann_qiskit.utils.preprocessing import NDRobustScaler
+from pyriemann_qiskit.utils.preprocessing import NdRobustScaler
 from matplotlib import pyplot as plt
 import warnings
 import pandas as pd
@@ -69,7 +69,7 @@ warnings.filterwarnings("ignore")
 
 def plot_ERP(X, title, n=10, ylim=None, add_digest=False):
     epochs = ToEpochs(n=n).transform(X)
-    reduced_centered_epochs = NDRobustScaler().fit_transform(epochs)
+    reduced_centered_epochs = NdRobustScaler().fit_transform(epochs)
     fig = plot_waveforms(reduced_centered_epochs, "mean+/-std")
     fig.axes[0].set_title(f"{title} ({len(X)})")
     if ylim is None:
@@ -261,7 +261,7 @@ rf = RandomForestClassifier(random_state=42)
 # then adds at the end a classical SVM
 pipe = make_pipeline(
     ToEpochs(n=10),
-    NDRobustScaler(),
+    NdRobustScaler(),
     XdawnCovariances(nfilter=1),
     OptionalWhitening(process=True, n_components=4),
     SlimVector(keep_diagonal=True),

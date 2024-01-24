@@ -1,14 +1,14 @@
 import numpy as np
-from pyriemann_qiskit.utils.preprocessing import NDRobustScaler
+from pyriemann_qiskit.utils.preprocessing import NdRobustScaler
 from sklearn.preprocessing import RobustScaler
 
 
-def test_ndrobustscaler(get_covmats):
+def test_NdRobustScaler(get_covmats):
     n_matrices, n_features = 5, 3
 
     X = get_covmats(n_matrices, n_features)
 
-    scaler = NDRobustScaler()
+    scaler = NdRobustScaler()
     transformed_X = scaler.fit_transform(X)
 
     assert transformed_X.shape == X.shape
