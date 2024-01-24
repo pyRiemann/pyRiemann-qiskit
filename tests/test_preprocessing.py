@@ -3,7 +3,7 @@ from pyriemann_qiskit.utils.preprocessing import NdRobustScaler
 from sklearn.preprocessing import RobustScaler
 
 
-def test_NdRobustScaler(get_covmats):
+def test_ndrobustscaler(get_covmats):
     n_matrices, n_features = 5, 3
 
     X = get_covmats(n_matrices, n_features)
