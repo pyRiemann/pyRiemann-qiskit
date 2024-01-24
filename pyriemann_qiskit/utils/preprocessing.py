@@ -24,7 +24,7 @@ class NDRobustScaler(TransformerMixin):
 
     Parameters
     ----------
-    X : ndarray, shape (n_matrices, n_samples, n_features)
+    X : ndarray, shape (n_matrices, n_features, n_samples)
         Training matrices.
     _y : ndarray, shape (n_samples,)
         Unused. Kept for scikit-learn compatibility.
