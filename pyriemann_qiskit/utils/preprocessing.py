@@ -39,8 +39,7 @@ class NdRobustScaler(TransformerMixin):
         _, n_features, _ = X.shape
         self._scalers = []
         for i in range(n_features):
-            scaler = RobustScaler()
-            scaler.fit(X[:, i, :])
+            scaler = RobustScaler().fit(X[:, i, :])
             self._scalers.append(scaler)
         return self
 
