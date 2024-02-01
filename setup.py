@@ -45,7 +45,7 @@ setup(name='pyriemann-qiskit',
                         'cvxpy==1.4.1',
                         'scipy==1.11.4',
                         'docplex>=2.21.207',
-                        'firebase_admin==6.2.0',
+                        'firebase_admin==6.4.0',
                         'scikit-learn==1.3.2',
                         'tqdm'
                         ],
