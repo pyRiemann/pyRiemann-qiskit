@@ -1,26 +1,14 @@
 """
 ====================================================================
-Classification of P300 datasets from MOABB using Quantum MDM
+Brain-Invaders with illiteracy classification example
 ====================================================================
 
-The mean and the distance in MDM algorithm are formulated as
-optimization problems. These optimization problems are translated
-to Qiskit using Docplex and additional glue code. These optimizations
-are enabled when we use convex mean or convex distance. This is set
-using the 'convex_metric' parameter of the QuantumMDMWithRiemannianPipeline.
+In this example, we consider the dataset BI_Il which contains 
+all the subjects from Brain Invaders, having an AUC <= 0.7.
 
-Classification can be run either on emulation or real quantum computer.
-
-If you want to use GPU, you need to use qiskit-aer-gpu that will replace
-qiskit-aer. It is only available on Linux.
-
-pip install qiskit-aer-gpu
-
-pip install moabb==0.5.0
-
+Different pipelines (quantum and classical) are benchmarked.
 """
-# Author: Anton Andreev
-# Modified from plot_classify_EEG_tangentspace.py of pyRiemann
+# Author: Gregoire Cattan
 # License: BSD (3-clause)
 
 from enum import Enum
@@ -165,13 +153,15 @@ class PIP(str, Enum):
     xDAWNCov_TsQSVC = "(Q) XdawnCov+TsQSVC"
     Vot_QMDM_Dist_Mean = "(Q) Vot+QMDM+Dist+Mean"
     Vot_QMDM_MDM = "(Q) Vot+QMDM+MDM"
-    Judge_QMDM_MDM_TsLDA = "(Q) GradBoost_QMDM_MDM"
+    Judge_QMDM_MDM_TsLDA = "(Q) Judge_QMDM_MDM"
 
 
 pipelines = {}
 
+# The dataset is particularly long to process.
+# When USE_PLACEHOLDERS is True, 
+# a standard (and fast) Ts+LDA classifier is used.
 USE_PLACEHOLDERS = False
-
 
 def placeholder(key):
     if not USE_PLACEHOLDERS:
