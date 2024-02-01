@@ -4,12 +4,6 @@ Ensemble classifiers.
 import numpy as np
 from sklearn.base import ClassifierMixin
 
-##############################################################################
-# Judge classifier
-# ----------------
-#
-
-
 
 class JudgeClassifier(ClassifierMixin):
 
@@ -56,6 +50,23 @@ class JudgeClassifier(ClassifierMixin):
         self.judge = judge
 
     def fit(self, X, y):
+        """Train c1 and c2.
+        Then Train the judge classifier on the the samples for which
+        c1 and c2 have different predictions.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_samples, n_features) | (n_samples, n_features, n_times)
+            The shape of X (vectors or matrices) should be the same for all classifiers
+            (c1, c2 and judge).
+        y : ndarray, shape (n_samples,)
+            Target vector relative to X.
+
+        Returns
+        -------
+        self : JudgeClassifier instance
+            The JudgeClassifier instance.
+        """
         self.classes_ = np.unique(y)
         y1 = self.c1.fit(X, y).predict(X)
         y2 = self.c2.fit(X, y).predict(X)
@@ -68,6 +79,21 @@ class JudgeClassifier(ClassifierMixin):
             self.judge.fit(X_diff, y_diff)
 
     def predict(self, X):
+        """Calculates the predictions.
+        When c1 and c2 don't have the same prediction, 
+        the judge classifier is used.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_samples, n_features) | (n_samples, n_features, n_times)
+            Input vectors or matrices.
+            The shape of X should be the same for all classifiers.
+
+        Returns
+        -------
+        pred : array, shape (n_samples,)
+            Class labels for samples in X.
+        """
         y1 = self.c1.predict(X)
         y2 = self.c2.predict(X)
         y_pred = y1
@@ -79,6 +105,25 @@ class JudgeClassifier(ClassifierMixin):
         return y_pred
 
     def predict_proba(self, X):
+        """Return the probabilities associated with predictions.
+
+        When c1 and c2 have the same prediction, the
+        returned probability is the average of the probability of c1 and c2.
+
+        When c1 and c2 don't have the same predictions, 
+        the returned probability is the the one of the judge classifier.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_samples, n_features) | (n_samples, n_features, n_times)
+            Input vectors or matrices.
+            The shape of X should be the same for all classifiers.
+
+        Returns
+        -------
+        prob : ndarray, shape (n_samples, n_classes)
+            The probability of the samples for each class in the model
+        """
         y1_proba = self.c1.predict_proba(X)
         y2_proba = self.c2.predict_proba(X)
         y1 = self.c1.predict(X)
