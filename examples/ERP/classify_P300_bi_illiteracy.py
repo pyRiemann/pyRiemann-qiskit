@@ -273,11 +273,3 @@ plt.subplots_adjust(bottom=0.3)
 plt.xticks(rotation=45)
 plt.show()
 
-###############################################################################
-# References
-# ----------
-# .. [1] M. Grossi et al.,
-#       ‘Mixed Quantum–Classical Method for Fraud Detection With Quantum
-#       Feature Selection’,
-#       IEEE Transactions on Quantum Engineering,
-#       doi: 10.1109/TQE.2022.3213474.
