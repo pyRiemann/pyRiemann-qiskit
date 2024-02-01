@@ -1,5 +1,8 @@
 from ._version import __version__
-from . import classification
-from . import pipelines
+from . import (
+        classification,
+        pipelines,
+        ensemble
+    )
 
-__all__ = ["__version__", "classification", "pipelines"]
+__all__ = ["__version__", "classification", "pipelines", "ensemble"]

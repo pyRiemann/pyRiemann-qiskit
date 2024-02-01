@@ -34,6 +34,18 @@ Pipelines
     QuantumMDMVotingClassifier
 
 
+Ensemble
+---------
+.. _ensemble_api:
+.. currentmodule:: pyriemann_qiskit.ensemble
+
+.. autosummary::
+    :toctree: generated/
+    :template: class.rst
+
+    JudgeClassifier
+
+
 Utils function
 --------------
 
