@@ -80,7 +80,7 @@ class JudgeClassifier(ClassifierMixin):
 
     def predict(self, X):
         """Calculates the predictions.
-        When c1 and c2 don't have the same prediction, 
+        When c1 and c2 don't have the same prediction,
         the judge classifier is used.
 
         Parameters
@@ -110,7 +110,7 @@ class JudgeClassifier(ClassifierMixin):
         When c1 and c2 have the same prediction, the
         returned probability is the average of the probability of c1 and c2.
 
-        When c1 and c2 don't have the same predictions, 
+        When c1 and c2 don't have the same predictions,
         the returned probability is the the one of the judge classifier.
 
         Parameters

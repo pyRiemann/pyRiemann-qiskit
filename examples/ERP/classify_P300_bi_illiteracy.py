@@ -3,7 +3,7 @@
 Brain-Invaders with illiteracy classification example
 ====================================================================
 
-In this example, we consider the dataset BI_Il which contains 
+In this example, we consider the dataset BI_Il which contains
 all the subjects from Brain Invaders, having an AUC <= 0.7.
 
 Different pipelines (quantum and classical) are benchmarked.
@@ -102,9 +102,10 @@ class PIP(str, Enum):
 pipelines = {}
 
 # The dataset is particularly long to process.
-# When USE_PLACEHOLDERS is True, 
+# When USE_PLACEHOLDERS is True,
 # a standard (and fast) Ts+LDA classifier is used.
 USE_PLACEHOLDERS = False
+
 
 def placeholder(key):
     if not USE_PLACEHOLDERS:
@@ -272,4 +273,3 @@ plt.legend([], [], frameon=False)
 plt.subplots_adjust(bottom=0.3)
 plt.xticks(rotation=45)
 plt.show()
-
