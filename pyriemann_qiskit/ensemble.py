@@ -3,7 +3,7 @@ Ensemble classifiers.
 """
 import numpy as np
 from sklearn.base import ClassifierMixin, BaseEstimator
-
+from warnings import warn
 
 class JudgeClassifier(BaseEstimator, ClassifierMixin):
 
@@ -71,7 +71,7 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         y1 = self.c1.fit(X, y).predict(X)
         y2 = self.c2.fit(X, y).predict(X)
         mask = np.not_equal(y1, y2)
-        if not mask.all():
+        if not mask.any():
             self.judge.fit(X, y)
         else:
             y_diff = y[mask]
@@ -98,7 +98,7 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         y2 = self.c2.predict(X)
         y_pred = y1
         mask = np.not_equal(y1, y2)
-        if not mask.all():
+        if not mask.any():
             return y_pred
         X_diff = X[mask]
         y_pred[mask] = self.judge.predict(X_diff)
