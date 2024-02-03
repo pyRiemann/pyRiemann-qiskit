@@ -2,7 +2,7 @@
 Ensemble classifiers.
 """
 import numpy as np
-from sklearn.base import ClassifierMixin
+from sklearn.base import ClassifierMixin, BaseEstimator
 
 
 class JudgeClassifier(BaseEstimator, ClassifierMixin):

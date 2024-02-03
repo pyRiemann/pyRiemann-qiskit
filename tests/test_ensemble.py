@@ -2,7 +2,7 @@ from pyriemann_qiskit.ensemble import (
     JudgeClassifier,
 )
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from sklearn.base import ClassifierMixin, BaseEstimator
+from sklearn.base import ClassifierMixin
 from sklearn.model_selection import cross_val_score, StratifiedKFold
 import numpy as np
 
