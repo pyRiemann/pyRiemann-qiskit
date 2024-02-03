@@ -5,8 +5,10 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.base import ClassifierMixin
 import numpy as np
 
+
 def test_canary():
     assert JudgeClassifier() is not None
+
 
 def test_get_set_params():
     X = np.array([[0], [0], [1]])
@@ -17,29 +19,33 @@ def test_get_set_params():
     )
     assert scr.mean() > 0
 
+
 def test_predict():
     X = np.array([[0], [0], [1]])
     y = np.array([0, 0, 1])
+
     class C1(ClassifierMixin):
         def fit(self, _X, _y):
             return self
+
         def predict(self, _X):
             return np.array([0, 1, 1])
-        
+
     class C2(ClassifierMixin):
         def fit(self, _X, _y):
             return self
+
         def predict(self, _X):
-            return np.array([0, 0, 0]) 
+            return np.array([0, 0, 0])
 
     class Judge(ClassifierMixin):
         def fit(self, _X, _y):
             return self
+
         def predict(self, _X):
             # C1 and C2 will disagree on second and third prediction
             # return the true label of the second and third prediction
             return [0, 1]
-    
 
     estimator = JudgeClassifier(C1(), C2(), Judge())
     estimator.fit(X, y)
