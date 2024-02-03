@@ -3,7 +3,7 @@ from pyriemann_qiskit.ensemble import (
 )
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.base import ClassifierMixin
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_score, StratifiedKFold
 import numpy as np
 
 
@@ -47,7 +47,7 @@ def test_predict():
         def predict(self, _X):
             # C1 and C2 will disagree on second and third predictions
             # return the true label of the second and third predictions
-            return [0, 1]
+            return np.array([0, 1])
 
     estimator = JudgeClassifier(C1(), C2(), Judge())
     estimator.fit(X, y)
