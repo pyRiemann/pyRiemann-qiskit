@@ -1,23 +1,23 @@
 from pyriemann_qiskit.ensemble import (
     JudgeClassifier,
 )
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.svm import SVC
 from sklearn.base import ClassifierMixin
 from sklearn.model_selection import cross_val_score, StratifiedKFold
 import numpy as np
 
 
 def test_canary():
-    assert JudgeClassifier(LDA(), LDA(), LDA()) is not None
+    assert JudgeClassifier(SVC(), SVC(), SVC()) is not None
 
 
 def test_get_set_params():
-    X = np.array([[0], [0], [1]])
-    y = np.array([0, 0, 1])
-    estimator = JudgeClassifier(LDA(), LDA(), LDA())
+    X = np.array([[0]*4, [0]*4, [1]*4, [1]*4])
+    y = np.array([0, 0, 1, 1])
+    estimator = JudgeClassifier(SVC(), SVC(), SVC())
     skf = StratifiedKFold(n_splits=2)
     scr = cross_val_score(
-        estimator, X, y, cv=skf, scoring="roc_auc", error_score="raise"
+        estimator, X, y, cv=skf, scoring="accuracy", error_score="raise"
     )
     assert scr.mean() > 0
 
