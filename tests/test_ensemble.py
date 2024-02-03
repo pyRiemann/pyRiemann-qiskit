@@ -41,7 +41,10 @@ def test_predict():
             return np.array([0, 0, 0])
 
     class Judge(ClassifierMixin):
-        def fit(self, _X, _y):
+        def fit(self, X, y):
+            # Check that the two last samples were identified as different
+            assert np.array_equal(X, [0, 1])
+            assert np.array_equal(X, y)
             return self
 
         def predict(self, _X):
