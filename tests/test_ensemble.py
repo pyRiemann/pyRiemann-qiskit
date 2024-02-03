@@ -12,7 +12,7 @@ def test_canary():
 
 
 def test_get_set_params():
-    X = np.array([[0]*4, [0]*4, [1]*4, [1]*4])
+    X = np.array([[0] * 4, [0] * 4, [1] * 4, [1] * 4])
     y = np.array([0, 0, 1, 1])
     estimator = JudgeClassifier(SVC(), SVC(), SVC())
     skf = StratifiedKFold(n_splits=2)
