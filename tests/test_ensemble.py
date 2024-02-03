@@ -3,11 +3,12 @@ from pyriemann_qiskit.ensemble import (
 )
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.base import ClassifierMixin
+from sklearn.model_selection import cross_val_score
 import numpy as np
 
 
 def test_canary():
-    assert JudgeClassifier() is not None
+    assert JudgeClassifier(LDA(), LDA(), LDA()) is not None
 
 
 def test_get_set_params():
@@ -50,4 +51,6 @@ def test_predict():
     estimator = JudgeClassifier(C1(), C2(), Judge())
     estimator.fit(X, y)
     y_pred = estimator.predict(X)
-    assert y_pred == y
+    assert y_pred[0] == y[0]
+    assert y_pred[1] == y[1]
+    assert y_pred[2] == y[2]
