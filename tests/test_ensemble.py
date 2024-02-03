@@ -22,7 +22,7 @@ def test_get_set_params():
     assert scr.mean() > 0
 
 
-def test_predict():
+def test_judge_required():
     X = np.array([[0], [0], [1]])
     y = np.array([0, 0, 1])
 
@@ -56,3 +56,37 @@ def test_predict():
     estimator.fit(X, y)
     y_pred = estimator.predict(X)
     assert np.array_equal(y, y_pred)
+
+
+def test_judge_not_required():
+    X = np.array([[0], [0], [1]])
+    y = np.array([0, 0, 1])
+
+    class C1(ClassifierMixin):
+        def fit(self, _X, _y):
+            return self
+
+        def predict(self, _X):
+            return np.array([0, 0, 1])
+
+    class C2(ClassifierMixin):
+        def fit(self, _X, _y):
+            return self
+
+        def predict(self, _X):
+            return np.array([0, 0, 1])
+
+    class Judge(ClassifierMixin):
+        def fit(self, X_judge, y_judge):
+            # Check that the judge is fit on all the dataset
+            # This is default behavior when the two classifiers agree
+            assert np.array_equal(X, X_judge)
+            assert np.array_equal(y, y_judge)
+
+        def predict(self, _X):
+            # Check the judge is never called on predict as the two classifiers agree
+            assert False
+
+    estimator = JudgeClassifier(C1(), C2(), Judge())
+    estimator.fit(X, y)
+    estimator.predict(X)
