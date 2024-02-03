@@ -5,7 +5,7 @@ import numpy as np
 from sklearn.base import ClassifierMixin
 
 
-class JudgeClassifier(ClassifierMixin):
+class JudgeClassifier(BaseEstimator, ClassifierMixin):
 
     """Judge classifier
 
