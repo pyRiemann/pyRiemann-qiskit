@@ -15,6 +15,7 @@ def test_get_set_params():
     X = np.array([[0], [0], [1]])
     y = np.array([0, 0, 1])
     estimator = JudgeClassifier(LDA(), LDA(), LDA())
+    skf = StratifiedKFold(n_splits=2)
     scr = cross_val_score(
         estimator, X, y, cv=skf, scoring="roc_auc", error_score="raise"
     )
@@ -44,13 +45,11 @@ def test_predict():
             return self
 
         def predict(self, _X):
-            # C1 and C2 will disagree on second and third prediction
-            # return the true label of the second and third prediction
+            # C1 and C2 will disagree on second and third predictions
+            # return the true label of the second and third predictions
             return [0, 1]
 
     estimator = JudgeClassifier(C1(), C2(), Judge())
     estimator.fit(X, y)
     y_pred = estimator.predict(X)
-    assert y_pred[0] == y[0]
-    assert y_pred[1] == y[1]
-    assert y_pred[2] == y[2]
+    assert np.array_equal(y, y_pred)
