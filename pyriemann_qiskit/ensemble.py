@@ -80,6 +80,7 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
 
     def predict(self, X):
         """Calculates the predictions.
+
         When c1 and c2 don't have the same prediction,
         the judge classifier is used.
 
