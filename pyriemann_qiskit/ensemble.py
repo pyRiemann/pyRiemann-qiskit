@@ -9,15 +9,12 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
 
     """Judge classifier
 
-    On this classifier implementation:
-
-    "We trained both the quantum and classical algorithms
-    on the balanced dataset[...].
-    When the two classifiers disagreed on the label of a given transaction
-    in the training set, the transaction was noted.
-    These transactions, a subset of the training data of the balanced dataset,
+    Two classifiers are trained on the balanced dataset.
+    When the two classifiers disagreed on the label of a given input
+    in the training set, the input was noted.
+    These inputs, a subset of the training data of the balanced dataset,
     formed an additional dataset on which a metaclassifier was subsequently
-    trained" [1]_.
+    trained. Adapted from [1]_.
 
     Parameters
     ----------
