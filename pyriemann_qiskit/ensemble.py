@@ -51,6 +51,7 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
 
     def fit(self, X, y):
         """Train c1 and c2.
+
         Then Train the judge classifier on the the samples for which
         c1 and c2 have different predictions.
 
