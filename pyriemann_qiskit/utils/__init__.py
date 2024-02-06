@@ -28,6 +28,7 @@ __all__ = [
     "get_devices",
     "get_simulator",
     "cov_to_corr_matrix",
+    "union_of_diff",
     "square_cont_mat_var",
     "square_int_mat_var",
     "square_bin_mat_var",
