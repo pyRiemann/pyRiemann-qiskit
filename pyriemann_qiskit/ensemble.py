@@ -18,9 +18,10 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
 
     Parameters
     ----------
-    c1 : ClassifierMixin
+    clf1 : ClassifierMixin
         An instance of ClassifierMixin.
-    c2 : ClassifierMixin
+    clf2 : ClassifierMixin
+
         An instance of ClassifierMixin.
     judge : ClassifierMixin
         An instance of ClassifierMixin.
