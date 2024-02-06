@@ -3,6 +3,7 @@
 from pyriemann.utils.covariance import normalize
 import numpy as np
 
+
 def cov_to_corr_matrix(covmat):
     """Convert covariance matrices to correlation matrices.
 
@@ -25,7 +26,7 @@ def cov_to_corr_matrix(covmat):
 
 def union_of_diff(*arrays):
     """Return the position for which at least one of the array
-    as a different value than the others. 
+    as a different value than the others.
 
     e.g.:
 
@@ -62,6 +63,5 @@ def union_of_diff(*arrays):
         s = set({array[i] for array in arrays})
         if len(s) > 0:
             diff[i] = True
-    
-    return np.array(diff)
 
+    return np.array(diff)
