@@ -25,7 +25,7 @@ def cov_to_corr_matrix(covmat):
 
 
 def union_of_diff(*arrays):
-    """Return the position for which at least one of the array
+    """Return the positions for which at least one of the array
     as a different value than the others.
 
     e.g.:
