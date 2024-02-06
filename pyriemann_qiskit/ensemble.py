@@ -42,9 +42,9 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
 
     """
 
-    def __init__(self, c1, c2, judge):
-        self.c1 = c1
-        self.c2 = c2
+    def __init__(self, clf1, clf2, judge):
+        self.clf1 = clf1
+        self.clf2 = clf2
         self.judge = judge
 
     def fit(self, X, y):
@@ -67,8 +67,8 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
             The JudgeClassifier instance.
         """
         self.classes_ = np.unique(y)
-        y1 = self.c1.fit(X, y).predict(X)
-        y2 = self.c2.fit(X, y).predict(X)
+        y1 = self.clf1.fit(X, y).predict(X)
+        y2 = self.clf2.fit(X, y).predict(X)
         mask = np.not_equal(y1, y2)
         if not mask.any():
             self.judge.fit(X, y)
@@ -92,8 +92,8 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         pred : array, shape (n_samples,)
             Class labels for samples in X.
         """
-        y1 = self.c1.predict(X)
-        y2 = self.c2.predict(X)
+        y1 = self.clf1.predict(X)
+        y2 = self.clf2.predict(X)
         y_pred = y1
         mask = np.not_equal(y1, y2)
         if not mask.any():
@@ -122,10 +122,10 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         prob : ndarray, shape (n_samples, n_classes)
             The probability of the samples for each class in the model
         """
-        y1_proba = self.c1.predict_proba(X)
-        y2_proba = self.c2.predict_proba(X)
-        y1 = self.c1.predict(X)
-        y2 = self.c2.predict(X)
+        y1_proba = self.clf1.predict_proba(X)
+        y2_proba = self.clf2.predict_proba(X)
+        y1 = self.clf1.predict(X)
+        y2 = self.clf2.predict(X)
         predict_proba = (y1_proba + y2_proba) / 2
         mask = np.not_equal(y1, y2)
         if not mask.all():
