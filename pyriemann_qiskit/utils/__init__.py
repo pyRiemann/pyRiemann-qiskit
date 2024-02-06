@@ -1,6 +1,6 @@
 from . import hyper_params_factory, filtering, preprocessing
 from .quantum_provider import get_provider, get_devices, get_simulator
-from .math import cov_to_corr_matrix
+from .math import cov_to_corr_matrix, union_of_diff
 from .docplex import (
     square_cont_mat_var,
     square_int_mat_var,

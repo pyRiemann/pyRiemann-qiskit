@@ -134,6 +134,7 @@ Math
     :toctree: generated/
 
     cov_to_corr_matrix
+    union_of_diff
 
 Firebase
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
