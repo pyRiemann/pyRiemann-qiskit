@@ -26,7 +26,7 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
     judge : ClassifierMixin
         An instance of ClassifierMixin.
         This classifier is trained on the labels for which
-        c1 and c2 obtain different predictions.
+        clf1 and clf2 obtain different predictions.
 
     Notes
     -----
@@ -48,16 +48,16 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         self.judge = judge
 
     def fit(self, X, y):
-        """Train c1 and c2.
+        """Train clf1 and clf2.
 
         Then Train the judge classifier on the the samples for which
-        c1 and c2 have different predictions.
+        clf1 and clf2 have different predictions.
 
         Parameters
         ----------
         X : ndarray, shape (n_samples, n_features) | (n_samples, n_features, n_times)
             The shape of X (vectors or matrices) should be the same for all classifiers
-            (c1, c2 and judge).
+            (clf1, clf2 and judge).
         y : ndarray, shape (n_samples,)
             Target vector relative to X.
 
@@ -78,7 +78,7 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
     def predict(self, X):
         """Calculates the predictions.
 
-        When c1 and c2 don't have the same prediction,
+        When clf1 and clf2 don't have the same prediction,
         the judge classifier is used.
 
         Parameters
@@ -105,10 +105,10 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
     def predict_proba(self, X):
         """Return the probabilities associated with predictions.
 
-        When c1 and c2 have the same prediction, the
-        returned probability is the average of the probability of c1 and c2.
+        When clf1 and clf2 have the same prediction, the
+        returned probability is the average of the probability of clf1 and clf2.
 
-        When c1 and c2 don't have the same predictions,
+        When clf1 and clf2 don't have the same predictions,
         the returned probability is the the one of the judge classifier.
 
         Parameters
