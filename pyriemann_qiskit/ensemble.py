@@ -73,9 +73,7 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         if not mask.any():
             self.judge.fit(X, y)
         else:
-            y_diff = y[mask]
-            X_diff = X[mask]
-            self.judge.fit(X_diff, y_diff)
+            self.judge.fit(X[mask], y[mask])
 
     def predict(self, X):
         """Calculates the predictions.
