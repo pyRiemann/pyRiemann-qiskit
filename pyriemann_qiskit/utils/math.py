@@ -61,7 +61,7 @@ def union_of_diff(*arrays):
     diff = [False] * size
     for i in range(size):
         s = set({array[i] for array in arrays})
-        if len(s) > 0:
+        if len(s) > 1:
             diff[i] = True
 
     return np.array(diff)
