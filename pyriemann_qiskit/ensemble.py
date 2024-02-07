@@ -10,8 +10,8 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
 
     """Judge classifier
 
-    Two (or more) classifiers are trained on the balanced dataset.
-    When the two classifiers disagreed on the label of a given input
+    Several classifiers are trained on the balanced dataset.
+    When at least one classifier disagrees on the label of a given input
     in the training set, the input was noted.
     These inputs, a subset of the training data of the balanced dataset,
     formed an additional dataset on which a metaclassifier was subsequently
