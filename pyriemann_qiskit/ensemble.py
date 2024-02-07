@@ -48,7 +48,8 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
     def fit(self, X, y):
         """Train all classifiers in clfs.
 
-        Then Train the judge classifier on the the samples for which
+        Then train the judge classifier on the the samples for which
+
         the classifiers have different predictions.
 
         Parameters
