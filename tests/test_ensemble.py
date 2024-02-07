@@ -52,7 +52,7 @@ def test_judge_required():
             # return the true label of the second and third predictions
             return np.array([0, 1])
 
-    estimator = JudgeClassifier(C1(), C2(), Judge())
+    estimator = JudgeClassifier(Judge(), C1(), C2())
     estimator.fit(X, y)
     y_pred = estimator.predict(X)
     assert np.array_equal(y, y_pred)
@@ -87,6 +87,6 @@ def test_judge_not_required():
             # Check the judge is never called on predict as the two classifiers agree
             assert False
 
-    estimator = JudgeClassifier(C1(), C2(), Judge())
+    estimator = JudgeClassifier(Judge(), C1(), C2())
     estimator.fit(X, y)
     estimator.predict(X)
