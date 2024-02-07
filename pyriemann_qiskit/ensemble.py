@@ -40,7 +40,7 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
 
     """
 
-    def __init__(self, judge, *clfs):
+    def __init__(self, judge, clfs):
         self.clfs = clfs
         self.judge = judge
 
@@ -64,7 +64,7 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
             The JudgeClassifier instance.
         """
         self.classes_ = np.unique(y)
-        ys = [clf.fit(X).predict(X) for clf in self.clfs]
+        ys = [clf.fit(X, y).predict(X) for clf in self.clfs]
         mask = union_of_diff(ys)
         if not mask.any():
             self.judge.fit(X, y)
