@@ -80,7 +80,8 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         When the classifiers don't agree on the prediction
         the judge classifier is used.
 
-        The behavior is that if at least one of the classifier
+        The behavior is that if at least one of the classifiers
+
         doesn't have the same prediction for a particular sample,
         then this sample is passed over to the `judge`.
 
