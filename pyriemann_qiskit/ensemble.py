@@ -69,7 +69,7 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         """
         self.classes_ = np.unique(y)
         ys = [clf.fit(X, y).predict(X) for clf in self.clfs]
-        mask = union_of_diff(ys)
+        mask = union_of_diff(*ys)
         if not mask.any():
             self.judge.fit(X, y)
         else:
@@ -103,7 +103,7 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         """
         ys = [clf.predict(X) for clf in self.clfs]
         y_pred = ys[0]
-        mask = union_of_diff(ys)
+        mask = union_of_diff(*ys)
         if not mask.any():
             return y_pred
         X_diff = X[mask]
@@ -134,7 +134,7 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         """
         ys = [clf.predict_proba(X) for clf in self.clfs]
         predict_proba = sum(ys) / len(ys)
-        mask = union_of_diff(ys)
+        mask = union_of_diff(*ys)
         if not mask.all():
             return predict_proba
         X_diff = X[mask]
