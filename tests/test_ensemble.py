@@ -8,7 +8,7 @@ import numpy as np
 
 
 def test_canary():
-    assert JudgeClassifier(SVC(), SVC(), SVC()) is not None
+    assert JudgeClassifier(SVC(), [SVC(), SVC()]) is not None
 
 
 def test_get_set_params():
