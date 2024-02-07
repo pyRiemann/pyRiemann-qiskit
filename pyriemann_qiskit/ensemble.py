@@ -25,7 +25,8 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
     judge : ClassifierMixin
         An instance of ClassifierMixin.
         This classifier is trained on the labels for which
-        clf1 and clf2 obtain different predictions.
+        classifiers clfs obtain different predictions.
+
 
     Notes
     -----
