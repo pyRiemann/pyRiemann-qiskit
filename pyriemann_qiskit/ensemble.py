@@ -56,7 +56,8 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         ----------
         X : ndarray, shape (n_samples, n_features) | (n_samples, n_features, n_times)
             The shape of X (vectors or matrices) should be the same for all classifiers
-            (clf1, clf2 and judge).
+            (clfs and judge).
+
         y : ndarray, shape (n_samples,)
             Target vector relative to X.
 
