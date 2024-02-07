@@ -20,7 +20,8 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
     Parameters
     ----------
     clfs : ClassifierMixin[]
-        An liast of ClassifierMixin.
+        A list of ClassifierMixin.
+
     judge : ClassifierMixin
         An instance of ClassifierMixin.
         This classifier is trained on the labels for which
