@@ -112,8 +112,9 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
     def predict_proba(self, X):
         """Return the probabilities associated with predictions.
 
-        When clf1 and clf2 have the same prediction, the
-        returned probability is the average of the probability of clf1 and clf2.
+        When classifiers clfs have the same prediction, the
+        returned probability is the average of the probability of classifiers.
+
 
         When clf1 and clf2 don't have the same predictions,
         the returned probability is the the one of the judge classifier.
