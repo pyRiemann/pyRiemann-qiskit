@@ -2,6 +2,7 @@
 Ensemble classifiers.
 """
 import numpy as np
+from pyriemann_qiskit.utils import union_of_diff
 from sklearn.base import ClassifierMixin, BaseEstimator
 
 
@@ -9,7 +10,7 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
 
     """Judge classifier
 
-    Two classifiers are trained on the balanced dataset.
+    Two (or more) classifiers are trained on the balanced dataset.
     When the two classifiers disagreed on the label of a given input
     in the training set, the input was noted.
     These inputs, a subset of the training data of the balanced dataset,
@@ -18,11 +19,8 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
 
     Parameters
     ----------
-    clf1 : ClassifierMixin
-        An instance of ClassifierMixin.
-    clf2 : ClassifierMixin
-
-        An instance of ClassifierMixin.
+    clfs : ClassifierMixin[]
+        An liast of ClassifierMixin.
     judge : ClassifierMixin
         An instance of ClassifierMixin.
         This classifier is trained on the labels for which
@@ -42,16 +40,15 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
 
     """
 
-    def __init__(self, clf1, clf2, judge):
-        self.clf1 = clf1
-        self.clf2 = clf2
+    def __init__(self, judge, *clfs):
+        self.clfs = clfs
         self.judge = judge
 
     def fit(self, X, y):
-        """Train clf1 and clf2.
+        """Train all classifiers in clfs.
 
         Then Train the judge classifier on the the samples for which
-        clf1 and clf2 have different predictions.
+        the classifiers have different predictions.
 
         Parameters
         ----------
@@ -67,9 +64,8 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
             The JudgeClassifier instance.
         """
         self.classes_ = np.unique(y)
-        y1 = self.clf1.fit(X, y).predict(X)
-        y2 = self.clf2.fit(X, y).predict(X)
-        mask = np.not_equal(y1, y2)
+        ys = [clf.fit(X).predict(X) for clf in clfs]
+        mask = union_of_diff(ys)
         if not mask.any():
             self.judge.fit(X, y)
         else:
@@ -78,8 +74,12 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
     def predict(self, X):
         """Calculates the predictions.
 
-        When clf1 and clf2 don't have the same prediction,
+        When the classifiers don't agree on the prediction
         the judge classifier is used.
+
+        The behavior is that if at least one of the classifier
+        doesn't have the same prediction for a particular sample,
+        then this sample is passed over to the `judge`.
 
         Parameters
         ----------
@@ -91,11 +91,14 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         -------
         pred : array, shape (n_samples,)
             Class labels for samples in X.
+
+        See also
+        --------
+        union_of_diff
         """
-        y1 = self.clf1.predict(X)
-        y2 = self.clf2.predict(X)
-        y_pred = y1
-        mask = np.not_equal(y1, y2)
+        ys = [clf.predict(X) for clf in self.clfs]
+        y_pred = ys[0]
+        mask = union_of_diff(ys)
         if not mask.any():
             return y_pred
         X_diff = X[mask]
@@ -122,12 +125,9 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         prob : ndarray, shape (n_samples, n_classes)
             The probability of the samples for each class in the model
         """
-        y1_proba = self.clf1.predict_proba(X)
-        y2_proba = self.clf2.predict_proba(X)
-        y1 = self.clf1.predict(X)
-        y2 = self.clf2.predict(X)
-        predict_proba = (y1_proba + y2_proba) / 2
-        mask = np.not_equal(y1, y2)
+        ys = [clf.predict_proba(X) for clf in self.clfs]
+        predict_proba = sum(ys) / len(ys)
+        mask = union_of_diff(ys)
         if not mask.all():
             return predict_proba
         X_diff = X[mask]
