@@ -51,8 +51,8 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         """Train all classifiers in clfs.
 
         Then train the judge classifier on the the samples for which
-
         the classifiers have different predictions.
+
 
         Parameters
         ----------
