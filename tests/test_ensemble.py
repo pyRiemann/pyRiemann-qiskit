@@ -104,12 +104,12 @@ def test_judge_not_required():
             # Check the judge is never called on predict as the two classifiers agree
             assert False
 
-    ## Test with two same classifiers
+    # Test with two same classifiers
     estimator = JudgeClassifier(Judge(), clfs=[clf, clf])
     estimator.fit(X, y)
     estimator.predict(X)
 
-    ## ... and three
+    # ... and three
     estimator = JudgeClassifier(Judge(), clfs=[clf, clf, clf])
     estimator.fit(X, y)
     estimator.predict(X)
