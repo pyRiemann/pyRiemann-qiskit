@@ -104,8 +104,7 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         mask = union_of_diff(*ys)
         if not mask.any():
             return y_pred
-        X_diff = X[mask]
-        y_pred[mask] = self.judge.predict(X_diff)
+        y_pred[mask] = self.judge.predict(X[mask])
         return y_pred
 
     def predict_proba(self, X):
@@ -113,10 +112,8 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
 
         When classifiers clfs have the same prediction, the
         returned probability is the average of the probability of classifiers.
-
         When classifiers don't have the same predictions,
         the returned probability is the the one of the judge classifier.
-
 
         Parameters
         ----------
@@ -134,6 +131,5 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         mask = union_of_diff(*ys)
         if not mask.all():
             return predict_proba
-        X_diff = X[mask]
-        predict_proba[mask] = self.judge.predict_proba(X_diff)
+        predict_proba[mask] = self.judge.predict_proba(X[mask])
         return predict_proba
