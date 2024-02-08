@@ -14,7 +14,8 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
     When at least one classifier disagrees on the label of a given input
     in the training set, the input was noted.
     These inputs, a subset of the training data of the balanced dataset,
-    formed an additional dataset on which a metaclassifier was subsequently
+    formed an additional dataset on which a new classifier was subsequently
+
     trained. Adapted from [1]_.
 
     Parameters
