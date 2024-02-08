@@ -119,8 +119,8 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
 
 
         When classifiers don't have the same predictions,
-
         the returned probability is the the one of the judge classifier.
+
 
         Parameters
         ----------
