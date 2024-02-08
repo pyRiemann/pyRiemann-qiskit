@@ -1,26 +1,14 @@
 """
 ====================================================================
-Classification of P300 datasets from MOABB using Quantum MDM
+Brain-Invaders with illiteracy classification example
 ====================================================================
 
-The mean and the distance in MDM algorithm are formulated as
-optimization problems. These optimization problems are translated
-to Qiskit using Docplex and additional glue code. These optimizations
-are enabled when we use convex mean or convex distance. This is set
-using the 'convex_metric' parameter of the QuantumMDMWithRiemannianPipeline.
+In this example, we consider the dataset BI_Il which contains
+all the subjects from Brain Invaders, having an AUC <= 0.7.
 
-Classification can be run either on emulation or real quantum computer.
-
-If you want to use GPU, you need to use qiskit-aer-gpu that will replace
-qiskit-aer. It is only available on Linux.
-
-pip install qiskit-aer-gpu
-
-pip install moabb==0.5.0
-
+Different pipelines (quantum and classical) are benchmarked.
 """
-# Author: Anton Andreev
-# Modified from plot_classify_EEG_tangentspace.py of pyRiemann
+# Author: Gregoire Cattan
 # License: BSD (3-clause)
 
 from enum import Enum
@@ -39,10 +27,10 @@ from pyriemann.tangentspace import TangentSpace
 from pyriemann.classification import MDM
 from pyriemann.spatialfilters import Xdawn
 from sklearn.ensemble import VotingClassifier
-from sklearn.base import ClassifierMixin
 from sklearn.pipeline import make_pipeline, Pipeline
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.svm import SVC
+from pyriemann_qiskit.ensemble import JudgeClassifier
 
 # inject convex distance and mean to pyriemann (if not done already)
 from pyriemann_qiskit.utils import distance, mean  # noqa
@@ -54,63 +42,6 @@ from pyriemann_qiskit.pipelines import (
 
 
 print(__doc__)
-
-##############################################################################
-# Judge classifier
-# ----------------
-#
-# On this classifier implementation:
-#
-# "We trained both the quantum and classical algorithms
-# on the balanced dataset[...].
-# When the two classifiers disagreed on the label of a given transaction
-# in the training set, the transaction was noted.
-# These transactions, a subset of the training data of the balanced dataset,
-# formed an additional dataset on which a metaclassifier was subsequently
-# trained" [1]_.
-
-
-class JudgeClassifier(ClassifierMixin):
-    def __init__(self, c1, c2, judge):
-        self.c1 = c1
-        self.c2 = c2
-        self.judge = judge
-
-    def fit(self, X, y):
-        self.classes_ = np.unique(y)
-        y1 = self.c1.fit(X, y).predict(X)
-        y2 = self.c2.fit(X, y).predict(X)
-        mask = np.not_equal(y1, y2)
-        if not mask.all():
-            self.judge.fit(X, y)
-        else:
-            y_diff = y[mask]
-            X_diff = X[mask]
-            self.judge.fit(X_diff, y_diff)
-
-    def predict(self, X):
-        y1 = self.c1.predict(X)
-        y2 = self.c2.predict(X)
-        y_pred = y1
-        mask = np.not_equal(y1, y2)
-        if not mask.all():
-            return y_pred
-        X_diff = X[mask]
-        y_pred[mask] = self.judge.predict(X_diff)
-        return y_pred
-
-    def predict_proba(self, X):
-        y1_proba = self.c1.predict_proba(X)
-        y2_proba = self.c2.predict_proba(X)
-        y1 = self.c1.predict(X)
-        y2 = self.c2.predict(X)
-        predict_proba = (y1_proba + y2_proba) / 2
-        mask = np.not_equal(y1, y2)
-        if not mask.all():
-            return predict_proba
-        X_diff = X[mask]
-        predict_proba[mask] = self.judge.predict_proba(X_diff)
-        return predict_proba
 
 
 ##############################################################################
@@ -165,11 +96,14 @@ class PIP(str, Enum):
     xDAWNCov_TsQSVC = "(Q) XdawnCov+TsQSVC"
     Vot_QMDM_Dist_Mean = "(Q) Vot+QMDM+Dist+Mean"
     Vot_QMDM_MDM = "(Q) Vot+QMDM+MDM"
-    Judge_QMDM_MDM_TsLDA = "(Q) GradBoost_QMDM_MDM"
+    Judge_QMDM_MDM_TsLDA = "(Q) Judge_QMDM_MDM"
 
 
 pipelines = {}
 
+# The dataset is particularly long to process.
+# When USE_PLACEHOLDERS is True,
+# a standard (and fast) Ts+LDA classifier is used.
 USE_PLACEHOLDERS = False
 
 
@@ -339,12 +273,3 @@ plt.legend([], [], frameon=False)
 plt.subplots_adjust(bottom=0.3)
 plt.xticks(rotation=45)
 plt.show()
-
-###############################################################################
-# References
-# ----------
-# .. [1] M. Grossi et al.,
-#       ‘Mixed Quantum–Classical Method for Fraud Detection With Quantum
-#       Feature Selection’,
-#       IEEE Transactions on Quantum Engineering,
-#       doi: 10.1109/TQE.2022.3213474.
