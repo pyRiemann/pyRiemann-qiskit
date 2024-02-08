@@ -15,7 +15,6 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
     in the training set, the input was noted.
     These inputs, a subset of the training data of the balanced dataset,
     formed an additional dataset on which a new classifier was subsequently
-
     trained. Adapted from [1]_.
 
     Parameters
@@ -27,7 +26,6 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         An instance of ClassifierMixin.
         This classifier is trained on the labels for which
         classifiers clfs obtain different predictions.
-
 
     Notes
     -----
@@ -83,7 +81,6 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         the judge classifier is used.
 
         The behavior is that if at least one of the classifiers
-
         doesn't have the same prediction for a particular sample,
         then this sample is passed over to the `judge`.
 
@@ -116,7 +113,6 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
 
         When classifiers clfs have the same prediction, the
         returned probability is the average of the probability of classifiers.
-
 
         When classifiers don't have the same predictions,
         the returned probability is the the one of the judge classifier.
