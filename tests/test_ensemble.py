@@ -24,6 +24,7 @@ def test_get_set_params():
     )
     assert scr.mean() > 0
 
+
 class FixedPredClassifier(ClassifierMixin):
     def __init__(self, y_pred) -> None:
         self.y_pred = y_pred
@@ -33,6 +34,7 @@ class FixedPredClassifier(ClassifierMixin):
 
     def predict(self, _X):
         return np.array(self.y_pred)
+
 
 def test_judge_required():
     X = np.array([[0], [0], [1]])
