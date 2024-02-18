@@ -5,6 +5,7 @@ from pyriemann.estimation import Shrinkage
 from pyriemann.utils.base import logm, expm
 import numpy as np
 
+
 def fro_mean_cpm(
     covmats, sample_weight=None, optimizer=ClassicalOptimizer(), shrink=True
 ):
@@ -99,6 +100,7 @@ def le_mean_cpm(
     log_covmats = logm(covmats)
     result = fro_mean_cpm(log_covmats, sample_weight, optimizer, shrink)
     return expm(result)
+
 
 mean_functions["cpm_fro"] = fro_mean_cpm
 mean_functions["cpm_le"] = le_mean_cpm

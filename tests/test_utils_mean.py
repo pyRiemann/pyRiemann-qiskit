@@ -22,9 +22,9 @@ def test_performance(get_covmats, get_labels):
     assert score.mean() > 0
 
 
-@pytest.mark.parametrize("means",
-                         [(mean_euclid, fro_mean_cpm),
-                          (mean_logeuclid, le_mean_cpm)])
+@pytest.mark.parametrize(
+    "means", [(mean_euclid, fro_mean_cpm), (mean_logeuclid, le_mean_cpm)]
+)
 def test_analytic_vs_cpm_mean(get_covmats, means):
     """Test that analytic and cpm mean returns close results"""
     analytic_mean, cpm_mean = means
@@ -33,6 +33,7 @@ def test_analytic_vs_cpm_mean(get_covmats, means):
     C = cpm_mean(covmats, shrink=False)
     C_analytic = analytic_mean(covmats)
     assert np.allclose(C, C_analytic, atol=0.001)
+
 
 def test_mean_cpm_shape(get_covmats):
     """Test the shape of mean"""
