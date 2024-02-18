@@ -582,7 +582,7 @@ class QuanticMDM(QuanticClassifierBase):
 
     """Quantum-enhanced MDM classifier
 
-    This class is a convex implementation of the Minimum Distance to Mean (MDM)
+    This class is a cpm implementation of the Minimum Distance to Mean (MDM)
     [1]_, which can run with quantum optimization.
     Only log-Euclidean distance between trial and class prototypes is supported
     at the moment, but any type of metric can be used for centroid estimation.
@@ -597,7 +597,7 @@ class QuanticMDM(QuanticClassifierBase):
 
     Parameters
     ----------
-    metric : string | dict, default={"mean": 'logeuclid', "distance": 'convex'}
+    metric : string | dict, default={"mean": 'logeuclid', "distance": 'cpm'}
         The type of metric used for centroid and distance estimation.
         see `mean_covariance` for the list of supported metric.
         the metric could be a dict with two keys, `mean` and `distance` in
@@ -606,7 +606,7 @@ class QuanticMDM(QuanticClassifierBase):
         the mean in order to boost the computional speed and 'riemann' for the
         distance in order to keep the good sensitivity for the classification.
     quantum : bool (default: True)
-        Only applies if `metric` contains a convex distance or mean.
+        Only applies if `metric` contains a cpm distance or mean.
 
         - If true will run on local or remote backend
           (depending on q_account_token value),
@@ -646,7 +646,7 @@ class QuanticMDM(QuanticClassifierBase):
 
     def __init__(
         self,
-        metric={"mean": "logeuclid", "distance": "convex"},
+        metric={"mean": "logeuclid", "distance": "cpm_le"},
         quantum=True,
         q_account_token=None,
         verbose=True,
@@ -661,7 +661,7 @@ class QuanticMDM(QuanticClassifierBase):
         self.upper_bound = upper_bound
 
     def _init_algo(self, n_features):
-        self._log("Convex MDM initiating algorithm")
+        self._log("cpm MDM initiating algorithm")
         classifier = MDM(metric=self.metric)
         if self.quantum:
             self._log("Using NaiveQAOAOptimizer")

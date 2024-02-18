@@ -2,12 +2,13 @@ from docplex.mp.model import Model
 from pyriemann.utils.mean import mean_functions
 from pyriemann_qiskit.utils.docplex import ClassicalOptimizer, get_global_optimizer
 from pyriemann.estimation import Shrinkage
+from pyriemann.utils.base import logm, expm
+import numpy as np
 
-
-def fro_mean_convex(
+def fro_mean_cpm(
     covmats, sample_weight=None, optimizer=ClassicalOptimizer(), shrink=True
 ):
-    """Convex formulation of the mean with Frobenius distance.
+    """Constraint Programm Model (CPM) formulation of the mean with Frobenius distance.
 
     Parameters
     ----------
@@ -25,7 +26,7 @@ def fro_mean_convex(
     Returns
     -------
     mean : ndarray, shape (n_channels, n_channels)
-        Convex-optimized Frobenius mean.
+        CPM-optimized Frobenius mean.
 
     Notes
     -----
@@ -66,4 +67,38 @@ def fro_mean_convex(
     return result
 
 
-mean_functions["convex"] = fro_mean_convex
+def le_mean_cpm(
+    covmats, sample_weight=None, optimizer=ClassicalOptimizer(), shrink=True
+):
+    """Constraint Programm Model (CPM) formulation of the mean with log-euclidian distance.
+
+    Parameters
+    ----------
+    covmats: ndarray, shape (n_matrices, n_channels, n_channels)
+        Set of SPD matrices.
+    sample_weights:  None | ndarray, shape (n_matrices,), default=None
+        Weights for each matrix. Never used in practice.
+        It is kept only for standardization with pyRiemann.
+    optimizer: pyQiskitOptimizer
+        An instance of pyQiskitOptimizer.
+    shrink: boolean (default: true)
+        If True, it applies shrinkage regularization [2]_
+        of the resulting covariance matrix.
+
+    Returns
+    -------
+    mean : ndarray, shape (n_channels, n_channels)
+        CPM-optimized Frobenius mean.
+
+    Notes
+    -----
+    .. versionadded:: 0.2.0
+
+    """
+
+    log_covmats = np.array(logm(covmat) for covmat in covmats)
+    result = fro_mean_cpm(log_covmats, sample_weight, optimizer, shrink)
+    return expm(result)
+
+mean_functions["cpm_fro"] = fro_mean_cpm
+mean_functions["cpm_le"] = le_mean_cpm

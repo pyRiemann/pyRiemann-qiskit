@@ -6,8 +6,8 @@ from pyriemann.utils.distance import distance_functions
 from pyriemann.utils.base import logm
 
 
-def logeucl_dist_convex(X, y, optimizer=ClassicalOptimizer()):
-    """Convex formulation of the MDM algorithm with log-Euclidean metric.
+def logeucl_dist_cpm(X, y, optimizer=ClassicalOptimizer()):
+    """Constraint Programming Model (CPM) formulation of the MDM algorithm with log-Euclidean metric.
 
     Parameters
     ----------
@@ -67,9 +67,9 @@ _mdm_predict_distances_original = MDM._predict_distances
 
 
 def predict_distances(mdm, X):
-    if mdm.metric_dist == "convex":
+    if mdm.metric_dist == "cpm_le":
         centroids = np.array(mdm.covmeans_)
-        return np.array([logeucl_dist_convex(centroids, x) for x in X])
+        return np.array([logeucl_dist_cpm(centroids, x) for x in X])
     else:
         return _mdm_predict_distances_original(mdm, X)
 
@@ -78,7 +78,7 @@ MDM._predict_distances = predict_distances
 
 # This is only for validation inside the MDM.
 # In fact, we override the _predict_distances method
-# inside MDM to directly use logeucl_dist_convex when the metric is "convex"
+# inside MDM to directly use logeucl_dist_cpm when the metric is "cpm_le"
 # This is due to the fact the the signature of this method is different from
 # the usual distance functions.
-distance_functions["convex"] = logeucl_dist_convex
+distance_functions["cpm_le"] = logeucl_dist_cpm

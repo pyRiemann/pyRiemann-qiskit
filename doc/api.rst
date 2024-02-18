@@ -96,7 +96,8 @@ Mean
 .. autosummary::
     :toctree: generated/
 
-    fro_mean_convex
+    fro_mean_cpm
+    le_mean_cpm
 
 Distance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -106,7 +107,7 @@ Distance
 .. autosummary::
     :toctree: generated/
 
-    logeucl_dist_convex
+    logeucl_dist_cpm
 
 Docplex
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

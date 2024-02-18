@@ -304,19 +304,19 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
 
 class QuantumMDMWithRiemannianPipeline(BasePipeline):
 
-    """MDM with Riemannian pipeline adapted for convex metrics.
+    """MDM with Riemannian pipeline adapted for cpm metrics.
 
     It can run on classical or quantum optimizer.
 
     Parameters
     ----------
-    convex_metric : string (default: "distance")
+    cpm_metric : string (default: "distance")
         `metric` passed to the inner QuanticMDM depends on the
-        `convex_metric` as follows (convex_metric => metric):
+        `cpm_metric` as follows (cpm_metric => metric):
 
-        - "distance" => {mean=logeuclid, distance=convex},
-        - "mean" => {mean=convex, distance=euclid},
-        - "both" => {mean=convex, distance=convex},
+        - "distance" => {mean=logeuclid, distance=cpm},
+        - "mean" => {mean=cpm, distance=euclid},
+        - "both" => {mean=cpm, distance=cpm},
         - other => same as "distance".
     quantum : bool (default: True)
         - If true will run on local or remote backend
@@ -351,14 +351,14 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
 
     def __init__(
         self,
-        convex_metric="distance",
+        cpm_metric="distance",
         quantum=True,
         q_account_token=None,
         verbose=True,
         shots=1024,
         upper_bound=7,
     ):
-        self.convex_metric = convex_metric
+        self.cpm_metric = cpm_metric
         self.quantum = quantum
         self.q_account_token = q_account_token
         self.verbose = verbose
@@ -368,14 +368,14 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         BasePipeline.__init__(self, "QuantumMDMWithRiemannianPipeline")
 
     def _create_pipe(self):
-        if self.convex_metric == "both":
-            metric = {"mean": "convex", "distance": "convex"}
-        elif self.convex_metric == "mean":
-            metric = {"mean": "convex", "distance": "euclid"}
+        if self.cpm_metric == "both":
+            metric = {"mean": "cpm_le", "distance": "cpm_le"}
+        elif self.cpm_metric == "mean":
+            metric = {"mean": "cpm_le", "distance": "logeuclid"}
         else:
-            metric = {"mean": "logeuclid", "distance": "convex"}
+            metric = {"mean": "logeuclid", "distance": "cpm_le"}
 
-        if metric["mean"] == "convex":
+        if metric["mean"] == "cpm_le":
             if self.quantum:
                 covariances = XdawnCovariances(
                     nfilter=1, estimator="scm", xdawn_estimator="lwf"
@@ -407,8 +407,8 @@ class QuantumMDMVotingClassifier(BasePipeline):
     Voting classifier with two configurations of
     QuantumMDMWithRiemannianPipeline:
 
-    - with mean = convex and distance = euclid,
-    - with mean = logeuclid and distance = convex.
+    - with mean = cpm and distance = euclid,
+    - with mean = logeuclid and distance = cpm.
 
     Parameters
     ----------
@@ -460,7 +460,7 @@ class QuantumMDMVotingClassifier(BasePipeline):
         BasePipeline.__init__(self, "QuantumMDMVotingClassifier")
 
     def _create_pipe(self):
-        clf_mean_logeuclid_dist_convex = QuantumMDMWithRiemannianPipeline(
+        clf_mean_logeuclid_dist_cpm = QuantumMDMWithRiemannianPipeline(
             "distance",
             self.quantum,
             self.q_account_token,
@@ -468,7 +468,7 @@ class QuantumMDMVotingClassifier(BasePipeline):
             self.shots,
             self.upper_bound,
         )
-        clf_mean_convex_dist_euclid = QuantumMDMWithRiemannianPipeline(
+        clf_mean_cpm_dist_euclid = QuantumMDMWithRiemannianPipeline(
             "mean",
             self.quantum,
             self.q_account_token,
@@ -480,8 +480,8 @@ class QuantumMDMVotingClassifier(BasePipeline):
         return make_pipeline(
             VotingClassifier(
                 [
-                    ("mean_logeuclid_dist_convex", clf_mean_logeuclid_dist_convex),
-                    ("mean_convex_dist_euclid ", clf_mean_convex_dist_euclid),
+                    ("mean_logeuclid_dist_cpm", clf_mean_logeuclid_dist_cpm),
+                    ("mean_cpm_dist_euclid ", clf_mean_cpm_dist_euclid),
                 ],
                 voting="soft",
             )
