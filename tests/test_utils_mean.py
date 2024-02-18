@@ -1,16 +1,16 @@
 import pytest
 import numpy as np
-from pyriemann.utils.mean import mean_euclid
+from pyriemann.utils.mean import mean_euclid, mean_logeuclid
 from pyriemann.classification import MDM
 from pyriemann.estimation import XdawnCovariances
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
-from pyriemann_qiskit.utils.mean import fro_mean_cpm
+from pyriemann_qiskit.utils.mean import fro_mean_cpm, le_mean_cpm
 from pyriemann_qiskit.utils import ClassicalOptimizer, NaiveQAOAOptimizer
 
 
 def test_performance(get_covmats, get_labels):
-    metric = {"mean": "cpm_le", "distance": "euclid"}
+    metric = {"mean": "cpm_fro", "distance": "euclid"}
 
     clf = make_pipeline(XdawnCovariances(), MDM(metric=metric))
     skf = StratifiedKFold(n_splits=5)
@@ -22,14 +22,17 @@ def test_performance(get_covmats, get_labels):
     assert score.mean() > 0
 
 
-def test_mean_cpm_vs_euclid(get_covmats):
-    """Test that euclidian and cpm mean returns close results"""
+@pytest.mark.parametrize("means",
+                         [(mean_euclid, fro_mean_cpm),
+                          (mean_logeuclid, le_mean_cpm)])
+def test_analytic_vs_cpm_mean(get_covmats, means):
+    """Test that analytic and cpm mean returns close results"""
+    analytic_mean, cpm_mean = means
     n_trials, n_channels = 5, 3
     covmats = get_covmats(n_trials, n_channels)
-    C = fro_mean_cpm(covmats, shrink=False)
-    C_euclid = mean_euclid(covmats)
-    assert np.allclose(C, C_euclid, atol=0.001)
-
+    C = cpm_mean(covmats, shrink=False)
+    C_analytic = analytic_mean(covmats)
+    assert np.allclose(C, C_analytic, atol=0.001)
 
 def test_mean_cpm_shape(get_covmats):
     """Test the shape of mean"""

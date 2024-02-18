@@ -96,7 +96,7 @@ def le_mean_cpm(
 
     """
 
-    log_covmats = np.array(logm(covmat) for covmat in covmats)
+    log_covmats = logm(covmats)
     result = fro_mean_cpm(log_covmats, sample_weight, optimizer, shrink)
     return expm(result)
 
