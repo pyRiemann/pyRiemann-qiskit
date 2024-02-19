@@ -5,7 +5,7 @@ from pyriemann.classification import MDM
 from pyriemann.estimation import XdawnCovariances
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
-from pyriemann_qiskit.utils.mean import fro_mean_cpm, le_mean_cpm
+from pyriemann_qiskit.utils.mean import mean_euclid_cpm, mean_logeuclid_cpm
 from pyriemann_qiskit.utils import ClassicalOptimizer, NaiveQAOAOptimizer
 
 
@@ -23,7 +23,7 @@ def test_performance(get_covmats, get_labels):
 
 
 @pytest.mark.parametrize(
-    "means", [(mean_euclid, fro_mean_cpm), (mean_logeuclid, le_mean_cpm)]
+    "means", [(mean_euclid, mean_euclid_cpm), (mean_logeuclid, mean_logeuclid_cpm)]
 )
 def test_analytic_vs_cpm_mean(get_covmats, means):
     """Test that analytic and cpm mean returns close results"""
@@ -39,7 +39,7 @@ def test_mean_cpm_shape(get_covmats):
     """Test the shape of mean"""
     n_trials, n_channels = 5, 3
     covmats = get_covmats(n_trials, n_channels)
-    C = fro_mean_cpm(covmats)
+    C = mean_euclid_cpm(covmats)
     assert C.shape == (n_channels, n_channels)
 
 
@@ -49,7 +49,7 @@ def test_mean_cpm_all_zeros(optimizer):
     is a matrix filled with zeros"""
     n_trials, n_channels = 5, 2
     covmats = np.zeros((n_trials, n_channels, n_channels))
-    C = fro_mean_cpm(covmats, optimizer=optimizer, shrink=False)
+    C = mean_euclid_cpm(covmats, optimizer=optimizer, shrink=False)
     assert np.allclose(covmats[0], C, atol=0.001)
 
 
@@ -58,7 +58,7 @@ def test_mean_cpm_all_ones():
     is a matrix filled with ones"""
     n_trials, n_channels = 5, 2
     covmats = np.ones((n_trials, n_channels, n_channels))
-    C = fro_mean_cpm(covmats, shrink=False)
+    C = mean_euclid_cpm(covmats, shrink=False)
     assert np.allclose(covmats[0], C, atol=0.001)
 
 
@@ -67,7 +67,7 @@ def test_mean_cpm_all_equals():
     is a matrix identical to the input"""
     n_trials, n_channels, value = 5, 2, 2.5
     covmats = np.full((n_trials, n_channels, n_channels), value)
-    C = fro_mean_cpm(covmats, shrink=False)
+    C = mean_euclid_cpm(covmats, shrink=False)
     assert np.allclose(covmats[0], C, atol=0.001)
 
 
@@ -78,5 +78,5 @@ def test_mean_cpm_mixed():
     covmats_0 = np.zeros((n_trials, n_channels, n_channels))
     covmats_1 = np.ones((n_trials, n_channels, n_channels))
     expected_mean = np.full((n_channels, n_channels), 0.5)
-    C = fro_mean_cpm(np.concatenate((covmats_0, covmats_1), axis=0), shrink=False)
+    C = mean_euclid_cpm(np.concatenate((covmats_0, covmats_1), axis=0), shrink=False)
     assert np.allclose(expected_mean, C, atol=0.001)

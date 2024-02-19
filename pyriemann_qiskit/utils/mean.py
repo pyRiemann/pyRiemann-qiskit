@@ -9,13 +9,13 @@ import numpy as np
 
 @deprecated(
     "fro_mean_convex is deprecated and will be removed in 0.3.0; "
-    "please use fro_mean_cpm."
+    "please use mean_euclid_cpm."
 )
 def fro_mean_convex():
     pass
 
 
-def fro_mean_cpm(
+def mean_euclid_cpm(
     covmats, sample_weight=None, optimizer=ClassicalOptimizer(), shrink=True
 ):
     """Constraint Programm Model (CPM) formulation of the mean with Frobenius distance.
@@ -77,7 +77,7 @@ def fro_mean_cpm(
     return result
 
 
-def le_mean_cpm(
+def mean_logeuclid_cpm(
     covmats, sample_weight=None, optimizer=ClassicalOptimizer(), shrink=True
 ):
     """Constraint Programm Model (CPM) formulation of the mean with log-euclidian distance.
@@ -107,9 +107,9 @@ def le_mean_cpm(
     """
 
     log_covmats = logm(covmats)
-    result = fro_mean_cpm(log_covmats, sample_weight, optimizer, shrink)
+    result = mean_euclid_cpm(log_covmats, sample_weight, optimizer, shrink)
     return expm(result)
 
 
-mean_functions["cpm_fro"] = fro_mean_cpm
-mean_functions["cpm_le"] = le_mean_cpm
+mean_functions["cpm_fro"] = mean_euclid_cpm
+mean_functions["cpm_le"] = mean_logeuclid_cpm
