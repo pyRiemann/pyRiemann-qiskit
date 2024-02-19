@@ -96,8 +96,8 @@ Mean
 .. autosummary::
     :toctree: generated/
 
-    fro_mean_cpm
-    le_mean_cpm
+    mean_euclid_cpm
+    mean_logeuclid_cpm
 
 Distance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
