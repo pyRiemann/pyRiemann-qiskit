@@ -97,7 +97,7 @@ def le_mean_cpm(
     Returns
     -------
     mean : ndarray, shape (n_channels, n_channels)
-        CPM-optimized Frobenius mean.
+        CPM-optimized Log-Euclidean mean.
 
     Notes
     -----
