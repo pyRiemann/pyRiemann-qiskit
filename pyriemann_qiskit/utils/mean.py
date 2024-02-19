@@ -13,6 +13,7 @@ import numpy as np
 def fro_mean_convex():
     pass
 
+
 def fro_mean_cpm(
     covmats, sample_weight=None, optimizer=ClassicalOptimizer(), shrink=True
 ):
