@@ -6,6 +6,13 @@ from pyriemann.utils.base import logm, expm
 import numpy as np
 
 
+@deprecated(
+    "fro_mean_convex is deprecated and will be removed in 0.3.0; "
+    "please use fro_mean_cpm."
+)
+def fro_mean_convex():
+    pass
+
 def fro_mean_cpm(
     covmats, sample_weight=None, optimizer=ClassicalOptimizer(), shrink=True
 ):
