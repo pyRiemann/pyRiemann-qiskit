@@ -82,11 +82,11 @@ pipelines["RG_VQC"] = QuantumClassifierWithDefaultRiemannianPipeline(
 )
 
 pipelines["QMDM_mean"] = QuantumMDMWithRiemannianPipeline(
-    cpm_metric="mean", quantum=True
+    metric="mean", quantum=True
 )
 
 pipelines["QMDM_dist"] = QuantumMDMWithRiemannianPipeline(
-    cpm_metric="distance", quantum=True
+    metric="distance", quantum=True
 )
 
 pipelines["RG_LDA"] = make_pipeline(

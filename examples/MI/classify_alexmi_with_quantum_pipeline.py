@@ -69,7 +69,7 @@ pipelines = {}
 
 # Will run QAOA under the hood
 pipelines["mean=logeuclid/distance=cpm"] = QuantumMDMWithRiemannianPipeline(
-    cpm_metric="distance", quantum=True
+    metric="distance", quantum=True
 )
 
 # Classical baseline for evaluation

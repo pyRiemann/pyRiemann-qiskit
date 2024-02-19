@@ -7,7 +7,7 @@ The mean and the distance in MDM algorithm are formulated as
 optimization problems. These optimization problems are translated
 to Qiskit using Docplex and additional glue code. These optimizations
 are enabled when we use cpm mean or cpm distance. This is set
-using the 'cpm_metric' parameter of the QuantumMDMWithRiemannianPipeline.
+using the 'metric' parameter of the QuantumMDMWithRiemannianPipeline.
 
 Classification can be run either on emulation or real quantum computer.
 
@@ -108,11 +108,11 @@ labels_dict = {"Target": 1, "NonTarget": 0}
 pipelines = {}
 
 pipelines["mean=cpm-le/distance=logeuclid"] = QuantumMDMWithRiemannianPipeline(
-    cpm_metric="mean", quantum=quantum
+    metric="mean", quantum=quantum
 )
 
 pipelines["mean=logeuclid/distance=cpm-le"] = QuantumMDMWithRiemannianPipeline(
-    cpm_metric="distance", quantum=quantum
+    metric="distance", quantum=quantum
 )
 
 pipelines["Voting cpm-le"] = QuantumMDMVotingClassifier(quantum=quantum)

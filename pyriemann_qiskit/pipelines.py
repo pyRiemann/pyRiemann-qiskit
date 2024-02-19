@@ -310,9 +310,9 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
 
     Parameters
     ----------
-    cpm_metric : string (default: "distance")
+    metric : string (default: "distance")
         `metric` passed to the inner QuanticMDM depends on the
-        `cpm_metric` as follows (cpm_metric => metric):
+        `metric` as follows (metric => metric):
 
         - "distance" => {mean=logeuclid, distance=cpm-le},
         - "mean" => {mean=cpm-le, distance=logeuclid},
@@ -351,14 +351,14 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
 
     def __init__(
         self,
-        cpm_metric="distance",
+        metric="distance",
         quantum=True,
         q_account_token=None,
         verbose=True,
         shots=1024,
         upper_bound=7,
     ):
-        self.cpm_metric = cpm_metric
+        self.metric = metric
         self.quantum = quantum
         self.q_account_token = q_account_token
         self.verbose = verbose
@@ -368,9 +368,9 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         BasePipeline.__init__(self, "QuantumMDMWithRiemannianPipeline")
 
     def _create_pipe(self):
-        if self.cpm_metric == "both":
+        if self.metric == "both":
             metric = {"mean": "cpm_le", "distance": "cpm_le"}
-        elif self.cpm_metric == "mean":
+        elif self.metric == "mean":
             metric = {"mean": "cpm_le", "distance": "logeuclid"}
         else:
             metric = {"mean": "logeuclid", "distance": "cpm_le"}
@@ -407,8 +407,8 @@ class QuantumMDMVotingClassifier(BasePipeline):
     Voting classifier with two configurations of
     QuantumMDMWithRiemannianPipeline:
 
-    - with mean = cpm and distance = euclid,
-    - with mean = logeuclid and distance = cpm.
+    - with mean = cpm-le and distance = logeuclid,
+    - with mean = logeuclid and distance = cpm-le.
 
     Parameters
     ----------
