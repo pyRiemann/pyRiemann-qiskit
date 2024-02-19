@@ -314,9 +314,9 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         `metric` passed to the inner QuanticMDM depends on the
         `cpm_metric` as follows (cpm_metric => metric):
 
-        - "distance" => {mean=logeuclid, distance=cpm},
-        - "mean" => {mean=cpm, distance=euclid},
-        - "both" => {mean=cpm, distance=cpm},
+        - "distance" => {mean=logeuclid, distance=cpm-le},
+        - "mean" => {mean=cpm-le, distance=logeuclid},
+        - "both" => {mean=cpm-le, distance=cpm-le},
         - other => same as "distance".
     quantum : bool (default: True)
         - If true will run on local or remote backend

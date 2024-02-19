@@ -661,7 +661,7 @@ class QuanticMDM(QuanticClassifierBase):
         self.upper_bound = upper_bound
 
     def _init_algo(self, n_features):
-        self._log("cpm MDM initiating algorithm")
+        self._log("Quantic MDM initiating algorithm")
         classifier = MDM(metric=self.metric)
         if self.quantum:
             self._log("Using NaiveQAOAOptimizer")

@@ -107,15 +107,15 @@ labels_dict = {"Target": 1, "NonTarget": 0}
 
 pipelines = {}
 
-pipelines["mean=cpm/distance=euclid"] = QuantumMDMWithRiemannianPipeline(
+pipelines["mean=cpm-le/distance=logeuclid"] = QuantumMDMWithRiemannianPipeline(
     cpm_metric="mean", quantum=quantum
 )
 
-pipelines["mean=logeuclid/distance=cpm"] = QuantumMDMWithRiemannianPipeline(
+pipelines["mean=logeuclid/distance=cpm-le"] = QuantumMDMWithRiemannianPipeline(
     cpm_metric="distance", quantum=quantum
 )
 
-pipelines["Voting cpm"] = QuantumMDMVotingClassifier(quantum=quantum)
+pipelines["Voting cpm-le"] = QuantumMDMVotingClassifier(quantum=quantum)
 
 ##############################################################################
 # Run evaluation
