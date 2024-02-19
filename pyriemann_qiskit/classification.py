@@ -582,7 +582,7 @@ class QuanticMDM(QuanticClassifierBase):
 
     """Quantum-enhanced MDM classifier
 
-    This class is a cpm implementation of the Minimum Distance to Mean (MDM)
+    This class is a quantic implementation of the Minimum Distance to Mean (MDM)
     [1]_, which can run with quantum optimization.
     Only log-Euclidean distance between trial and class prototypes is supported
     at the moment, but any type of metric can be used for centroid estimation.
