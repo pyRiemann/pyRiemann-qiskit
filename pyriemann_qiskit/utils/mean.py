@@ -35,7 +35,7 @@ def fro_mean_cpm(
     Returns
     -------
     mean : ndarray, shape (n_channels, n_channels)
-        CPM-optimized Frobenius mean.
+        CPM-optimized Euclidean mean.
 
     Notes
     -----
