@@ -19,9 +19,9 @@ def fro_mean_convex():
 def mean_euclid_cpm(
     covmats, sample_weight=None, optimizer=ClassicalOptimizer(), shrink=True
 ):
-    """Euclidean mean with Constraint Programm Model.
+    """Euclidean mean with Constraint Programming Model [1]_.
 
-    Constraint Programm Model (CPM) formulation of the mean
+    Constraint Programming Model (CPM) formulation of the mean
     with Euclidean distance.
 
     Parameters
@@ -51,7 +51,7 @@ def mean_euclid_cpm(
     References
     ----------
     .. [1] \
-        http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+        http://ibmdecisionoptimization.github.io/docplex-doc/cp/creating_model.html
     .. [2] \
         https://pyriemann.readthedocs.io/en/v0.4/generated/pyriemann.estimation.Shrinkage.html
     """
@@ -86,7 +86,7 @@ def mean_logeuclid_cpm(
 ):
     """Log-Euclidean mean [1]_ with Constraint Programming Model [2]_.
 
-    Constraint Programm Model (CPM) formulation of the mean
+    Constraint Programming Model (CPM) formulation of the mean
     with Log-Euclidean distance.
 
     Parameters
@@ -115,7 +115,7 @@ def mean_logeuclid_cpm(
         V. Arsigny, P. Fillard, X. Pennec, and N. Ayache.\
         SIAM Journal on Matrix Analysis and Applications. Volume 29, Issue 1 (2007).
     .. [2] \
-        http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+        http://ibmdecisionoptimization.github.io/docplex-doc/cp/creating_model.html
 
     """
 
