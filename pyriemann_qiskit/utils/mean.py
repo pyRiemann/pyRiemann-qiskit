@@ -20,7 +20,7 @@ def mean_euclid_cpm(
     covmats, sample_weight=None, optimizer=ClassicalOptimizer(), shrink=True
 ):
     """Euclidean mean with Constraint Programm Model.
-    
+
     Constraint Programm Model (CPM) formulation of the mean
     with Euclidean distance.
 
