@@ -4,6 +4,7 @@ from pyriemann.utils.mean import mean_functions
 from pyriemann_qiskit.utils.docplex import ClassicalOptimizer, get_global_optimizer
 from pyriemann.estimation import Shrinkage
 from pyriemann.utils.base import logm, expm
+from qiskit_optimization.algorithms import ADMMOptimizer
 import numpy as np
 
 
@@ -78,22 +79,19 @@ def mean_euclid_cpm(
 
 
 def mean_logeuclid_cpm(
-    X, sample_weight=None, optimizer=ClassicalOptimizer(), shrink=True
+    X, sample_weight=None, optimizer=ClassicalOptimizer(optimizer=ADMMOptimizer())
 ):
     """Constraint Programm Model (CPM) formulation of the mean with log-euclidian distance.
 
     Parameters
     ----------
-    covmats: ndarray, shape (n_matrices, n_channels, n_channels)
+    X: ndarray, shape (n_matrices, n_channels, n_channels)
         Set of SPD matrices.
     sample_weights:  None | ndarray, shape (n_matrices,), default=None
         Weights for each matrix. Never used in practice.
         It is kept only for standardization with pyRiemann.
     optimizer: pyQiskitOptimizer
         An instance of pyQiskitOptimizer.
-    shrink: boolean (default: true)
-        If True, it applies shrinkage regularization [2]_
-        of the resulting covariance matrix.
 
     Returns
     -------
@@ -106,8 +104,8 @@ def mean_logeuclid_cpm(
 
     """
 
-    log_covmats = logm(covmats)
-    result = mean_euclid_cpm(log_covmats, sample_weight, optimizer, shrink)
+    log_X = logm(X)
+    result = mean_euclid_cpm(log_X, sample_weight, optimizer, shrink=False)
     return expm(result)
 
 
