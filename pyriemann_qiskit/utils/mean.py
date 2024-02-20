@@ -19,7 +19,10 @@ def fro_mean_convex():
 def mean_euclid_cpm(
     covmats, sample_weight=None, optimizer=ClassicalOptimizer(), shrink=True
 ):
-    """Constraint Programm Model (CPM) formulation of the mean with Frobenius distance.
+    """Euclidean mean with Constraint Programm Model.
+    
+    Constraint Programm Model (CPM) formulation of the mean
+    with Euclidean distance.
 
     Parameters
     ----------
