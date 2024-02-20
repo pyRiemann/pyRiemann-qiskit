@@ -78,7 +78,7 @@ def mean_euclid_cpm(
 
 
 def mean_logeuclid_cpm(
-    covmats, sample_weight=None, optimizer=ClassicalOptimizer(), shrink=True
+    X, sample_weight=None, optimizer=ClassicalOptimizer(), shrink=True
 ):
     """Constraint Programm Model (CPM) formulation of the mean with log-euclidian distance.
 
