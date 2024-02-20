@@ -6,8 +6,8 @@ from pyriemann.utils.distance import distance_functions
 from pyriemann.utils.base import logm
 
 
-def logeucl_dist_cpm(A, B, optimizer=ClassicalOptimizer()):
-    """Log-Euclidean distance by Constraint Programming Model.
+def logeucl_dist_cpm(X, y, optimizer=ClassicalOptimizer()):
+    """Log-Euclidean distance [1]_ by Constraint Programming Model [2]_.
 
     Constraint Programming Model (CPM) formulation of the Log-Euclidean distance.
 
@@ -34,7 +34,11 @@ def logeucl_dist_cpm(A, B, optimizer=ClassicalOptimizer()):
     References
     ----------
     .. [1] \
+        K. Zhao, A. Wiliem, S. Chen, and B. C. Lovell,
+        ‘Convex Class Model on Symmetric Positive Definite Manifolds’, arXiv:1806.05343 [cs], May 2019.
+    .. [2] \
         http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+
     """
 
     optimizer = get_global_optimizer(optimizer)
