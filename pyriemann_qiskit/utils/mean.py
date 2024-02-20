@@ -84,7 +84,7 @@ def mean_euclid_cpm(
 def mean_logeuclid_cpm(
     X, sample_weight=None, optimizer=ClassicalOptimizer(optimizer=ADMMOptimizer())
 ):
-    """Log-Euclidean mean with Constraint Programm Model.
+    """Log-Euclidean mean [1]_ with Constraint Programming Model [2]_.
 
     Constraint Programm Model (CPM) formulation of the mean
     with Log-Euclidean distance.
@@ -107,6 +107,15 @@ def mean_logeuclid_cpm(
     Notes
     -----
     .. versionadded:: 0.2.0
+
+    References
+    ----------
+    .. [1] \
+        Geometric means in a novel vector space structure on symmetric positive-definite matrices\
+        V. Arsigny, P. Fillard, X. Pennec, and N. Ayache.\
+        SIAM Journal on Matrix Analysis and Applications. Volume 29, Issue 1 (2007).
+    .. [2] \
+        http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
 
     """
 
