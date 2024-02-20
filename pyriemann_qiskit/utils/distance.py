@@ -8,7 +8,7 @@ from pyriemann.utils.base import logm
 
 def logeucl_dist_cpm(A, B, optimizer=ClassicalOptimizer()):
     """Log-Euclidean distance by Constraint Programming Model.
-    
+
     Constraint Programming Model (CPM) formulation of the Log-Euclidean distance.
 
     Parameters
