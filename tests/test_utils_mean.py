@@ -14,8 +14,8 @@ from qiskit_optimization.algorithms import ADMMOptimizer
     "kernel",
     [
         ({"mean": "euclid_cpm", "distance": "euclid"}, Shrinkage(shrinkage=0.9)),
-        ({"mean": "logeuclid_cpm", "distance": "logeuclid"}, Shrinkage(shrinkage=0.9)),
-        ({"mean": "logeuclid", "distance": "logeuclid_cpm"}, Shrinkage(shrinkage=0.9)),
+        ({"mean": "euclid", "distance": "logeuclid_cpm"}, None),
+        ({"mean": "logeuclid_cpm", "distance": "euclid"}, None),
     ],
 )
 def test_performance(get_covmats, get_labels, kernel):
