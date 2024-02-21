@@ -35,9 +35,7 @@ def test_analytic_vs_cpm_mean(get_covmats, means):
     assert np.allclose(C, C_analytic, atol=0.001)
 
 
-@pytest.mark.parametrize(
-    "mean", [mean_euclid_cpm, mean_logeuclid_cpm]
-)
+@pytest.mark.parametrize("mean", [mean_euclid_cpm, mean_logeuclid_cpm])
 def test_mean_cpm_shape(get_covmats, mean):
     """Test the shape of mean"""
     n_trials, n_channels = 5, 3

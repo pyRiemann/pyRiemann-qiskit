@@ -657,7 +657,7 @@ class QuanticMDM(QuanticClassifierBase):
         shots=1024,
         seed=None,
         upper_bound=7,
-        regularization=None
+        regularization=None,
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -682,8 +682,9 @@ class QuanticMDM(QuanticClassifierBase):
     def _train(self, X, y):
         QuanticClassifierBase._train(self, X, y)
         if self.regularization is not None:
-            self._classifier.covmeans_ = \
-                self.regularization.fit_transform(self._classifier.covmeans_)
+            self._classifier.covmeans_ = self.regularization.fit_transform(
+                self._classifier.covmeans_
+            )
 
     def predict(self, X):
         """Calculates the predictions.
