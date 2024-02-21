@@ -20,7 +20,10 @@ from qiskit_optimization.algorithms import ADMMOptimizer
 )
 def test_performance(get_covmats, get_labels, kernel):
     metric, regularization = kernel
-    clf = make_pipeline(XdawnCovariances(), QuanticMDM(metric=metric, regularization=regularization, quantum=False))
+    clf = make_pipeline(
+        XdawnCovariances(),
+        QuanticMDM(metric=metric, regularization=regularization, quantum=False),
+    )
     skf = StratifiedKFold(n_splits=5)
     n_matrices, n_channels, n_classes = 100, 3, 2
     covset = get_covmats(n_matrices, n_channels)
