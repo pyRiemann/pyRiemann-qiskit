@@ -5,7 +5,12 @@ from pyriemann.classification import MDM
 from pyriemann.utils.distance import distance_functions
 from pyriemann.utils.base import logm
 
-
+@deprecated(
+    "logeucl_dist_convex is deprecated and will be removed in 0.3.0; "
+    "please use distance_logeuclid_cpm."
+)
+def logeucl_dist_convex():
+    pass
 def distance_logeuclid_cpm(X, y, optimizer=ClassicalOptimizer()):
     """Log-Euclidean distance by Constraint Programming Model.
 
