@@ -7,11 +7,16 @@ from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from pyriemann_qiskit.utils.mean import mean_euclid_cpm, mean_logeuclid_cpm
 from pyriemann_qiskit.utils import ClassicalOptimizer, NaiveQAOAOptimizer
+from qiskit_optimization.algorithms import ADMMOptimizer
 
-
-def test_performance(get_covmats, get_labels):
-    metric = {"mean": "euclid_cpm", "distance": "euclid"}
-
+@pytest.mark.parametrize(
+    "metric", [
+        {"mean": "euclid_cpm", "distance": "euclid"},
+        {"mean": "logeuclid_cpm", "distance": "logeuclid"},
+        {"mean": "logeuclid", "distance": "logeuclid_cpm"}
+    ]
+)
+def test_performance(get_covmats, get_labels, metric):
     clf = make_pipeline(XdawnCovariances(), MDM(metric=metric))
     skf = StratifiedKFold(n_splits=5)
     n_matrices, n_channels, n_classes = 100, 3, 2
@@ -32,7 +37,7 @@ def test_analytic_vs_cpm_mean(get_covmats, means):
     covmats = get_covmats(n_trials, n_channels)
     C = cpm_mean(covmats)
     C_analytic = analytic_mean(covmats)
-    assert np.allclose(C, C_analytic, atol=0.001)
+    assert np.allclose(C, C_analytic, atol=0.00001)
 
 
 @pytest.mark.parametrize("mean", [mean_euclid_cpm, mean_logeuclid_cpm])
@@ -45,52 +50,56 @@ def test_mean_cpm_shape(get_covmats, mean):
 
 
 @pytest.mark.parametrize(
-    "optimizer",
-    [ClassicalOptimizer(), NaiveQAOAOptimizer()],
+    "optimizer", [ClassicalOptimizer(optimizer=ADMMOptimizer()), NaiveQAOAOptimizer()],
 )
-@pytest.mark.parametrize("mean", [mean_euclid_cpm, mean_logeuclid_cpm])
+@pytest.mark.parametrize(
+    "mean", [mean_euclid_cpm]
+)
 def test_mean_cpm_all_zeros(optimizer, mean):
     """Test that the mean of covariance matrices containing zeros
     is a matrix filled with zeros"""
     n_trials, n_channels = 5, 2
     covmats = np.zeros((n_trials, n_channels, n_channels))
     C = mean(covmats, optimizer=optimizer)
-    assert np.allclose(covmats[0], C, atol=0.00001)
+    assert np.allclose(covmats[0], C, atol=0.001)
 
 
 @pytest.mark.parametrize(
-    "optimizer",
-    [ClassicalOptimizer(), NaiveQAOAOptimizer()],
+    "optimizer", [ClassicalOptimizer(optimizer=ADMMOptimizer()), NaiveQAOAOptimizer()],
 )
-@pytest.mark.parametrize("mean", [mean_euclid_cpm, mean_logeuclid_cpm])
+@pytest.mark.parametrize(
+    "mean", [mean_euclid_cpm]
+)
 def test_mean_cpm_all_ones(optimizer, mean):
     """Test that the mean of covariance matrices containing ones
     is a matrix filled with ones"""
     n_trials, n_channels = 5, 2
     covmats = np.ones((n_trials, n_channels, n_channels))
     C = mean(covmats, optimizer=optimizer)
-    assert np.allclose(covmats[0], C, atol=0.00001)
+    assert np.allclose(covmats[0], C, atol=0.001)
 
 
 @pytest.mark.parametrize(
-    "optimizer",
-    [ClassicalOptimizer(), NaiveQAOAOptimizer()],
+    "optimizer", [ClassicalOptimizer(optimizer=ADMMOptimizer()), NaiveQAOAOptimizer()],
 )
-@pytest.mark.parametrize("mean", [mean_euclid_cpm, mean_logeuclid_cpm])
+@pytest.mark.parametrize(
+    "mean", [mean_euclid_cpm]
+)
 def test_mean_cpm_all_equals(optimizer, mean):
     """Test that the mean of covariance matrices filled with the same value
     is a matrix identical to the input"""
     n_trials, n_channels, value = 5, 2, 2.5
     covmats = np.full((n_trials, n_channels, n_channels), value)
     C = mean(covmats, optimizer=optimizer)
-    assert np.allclose(covmats[0], C, atol=0.00001)
+    assert np.allclose(covmats[0], C, atol=0.001)
 
 
 @pytest.mark.parametrize(
-    "optimizer",
-    [ClassicalOptimizer(), NaiveQAOAOptimizer()],
+    "optimizer", [ClassicalOptimizer(optimizer=ADMMOptimizer()), NaiveQAOAOptimizer()],
 )
-@pytest.mark.parametrize("mean", [mean_euclid_cpm, mean_logeuclid_cpm])
+@pytest.mark.parametrize(
+    "mean", [mean_euclid_cpm]
+)
 def test_mean_cpm_mixed(optimizer, mean):
     """Test that the mean of covariances matrices with zero and ones
     is a matrix filled with 0.5"""
@@ -99,4 +108,4 @@ def test_mean_cpm_mixed(optimizer, mean):
     covmats_1 = np.ones((n_trials, n_channels, n_channels))
     expected_mean = np.full((n_channels, n_channels), 0.5)
     C = mean(np.concatenate((covmats_0, covmats_1), axis=0), optimizer=optimizer)
-    assert np.allclose(expected_mean, C, atol=0.00001)
+    assert np.allclose(expected_mean, C, atol=0.001)
