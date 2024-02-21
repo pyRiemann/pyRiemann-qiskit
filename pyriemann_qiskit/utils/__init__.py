@@ -18,7 +18,7 @@ from .firebase_connector import (
     add_moabb_dataframe_results_to_caches,
     convert_caches_to_dataframes,
 )
-from .distance import logeucl_dist_cpm
+from .distance import distance_logeuclid_cpm
 
 __all__ = [
     "hyper_params_factory",
@@ -36,7 +36,7 @@ __all__ = [
     "NaiveQAOAOptimizer",
     "set_global_optimizer",
     "get_global_optimizer",
-    "logeucl_dist_cpm",
+    "distance_logeuclid_cpm",
     "FirebaseConnector",
     "Cache",
     "generate_caches",

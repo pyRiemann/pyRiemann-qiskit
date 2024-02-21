@@ -314,9 +314,9 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         `metric` passed to the inner QuanticMDM depends on the
         `metric` as follows (metric => metric):
 
-        - "distance" => {mean=logeuclid, distance=cpm-le},
-        - "mean" => {mean=cpm-le, distance=logeuclid},
-        - "both" => {mean=cpm-le, distance=cpm-le},
+        - "distance" => {mean=logeuclid, distance=logeuclid_cpm},
+        - "mean" => {mean=logeuclid_cpm, distance=logeuclid},
+        - "both" => {mean=logeuclid_cpm, distance=logeuclid_cpm},
         - other => same as "distance".
     quantum : bool (default: True)
         - If true will run on local or remote backend
@@ -369,13 +369,13 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
 
     def _create_pipe(self):
         if self.metric == "both":
-            metric = {"mean": "cpm_le", "distance": "cpm_le"}
+            metric = {"mean": "logeuclid_cpm", "distance": "logeuclid_cpm"}
         elif self.metric == "mean":
-            metric = {"mean": "cpm_le", "distance": "logeuclid"}
+            metric = {"mean": "logeuclid_cpm", "distance": "logeuclid"}
         else:
-            metric = {"mean": "logeuclid", "distance": "cpm_le"}
+            metric = {"mean": "logeuclid", "distance": "logeuclid_cpm"}
 
-        if metric["mean"] == "cpm_le":
+        if metric["mean"] == "logeuclid_cpm":
             if self.quantum:
                 covariances = XdawnCovariances(
                     nfilter=1, estimator="scm", xdawn_estimator="lwf"
@@ -407,8 +407,8 @@ class QuantumMDMVotingClassifier(BasePipeline):
     Voting classifier with two configurations of
     QuantumMDMWithRiemannianPipeline:
 
-    - with mean = cpm-le and distance = logeuclid,
-    - with mean = logeuclid and distance = cpm-le.
+    - with mean = logeuclid_cpm and distance = logeuclid,
+    - with mean = logeuclid and distance = logeuclid_cpm.
 
     Parameters
     ----------

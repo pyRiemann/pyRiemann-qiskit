@@ -646,7 +646,7 @@ class QuanticMDM(QuanticClassifierBase):
 
     def __init__(
         self,
-        metric={"mean": "logeuclid", "distance": "cpm_le"},
+        metric={"mean": "logeuclid", "distance": "logeuclid_cpm"},
         quantum=True,
         q_account_token=None,
         verbose=True,

@@ -6,7 +6,7 @@ from pyriemann.utils.distance import distance_functions
 from pyriemann.utils.base import logm
 
 
-def logeucl_dist_cpm(X, y, optimizer=ClassicalOptimizer()):
+def distance_logeuclid_cpm(X, y, optimizer=ClassicalOptimizer()):
     """Log-Euclidean distance by Constraint Programming Model.
 
     Constraint Programming Model (CPM) [2]_ formulation of the Log-Euclidean distance [1]_.
@@ -73,9 +73,9 @@ _mdm_predict_distances_original = MDM._predict_distances
 
 
 def predict_distances(mdm, X):
-    if mdm.metric_dist == "cpm_le":
+    if mdm.metric_dist == "logeuclid_cpm":
         centroids = np.array(mdm.covmeans_)
-        return np.array([logeucl_dist_cpm(centroids, x) for x in X])
+        return np.array([distance_logeuclid_cpm(centroids, x) for x in X])
     else:
         return _mdm_predict_distances_original(mdm, X)
 
@@ -84,7 +84,7 @@ MDM._predict_distances = predict_distances
 
 # This is only for validation inside the MDM.
 # In fact, we override the _predict_distances method
-# inside MDM to directly use logeucl_dist_cpm when the metric is "cpm_le"
+# inside MDM to directly use distance_logeuclid_cpm when the metric is "logeuclid_cpm"
 # This is due to the fact the the signature of this method is different from
 # the usual distance functions.
-distance_functions["cpm_le"] = logeucl_dist_cpm
+distance_functions["logeuclid_cpm"] = distance_logeuclid_cpm

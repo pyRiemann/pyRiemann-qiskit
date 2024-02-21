@@ -10,7 +10,7 @@ from pyriemann_qiskit.utils import ClassicalOptimizer, NaiveQAOAOptimizer
 
 
 def test_performance(get_covmats, get_labels):
-    metric = {"mean": "cpm_fro", "distance": "euclid"}
+    metric = {"mean": "euclid_cpm", "distance": "euclid"}
 
     clf = make_pipeline(XdawnCovariances(), MDM(metric=metric))
     skf = StratifiedKFold(n_splits=5)

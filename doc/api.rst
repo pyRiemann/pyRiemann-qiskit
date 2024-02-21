@@ -107,7 +107,7 @@ Distance
 .. autosummary::
     :toctree: generated/
 
-    logeucl_dist_cpm
+    distance_logeuclid_cpm
 
 Docplex
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
