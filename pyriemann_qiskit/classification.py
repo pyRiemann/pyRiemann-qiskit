@@ -529,7 +529,6 @@ class QuanticVQC(QuanticClassifierBase):
         )
         self.optimizer = optimizer
         self.gen_var_form = gen_var_form
-        self.regularization = regularization
 
     def _init_algo(self, n_features):
         self._log("VQC training...")
@@ -664,6 +663,7 @@ class QuanticMDM(QuanticClassifierBase):
         )
         self.metric = metric
         self.upper_bound = upper_bound
+        self.regularization = regularization
 
     def _init_algo(self, n_features):
         self._log("Quantic MDM initiating algorithm")
