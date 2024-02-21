@@ -30,7 +30,7 @@ def test_analytic_vs_cpm_mean(get_covmats, means):
     analytic_mean, cpm_mean = means
     n_trials, n_channels = 5, 3
     covmats = get_covmats(n_trials, n_channels)
-    C = cpm_mean(covmats, shrink=False)
+    C = cpm_mean(covmats)
     C_analytic = analytic_mean(covmats)
     assert np.allclose(C, C_analytic, atol=0.001)
 
@@ -52,7 +52,7 @@ def test_mean_cpm_all_zeros(optimizer):
     is a matrix filled with zeros"""
     n_trials, n_channels = 5, 2
     covmats = np.zeros((n_trials, n_channels, n_channels))
-    C = mean_euclid_cpm(covmats, optimizer=optimizer, shrink=False)
+    C = mean_euclid_cpm(covmats, optimizer=optimizer)
     assert np.allclose(covmats[0], C, atol=0.001)
 
 
@@ -61,7 +61,7 @@ def test_mean_cpm_all_ones():
     is a matrix filled with ones"""
     n_trials, n_channels = 5, 2
     covmats = np.ones((n_trials, n_channels, n_channels))
-    C = mean_euclid_cpm(covmats, shrink=False)
+    C = mean_euclid_cpm(covmats)
     assert np.allclose(covmats[0], C, atol=0.001)
 
 
@@ -70,7 +70,7 @@ def test_mean_cpm_all_equals():
     is a matrix identical to the input"""
     n_trials, n_channels, value = 5, 2, 2.5
     covmats = np.full((n_trials, n_channels, n_channels), value)
-    C = mean_euclid_cpm(covmats, shrink=False)
+    C = mean_euclid_cpm(covmats)
     assert np.allclose(covmats[0], C, atol=0.001)
 
 
@@ -81,5 +81,5 @@ def test_mean_cpm_mixed():
     covmats_0 = np.zeros((n_trials, n_channels, n_channels))
     covmats_1 = np.ones((n_trials, n_channels, n_channels))
     expected_mean = np.full((n_channels, n_channels), 0.5)
-    C = mean_euclid_cpm(np.concatenate((covmats_0, covmats_1), axis=0), shrink=False)
+    C = mean_euclid_cpm(np.concatenate((covmats_0, covmats_1), axis=0))
     assert np.allclose(expected_mean, C, atol=0.001)

@@ -2,7 +2,6 @@ from typing_extensions import deprecated
 from docplex.mp.model import Model
 from pyriemann.utils.mean import mean_functions
 from pyriemann_qiskit.utils.docplex import ClassicalOptimizer, get_global_optimizer
-from pyriemann.estimation import Shrinkage
 from pyriemann.utils.base import logm, expm
 from qiskit_optimization.algorithms import ADMMOptimizer
 import numpy as np
@@ -17,7 +16,7 @@ def fro_mean_convex():
 
 
 def mean_euclid_cpm(
-    covmats, sample_weight=None, optimizer=ClassicalOptimizer(), shrink=True
+    covmats, sample_weight=None, optimizer=ClassicalOptimizer()
 ):
     """Euclidean mean with Constraint Programming Model.
 
@@ -33,9 +32,6 @@ def mean_euclid_cpm(
         It is kept only for standardization with pyRiemann.
     optimizer: pyQiskitOptimizer
         An instance of pyQiskitOptimizer.
-    shrink: boolean (default: true)
-        If True, it applies shrinkage regularization [2]_
-        of the resulting covariance matrix.
 
     Returns
     -------
@@ -47,13 +43,14 @@ def mean_euclid_cpm(
     .. versionadded:: 0.0.3
     .. versionchanged:: 0.0.4
         Add regularization of the results.
+    .. versionchanged:: 0.2.0
+        Rename from `fro_mean_convex` to `mean_euclid_cpm`
+        Remove shrinkage
 
     References
     ----------
     .. [1] \
         http://ibmdecisionoptimization.github.io/docplex-doc/cp/creating_model.html
-    .. [2] \
-        https://pyriemann.readthedocs.io/en/v0.4/generated/pyriemann.estimation.Shrinkage.html
     """
 
     optimizer = get_global_optimizer(optimizer)
@@ -76,8 +73,6 @@ def mean_euclid_cpm(
 
     result = optimizer.solve(prob)
 
-    if shrink:
-        return Shrinkage(shrinkage=0.9).transform([result])[0]
     return result
 
 
@@ -120,7 +115,7 @@ def mean_logeuclid_cpm(
     """
 
     log_X = logm(X)
-    result = mean_euclid_cpm(log_X, sample_weight, optimizer, shrink=False)
+    result = mean_euclid_cpm(log_X, sample_weight, optimizer)
     return expm(result)
 
 

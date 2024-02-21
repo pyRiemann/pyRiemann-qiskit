@@ -529,6 +529,7 @@ class QuanticVQC(QuanticClassifierBase):
         )
         self.optimizer = optimizer
         self.gen_var_form = gen_var_form
+        self.regularization = regularization
 
     def _init_algo(self, n_features):
         self._log("VQC training...")
@@ -593,7 +594,8 @@ class QuanticMDM(QuanticClassifierBase):
     .. versionchanged:: 0.1.0
         Fix: copy estimator not keeping base class parameters.
     .. versionchanged:: 0.2.0
-        Add seed parameter
+        Add seed parameter.
+        Add regularization parameter.
 
     Parameters
     ----------
@@ -624,6 +626,8 @@ class QuanticMDM(QuanticClassifierBase):
         Random seed for the simulation
     upper_bound : int (default: 7)
         The maximum integer value for matrix normalization.
+    regularization: MixinTransformer (defulat: None)
+        Additional post-processing to regularize means.
 
     See Also
     --------
@@ -653,6 +657,7 @@ class QuanticMDM(QuanticClassifierBase):
         shots=1024,
         seed=None,
         upper_bound=7,
+        regularization=None
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -673,6 +678,12 @@ class QuanticMDM(QuanticClassifierBase):
             self._optimizer = ClassicalOptimizer()
         set_global_optimizer(self._optimizer)
         return classifier
+
+    def _train(self, X, y):
+        QuanticClassifierBase._train(self, X, y)
+        if self.regularization is not None:
+            self._classifier.covmeans_ = \
+                self.regularization.fit_transform(self._classifier.covmeans_)
 
     def predict(self, X):
         """Calculates the predictions.
