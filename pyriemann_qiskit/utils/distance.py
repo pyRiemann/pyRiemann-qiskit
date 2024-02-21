@@ -4,6 +4,7 @@ from pyriemann_qiskit.utils.docplex import ClassicalOptimizer, get_global_optimi
 from pyriemann.classification import MDM
 from pyriemann.utils.distance import distance_functions
 from pyriemann.utils.base import logm
+from typing_extensions import deprecated
 
 
 @deprecated(
