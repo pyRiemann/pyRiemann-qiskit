@@ -44,40 +44,63 @@ def test_mean_cpm_shape(get_covmats, mean):
     assert C.shape == (n_channels, n_channels)
 
 
-@pytest.mark.parametrize("optimizer", [ClassicalOptimizer(), NaiveQAOAOptimizer()])
-def test_mean_cpm_all_zeros(optimizer):
+@pytest.mark.parametrize(
+    "optimizer", [ClassicalOptimizer(), NaiveQAOAOptimizer()],
+)
+@pytest.mark.parametrize(
+    "mean", [mean_euclid_cpm, mean_logeuclid_cpm]
+)
+def test_mean_cpm_all_zeros(optimizer, mean):
     """Test that the mean of covariance matrices containing zeros
     is a matrix filled with zeros"""
     n_trials, n_channels = 5, 2
     covmats = np.zeros((n_trials, n_channels, n_channels))
-    C = mean_euclid_cpm(covmats, optimizer=optimizer)
-    assert np.allclose(covmats[0], C, atol=0.001)
+    C = mean(covmats, optimizer=optimizer)
+    assert np.allclose(covmats[0], C, atol=0.00001)
 
 
-def test_mean_cpm_all_ones():
+@pytest.mark.parametrize(
+    "optimizer", [ClassicalOptimizer(), NaiveQAOAOptimizer()],
+)
+@pytest.mark.parametrize(
+    "mean", [mean_euclid_cpm, mean_logeuclid_cpm]
+)
+def test_mean_cpm_all_ones(optimizer, mean):
     """Test that the mean of covariance matrices containing ones
     is a matrix filled with ones"""
     n_trials, n_channels = 5, 2
     covmats = np.ones((n_trials, n_channels, n_channels))
-    C = mean_euclid_cpm(covmats)
-    assert np.allclose(covmats[0], C, atol=0.001)
+    C = mean(covmats, optimizer=optimizer)
+    assert np.allclose(covmats[0], C, atol=0.00001)
 
 
-def test_mean_cpm_all_equals():
+@pytest.mark.parametrize(
+    "optimizer", [ClassicalOptimizer(), NaiveQAOAOptimizer()],
+)
+@pytest.mark.parametrize(
+    "mean", [mean_euclid_cpm, mean_logeuclid_cpm]
+)
+def test_mean_cpm_all_equals(optimizer, mean):
     """Test that the mean of covariance matrices filled with the same value
     is a matrix identical to the input"""
     n_trials, n_channels, value = 5, 2, 2.5
     covmats = np.full((n_trials, n_channels, n_channels), value)
-    C = mean_euclid_cpm(covmats)
-    assert np.allclose(covmats[0], C, atol=0.001)
+    C = mean(covmats, optimizer=optimizer)
+    assert np.allclose(covmats[0], C, atol=0.00001)
 
 
-def test_mean_cpm_mixed():
+@pytest.mark.parametrize(
+    "optimizer", [ClassicalOptimizer(), NaiveQAOAOptimizer()],
+)
+@pytest.mark.parametrize(
+    "mean", [mean_euclid_cpm, mean_logeuclid_cpm]
+)
+def test_mean_cpm_mixed(optimizer, mean):
     """Test that the mean of covariances matrices with zero and ones
     is a matrix filled with 0.5"""
     n_trials, n_channels = 5, 2
     covmats_0 = np.zeros((n_trials, n_channels, n_channels))
     covmats_1 = np.ones((n_trials, n_channels, n_channels))
     expected_mean = np.full((n_channels, n_channels), 0.5)
-    C = mean_euclid_cpm(np.concatenate((covmats_0, covmats_1), axis=0))
-    assert np.allclose(expected_mean, C, atol=0.001)
+    C = mean(np.concatenate((covmats_0, covmats_1), axis=0), optimizer=optimizer)
+    assert np.allclose(expected_mean, C, atol=0.00001)
