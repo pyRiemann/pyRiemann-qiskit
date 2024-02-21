@@ -84,10 +84,10 @@ def mean_euclid_cpm(
 def mean_logeuclid_cpm(
     X, sample_weight=None, optimizer=ClassicalOptimizer(optimizer=ADMMOptimizer())
 ):
-    """Log-Euclidean mean [1]_ with Constraint Programming Model [2]_.
+    """Log-Euclidean mean with Constraint Programming Model.
 
-    Constraint Programming Model (CPM) formulation of the mean
-    with Log-Euclidean distance.
+    Constraint Programming Model (CPM)  [2]_ formulation of the mean
+    with Log-Euclidean distance [1]_.
 
     Parameters
     ----------
