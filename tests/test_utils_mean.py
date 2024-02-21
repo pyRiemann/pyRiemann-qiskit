@@ -1,25 +1,26 @@
 import pytest
 import numpy as np
 from pyriemann.utils.mean import mean_euclid, mean_logeuclid
-from pyriemann.classification import MDM
-from pyriemann.estimation import XdawnCovariances
+from pyriemann.estimation import XdawnCovariances, Shrinkage
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from pyriemann_qiskit.utils.mean import mean_euclid_cpm, mean_logeuclid_cpm
 from pyriemann_qiskit.utils import ClassicalOptimizer, NaiveQAOAOptimizer
+from pyriemann_qiskit.classification import QuanticMDM
 from qiskit_optimization.algorithms import ADMMOptimizer
 
 
 @pytest.mark.parametrize(
-    "metric",
+    "kernel",
     [
-        {"mean": "euclid_cpm", "distance": "euclid"},
-        {"mean": "logeuclid_cpm", "distance": "logeuclid"},
-        {"mean": "logeuclid", "distance": "logeuclid_cpm"},
+        ({"mean": "euclid_cpm", "distance": "euclid"}, Shrinkage(shrinkage=0.9)),
+        ({"mean": "logeuclid_cpm", "distance": "logeuclid"}, None),
+        ({"mean": "logeuclid", "distance": "logeuclid_cpm"}, None),
     ],
 )
-def test_performance(get_covmats, get_labels, metric):
-    clf = make_pipeline(XdawnCovariances(), MDM(metric=metric))
+def test_performance(get_covmats, get_labels, kernel):
+    metric, regularization = kernel
+    clf = make_pipeline(XdawnCovariances(), QuanticMDM(metric=metric, regularization=regularization, quantum=False))
     skf = StratifiedKFold(n_splits=5)
     n_matrices, n_channels, n_classes = 100, 3, 2
     covset = get_covmats(n_matrices, n_channels)
