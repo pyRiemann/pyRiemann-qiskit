@@ -35,7 +35,7 @@ def logeucl_dist_cpm(X, y, optimizer=ClassicalOptimizer()):
     ----------
     .. [1] \
         K. Zhao, A. Wiliem, S. Chen, and B. C. Lovell,
-        ‘Convex Class Model on Symmetric Positive Definite Manifolds’, arXiv:1806.05343 [cs], May 2019.
+        ‘Convex Class Model on Symmetric Positive Definite Manifolds’, Image and Vision Computing, 2019.
     .. [2] \
         http://ibmdecisionoptimization.github.io/docplex-doc/cp/creating_model.html
 
