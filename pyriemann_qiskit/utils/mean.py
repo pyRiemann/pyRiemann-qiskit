@@ -124,5 +124,5 @@ def mean_logeuclid_cpm(
     return expm(result)
 
 
-mean_functions["cpm_fro"] = mean_euclid_cpm
-mean_functions["cpm_le"] = mean_logeuclid_cpm
+mean_functions["euclid_cpm"] = mean_euclid_cpm
+mean_functions["logeuclid_cpm"] = mean_logeuclid_cpm
