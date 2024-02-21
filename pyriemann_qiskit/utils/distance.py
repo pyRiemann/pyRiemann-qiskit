@@ -15,16 +15,16 @@ def logeucl_dist_convex():
     pass
 
 
-def distance_logeuclid_cpm(X, y, optimizer=ClassicalOptimizer()):
+def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer()):
     """Log-Euclidean distance by Constraint Programming Model.
 
     Constraint Programming Model (CPM) [2]_ formulation of the Log-Euclidean distance [1]_.
 
     Parameters
     ----------
-    X : ndarray, shape (n_classes, n_channels, n_channels)
+    A : ndarray, shape (n_classes, n_channels, n_channels)
         Set of SPD matrices.
-    y : ndarray, shape (n_channels, n_channels)
+    B : ndarray, shape (n_channels, n_channels)
         A trial
     optimizer: pyQiskitOptimizer
       An instance of pyQiskitOptimizer.
@@ -52,7 +52,7 @@ def distance_logeuclid_cpm(X, y, optimizer=ClassicalOptimizer()):
 
     optimizer = get_global_optimizer(optimizer)
 
-    n_classes, _, _ = X.shape
+    n_classes, _, _ = A.shape
     classes = range(n_classes)
 
     def log_prod(m1, m2):
@@ -63,10 +63,10 @@ def distance_logeuclid_cpm(X, y, optimizer=ClassicalOptimizer()):
     # should be part of the optimizer
     w = optimizer.get_weights(prob, classes)
 
-    _2VecLogYD = 2 * prob.sum(w[i] * log_prod(y, X[i]) for i in classes)
+    _2VecLogYD = 2 * prob.sum(w[i] * log_prod(B, A[i]) for i in classes)
 
     wtDw = prob.sum(
-        w[i] * w[j] * log_prod(X[i], X[j]) for i in classes for j in classes
+        w[i] * w[j] * log_prod(A[i], A[j]) for i in classes for j in classes
     )
 
     objectives = wtDw - _2VecLogYD
