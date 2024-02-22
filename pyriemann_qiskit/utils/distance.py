@@ -68,7 +68,7 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer()):
     _2VecLogYD = 2 * prob.sum(w[i] * log_prod(B, A[i]) for i in matrices)
 
     wtDw = prob.sum(
-        w[i] * w[j] * log_prod(A[i], A[j]) for i in classes for j in classes
+        w[i] * w[j] * log_prod(A[i], A[j]) for i in matrices for j in matrices
     )
 
     objectives = wtDw - _2VecLogYD
