@@ -26,7 +26,7 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer()):
     A : ndarray, shape (n_classes, n_channels, n_channels)
         Set of SPD matrices.
     B : ndarray, shape (n_channels, n_channels)
-        A trial
+        SPD matrix.
     optimizer: pyQiskitOptimizer
       An instance of pyQiskitOptimizer.
 
