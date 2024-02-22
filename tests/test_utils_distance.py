@@ -3,8 +3,8 @@ import numpy as np
 from pyriemann_qiskit.utils import (
     ClassicalOptimizer,
     NaiveQAOAOptimizer,
-    distance_logeuclid_cpm,
 )
+from pyriemann_qiskit.utils.distance import distance_logeuclid_cpm
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann.classification import MDM
 from pyriemann.estimation import XdawnCovariances
