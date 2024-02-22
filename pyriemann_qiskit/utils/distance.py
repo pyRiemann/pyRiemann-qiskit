@@ -54,8 +54,8 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer()):
 
     optimizer = get_global_optimizer(optimizer)
 
-    n_classes, _, _ = A.shape
-    classes = range(n_classes)
+    n_matrices, _, _ = A.shape
+    matrices = range(n_matrices)
 
     def log_prod(m1, m2):
         return np.nansum(logm(m1).flatten() * logm(m2).flatten())
