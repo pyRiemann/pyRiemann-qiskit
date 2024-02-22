@@ -89,6 +89,32 @@ def predict_distances(mdm, X):
         return _mdm_predict_distances_original(mdm, X)
 
 
+def is_cpm_dist(string):
+    """Return True is "string" represents a Constraint Programming Model (CPM) [1]_ 
+    distance available in the library.
+
+    Parameters
+    ----------
+    string: str
+        A string representation of the distance.
+
+    Returns
+    -------
+    is_cpm_dist : boolean
+        True if "string" represents a CPM distance aailable in the library.
+
+    Notes
+    -----
+    .. versionadded:: 0.2.0
+
+    References
+    ----------
+    .. [1] \
+        http://ibmdecisionoptimization.github.io/docplex-doc/cp/creating_model.html
+
+    """
+    return "_cpm" in string and string in distance_functions
+
 MDM._predict_distances = predict_distances
 
 # This is only for validation inside the MDM.

@@ -81,10 +81,14 @@ pipelines["RG_VQC"] = QuantumClassifierWithDefaultRiemannianPipeline(
     shots=100, spsa_trials=5, two_local_reps=2, params={"seed": 42}
 )
 
-pipelines["QMDM_mean"] = QuantumMDMWithRiemannianPipeline(metric="mean", quantum=True)
+pipelines["QMDM_mean"] = QuantumMDMWithRiemannianPipeline(
+    metric={'mean': 'euclid_cpm', 'distance': 'euclid'},
+    quantum=True
+)
 
 pipelines["QMDM_dist"] = QuantumMDMWithRiemannianPipeline(
-    metric="distance", quantum=True
+    metric={'mean': 'logeuclid', 'distance': 'logeuclid_cpm'},
+    quantum=True
 )
 
 pipelines["RG_LDA"] = make_pipeline(

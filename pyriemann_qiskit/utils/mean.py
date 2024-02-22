@@ -117,5 +117,31 @@ def mean_logeuclid_cpm(
     return expm(result)
 
 
+def is_cpm_mean(string):
+    """Return True is "string" represents a Constraint Programming Model (CPM) [1]_ 
+    mean available in the library.
+
+    Parameters
+    ----------
+    string: str
+        A string representation of the mean.
+
+    Returns
+    -------
+    is_cpm_mean : boolean
+        True if "string" represents a CPM mean aailable in the library.
+
+    Notes
+    -----
+    .. versionadded:: 0.2.0
+
+    References
+    ----------
+    .. [1] \
+        http://ibmdecisionoptimization.github.io/docplex-doc/cp/creating_model.html
+
+    """
+    return "_cpm" in string and string in mean_functions
+
 mean_functions["euclid_cpm"] = mean_euclid_cpm
 mean_functions["logeuclid_cpm"] = mean_logeuclid_cpm

@@ -21,6 +21,7 @@ from qiskit.utils.quantum_instance import logger
 from qiskit_ibm_provider import IBMProvider, least_busy
 from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
 from qiskit_machine_learning.kernels.quantum_kernel import QuantumKernel
+from qiskit_optimization.algorithms import CobylaOptimizer
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.svm import SVC
 
@@ -595,6 +596,7 @@ class QuanticMDM(QuanticClassifierBase):
     .. versionchanged:: 0.2.0
         Add seed parameter.
         Add regularization parameter.
+        Add classical_optimizer parameter.
 
     Parameters
     ----------
@@ -627,6 +629,8 @@ class QuanticMDM(QuanticClassifierBase):
         The maximum integer value for matrix normalization.
     regularization: MixinTransformer (defulat: None)
         Additional post-processing to regularize means.
+    classical_optimizer : OptimizationAlgorithm
+        An instance of OptimizationAlgorithm [3]_
 
     See Also
     --------
@@ -645,6 +649,8 @@ class QuanticMDM(QuanticClassifierBase):
         A. Barachant, S. Bonnet, M. Congedo and C. Jutten. 9th International
         Conference Latent Variable Analysis and Signal Separation
         (LVA/ICA 2010), LNCS vol. 6365, 2010, p. 629-636.
+    .. [3] \
+        https://qiskit-community.github.io/qiskit-optimization/stubs/qiskit_optimization.algorithms.OptimizationAlgorithm.html#optimizationalgorithm
     """
 
     def __init__(
@@ -657,6 +663,7 @@ class QuanticMDM(QuanticClassifierBase):
         seed=None,
         upper_bound=7,
         regularization=None,
+        classical_optimizer=CobylaOptimizer(rhobeg=2.1, rhoend=0.000001)
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -664,6 +671,7 @@ class QuanticMDM(QuanticClassifierBase):
         self.metric = metric
         self.upper_bound = upper_bound
         self.regularization = regularization
+        self.classical_optimizer = classical_optimizer
 
     def _init_algo(self, n_features):
         self._log("Quantic MDM initiating algorithm")
@@ -675,7 +683,7 @@ class QuanticMDM(QuanticClassifierBase):
             )
         else:
             self._log("Using ClassicalOptimizer (COBYLA)")
-            self._optimizer = ClassicalOptimizer()
+            self._optimizer = ClassicalOptimizer(self.classical_optimizer)
         set_global_optimizer(self._optimizer)
         return classifier
 
