@@ -16,10 +16,11 @@ def logeucl_dist_convex():
 
 
 def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer()):
-    """Log-Euclidean distance by Constraint Programming Model.
+    """Log-Euclidean distance to a convex hull of SPD matrices.
 
-    Constraint Programming Model (CPM) [2]_ formulation of
-    the Log-Euclidean distance [1]_.
+    Log-Euclidean distance between a SPD matrix B and the convex hull of a set
+    of SPD matrices A [1]_, formulated as a Constraint Programming Model (CPM)
+    [2]_.
 
     Parameters
     ----------
