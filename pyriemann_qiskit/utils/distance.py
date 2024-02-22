@@ -24,7 +24,7 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer()):
 
     Parameters
     ----------
-    A : ndarray, shape (n_classes, n_channels, n_channels)
+    A : ndarray, shape (n_matrices, n_channels, n_channels)
         Set of SPD matrices.
     B : ndarray, shape (n_channels, n_channels)
         SPD matrix.
@@ -33,10 +33,9 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer()):
 
     Returns
     -------
-    weights : ndarray, shape (n_classes,)
-        The weights associated with each class.
-        Higher the weight, closer it is to the class prototype.
-        Weights are not normalized.
+    weights : ndarray, shape (n_matrices,)
+        The optimized weight for each SPD matrix in A, allowing the construction
+        of the convex hull.
 
     Notes
     -----
@@ -64,7 +63,7 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer()):
     prob = Model()
 
     # should be part of the optimizer
-    w = optimizer.get_weights(prob, classes)
+    w = optimizer.get_weights(prob, matrices)
 
     _2VecLogYD = 2 * prob.sum(w[i] * log_prod(B, A[i]) for i in matrices)
 
@@ -93,7 +92,9 @@ def predict_distances(mdm, X):
 
 
 def is_cpm_dist(string):
-    """Return True is "string" represents a Constraint Programming Model (CPM) [1]_
+    """Indicates if the distance is a CPM distance.
+    
+    Return True is "string" represents a Constraint Programming Model (CPM) [1]_
     distance available in the library.
 
     Parameters

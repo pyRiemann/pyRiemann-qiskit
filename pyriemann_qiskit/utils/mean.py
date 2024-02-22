@@ -118,7 +118,9 @@ def mean_logeuclid_cpm(
 
 
 def is_cpm_mean(string):
-    """Return True is "string" represents a Constraint Programming Model (CPM) [1]_
+    """Indicates if the mean is a CPM mean.
+    
+    Return True is "string" represents a Constraint Programming Model (CPM) [1]_
     mean available in the library.
 
     Parameters
