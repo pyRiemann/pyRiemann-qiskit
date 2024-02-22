@@ -65,7 +65,7 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer()):
     # should be part of the optimizer
     w = optimizer.get_weights(prob, classes)
 
-    _2VecLogYD = 2 * prob.sum(w[i] * log_prod(B, A[i]) for i in classes)
+    _2VecLogYD = 2 * prob.sum(w[i] * log_prod(B, A[i]) for i in matrices)
 
     wtDw = prob.sum(
         w[i] * w[j] * log_prod(A[i], A[j]) for i in classes for j in classes
