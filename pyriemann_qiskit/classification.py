@@ -663,7 +663,7 @@ class QuanticMDM(QuanticClassifierBase):
         seed=None,
         upper_bound=7,
         regularization=None,
-        classical_optimizer=CobylaOptimizer(rhobeg=2.1, rhoend=0.000001)
+        classical_optimizer=CobylaOptimizer(rhobeg=2.1, rhoend=0.000001),
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed

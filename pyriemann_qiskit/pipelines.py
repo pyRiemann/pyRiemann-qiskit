@@ -361,14 +361,14 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
 
     def __init__(
         self,
-        metric={'mean': 'logeuclid', 'distance': 'logeuclid_cpm'},
+        metric={"mean": "logeuclid", "distance": "logeuclid_cpm"},
         quantum=True,
         q_account_token=None,
         verbose=True,
         shots=1024,
         upper_bound=7,
         regularization=None,
-        classical_optimizer=CobylaOptimizer(rhobeg=2.1, rhoend=0.000001)
+        classical_optimizer=CobylaOptimizer(rhobeg=2.1, rhoend=0.000001),
     ):
         self.metric = metric
         self.quantum = quantum
@@ -383,7 +383,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
 
     def _create_pipe(self):
         print(self.metric)
-        print(self.metric['mean'])
+        print(self.metric["mean"])
         if is_cpm_mean(self.metric["mean"]):
             if self.quantum:
                 covariances = XdawnCovariances(
@@ -405,7 +405,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
             shots=self.shots,
             upper_bound=self.upper_bound,
             regularization=self.regularization,
-            classical_optimizer=self.classical_optimizer
+            classical_optimizer=self.classical_optimizer,
         )
 
         return make_pipeline(covariances, filtering, clf)
@@ -472,7 +472,7 @@ class QuantumMDMVotingClassifier(BasePipeline):
 
     def _create_pipe(self):
         clf_mean_logeuclid_dist_cpm = QuantumMDMWithRiemannianPipeline(
-            {'mean': 'logeuclid', 'distance': 'logeuclid_cpm'},
+            {"mean": "logeuclid", "distance": "logeuclid_cpm"},
             self.quantum,
             self.q_account_token,
             self.verbose,
@@ -480,7 +480,7 @@ class QuantumMDMVotingClassifier(BasePipeline):
             self.upper_bound,
         )
         clf_mean_cpm_dist_euclid = QuantumMDMWithRiemannianPipeline(
-            {'mean': 'euclid_cpm', 'distance' : 'euclid'},
+            {"mean": "euclid_cpm", "distance": "euclid"},
             self.quantum,
             self.q_account_token,
             self.verbose,
