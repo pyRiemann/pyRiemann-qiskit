@@ -93,7 +93,7 @@ def predict_distances(mdm, X):
 
 def is_cpm_dist(string):
     """Indicates if the distance is a CPM distance.
-    
+
     Return True is "string" represents a Constraint Programming Model (CPM) [1]_
     distance available in the library.
 
