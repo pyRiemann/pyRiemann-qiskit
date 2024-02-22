@@ -103,7 +103,7 @@ def is_cpm_dist(string):
     Returns
     -------
     is_cpm_dist : boolean
-        True if "string" represents a CPM distance aailable in the library.
+        True if "string" represents a CPM distance available in the library.
 
     Notes
     -----
