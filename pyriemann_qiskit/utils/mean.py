@@ -4,7 +4,6 @@ from pyriemann.utils.mean import mean_functions
 from pyriemann_qiskit.utils.docplex import ClassicalOptimizer, get_global_optimizer
 from pyriemann.utils.base import logm, expm
 from qiskit_optimization.algorithms import ADMMOptimizer
-import numpy as np
 
 
 @deprecated(
@@ -104,8 +103,9 @@ def mean_logeuclid_cpm(
     References
     ----------
     .. [1] \
-        Geometric means in a novel vector space structure on symmetric positive-definite matrices\
-        V. Arsigny, P. Fillard, X. Pennec, and N. Ayache.\
+        Geometric means in a novel vector space structure on
+        symmetric positive-definite matrices
+        V. Arsigny, P. Fillard, X. Pennec, and N. Ayache.
         SIAM Journal on Matrix Analysis and Applications. Volume 29, Issue 1 (2007).
     .. [2] \
         http://ibmdecisionoptimization.github.io/docplex-doc/cp/creating_model.html

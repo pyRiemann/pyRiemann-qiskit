@@ -18,7 +18,8 @@ def logeucl_dist_convex():
 def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer()):
     """Log-Euclidean distance by Constraint Programming Model.
 
-    Constraint Programming Model (CPM) [2]_ formulation of the Log-Euclidean distance [1]_.
+    Constraint Programming Model (CPM) [2]_ formulation of
+    the Log-Euclidean distance [1]_.
 
     Parameters
     ----------
@@ -44,7 +45,8 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer()):
     ----------
     .. [1] \
         K. Zhao, A. Wiliem, S. Chen, and B. C. Lovell,
-        ‘Convex Class Model on Symmetric Positive Definite Manifolds’, Image and Vision Computing, 2019.
+        ‘Convex Class Model on Symmetric Positive Definite Manifolds’,
+        Image and Vision Computing, 2019.
     .. [2] \
         http://ibmdecisionoptimization.github.io/docplex-doc/cp/creating_model.html
 
