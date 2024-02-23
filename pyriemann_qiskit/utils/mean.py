@@ -14,7 +14,7 @@ def fro_mean_convex():
     pass
 
 
-def mean_euclid_cpm(covmats, sample_weight=None, optimizer=ClassicalOptimizer()):
+def mean_euclid_cpm(X, sample_weight=None, optimizer=ClassicalOptimizer()):
     """Euclidean mean with Constraint Programming Model.
 
     Constraint Programming Model (CPM) [1]_ formulation of the mean
@@ -22,12 +22,12 @@ def mean_euclid_cpm(covmats, sample_weight=None, optimizer=ClassicalOptimizer())
 
     Parameters
     ----------
-    covmats: ndarray, shape (n_matrices, n_channels, n_channels)
+    X : ndarray, shape (n_matrices, n_channels, n_channels)
         Set of SPD matrices.
-    sample_weights:  None | ndarray, shape (n_matrices,), default=None
+    sample_weights : None | ndarray, shape (n_matrices,), default=None
         Weights for each matrix. Never used in practice.
         It is kept only for standardization with pyRiemann.
-    optimizer: pyQiskitOptimizer
+    optimizer : pyQiskitOptimizer
         An instance of pyQiskitOptimizer.
 
     Returns
@@ -52,19 +52,19 @@ def mean_euclid_cpm(covmats, sample_weight=None, optimizer=ClassicalOptimizer())
 
     optimizer = get_global_optimizer(optimizer)
 
-    n_trials, n_channels, _ = covmats.shape
+    n_matrices, n_channels, _ = X.shape
     channels = range(n_channels)
-    trials = range(n_trials)
+    matrices = range(n_matrices)
 
     prob = Model()
 
     X_mean = optimizer.covmat_var(prob, channels, "fro_mean")
 
-    def _fro_dist(A, B):
+    def _dist_euclid(A, B):
         A = optimizer.convert_covmat(A)
         return prob.sum_squares(A[r, c] - B[r, c] for r in channels for c in channels)
 
-    objectives = prob.sum(_fro_dist(covmats[i], X_mean) for i in trials)
+    objectives = prob.sum(_dist_euclid(X[i], X_mean) for i in matrices)
 
     prob.set_objective("min", objectives)
 
@@ -78,17 +78,17 @@ def mean_logeuclid_cpm(
 ):
     """Log-Euclidean mean with Constraint Programming Model.
 
-    Constraint Programming Model (CPM)  [2]_ formulation of the mean
+    Constraint Programming Model (CPM) [2]_ formulation of the mean
     with Log-Euclidean distance [1]_.
 
     Parameters
     ----------
-    X: ndarray, shape (n_matrices, n_channels, n_channels)
+    X : ndarray, shape (n_matrices, n_channels, n_channels)
         Set of SPD matrices.
-    sample_weights:  None | ndarray, shape (n_matrices,), default=None
+    sample_weights : None | ndarray, shape (n_matrices,), default=None
         Weights for each matrix. Never used in practice.
         It is kept only for standardization with pyRiemann.
-    optimizer: pyQiskitOptimizer
+    optimizer : pyQiskitOptimizer
         An instance of pyQiskitOptimizer.
 
     Returns
@@ -109,7 +109,6 @@ def mean_logeuclid_cpm(
         SIAM Journal on Matrix Analysis and Applications. Volume 29, Issue 1 (2007).
     .. [2] \
         http://ibmdecisionoptimization.github.io/docplex-doc/cp/creating_model.html
-
     """
 
     log_X = logm(X)
