@@ -28,5 +28,5 @@ def test_distance_logeuclid_cpm(optimizer):
     X_1 = X_0 + 1
     X = np.stack((X_0, X_1))
     y = (X_0 + X_1) / 3
-    distances = distance_logeuclid_cpm(X, y, optimizer=optimizer)
+    distances = distance_logeuclid_cpm(X, y, optimizer=optimizer)[0]
     assert distances.argmin() == 0

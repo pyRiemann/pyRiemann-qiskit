@@ -37,6 +37,10 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer()):
         The optimized weights for the set of SPD matrices A.
         Using these weights, the weighted Log-Euclidean mean of set A
         provides the matrix of the convex hull closest to matrix B.
+    distance : float
+        Log-Euclidean distance between the SPD matrix B and the convex hull of the set
+        of SPD matrices A, defined as the distance between B and the matrix of the convex
+        hull closest to matrix B.
 
     Notes
     -----
@@ -78,7 +82,14 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer()):
 
     result = optimizer.solve(prob, reshape=False)
 
-    return 1 - result
+    # compute distance
+    _2VecLogYD = 2 * sum(result[i] * log_prod(B, A[i]) for i in matrices)
+    wtDw = sum(
+        result[i] * result[j] * log_prod(A[i], A[j]) for i in matrices for j in matrices
+    )
+    distance = wtDw - _2VecLogYD
+
+    return 1 - result, distance
 
 
 _mdm_predict_distances_original = MDM._predict_distances
@@ -87,7 +98,7 @@ _mdm_predict_distances_original = MDM._predict_distances
 def predict_distances(mdm, X):
     if mdm.metric_dist == "logeuclid_cpm":
         centroids = np.array(mdm.covmeans_)
-        return np.array([distance_logeuclid_cpm(centroids, x) for x in X])
+        return np.array([distance_logeuclid_cpm(centroids, x)[0] for x in X])
     else:
         return _mdm_predict_distances_original(mdm, X)
 
