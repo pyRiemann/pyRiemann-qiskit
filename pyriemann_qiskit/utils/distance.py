@@ -39,8 +39,8 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer()):
         provides the matrix of the convex hull closest to matrix B.
     distance : float
         Log-Euclidean distance between the SPD matrix B and the convex hull of the set
-        of SPD matrices A, defined as the distance between B and the matrix of the convex
-        hull closest to matrix B.
+        of SPD matrices A, defined as the distance between B and the matrix of
+        the convex hull closest to matrix B.
 
     Notes
     -----
