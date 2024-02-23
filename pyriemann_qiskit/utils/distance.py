@@ -34,8 +34,9 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer()):
     Returns
     -------
     weights : ndarray, shape (n_matrices,)
-        The optimized weight for each SPD matrix in A, allowing the construction
-        of the convex hull.
+        The optimized weights for the set of SPD matrices A.
+        Using these weights, the weighted Log-Euclidean mean of set A
+        provides the matrix of the convex hull closest to matrix B.
 
     Notes
     -----
