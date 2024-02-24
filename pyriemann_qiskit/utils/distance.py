@@ -84,7 +84,7 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer()):
     result = optimizer.solve(prob, reshape=False)
 
     # compute nearest matrix and distance
-    C = mean_logeuclid(A, w)
+    C = mean_logeuclid(A, result)
     distance = distance_logeuclid(C, B)
 
     return 1 - result, distance
