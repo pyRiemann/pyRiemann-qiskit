@@ -82,12 +82,9 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer()):
 
     result = optimizer.solve(prob, reshape=False)
 
-    # compute distance
-    _2VecLogYD = 2 * sum(result[i] * log_prod(B, A[i]) for i in matrices)
-    wtDw = sum(
-        result[i] * result[j] * log_prod(A[i], A[j]) for i in matrices for j in matrices
-    )
-    distance = wtDw - _2VecLogYD
+    # compute nearest matrix and distance
+    C = mean_logeuclid(A, w)
+    distance = distance_logeuclid(C, B)
 
     return 1 - result, distance
 
