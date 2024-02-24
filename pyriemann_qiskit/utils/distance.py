@@ -4,6 +4,8 @@ from pyriemann_qiskit.utils.docplex import ClassicalOptimizer, get_global_optimi
 from pyriemann.classification import MDM
 from pyriemann.utils.distance import distance_functions
 from pyriemann.utils.base import logm
+from pyriemann.utils.distance import distance_logeuclid
+from pyriemann.utils.mean import mean_logeuclid
 from typing_extensions import deprecated
 
 
