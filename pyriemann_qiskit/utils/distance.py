@@ -104,7 +104,9 @@ def predict_distances(mdm, X):
     if mdm.metric_dist == "logeuclid_cpm":
         centroids = np.array(mdm.covmeans_)
 
-        weights = [distance_logeuclid_cpm(centroids, x, return_weights=True)[1] for x in X]
+        weights = [
+            distance_logeuclid_cpm(centroids, x, return_weights=True)[1] for x in X
+        ]
         return 1 - np.array(weights)
     else:
         return _mdm_predict_distances_original(mdm, X)
