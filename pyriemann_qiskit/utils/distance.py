@@ -16,7 +16,7 @@ def logeucl_dist_convex():
     pass
 
 
-def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer()):
+def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer(), return_weights=False):
     """Log-Euclidean distance to a convex hull of SPD matrices.
 
     Log-Euclidean distance between a SPD matrix B and the convex hull of a set
