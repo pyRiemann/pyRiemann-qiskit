@@ -31,6 +31,8 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer(), return_weights=
         SPD matrix.
     optimizer: pyQiskitOptimizer
       An instance of pyQiskitOptimizer.
+    return_weights : bool, default=False
+        Whether to return optimized weights.
 
     Returns
     -------
