@@ -18,9 +18,7 @@ def test_performance():
 
     clf = make_pipeline(
         XdawnCovariances(),
-        QuanticMDM(
-            metric=metric, regularization=regularization, quantum=False
-        ),
+        QuanticMDM(metric=metric, regularization=regularization, quantum=False),
     )
     skf = StratifiedKFold(n_splits=3)
     covset, labels = get_mne_sample()
