@@ -41,7 +41,8 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer(), return_weights=
         of SPD matrices A, defined as the distance between B and the matrix of
         the convex hull closest to matrix B.
     weights : ndarray, shape (n_matrices,)
-        If return_weights is True, it returns the optimized weights for the set of SPD matrices A.
+        If return_weights is True,
+        it returns the optimized weights for the set of SPD matrices A.
         Using these weights, the weighted Log-Euclidean mean of set A
         provides the matrix of the convex hull closest to matrix B.
 
