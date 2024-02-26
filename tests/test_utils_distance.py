@@ -6,23 +6,18 @@ from pyriemann_qiskit.utils import (
 )
 from pyriemann_qiskit.utils.distance import distance_logeuclid_cpm
 from pyriemann_qiskit.datasets import get_mne_sample
-from pyriemann_qiskit.classification import QuanticMDM
-from pyriemann.estimation import XdawnCovariances, Shrinkage
+from pyriemann.classification import MDM
+from pyriemann.estimation import XdawnCovariances
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 
 
 def test_performance():
     metric = {"mean": "logeuclid", "distance": "logeuclid_cpm"}
-    regularization = Shrinkage(Shrinkage=0.9)
 
-    clf = make_pipeline(
-        XdawnCovariances(),
-        QuanticMDM(metric=metric, regularization=regularization, quantum=False),
-    )
+    clf = make_pipeline(XdawnCovariances(), MDM(metric=metric))
     skf = StratifiedKFold(n_splits=3)
     covset, labels = get_mne_sample()
-    covset = regularization.fit_transform(covset)
     score = cross_val_score(clf, covset, labels, cv=skf, scoring="roc_auc")
     assert score.mean() > 0
 
