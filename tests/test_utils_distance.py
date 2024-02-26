@@ -14,15 +14,17 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score
 
 def test_performance():
     metric = {"mean": "logeuclid", "distance": "logeuclid_cpm"}
+    regularization = Shrinkage(Shrinkage=0.9)
 
     clf = make_pipeline(
         XdawnCovariances(),
         QuanticMDM(
-            metric=metric, regularization=Shrinkage(shrinkage=0.9), quantum=False
+            metric=metric, regularization=regularization, quantum=False
         ),
     )
     skf = StratifiedKFold(n_splits=3)
     covset, labels = get_mne_sample()
+    covset = regularization.fit_transform(covset)
     score = cross_val_score(clf, covset, labels, cv=skf, scoring="roc_auc")
     assert score.mean() > 0
 
