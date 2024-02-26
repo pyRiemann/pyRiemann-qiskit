@@ -81,13 +81,17 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer(), return_weights=
 
     prob.set_objective("min", objectives)
 
+    prob.add_constraint(prob.sum(w) == 1)
+
     weights = optimizer.solve(prob, reshape=False)
 
     # compute nearest matrix and distance
-    C = mean_logeuclid(A, result)
+    C = mean_logeuclid(A, weights)
     distance = distance_logeuclid(C, B)
 
-    return 1 - result, distance
+    if return_weights:
+        return distance, weights
+    return distance
 
 
 _mdm_predict_distances_original = MDM._predict_distances
@@ -96,7 +100,10 @@ _mdm_predict_distances_original = MDM._predict_distances
 def predict_distances(mdm, X):
     if mdm.metric_dist == "logeuclid_cpm":
         centroids = np.array(mdm.covmeans_)
-        return np.array([distance_logeuclid_cpm(centroids, x)[0] for x in X])
+        def postprocessed_distances(x):
+            _, weights = distance_logeuclid_cpm(centroids, x, return_weights=True)
+            return 1 - weights
+        return np.array([postprocessed_distances(x) for x in X])
     else:
         return _mdm_predict_distances_original(mdm, X)
 
