@@ -7,6 +7,7 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score
 from pyriemann_qiskit.utils.mean import mean_euclid_cpm, mean_logeuclid_cpm
 from pyriemann_qiskit.utils import ClassicalOptimizer, NaiveQAOAOptimizer
 from pyriemann_qiskit.classification import QuanticMDM
+from pyriemann_qiskit.datasets import get_mne_sample
 from qiskit_optimization.algorithms import ADMMOptimizer
 
 
@@ -14,19 +15,18 @@ from qiskit_optimization.algorithms import ADMMOptimizer
     "kernel",
     [
         ({"mean": "euclid_cpm", "distance": "euclid"}, Shrinkage(shrinkage=0.9)),
-        ({"mean": "euclid", "distance": "logeuclid_cpm"}, Shrinkage(shrinkage=0.9)),
+        ({"mean": "logeuclid_cpm", "distance": "logeuclid"}, Shrinkage(shrinkage=0.9)),
     ],
 )
-def test_performance(get_covmats, get_labels, kernel):
+def test_performance(kernel):
     metric, regularization = kernel
     clf = make_pipeline(
         XdawnCovariances(),
         QuanticMDM(metric=metric, regularization=regularization, quantum=False),
     )
-    skf = StratifiedKFold(n_splits=5)
-    n_matrices, n_channels, n_classes = 100, 3, 2
-    covset = get_covmats(n_matrices, n_channels)
-    labels = get_labels(n_matrices, n_classes)
+    skf = StratifiedKFold(n_splits=3)
+
+    covset, labels = get_mne_sample()
 
     score = cross_val_score(clf, covset, labels, cv=skf, scoring="roc_auc")
     assert score.mean() > 0
