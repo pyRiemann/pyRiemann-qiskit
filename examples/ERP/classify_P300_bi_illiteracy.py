@@ -172,19 +172,19 @@ pipelines[PIP.xDAWN_LDA.value] = make_pipeline(
 placeholder(PIP.xDAWN_LDA.value)
 
 pipelines[PIP.ERPCov_CvxMDM_Dist.value] = QuantumMDMWithRiemannianPipeline(
-    convex_metric="distance", quantum=False
+    metric="distance", quantum=False
 )
 placeholder(PIP.ERPCov_CvxMDM_Dist.value)
 
 # Quantum Pipelines
 
 pipelines[PIP.ERPCov_QMDM_Dist.value] = QuantumMDMWithRiemannianPipeline(
-    convex_metric="distance", quantum=True
+    metric="distance", quantum=True
 )
 placeholder(PIP.ERPCov_QMDM_Dist.value)
 
 pipelines[PIP.ERPCov_QMDM_Dist.value] = QuantumMDMWithRiemannianPipeline(
-    convex_metric="distance", quantum=True
+    metric="distance", quantum=True
 )
 placeholder(PIP.ERPCov_QMDM_Dist.value)
 

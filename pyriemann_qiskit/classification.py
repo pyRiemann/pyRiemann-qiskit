@@ -21,6 +21,7 @@ from qiskit.utils.quantum_instance import logger
 from qiskit_ibm_provider import IBMProvider, least_busy
 from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
 from qiskit_machine_learning.kernels.quantum_kernel import QuantumKernel
+from qiskit_optimization.algorithms import CobylaOptimizer
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.svm import SVC
 
@@ -582,7 +583,7 @@ class QuanticMDM(QuanticClassifierBase):
 
     """Quantum-enhanced MDM classifier
 
-    This class is a convex implementation of the Minimum Distance to Mean (MDM)
+    This class is a quantic implementation of the Minimum Distance to Mean (MDM)
     [1]_, which can run with quantum optimization.
     Only log-Euclidean distance between trial and class prototypes is supported
     at the moment, but any type of metric can be used for centroid estimation.
@@ -593,11 +594,13 @@ class QuanticMDM(QuanticClassifierBase):
     .. versionchanged:: 0.1.0
         Fix: copy estimator not keeping base class parameters.
     .. versionchanged:: 0.2.0
-        Add seed parameter
+        Add seed parameter.
+        Add regularization parameter.
+        Add classical_optimizer parameter.
 
     Parameters
     ----------
-    metric : string | dict, default={"mean": 'logeuclid', "distance": 'convex'}
+    metric : string | dict, default={"mean": 'logeuclid', "distance": 'cpm'}
         The type of metric used for centroid and distance estimation.
         see `mean_covariance` for the list of supported metric.
         the metric could be a dict with two keys, `mean` and `distance` in
@@ -606,7 +609,7 @@ class QuanticMDM(QuanticClassifierBase):
         the mean in order to boost the computional speed and 'riemann' for the
         distance in order to keep the good sensitivity for the classification.
     quantum : bool (default: True)
-        Only applies if `metric` contains a convex distance or mean.
+        Only applies if `metric` contains a cpm distance or mean.
 
         - If true will run on local or remote backend
           (depending on q_account_token value),
@@ -624,6 +627,10 @@ class QuanticMDM(QuanticClassifierBase):
         Random seed for the simulation
     upper_bound : int (default: 7)
         The maximum integer value for matrix normalization.
+    regularization: MixinTransformer (defulat: None)
+        Additional post-processing to regularize means.
+    classical_optimizer : OptimizationAlgorithm
+        An instance of OptimizationAlgorithm [3]_
 
     See Also
     --------
@@ -642,26 +649,32 @@ class QuanticMDM(QuanticClassifierBase):
         A. Barachant, S. Bonnet, M. Congedo and C. Jutten. 9th International
         Conference Latent Variable Analysis and Signal Separation
         (LVA/ICA 2010), LNCS vol. 6365, 2010, p. 629-636.
+    .. [3] \
+        https://qiskit-community.github.io/qiskit-optimization/stubs/qiskit_optimization.algorithms.OptimizationAlgorithm.html#optimizationalgorithm
     """
 
     def __init__(
         self,
-        metric={"mean": "logeuclid", "distance": "convex"},
+        metric={"mean": "logeuclid", "distance": "logeuclid_cpm"},
         quantum=True,
         q_account_token=None,
         verbose=True,
         shots=1024,
         seed=None,
         upper_bound=7,
+        regularization=None,
+        classical_optimizer=CobylaOptimizer(rhobeg=2.1, rhoend=0.000001),
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
         )
         self.metric = metric
         self.upper_bound = upper_bound
+        self.regularization = regularization
+        self.classical_optimizer = classical_optimizer
 
     def _init_algo(self, n_features):
-        self._log("Convex MDM initiating algorithm")
+        self._log("Quantic MDM initiating algorithm")
         classifier = MDM(metric=self.metric)
         if self.quantum:
             self._log("Using NaiveQAOAOptimizer")
@@ -670,9 +683,16 @@ class QuanticMDM(QuanticClassifierBase):
             )
         else:
             self._log("Using ClassicalOptimizer (COBYLA)")
-            self._optimizer = ClassicalOptimizer()
+            self._optimizer = ClassicalOptimizer(self.classical_optimizer)
         set_global_optimizer(self._optimizer)
         return classifier
+
+    def _train(self, X, y):
+        QuanticClassifierBase._train(self, X, y)
+        if self.regularization is not None:
+            self._classifier.covmeans_ = self.regularization.fit_transform(
+                self._classifier.covmeans_
+            )
 
     def predict(self, X):
         """Calculates the predictions.

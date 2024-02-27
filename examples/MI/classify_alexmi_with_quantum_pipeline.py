@@ -20,7 +20,7 @@ from moabb.datasets import AlexMI
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import MotorImagery
 
-# inject convex distance and mean to pyriemann (if not done already)
+# inject cpm distance and mean to pyriemann (if not done already)
 from pyriemann_qiskit.utils import distance, mean  # noqa
 from pyriemann_qiskit.pipelines import (
     QuantumMDMWithRiemannianPipeline,
@@ -68,8 +68,8 @@ for dataset in datasets:
 pipelines = {}
 
 # Will run QAOA under the hood
-pipelines["mean=logeuclid/distance=convex"] = QuantumMDMWithRiemannianPipeline(
-    convex_metric="distance", quantum=True
+pipelines["mean=logeuclid/distance=cpm"] = QuantumMDMWithRiemannianPipeline(
+    metric="distance", quantum=True
 )
 
 # Classical baseline for evaluation

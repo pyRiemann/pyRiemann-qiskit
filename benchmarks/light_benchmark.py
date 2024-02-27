@@ -11,7 +11,7 @@ to run on Ci with each PRs.
 # Modified from plot_classify_P300_bi.py of pyRiemann
 # License: BSD (3-clause)
 
-from pyriemann.estimation import XdawnCovariances
+from pyriemann.estimation import XdawnCovariances, Shrinkage
 from pyriemann.tangentspace import TangentSpace
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
@@ -78,15 +78,17 @@ pipelines["RG_QSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
 )
 
 pipelines["RG_VQC"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=100, spsa_trials=5, two_local_reps=2, params={"seed": 42}
+    shots=100, spsa_trials=1, two_local_reps=2, params={"seed": 42}
 )
 
 pipelines["QMDM_mean"] = QuantumMDMWithRiemannianPipeline(
-    convex_metric="mean", quantum=True
+    metric={"mean": "euclid_cpm", "distance": "euclid"},
+    quantum=True,
+    regularization=Shrinkage(shrinkage=0.9),
 )
 
 pipelines["QMDM_dist"] = QuantumMDMWithRiemannianPipeline(
-    convex_metric="distance", quantum=True
+    metric={"mean": "logeuclid", "distance": "logeuclid_cpm"}, quantum=True
 )
 
 pipelines["RG_LDA"] = make_pipeline(
