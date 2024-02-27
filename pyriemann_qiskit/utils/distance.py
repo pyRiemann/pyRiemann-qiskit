@@ -5,6 +5,7 @@ from pyriemann.classification import MDM
 from pyriemann.utils.distance import distance_functions, distance_logeuclid
 from pyriemann.utils.base import logm
 from pyriemann.utils.mean import mean_logeuclid
+from pyriemann.utils.utils import check_weights
 from typing_extensions import deprecated
 
 
@@ -37,9 +38,9 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer(), return_weights=
     Returns
     -------
     distance : float
-        Log-Euclidean distance between the SPD matrix B and the convex hull of the set
-        of SPD matrices A, defined as the distance between B and the matrix of
-        the convex hull closest to matrix B.
+        Log-Euclidean distance between the SPD matrix B and the convex hull of
+        the set of SPD matrices A, defined as the distance between B and the
+        matrix of the convex hull closest to matrix B.
     weights : ndarray, shape (n_matrices,)
         If return_weights is True,
         it returns the optimized weights for the set of SPD matrices A.
@@ -60,9 +61,6 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer(), return_weights=
         http://ibmdecisionoptimization.github.io/docplex-doc/cp/creating_model.html
 
     """
-
-    optimizer = get_global_optimizer(optimizer)
-
     n_matrices, _, _ = A.shape
     matrices = range(n_matrices)
 
@@ -70,23 +68,21 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer(), return_weights=
         return np.nansum(logm(m1).flatten() * logm(m2).flatten())
 
     prob = Model()
-
+    optimizer = get_global_optimizer(optimizer)
     # should be part of the optimizer
     w = optimizer.get_weights(prob, matrices)
 
-    _2VecLogYD = 2 * prob.sum(w[i] * log_prod(B, A[i]) for i in matrices)
-
-    wtDw = prob.sum(
+    wtLogAtLogAw = prob.sum(
         w[i] * w[j] * log_prod(A[i], A[j]) for i in matrices for j in matrices
     )
-
-    objectives = wtDw - _2VecLogYD
+    wLogBLogA = prob.sum(w[i] * log_prod(B, A[i]) for i in matrices)
+    objectives = wtLogAtLogAw - 2 * wLogBLogA
 
     prob.set_objective("min", objectives)
-
     prob.add_constraint(prob.sum(w) == 1)
-
     weights = optimizer.solve(prob, reshape=False)
+
+    weights = check_weights(weights, n_matrices, check_positivity=True)
 
     # compute nearest matrix and distance
     C = mean_logeuclid(A, weights)
