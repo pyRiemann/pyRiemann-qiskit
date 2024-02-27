@@ -5,7 +5,6 @@ from pyriemann.classification import MDM
 from pyriemann.utils.distance import distance_functions, distance_logeuclid
 from pyriemann.utils.base import logm
 from pyriemann.utils.mean import mean_logeuclid
-from pyriemann.utils.utils import check_weights
 from typing_extensions import deprecated
 
 
@@ -81,8 +80,6 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer(), return_weights=
     prob.set_objective("min", objectives)
     prob.add_constraint(prob.sum(w) == 1)
     weights = optimizer.solve(prob, reshape=False)
-
-    weights = check_weights(weights, n_matrices, check_positivity=True)
 
     # compute nearest matrix and distance
     C = mean_logeuclid(A, weights)
