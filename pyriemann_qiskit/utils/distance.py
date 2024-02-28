@@ -90,19 +90,6 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer(), return_weights=
     return distance
 
 
-_mdm_predict_distances_original = MDM._predict_distances
-
-
-def predict_distances(mdm, X):
-    if mdm.metric_dist == "logeuclid_cpm":
-        centroids = np.array(mdm.covmeans_)
-
-        weights = [
-            distance_logeuclid_cpm(centroids, x, return_weights=True)[1] for x in X
-        ]
-        return 1 - np.array(weights)
-    else:
-        return _mdm_predict_distances_original(mdm, X)
 
 
 def is_cpm_dist(string):
@@ -133,12 +120,4 @@ def is_cpm_dist(string):
     """
     return "_cpm" in string and string in distance_functions
 
-
-MDM._predict_distances = predict_distances
-
-# This is only for validation inside the MDM.
-# In fact, we override the _predict_distances method
-# inside MDM to directly use distance_logeuclid_cpm when the metric is "logeuclid_cpm"
-# This is due to the fact the the signature of this method is different from
-# the usual distance functions.
 distance_functions["logeuclid_cpm"] = distance_logeuclid_cpm

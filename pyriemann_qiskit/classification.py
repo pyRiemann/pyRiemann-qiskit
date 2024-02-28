@@ -16,6 +16,7 @@ from pyriemann_qiskit.utils import (
     NaiveQAOAOptimizer,
     set_global_optimizer,
 )
+from pyriemann_qiskit.utils.distance import distance_logeuclid_cpm
 from qiskit.utils import QuantumInstance
 from qiskit.utils.quantum_instance import logger
 from qiskit_ibm_provider import IBMProvider, least_busy
@@ -579,6 +580,23 @@ class QuanticVQC(QuanticClassifierBase):
         return 0
 
 
+# This is only for validation inside the MDM.
+# In fact, we override the _predict_distances method
+# inside MDM to directly use distance_logeuclid_cpm when the metric is "logeuclid_cpm"
+# This is due to the fact the the signature of this method is different from
+# the usual distance functions.
+def predict_distances(mdm):
+    def _predict_distances(X):
+            if mdm.metric_dist == "logeuclid_cpm":
+                centroids = np.array(mdm.covmeans_)
+                weights = [
+                    distance_logeuclid_cpm(centroids, x, return_weights=True)[1] for x in X
+                ]
+                return 1 - np.array(weights)
+            else:
+                return MDM._predict_distances(mdm, X)
+    return _predict_distances
+        
 class QuanticMDM(QuanticClassifierBase):
 
     """Quantum-enhanced MDM classifier
@@ -672,10 +690,11 @@ class QuanticMDM(QuanticClassifierBase):
         self.upper_bound = upper_bound
         self.regularization = regularization
         self.classical_optimizer = classical_optimizer
-
+    
     def _init_algo(self, n_features):
         self._log("Quantic MDM initiating algorithm")
         classifier = MDM(metric=self.metric)
+        classifier._predict_distances = predict_distances(classifier)
         if self.quantum:
             self._log("Using NaiveQAOAOptimizer")
             self._optimizer = NaiveQAOAOptimizer(

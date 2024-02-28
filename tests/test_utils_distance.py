@@ -5,6 +5,7 @@ from pyriemann_qiskit.utils import (
     NaiveQAOAOptimizer,
 )
 from pyriemann_qiskit.utils.distance import distance_logeuclid_cpm
+from pyriemann_qiskit.classification import QuanticMDM
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann.classification import MDM
 from pyriemann.estimation import XdawnCovariances
@@ -15,7 +16,7 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score
 def test_performance():
     metric = {"mean": "logeuclid", "distance": "logeuclid_cpm"}
 
-    clf = make_pipeline(XdawnCovariances(), MDM(metric=metric))
+    clf = make_pipeline(XdawnCovariances(), QuanticMDM(metric=metric, quantum=False))
     skf = StratifiedKFold(n_splits=3)
     covset, labels = get_mne_sample()
     score = cross_val_score(clf, covset, labels, cv=skf, scoring="roc_auc")
