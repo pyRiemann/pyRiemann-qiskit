@@ -16,7 +16,7 @@ from pyriemann_qiskit.utils import (
     NaiveQAOAOptimizer,
     set_global_optimizer,
 )
-from pyriemann_qiskit.utils.distance import distance_logeuclid_to_convex_hull_cpm, distance_functions
+from pyriemann_qiskit.utils.distance import distance_functions, is_cpm_dist
 from qiskit.utils import QuantumInstance
 from qiskit.utils.quantum_instance import logger
 from qiskit_ibm_provider import IBMProvider, least_busy
@@ -586,7 +586,7 @@ class QuanticVQC(QuanticClassifierBase):
 # the usual distance functions.
 def predict_distances(mdm):
     def _predict_distances(X):
-            if "_cpm" in mdm.metric_dist:
+            if is_cpm_dist(mdm.metric_dist):
                 distance = distance_functions[mdm.metric_dist]
                 centroids = np.array(mdm.covmeans_)
                 weights = [

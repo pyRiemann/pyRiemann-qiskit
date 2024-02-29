@@ -14,16 +14,16 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score
 
 
 @pytest.mark.parametrize(
-    "kernel",
+    "metric",
     [
-        ({"mean": "euclid", "distance": "euclid_cpm"}, None),
-        ({"mean": "logeuclid", "distance": "logeuclid_hull_cpm"}, None),
+        {"mean": "euclid", "distance": "euclid_cpm"},
+        {"mean": "logeuclid", "distance": "logeuclid_cpm"},
+        {"mean": "logeuclid", "distance": "logeuclid_hull_cpm"},
     ],
 )
-def test_performance(kernel):
-    metric, regularization = kernel
+def test_performance(metric):
 
-    clf = make_pipeline(XdawnCovariances(), QuanticMDM(metric=metric, quantum=False, regularization=regularization))
+    clf = make_pipeline(XdawnCovariances(), QuanticMDM(metric=metric, quantum=False))
     skf = StratifiedKFold(n_splits=3)
     covset, labels = get_mne_sample()
     score = cross_val_score(clf, covset, labels, cv=skf, scoring="roc_auc")

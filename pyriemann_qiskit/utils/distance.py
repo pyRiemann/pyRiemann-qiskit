@@ -124,14 +124,14 @@ def weights_logeuclid_to_convex_hull_cpm(A, B, optimizer=ClassicalOptimizer()):
 
     return weights
 
-def weights_euclid_cpm(A, B, optimizer=ClassicalOptimizer()):
-    """Euclidean weights between a SPD and a set of SPD matrices.
+def weights_distance_cpm(A, B, distance=distance_logeuclid, optimizer=ClassicalOptimizer()):
+    """`distance` weights between a SPD and a set of SPD matrices.
 
-    Euclidean weights between a SPD matrix B and each SPD matrix inside A,
+    `distance` weights between a SPD matrix B and each SPD matrix inside A,
     formulated as a Constraint Programming Model (CPM)
     [1]_.
     The higher weight corresponds to the closer SPD matrix inside A,
-    which is closer to B
+    which is closer to B.
 
     Parameters
     ----------
@@ -139,6 +139,8 @@ def weights_euclid_cpm(A, B, optimizer=ClassicalOptimizer()):
         Set of SPD matrices.
     B : ndarray, shape (n_channels, n_channels)
         SPD matrix.
+    distance: Callable[[ndarray, ndarray], float]
+        One of the pyRiemann distance
     optimizer: pyQiskitOptimizer
       An instance of pyQiskitOptimizer.
 
@@ -162,16 +164,13 @@ def weights_euclid_cpm(A, B, optimizer=ClassicalOptimizer()):
     n_matrices, _, _ = A.shape
     matrices = range(n_matrices)
 
-    def log_prod(m1, m2):
-        return np.nansum(logm(m1).flatten() * logm(m2).flatten())
-
     prob = Model()
     optimizer = get_global_optimizer(optimizer)
-    # should be part of the optimizer
+
     w = optimizer.get_weights(prob, matrices)
 
     objectif = prob.sum(
-        w[i] * distance_euclid(B, A[i]) for i in matrices
+        w[i] * distance(B, A[i]) for i in matrices
     )
 
     prob.set_objective("min", objectif)
@@ -210,4 +209,5 @@ def is_cpm_dist(string):
     return "_cpm" in string and string in distance_functions
 
 distance_functions["logeuclid_hull_cpm"] = weights_logeuclid_to_convex_hull_cpm
-distance_functions["euclid_cpm"] = weights_euclid_cpm
+distance_functions["euclid_cpm"] = lambda A, B: weights_distance_cpm(A, B, distance_euclid)
+distance_functions["logeuclid_cpm"] = lambda A, B: weights_distance_cpm(A, B, distance_logeuclid)
