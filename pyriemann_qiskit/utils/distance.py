@@ -15,7 +15,7 @@ def logeucl_dist_convex():
     pass
 
 
-def distance_logeuclid_to_convex_hull_cpm(A, B, optimizer=ClassicalOptimizer(), return_weights=False):
+def distance_logeuclid_to_convex_hull_cpm(A, B, optimizer=ClassicalOptimizer()):
     """Log-Euclidean distance to a convex hull of SPD matrices.
 
     Log-Euclidean distance between a SPD matrix B and the convex hull of a set
@@ -30,8 +30,6 @@ def distance_logeuclid_to_convex_hull_cpm(A, B, optimizer=ClassicalOptimizer(), 
         SPD matrix.
     optimizer: pyQiskitOptimizer
       An instance of pyQiskitOptimizer.
-    return_weights : bool, default=False
-        Whether to return optimized weights.
 
     Returns
     -------
@@ -39,8 +37,50 @@ def distance_logeuclid_to_convex_hull_cpm(A, B, optimizer=ClassicalOptimizer(), 
         Log-Euclidean distance between the SPD matrix B and the convex hull of
         the set of SPD matrices A, defined as the distance between B and the
         matrix of the convex hull closest to matrix B.
+
+    Notes
+    -----
+    .. versionadded:: 0.2.0
+
+
+    References
+    ----------
+    .. [1] \
+        K. Zhao, A. Wiliem, S. Chen, and B. C. Lovell,
+        ‘Convex Class Model on Symmetric Positive Definite Manifolds’,
+        Image and Vision Computing, 2019.
+    .. [2] \
+        http://ibmdecisionoptimization.github.io/docplex-doc/cp/creating_model.html
+
+    """
+    weights = weights_logeuclid_to_convex_hull_cpm(A, B, optimizer)
+
+    # compute nearest matrix and distance
+    C = mean_logeuclid(A, weights)
+    distance = distance_logeuclid(C, B)
+
+    return distance
+
+
+def weights_logeuclid_to_convex_hull_cpm(A, B, optimizer=ClassicalOptimizer()):
+    """Log-Euclidean weights to a convex hull of SPD matrices.
+
+    Log-Euclidean weights between a SPD matrix B and the convex hull of a set
+    of SPD matrices A [1]_, formulated as a Constraint Programming Model (CPM)
+    [2]_.
+
+    Parameters
+    ----------
+    A : ndarray, shape (n_matrices, n_channels, n_channels)
+        Set of SPD matrices.
+    B : ndarray, shape (n_channels, n_channels)
+        SPD matrix.
+    optimizer: pyQiskitOptimizer
+      An instance of pyQiskitOptimizer.
+
+    Returns
+    -------
     weights : ndarray, shape (n_matrices,)
-        If return_weights is True,
         it returns the optimized weights for the set of SPD matrices A.
         Using these weights, the weighted Log-Euclidean mean of set A
         provides the matrix of the convex hull closest to matrix B.
@@ -50,8 +90,6 @@ def distance_logeuclid_to_convex_hull_cpm(A, B, optimizer=ClassicalOptimizer(), 
     .. versionadded:: 0.0.4
     .. versionchanged:: 0.2.0
         Add linear constraint on weights (sum = 1)
-        Compute and return distance in addition to weights
-
 
     References
     ----------
@@ -84,14 +122,7 @@ def distance_logeuclid_to_convex_hull_cpm(A, B, optimizer=ClassicalOptimizer(), 
     prob.add_constraint(prob.sum(w) == 1)
     weights = optimizer.solve(prob, reshape=False)
 
-    # compute nearest matrix and distance
-    C = mean_logeuclid(A, weights)
-    distance = distance_logeuclid(C, B)
-
-    if return_weights:
-        return distance, weights
-    return distance
-
+    return weights
 
 def weights_euclid_cpm(A, B, optimizer=ClassicalOptimizer()):
     """Euclidean weights between a SPD and a set of SPD matrices.
@@ -178,5 +209,5 @@ def is_cpm_dist(string):
     """
     return "_cpm" in string and string in distance_functions
 
-distance_functions["logeuclid_hull_cpm"] = distance_logeuclid_to_convex_hull_cpm
+distance_functions["logeuclid_hull_cpm"] = weights_logeuclid_to_convex_hull_cpm
 distance_functions["euclid_cpm"] = weights_euclid_cpm
