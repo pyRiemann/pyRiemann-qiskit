@@ -587,22 +587,24 @@ class QuanticVQC(QuanticClassifierBase):
 # the usual distance functions.
 def predict_distances(mdm):
     def _predict_distances(X):
-            if is_cpm_dist(mdm.metric_dist):
-                if "logeuclid_hull_cpm" in mdm.metric_dist:
-                    warn("logeuclid_hull_cpm should not be use inside MDM")
-                else:
-                    warn("CPM distances for MDM are toy functions.\
-                        Use pyRiemann distances instead.")
-                distance = distance_functions[mdm.metric_dist]
-                centroids = np.array(mdm.covmeans_)
-                weights = [
-                    distance(centroids, x) for x in X
-                ]
-                return 1 - np.array(weights)
+        if is_cpm_dist(mdm.metric_dist):
+            if "logeuclid_hull_cpm" in mdm.metric_dist:
+                warn("logeuclid_hull_cpm should not be use inside MDM")
             else:
-                return MDM._predict_distances(mdm, X)
+                warn(
+                    "CPM distances for MDM are toy functions.\
+                        Use pyRiemann distances instead."
+                )
+            distance = distance_functions[mdm.metric_dist]
+            centroids = np.array(mdm.covmeans_)
+            weights = [distance(centroids, x) for x in X]
+            return 1 - np.array(weights)
+        else:
+            return MDM._predict_distances(mdm, X)
+
     return _predict_distances
-        
+
+
 class QuanticMDM(QuanticClassifierBase):
 
     """Quantum-enhanced MDM classifier
@@ -696,7 +698,7 @@ class QuanticMDM(QuanticClassifierBase):
         self.upper_bound = upper_bound
         self.regularization = regularization
         self.classical_optimizer = classical_optimizer
-    
+
     def _init_algo(self, n_features):
         self._log("Quantic MDM initiating algorithm")
         classifier = MDM(metric=self.metric)

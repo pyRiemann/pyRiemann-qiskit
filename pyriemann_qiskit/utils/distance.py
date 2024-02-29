@@ -1,7 +1,11 @@
 import numpy as np
 from docplex.mp.model import Model
 from pyriemann_qiskit.utils.docplex import ClassicalOptimizer, get_global_optimizer
-from pyriemann.utils.distance import distance_functions, distance_logeuclid, distance_euclid
+from pyriemann.utils.distance import (
+    distance_functions,
+    distance_logeuclid,
+    distance_euclid,
+)
 from pyriemann.utils.base import logm
 from pyriemann.utils.mean import mean_logeuclid
 from typing_extensions import deprecated
@@ -124,7 +128,10 @@ def weights_logeuclid_to_convex_hull_cpm(A, B, optimizer=ClassicalOptimizer()):
 
     return weights
 
-def weights_distance_cpm(A, B, distance=distance_logeuclid, optimizer=ClassicalOptimizer()):
+
+def weights_distance_cpm(
+    A, B, distance=distance_logeuclid, optimizer=ClassicalOptimizer()
+):
     """`distance` weights between a SPD and a set of SPD matrices.
 
     `distance` weights between a SPD matrix B and each SPD matrix inside A,
@@ -169,9 +176,7 @@ def weights_distance_cpm(A, B, distance=distance_logeuclid, optimizer=ClassicalO
 
     w = optimizer.get_weights(prob, matrices)
 
-    objectif = prob.sum(
-        w[i] * distance(B, A[i]) for i in matrices
-    )
+    objectif = prob.sum(w[i] * distance(B, A[i]) for i in matrices)
 
     prob.set_objective("min", objectif)
     prob.add_constraint(prob.sum(w) == 1)
@@ -208,6 +213,11 @@ def is_cpm_dist(string):
     """
     return "_cpm" in string and string in distance_functions
 
+
 distance_functions["logeuclid_hull_cpm"] = weights_logeuclid_to_convex_hull_cpm
-distance_functions["euclid_cpm"] = lambda A, B: weights_distance_cpm(A, B, distance_euclid)
-distance_functions["logeuclid_cpm"] = lambda A, B: weights_distance_cpm(A, B, distance_logeuclid)
+distance_functions["euclid_cpm"] = lambda A, B: weights_distance_cpm(
+    A, B, distance_euclid
+)
+distance_functions["logeuclid_cpm"] = lambda A, B: weights_distance_cpm(
+    A, B, distance_logeuclid
+)

@@ -22,7 +22,6 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score
     ],
 )
 def test_performance(metric):
-
     clf = make_pipeline(XdawnCovariances(), QuanticMDM(metric=metric, quantum=False))
     skf = StratifiedKFold(n_splits=3)
     covset, labels = get_mne_sample()
