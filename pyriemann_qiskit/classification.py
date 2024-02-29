@@ -16,7 +16,7 @@ from pyriemann_qiskit.utils import (
     NaiveQAOAOptimizer,
     set_global_optimizer,
 )
-from pyriemann_qiskit.utils.distance import distance_logeuclid_cpm
+from pyriemann_qiskit.utils.distance import distance_logeuclid_to_convex_hull_cpm
 from qiskit.utils import QuantumInstance
 from qiskit.utils.quantum_instance import logger
 from qiskit_ibm_provider import IBMProvider, least_busy
@@ -582,15 +582,15 @@ class QuanticVQC(QuanticClassifierBase):
 
 # This is only for validation inside the MDM.
 # In fact, we override the _predict_distances method
-# inside MDM to directly use distance_logeuclid_cpm when the metric is "logeuclid_cpm"
+# inside MDM to directly use distance_logeuclid_cpm when the metric is "logeuclid_hull_cpm"
 # This is due to the fact the the signature of this method is different from
 # the usual distance functions.
 def predict_distances(mdm):
     def _predict_distances(X):
-            if mdm.metric_dist == "logeuclid_cpm":
+            if mdm.metric_dist == "logeuclid_hull_cpm":
                 centroids = np.array(mdm.covmeans_)
                 weights = [
-                    distance_logeuclid_cpm(centroids, x, return_weights=True)[1] for x in X
+                    distance_logeuclid_to_convex_hull_cpm(centroids, x, return_weights=True)[1] for x in X
                 ]
                 return 1 - np.array(weights)
             else:
@@ -673,7 +673,7 @@ class QuanticMDM(QuanticClassifierBase):
 
     def __init__(
         self,
-        metric={"mean": "logeuclid", "distance": "logeuclid_cpm"},
+        metric={"mean": "logeuclid", "distance": "logeuclid_hull_cpm"},
         quantum=True,
         q_account_token=None,
         verbose=True,

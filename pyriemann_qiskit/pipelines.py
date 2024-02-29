@@ -361,7 +361,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
 
     def __init__(
         self,
-        metric={"mean": "logeuclid", "distance": "logeuclid_cpm"},
+        metric={"mean": "logeuclid", "distance": "logeuclid_hull_cpm"},
         quantum=True,
         q_account_token=None,
         verbose=True,
@@ -472,7 +472,7 @@ class QuantumMDMVotingClassifier(BasePipeline):
 
     def _create_pipe(self):
         clf_mean_logeuclid_dist_cpm = QuantumMDMWithRiemannianPipeline(
-            {"mean": "logeuclid", "distance": "logeuclid_cpm"},
+            {"mean": "logeuclid", "distance": "logeuclid_hull_cpm"},
             self.quantum,
             self.q_account_token,
             self.verbose,

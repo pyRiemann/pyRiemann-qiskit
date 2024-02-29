@@ -1,8 +1,7 @@
 import numpy as np
 from docplex.mp.model import Model
 from pyriemann_qiskit.utils.docplex import ClassicalOptimizer, get_global_optimizer
-from pyriemann.classification import MDM
-from pyriemann.utils.distance import distance_functions, distance_logeuclid
+from pyriemann.utils.distance import distance_functions, distance_logeuclid, distance_euclid
 from pyriemann.utils.base import logm
 from pyriemann.utils.mean import mean_logeuclid
 from typing_extensions import deprecated
@@ -16,7 +15,7 @@ def logeucl_dist_convex():
     pass
 
 
-def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer(), return_weights=False):
+def distance_logeuclid_to_convex_hull_cpm(A, B, optimizer=ClassicalOptimizer(), return_weights=False):
     """Log-Euclidean distance to a convex hull of SPD matrices.
 
     Log-Euclidean distance between a SPD matrix B and the convex hull of a set
@@ -49,6 +48,10 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer(), return_weights=
     Notes
     -----
     .. versionadded:: 0.0.4
+    .. versionchanged:: 0.2.0
+        Add linear constraint on weights (sum = 1)
+        Compute and return distance in addition to weights
+
 
     References
     ----------
@@ -90,6 +93,61 @@ def distance_logeuclid_cpm(A, B, optimizer=ClassicalOptimizer(), return_weights=
     return distance
 
 
+def weights_euclid_cpm(A, B, optimizer=ClassicalOptimizer()):
+    """Euclidean weights between a SPD and a set of SPD matrices.
+
+    Euclidean weights between a SPD matrix B and each SPD matrix inside A,
+    formulated as a Constraint Programming Model (CPM)
+    [1]_.
+    The higher weight corresponds to the closer SPD matrix inside A,
+    which is closer to B
+
+    Parameters
+    ----------
+    A : ndarray, shape (n_matrices, n_channels, n_channels)
+        Set of SPD matrices.
+    B : ndarray, shape (n_channels, n_channels)
+        SPD matrix.
+    optimizer: pyQiskitOptimizer
+      An instance of pyQiskitOptimizer.
+
+    Returns
+    -------
+    weights : ndarray, shape (n_matrices,)
+        it returns the optimized weights for the set of SPD matrices A.
+        The higher weight corresponds to the closer SPD matrix inside A,
+        which is closer to B
+
+    Notes
+    -----
+    .. versionadded:: 0.2.0
+
+    References
+    ----------
+    .. [1] \
+        http://ibmdecisionoptimization.github.io/docplex-doc/cp/creating_model.html
+
+    """
+    n_matrices, _, _ = A.shape
+    matrices = range(n_matrices)
+
+    def log_prod(m1, m2):
+        return np.nansum(logm(m1).flatten() * logm(m2).flatten())
+
+    prob = Model()
+    optimizer = get_global_optimizer(optimizer)
+    # should be part of the optimizer
+    w = optimizer.get_weights(prob, matrices)
+
+    objectif = prob.sum(
+        w[i] * distance_euclid(B, A[i]) for i in matrices
+    )
+
+    prob.set_objective("min", objectif)
+    prob.add_constraint(prob.sum(w) == 1)
+    weights = optimizer.solve(prob, reshape=False)
+
+    return weights
 
 
 def is_cpm_dist(string):
@@ -120,4 +178,5 @@ def is_cpm_dist(string):
     """
     return "_cpm" in string and string in distance_functions
 
-distance_functions["logeuclid_cpm"] = distance_logeuclid_cpm
+distance_functions["logeuclid_hull_cpm"] = distance_logeuclid_to_convex_hull_cpm
+distance_functions["euclid_cpm"] = weights_euclid_cpm

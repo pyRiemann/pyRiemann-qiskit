@@ -88,7 +88,7 @@ pipelines["QMDM_mean"] = QuantumMDMWithRiemannianPipeline(
 )
 
 pipelines["QMDM_dist"] = QuantumMDMWithRiemannianPipeline(
-    metric={"mean": "logeuclid", "distance": "logeuclid_cpm"}, quantum=True
+    metric={"mean": "logeuclid", "distance": "logeuclid_hull_cpm"}, quantum=True
 )
 
 pipelines["RG_LDA"] = make_pipeline(
