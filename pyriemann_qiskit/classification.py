@@ -8,6 +8,7 @@ from datetime import datetime
 from scipy.special import softmax
 import logging
 import numpy as np
+from warnings import warn
 
 from pyriemann.classification import MDM
 from pyriemann_qiskit.datasets import get_feature_dimension
@@ -587,6 +588,11 @@ class QuanticVQC(QuanticClassifierBase):
 def predict_distances(mdm):
     def _predict_distances(X):
             if is_cpm_dist(mdm.metric_dist):
+                if "logeuclid_hull_cpm" in mdm.metric_dist:
+                    warn("logeuclid_hull_cpm should not be use inside MDM")
+                else:
+                    warn("CPM distances for MDM are toy functions.\
+                        Use pyRiemann distances instead.")
                 distance = distance_functions[mdm.metric_dist]
                 centroids = np.array(mdm.covmeans_)
                 weights = [
