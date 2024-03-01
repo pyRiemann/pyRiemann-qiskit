@@ -69,7 +69,7 @@ def distance_logeuclid_to_convex_hull_cpm(A, B, optimizer=ClassicalOptimizer()):
 def weights_logeuclid_to_convex_hull_cpm(A, B, optimizer=ClassicalOptimizer()):
     """Weights for Log-Euclidean distance to a convex hull of SPD matrices.
 
-    Log-Euclidean weights between a SPD matrix B and the convex hull of a set
+    Weights for Log-Euclidean distance between a SPD matrix B and the convex hull of a set
     of SPD matrices A [1]_, formulated as a Constraint Programming Model (CPM)
     [2]_.
 
