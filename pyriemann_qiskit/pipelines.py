@@ -8,7 +8,7 @@ from qiskit_optimization.algorithms import CobylaOptimizer
 from pyriemann.estimation import XdawnCovariances, ERPCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann.preprocessing import Whitening
-from pyriemann_qiskit.utils.mean import is_cpm_mean
+from pyriemann_qiskit.utils.mean import is_qmean
 from pyriemann_qiskit.utils.filtering import NoDimRed
 from pyriemann_qiskit.utils.hyper_params_factory import (
     # gen_zz_feature_map,
@@ -312,7 +312,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
 
     Parameters
     ----------
-    metric : string | dict, default={"mean": 'logeuclid', "distance": 'logeuclid_cpm'}
+    metric : string | dict, default={"mean": 'logeuclid', "distance": 'qlogeuclid'}
         The type of metric used for centroid and distance estimation.
     quantum : bool (default: True)
         - If true will run on local or remote backend
@@ -361,7 +361,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
 
     def __init__(
         self,
-        metric={"mean": "logeuclid", "distance": "logeuclid_hull_cpm"},
+        metric={"mean": "logeuclid", "distance": "qlogeuclid_hull"},
         quantum=True,
         q_account_token=None,
         verbose=True,
@@ -384,7 +384,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
     def _create_pipe(self):
         print(self.metric)
         print(self.metric["mean"])
-        if is_cpm_mean(self.metric["mean"]):
+        if is_qmean(self.metric["mean"]):
             if self.quantum:
                 covariances = XdawnCovariances(
                     nfilter=1, estimator="scm", xdawn_estimator="lwf"
@@ -418,8 +418,8 @@ class QuantumMDMVotingClassifier(BasePipeline):
     Voting classifier with two configurations of
     QuantumMDMWithRiemannianPipeline:
 
-    - with mean = euclid_cpm and distance = euclid,
-    - with mean = logeuclid and distance = logeuclid_cpm.
+    - with mean = qeuclid and distance = euclid,
+    - with mean = logeuclid and distance = qlogeuclid.
 
     Parameters
     ----------
@@ -472,7 +472,7 @@ class QuantumMDMVotingClassifier(BasePipeline):
 
     def _create_pipe(self):
         clf_mean_logeuclid_dist_cpm = QuantumMDMWithRiemannianPipeline(
-            {"mean": "logeuclid", "distance": "logeuclid_hull_cpm"},
+            {"mean": "logeuclid", "distance": "qlogeuclid_hull"},
             self.quantum,
             self.q_account_token,
             self.verbose,
@@ -480,7 +480,7 @@ class QuantumMDMVotingClassifier(BasePipeline):
             self.upper_bound,
         )
         clf_mean_cpm_dist_euclid = QuantumMDMWithRiemannianPipeline(
-            {"mean": "euclid_cpm", "distance": "euclid"},
+            {"mean": "qeuclid", "distance": "euclid"},
             self.quantum,
             self.q_account_token,
             self.verbose,

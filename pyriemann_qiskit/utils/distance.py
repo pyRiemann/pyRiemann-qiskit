@@ -13,13 +13,13 @@ from typing_extensions import deprecated
 
 @deprecated(
     "logeucl_dist_convex is deprecated and will be removed in 0.3.0; "
-    "please use distance_logeuclid_cpm."
+    "please use qdistance_logeuclid_to_convex_hull."
 )
 def logeucl_dist_convex():
     pass
 
 
-def distance_logeuclid_to_convex_hull_cpm(A, B, optimizer=ClassicalOptimizer()):
+def qdistance_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
     """Log-Euclidean distance to a convex hull of SPD matrices.
 
     Log-Euclidean distance between a SPD matrix B and the convex hull of a set
@@ -57,7 +57,7 @@ def distance_logeuclid_to_convex_hull_cpm(A, B, optimizer=ClassicalOptimizer()):
         http://ibmdecisionoptimization.github.io/docplex-doc/cp/creating_model.html
 
     """
-    weights = weights_logeuclid_to_convex_hull_cpm(A, B, optimizer)
+    weights = weights_logeuclid_to_convex_hull(A, B, optimizer)
 
     # compute nearest matrix and distance
     C = mean_logeuclid(A, weights)
@@ -66,7 +66,7 @@ def distance_logeuclid_to_convex_hull_cpm(A, B, optimizer=ClassicalOptimizer()):
     return distance
 
 
-def weights_logeuclid_to_convex_hull_cpm(A, B, optimizer=ClassicalOptimizer()):
+def weights_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
     """Weights for Log-Euclidean distance to a convex hull of SPD matrices.
 
     Weights for Log-Euclidean distance between a SPD matrix B and the convex hull of a set
@@ -129,7 +129,7 @@ def weights_logeuclid_to_convex_hull_cpm(A, B, optimizer=ClassicalOptimizer()):
     return weights
 
 
-def weights_distance_cpm(
+def weights_distance(
     A, B, distance=distance_logeuclid, optimizer=ClassicalOptimizer()
 ):
     """`distance` weights between a SPD and a set of SPD matrices.
@@ -185,11 +185,11 @@ def weights_distance_cpm(
     return weights
 
 
-def is_cpm_dist(string):
-    """Indicates if the distance is a CPM distance.
+def is_qdist(string):
+    """Indicates if the distance is a distance introduced in pyRiemann-qiskit.
 
-    Return True is "string" represents a Constraint Programming Model (CPM) [1]_
-    distance available in the library.
+    Return True is "string" represents a
+    distance introduced in pyRiemann-qiskit.
 
     Parameters
     ----------
@@ -198,8 +198,8 @@ def is_cpm_dist(string):
 
     Returns
     -------
-    is_cpm_dist : boolean
-        True if "string" represents a CPM distance available in the library.
+    is_q_dist : boolean
+        True if "string" represents a distance available in the library.
 
     Notes
     -----
@@ -211,13 +211,13 @@ def is_cpm_dist(string):
         http://ibmdecisionoptimization.github.io/docplex-doc/cp/creating_model.html
 
     """
-    return "_cpm" in string and string in distance_functions
+    return string[0] == "q" and string in distance_functions
 
 
-distance_functions["logeuclid_hull_cpm"] = weights_logeuclid_to_convex_hull_cpm
-distance_functions["euclid_cpm"] = lambda A, B: weights_distance_cpm(
+distance_functions["qlogeuclid_hull"] = weights_logeuclid_to_convex_hull
+distance_functions["qeuclid"] = lambda A, B: weights_distance(
     A, B, distance_euclid
 )
-distance_functions["logeuclid_cpm"] = lambda A, B: weights_distance_cpm(
+distance_functions["qlogeuclid"] = lambda A, B: weights_distance(
     A, B, distance_logeuclid
 )

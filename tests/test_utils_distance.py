@@ -4,7 +4,7 @@ from pyriemann_qiskit.utils import (
     ClassicalOptimizer,
     NaiveQAOAOptimizer,
 )
-from pyriemann_qiskit.utils.distance import weights_logeuclid_to_convex_hull_cpm
+from pyriemann_qiskit.utils.distance import weights_logeuclid_to_convex_hull
 from pyriemann_qiskit.classification import QuanticMDM
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann.classification import MDM
@@ -16,9 +16,9 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score
 @pytest.mark.parametrize(
     "metric",
     [
-        {"mean": "euclid", "distance": "euclid_cpm"},
-        {"mean": "logeuclid", "distance": "logeuclid_cpm"},
-        {"mean": "logeuclid", "distance": "logeuclid_hull_cpm"},
+        {"mean": "euclid", "distance": "qeuclid"},
+        {"mean": "logeuclid", "distance": "qlogeuclid"},
+        {"mean": "logeuclid", "distance": "qlogeuclid_hull"},
     ],
 )
 def test_performance(metric):
@@ -35,6 +35,6 @@ def test_distance_logeuclid_to_convex_hull_cpm(optimizer):
     X_1 = X_0 + 1
     X = np.stack((X_0, X_1))
     y = (X_0 + X_1) / 3
-    weights = weights_logeuclid_to_convex_hull_cpm(X, y, optimizer=optimizer)
+    weights = weights_logeuclid_to_convex_hull(X, y, optimizer=optimizer)
     distances = 1 - weights
     assert distances.argmin() == 0

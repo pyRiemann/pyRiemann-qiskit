@@ -17,7 +17,7 @@ from pyriemann_qiskit.utils import (
     NaiveQAOAOptimizer,
     set_global_optimizer,
 )
-from pyriemann_qiskit.utils.distance import distance_functions, is_cpm_dist
+from pyriemann_qiskit.utils.distance import distance_functions, is_qdist
 from qiskit.utils import QuantumInstance
 from qiskit.utils.quantum_instance import logger
 from qiskit_ibm_provider import IBMProvider, least_busy
@@ -587,12 +587,12 @@ class QuanticVQC(QuanticClassifierBase):
 # the usual distance functions.
 def predict_distances(mdm):
     def _predict_distances(X):
-        if is_cpm_dist(mdm.metric_dist):
-            if "logeuclid_hull_cpm" in mdm.metric_dist:
-                warn("logeuclid_hull_cpm should not be use inside MDM")
+        if is_qdist(mdm.metric_dist):
+            if "qlogeuclid_hull" in mdm.metric_dist:
+                warn("qlogeuclid_hull should not be use inside MDM")
             else:
                 warn(
-                    "CPM distances for MDM are toy functions.\
+                    "q-distances for MDM are toy functions.\
                         Use pyRiemann distances instead."
                 )
             distance = distance_functions[mdm.metric_dist]
@@ -681,7 +681,7 @@ class QuanticMDM(QuanticClassifierBase):
 
     def __init__(
         self,
-        metric={"mean": "logeuclid", "distance": "logeuclid_hull_cpm"},
+        metric={"mean": "logeuclid", "distance": "qlogeuclid_hull"},
         quantum=True,
         q_account_token=None,
         verbose=True,
