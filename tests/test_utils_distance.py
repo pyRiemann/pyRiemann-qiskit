@@ -7,7 +7,6 @@ from pyriemann_qiskit.utils import (
 from pyriemann_qiskit.utils.distance import weights_logeuclid_to_convex_hull
 from pyriemann_qiskit.classification import QuanticMDM
 from pyriemann_qiskit.datasets import get_mne_sample
-from pyriemann.classification import MDM
 from pyriemann.estimation import XdawnCovariances
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
