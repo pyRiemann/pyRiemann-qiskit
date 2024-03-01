@@ -119,7 +119,7 @@ def qmean_logeuclid(
 def is_qmean(string):
     """Indicates if the mean is a mean introduced in this library.
 
-    Return True is "string" represents a 
+    Return True is "string" represents a
     mean available in the library.
 
     Parameters
