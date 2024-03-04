@@ -32,8 +32,8 @@ def qdistance_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
         Set of SPD matrices.
     B : ndarray, shape (n_channels, n_channels)
         SPD matrix.
-    optimizer: pyQiskitOptimizer
-      An instance of pyQiskitOptimizer.
+    optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
+      An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
 
     Returns
     -------
