@@ -268,17 +268,23 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                 "No predict_proba method available.\
                        Computing softmax probabilities..."
             )
-            proba = self._classifier.predict(X)
-            proba = [
-                np.array(
-                    [
-                        1 if c == self.classes_[i] else 0
-                        for i in range(len(self.classes_))
-                    ]
+            if (self._classifier == None):
+                self._log(
+                    "No classifier available, using class predict()"
                 )
-                for c in proba
-            ]
-            proba = softmax(proba, axis=0)
+                return self.predict(X)
+            else:
+                proba = self._classifier.predict(X)
+                proba = [
+                    np.array(
+                        [
+                            1 if c == self.classes_[i] else 0
+                            for i in range(len(self.classes_))
+                        ]
+                    )
+                    for c in proba
+                ]
+                proba = softmax(proba, axis=0)
         else:
             proba = self._classifier.predict_proba(X)
 
@@ -810,6 +816,8 @@ class NearestConvexHull(QuanticClassifierBase):
             The NearestNeighbor instance.
         """
         
+        self._log("Start NCH Train") 
+        
         #self.covmeans_ = X
         #self.classmeans_ = y
         self.classes_ = np.unique(y)
@@ -822,6 +830,8 @@ class NearestConvexHull(QuanticClassifierBase):
             
         for c in self.classes_:
             self.matrices_per_class_[c] = np.array(self.matrices_per_class_[c])
+            
+        self._log("End NCH Train") 
 
     def predict(self, X):
         """Calculates the predictions.
@@ -838,11 +848,19 @@ class NearestConvexHull(QuanticClassifierBase):
             Class labels for samples in X.
         """
         
-        best_distance = -1
-        best_class = -1
-        
+        self._log("Start NCH Predict") 
         pred = []
+        
+        self._log("Total test samples:", X.shape[0]) 
+        i = 1;
+        
         for test_sample in X:
+            
+            self._log("Processing sample:", i, " / ", X.shape[0]) 
+            
+            best_distance = -1
+            best_class = -1
+            
             for c in self.classes_:
                 
                 distance = distance_logeuclid_cpm(self.matrices_per_class_[c], test_sample)
@@ -852,5 +870,6 @@ class NearestConvexHull(QuanticClassifierBase):
                     best_class = c
             
             pred.append(best_class)
+            self._log("Predicted: ", best_class) 
             
         return np.array(pred)
