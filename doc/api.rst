@@ -107,7 +107,8 @@ Distance
 .. autosummary::
     :toctree: generated/
 
-    distance_logeuclid_cpm
+    qdistance_logeuclid_to_convex_hull
+    weights_logeuclid_to_convex_hull
 
 Docplex
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

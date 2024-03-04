@@ -129,7 +129,7 @@ def weights_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
     return weights
 
 
-def weights_distance(A, B, distance=distance_logeuclid, optimizer=ClassicalOptimizer()):
+def _weights_distance(A, B, distance=distance_logeuclid, optimizer=ClassicalOptimizer()):
     """`distance` weights between a SPD and a set of SPD matrices.
 
     `distance` weights between a SPD matrix B and each SPD matrix inside A,
@@ -213,7 +213,7 @@ def is_qdist(string):
 
 
 distance_functions["qlogeuclid_hull"] = weights_logeuclid_to_convex_hull
-distance_functions["qeuclid"] = lambda A, B: weights_distance(A, B, distance_euclid)
-distance_functions["qlogeuclid"] = lambda A, B: weights_distance(
+distance_functions["qeuclid"] = lambda A, B: _weights_distance(A, B, distance_euclid)
+distance_functions["qlogeuclid"] = lambda A, B: _weights_distance(
     A, B, distance_logeuclid
 )
