@@ -864,12 +864,17 @@ class NearestConvexHull(QuanticClassifierBase):
             for c in self.classes_:
                 
                 distance = distance_logeuclid_cpm(self.matrices_per_class_[c], test_sample)
+                print("Distance: ", distance)
                 
-                if distance < best_distance:
+                if best_distance == -1:
+                    best_distance = distance
+                    best_class = c
+                elif distance < best_distance:
                     best_distance = distance
                     best_class = c
             
             pred.append(best_class)
-            self._log("Predicted: ", best_class) 
+            self._log("Predicted: ", best_class)
+            i=i+1
             
         return np.array(pred)
