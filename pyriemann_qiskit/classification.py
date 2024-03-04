@@ -586,8 +586,8 @@ class QuanticMDM(QuanticClassifierBase):
 
     """Quantum-enhanced MDM classifier
 
-    This class is a quantic implementation of the Minimum Distance to Mean (MDM)
-    [1]_, which can run with quantum optimization.
+    This class is a quantic implementation of the Minimum Distance to Mean
+    (MDM) [1]_, which can run with quantum optimization.
     Only log-Euclidean distance between trial and class prototypes is supported
     at the moment, but any type of metric can be used for centroid estimation.
 
@@ -603,37 +603,36 @@ class QuanticMDM(QuanticClassifierBase):
 
     Parameters
     ----------
-    metric : string | dict, default={"mean": 'logeuclid', "distance": 'cpm'}
+    metric : string | dict, default={"mean": 'logeuclid', \
+            "distance": 'qlogeuclid_hull'}
         The type of metric used for centroid and distance estimation.
         see `mean_covariance` for the list of supported metric.
         the metric could be a dict with two keys, `mean` and `distance` in
         order to pass different metrics for the centroid estimation and the
-        distance estimation. Typical usecase is to pass 'logeuclid' metric for
-        the mean in order to boost the computional speed and 'riemann' for the
-        distance in order to keep the good sensitivity for the classification.
-    quantum : bool (default: True)
-        Only applies if `metric` contains a cpm distance or mean.
+        distance estimation.
+    quantum : bool, default=True
+        Only applies if `metric` contains a quantic distance or mean.
 
         - If true will run on local or remote backend
           (depending on q_account_token value),
         - If false, will perform classical computing instead.
-    q_account_token : string (default:None)
+    q_account_token : string, default=None
         If `quantum` is True and `q_account_token` provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
         token saved with `IBMProvider.save_account()`.
-    verbose : bool (default:True)
+    verbose : bool, default=True
         If true, will output all intermediate results and logs.
-    shots : int (default:1024)
+    shots : int, default=1024
         Number of repetitions of each circuit, for sampling.
-    seed: int | None (default: None)
+    seed : int | None, default=None
         Random seed for the simulation
-    upper_bound : int (default: 7)
+    upper_bound : int, default=7
         The maximum integer value for matrix normalization.
-    regularization: MixinTransformer (defulat: None)
+    regularization : MixinTransformer, default=None
         Additional post-processing to regularize means.
-    classical_optimizer : OptimizationAlgorithm
-        An instance of OptimizationAlgorithm [3]_
+    classical_optimizer : OptimizationAlgorithm, default=CobylaOptimizer()
+        An instance of OptimizationAlgorithm [3]_.
 
     See Also
     --------
@@ -676,12 +675,15 @@ class QuanticMDM(QuanticClassifierBase):
         self.regularization = regularization
         self.classical_optimizer = classical_optimizer
 
-    # We override the _predict_distances method
-    # inside MDM to allow the use of qdistance.
-    # This is due to the fact the the signature of qdistances is different from
-    # the usual distance functions.
     @staticmethod
     def _override_predict_distance(mdm):
+        """Override _predict_distances method of MDM.
+
+        We override the _predict_distances method inside MDM to allow the use
+        of qdistance.
+        This is due to the fact the the signature of qdistances is different
+        from the usual distance functions.
+        """
         def _predict_distances(X):
             if is_qfunction(mdm.metric_dist):
                 if "hull" in mdm.metric_dist:

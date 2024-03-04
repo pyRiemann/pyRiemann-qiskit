@@ -27,7 +27,7 @@ def qmean_euclid(X, sample_weight=None, optimizer=ClassicalOptimizer()):
     sample_weights : None | ndarray, shape (n_matrices,), default=None
         Weights for each matrix. Never used in practice.
         It is kept only for standardization with pyRiemann.
-    optimizer : pyQiskitOptimizer
+    optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
         An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
 
     Returns
@@ -41,8 +41,8 @@ def qmean_euclid(X, sample_weight=None, optimizer=ClassicalOptimizer()):
     .. versionchanged:: 0.0.4
         Add regularization of the results.
     .. versionchanged:: 0.2.0
-        Rename from `fro_mean_convex` to `qmean_euclid`
-        Remove shrinkage
+        Rename from `fro_mean_convex` to `qmean_euclid`.
+        Remove shrinkage.
 
     References
     ----------
@@ -88,7 +88,7 @@ def qmean_logeuclid(
     sample_weights : None | ndarray, shape (n_matrices,), default=None
         Weights for each matrix. Never used in practice.
         It is kept only for standardization with pyRiemann.
-    optimizer : pyQiskitOptimizer
+    optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
         An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
 
     Returns

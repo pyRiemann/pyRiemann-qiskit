@@ -33,7 +33,8 @@ def qdistance_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
     B : ndarray, shape (n_channels, n_channels)
         SPD matrix.
     optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
-      An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
+        An instance of
+        :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
 
     Returns
     -------
@@ -46,7 +47,6 @@ def qdistance_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
     -----
     .. versionadded:: 0.2.0
 
-
     References
     ----------
     .. [1] \
@@ -58,8 +58,7 @@ def qdistance_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
 
     """
     weights = weights_logeuclid_to_convex_hull(A, B, optimizer)
-
-    # compute nearest matrix and distance
+    # compute nearest matrix
     C = mean_logeuclid(A, weights)
     distance = distance_logeuclid(C, B)
 
@@ -79,8 +78,9 @@ def weights_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
         Set of SPD matrices.
     B : ndarray, shape (n_channels, n_channels)
         SPD matrix.
-    optimizer: pyQiskitOptimizer
-      An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
+    optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
+        An instance of
+        :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
 
     Returns
     -------
@@ -93,7 +93,8 @@ def weights_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
     -----
     .. versionadded:: 0.0.4
     .. versionchanged:: 0.2.0
-        Add linear constraint on weights (sum = 1)
+        Rename from `logeucl_dist_convex` to `weights_logeuclid_to_convex_hull`.
+        Add linear constraint on weights (sum = 1).
 
     References
     ----------
@@ -113,16 +114,15 @@ def weights_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
 
     prob = Model()
     optimizer = get_global_optimizer(optimizer)
-    # should be part of the optimizer
     w = optimizer.get_weights(prob, matrices)
 
     wtLogAtLogAw = prob.sum(
         w[i] * w[j] * log_prod(A[i], A[j]) for i in matrices for j in matrices
     )
     wLogBLogA = prob.sum(w[i] * log_prod(B, A[i]) for i in matrices)
-    objectives = wtLogAtLogAw - 2 * wLogBLogA
+    objective = wtLogAtLogAw - 2 * wLogBLogA
 
-    prob.set_objective("min", objectives)
+    prob.set_objective("min", objective)
     prob.add_constraint(prob.sum(w) == 1)
     weights = optimizer.solve(prob, reshape=False)
 
@@ -135,8 +135,7 @@ def _weights_distance(
     """`distance` weights between a SPD and a set of SPD matrices.
 
     `distance` weights between a SPD matrix B and each SPD matrix inside A,
-    formulated as a Constraint Programming Model (CPM)
-    [1]_.
+    formulated as a Constraint Programming Model (CPM) [1]_.
     The higher weight corresponds to the closer SPD matrix inside A,
     which is closer to B.
 
@@ -146,17 +145,17 @@ def _weights_distance(
         Set of SPD matrices.
     B : ndarray, shape (n_channels, n_channels)
         SPD matrix.
-    distance: Callable[[ndarray, ndarray], float]
-        One of the pyRiemann distance
-    optimizer: pyQiskitOptimizer
-      An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
+    distance : Callable[[ndarray, ndarray], float]
+        One of the pyRiemann distance.
+    optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
+        An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
 
     Returns
     -------
     weights : ndarray, shape (n_matrices,)
-        it returns the optimized weights for the set of SPD matrices A.
+        Optimized weights for the set of SPD matrices A.
         The higher weight corresponds to the closer SPD matrix inside A,
-        which is closer to B
+        which is closer to B.
 
     Notes
     -----
