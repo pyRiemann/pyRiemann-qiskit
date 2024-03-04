@@ -27,6 +27,7 @@ from sklearn.svm import SVC
 
 from .utils.hyper_params_factory import gen_zz_feature_map, gen_two_local, get_spsa
 from .utils import get_provider, get_devices, get_simulator
+from .utils.distance import distance_logeuclid_cpm
 
 logger.level = logging.WARNING
 
@@ -710,3 +711,145 @@ class QuanticMDM(QuanticClassifierBase):
         """
         labels = self._predict(X)
         return self._map_indices_to_classes(labels)
+
+class NearestConvexHull(QuanticClassifierBase):
+
+    """Nearest Convex Hull Classifier (NCH)
+
+     In NCH, for each class a convex hull is produced by the set of matrices 
+     corresponding to each class. There is no training. Calculating a distance 
+     to a hull is an optimization problem and it is calculated for each testing
+     sample (SPD matrix) and each hull/class. The minimal distance defines the 
+     predicted class. 
+
+     Notes
+     -----
+     .. versionadded:: 0.1.1
+
+     Parameters
+     ----------
+     quantum : bool (default: True)
+         Only applies if `metric` contains a cpm distance or mean.
+
+         - If true will run on local or remote backend
+           (depending on q_account_token value),
+         - If false, will perform classical computing instead.
+     q_account_token : string (default:None)
+         If `quantum` is True and `q_account_token` provided,
+         the classification task will be running on a IBM quantum backend.
+         If `load_account` is provided, the classifier will use the previous
+         token saved with `IBMProvider.save_account()`.
+     verbose : bool (default:True)
+         If true, will output all intermediate results and logs.
+     shots : int (default:1024)
+         Number of repetitions of each circuit, for sampling.
+     seed: int | None (default: None)
+         Random seed for the simulation
+     upper_bound : int (default: 7)
+         The maximum integer value for matrix normalization.
+     regularization: MixinTransformer (defulat: None)
+         Additional post-processing to regularize means.
+     classical_optimizer : OptimizationAlgorithm
+         An instance of OptimizationAlgorithm [3]_
+
+    """
+
+    def __init__(
+        self,
+        optimizer=get_spsa(),
+        gen_var_form=gen_two_local(),
+        quantum=True,
+        q_account_token=None,
+        verbose=True,
+        shots=1024,
+        gen_feature_map=gen_zz_feature_map(),
+        seed=None,
+    ):
+        QuanticClassifierBase.__init__(
+            self, quantum, q_account_token, verbose, shots, gen_feature_map, seed
+        )
+        self.optimizer = optimizer
+        self.gen_var_form = gen_var_form
+
+    def _init_algo(self, n_features):
+       
+        self._log("Nearest Convex Hull Classifier initiating algorithm")
+        
+        classifier = None
+        
+        if self.quantum:
+            self._log("Using NaiveQAOAOptimizer")
+            self._optimizer = NaiveQAOAOptimizer(
+                quantum_instance=self._quantum_instance, upper_bound=self.upper_bound
+            )
+        else:
+            self._log("Using ClassicalOptimizer (COBYLA)")
+            self._optimizer = ClassicalOptimizer(self.classical_optimizer)
+        set_global_optimizer(self._optimizer)
+        
+        self.matrices_per_class_ = {}
+        
+        return classifier
+    
+    def _train(self, X, y):
+        """Fit (store the training data).
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_matrices, n_channels, n_channels)
+            Set of SPD matrices.
+        y : ndarray, shape (n_matrices,)
+            Labels for each matrix.
+        sample_weight : None
+            Not used, here for compatibility with sklearn API.
+
+        Returns
+        -------
+        self : NearestNeighbor instance
+            The NearestNeighbor instance.
+        """
+        
+        #self.covmeans_ = X
+        #self.classmeans_ = y
+        self.classes_ = np.unique(y)
+        
+        for c in self.classes_:
+            self.matrices_per_class_[c] = []
+        
+        for i in range(0,len(y)):
+            self.matrices_per_class_[y[i]].append(X(i))
+            
+        for c in self.classes_:
+            self.matrices_per_class_[c] = np.asarray(self.matrices_per_class_[c])
+
+    def predict(self, X):
+        """Calculates the predictions.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_samples, n_features)
+            Input vector, where `n_samples` is the number of samples and
+            `n_features` is the number of features.
+
+        Returns
+        -------
+        pred : array, shape (n_samples,)
+            Class labels for samples in X.
+        """
+        
+        best_distance = -1
+        best_class = -1
+        
+        pred = []
+        for test_sample in X:
+            for c in self.classes_:
+                
+                distance = distance_logeuclid_cpm(self.matrices_per_class_[c], test_sample)
+                
+                if distance < best_distance:
+                    best_distance = distance
+                    best_class = c
+            
+            pred.append(best_class)
+            
+        return pred
