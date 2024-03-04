@@ -80,7 +80,7 @@ def weights_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
     B : ndarray, shape (n_channels, n_channels)
         SPD matrix.
     optimizer: pyQiskitOptimizer
-      An instance of pyQiskitOptimizer.
+      An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
 
     Returns
     -------
@@ -149,7 +149,7 @@ def _weights_distance(
     distance: Callable[[ndarray, ndarray], float]
         One of the pyRiemann distance
     optimizer: pyQiskitOptimizer
-      An instance of pyQiskitOptimizer.
+      An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
 
     Returns
     -------

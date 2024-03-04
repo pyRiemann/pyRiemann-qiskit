@@ -28,7 +28,7 @@ def qmean_euclid(X, sample_weight=None, optimizer=ClassicalOptimizer()):
         Weights for each matrix. Never used in practice.
         It is kept only for standardization with pyRiemann.
     optimizer : pyQiskitOptimizer
-        An instance of pyQiskitOptimizer.
+        An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
 
     Returns
     -------
@@ -89,7 +89,7 @@ def qmean_logeuclid(
         Weights for each matrix. Never used in practice.
         It is kept only for standardization with pyRiemann.
     optimizer : pyQiskitOptimizer
-        An instance of pyQiskitOptimizer.
+        An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
 
     Returns
     -------

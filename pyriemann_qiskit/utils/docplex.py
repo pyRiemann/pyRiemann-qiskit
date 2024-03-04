@@ -25,7 +25,7 @@ def set_global_optimizer(optimizer):
     Parameters
     ----------
     optimizer: pyQiskitOptimizer
-      An instance of pyQiskitOptimizer.
+      An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
 
     Notes
     -----
@@ -40,7 +40,7 @@ def get_global_optimizer(default):
     Parameters
     ----------
     default: pyQiskitOptimizer
-      An instance of pyQiskitOptimizer.
+      An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
       It will be returned by default if the global optimizer is None.
 
     Returns
