@@ -130,7 +130,7 @@ def is_qmean(string):
     Returns
     -------
     is_qmean : boolean
-        True if "string" represents a mean aailable in the library.
+        True if "string" represents a mean available in the library.
 
     Notes
     -----
