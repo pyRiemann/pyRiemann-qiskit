@@ -684,6 +684,7 @@ class QuanticMDM(QuanticClassifierBase):
         This is due to the fact the the signature of qdistances is different
         from the usual distance functions.
         """
+
         def _predict_distances(X):
             if is_qfunction(mdm.metric_dist):
                 if "hull" in mdm.metric_dist:
