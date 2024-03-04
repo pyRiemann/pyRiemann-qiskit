@@ -581,30 +581,6 @@ class QuanticVQC(QuanticClassifierBase):
         return 0
 
 
-# We override the _predict_distances method
-# inside MDM to directly use a CPM distance when the metric ends with "_cpm"
-# This is due to the fact the the signature of this method is different from
-# the usual distance functions.
-def predict_distances(mdm):
-    def _predict_distances(X):
-        if is_qdist(mdm.metric_dist):
-            if "hull" in mdm.metric_dist:
-                warn("qdistances to hull should not be use inside MDM")
-            else:
-                warn(
-                    "q-distances for MDM are toy functions.\
-                        Use pyRiemann distances instead."
-                )
-            distance = distance_functions[mdm.metric_dist]
-            centroids = np.array(mdm.covmeans_)
-            weights = [distance(centroids, x) for x in X]
-            return 1 - np.array(weights)
-        else:
-            return MDM._predict_distances(mdm, X)
-
-    return _predict_distances
-
-
 class QuanticMDM(QuanticClassifierBase):
 
     """Quantum-enhanced MDM classifier
@@ -699,10 +675,34 @@ class QuanticMDM(QuanticClassifierBase):
         self.regularization = regularization
         self.classical_optimizer = classical_optimizer
 
+    # We override the _predict_distances method
+    # inside MDM to allow the use of qdistance.
+    # This is due to the fact the the signature of qdistances is different from
+    # the usual distance functions.
+    @staticmethod
+    def _override_predict_distance(mdm):
+        def _predict_distances(X):
+            if is_qdist(mdm.metric_dist):
+                if "hull" in mdm.metric_dist:
+                    warn("qdistances to hull should not be use inside MDM")
+                else:
+                    warn(
+                        "q-distances for MDM are toy functions.\
+                            Use pyRiemann distances instead."
+                    )
+                distance = distance_functions[mdm.metric_dist]
+                centroids = np.array(mdm.covmeans_)
+                weights = [distance(centroids, x) for x in X]
+                return 1 - np.array(weights)
+            else:
+                return MDM._predict_distances(mdm, X)
+
+        return _predict_distances
+
     def _init_algo(self, n_features):
         self._log("Quantic MDM initiating algorithm")
         classifier = MDM(metric=self.metric)
-        classifier._predict_distances = predict_distances(classifier)
+        classifier._predict_distances = QuanticMDM._override_predict_distance(classifier)
         if self.quantum:
             self._log("Using NaiveQAOAOptimizer")
             self._optimizer = NaiveQAOAOptimizer(
