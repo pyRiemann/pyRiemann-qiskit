@@ -13,7 +13,7 @@ from typing_extensions import deprecated
 
 @deprecated(
     "logeucl_dist_convex is deprecated and will be removed in 0.3.0; "
-    "please use qdistance_logeuclid_to_convex_hull."
+    "please use weights_logeuclid_to_convex_hull."
 )
 def logeucl_dist_convex():
     pass
