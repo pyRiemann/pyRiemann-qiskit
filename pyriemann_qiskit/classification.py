@@ -756,20 +756,21 @@ class NearestConvexHull(QuanticClassifierBase):
 
     def __init__(
         self,
-        optimizer=get_spsa(),
-        gen_var_form=gen_two_local(),
-        quantum=True,
+        quantum=False, #change to True in final version
         q_account_token=None,
         verbose=True,
         shots=1024,
-        gen_feature_map=gen_zz_feature_map(),
         seed=None,
+        upper_bound=7,
+        regularization=None,
+        classical_optimizer=CobylaOptimizer(rhobeg=2.1, rhoend=0.000001),
     ):
         QuanticClassifierBase.__init__(
-            self, quantum, q_account_token, verbose, shots, gen_feature_map, seed
+            self, quantum, q_account_token, verbose, shots, None, seed
         )
-        self.optimizer = optimizer
-        self.gen_var_form = gen_var_form
+        self.upper_bound = upper_bound
+        self.regularization = regularization
+        self.classical_optimizer = classical_optimizer
 
     def _init_algo(self, n_features):
        
@@ -817,10 +818,10 @@ class NearestConvexHull(QuanticClassifierBase):
             self.matrices_per_class_[c] = []
         
         for i in range(0,len(y)):
-            self.matrices_per_class_[y[i]].append(X(i))
+            self.matrices_per_class_[y[i]].append(X[i,:,:])
             
         for c in self.classes_:
-            self.matrices_per_class_[c] = np.asarray(self.matrices_per_class_[c])
+            self.matrices_per_class_[c] = np.array(self.matrices_per_class_[c])
 
     def predict(self, X):
         """Calculates the predictions.
@@ -852,4 +853,4 @@ class NearestConvexHull(QuanticClassifierBase):
             
             pred.append(best_class)
             
-        return pred
+        return np.array(pred)
