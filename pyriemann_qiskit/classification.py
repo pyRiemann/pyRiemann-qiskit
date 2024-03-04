@@ -702,7 +702,9 @@ class QuanticMDM(QuanticClassifierBase):
     def _init_algo(self, n_features):
         self._log("Quantic MDM initiating algorithm")
         classifier = MDM(metric=self.metric)
-        classifier._predict_distances = QuanticMDM._override_predict_distance(classifier)
+        classifier._predict_distances = QuanticMDM._override_predict_distance(
+            classifier
+        )
         if self.quantum:
             self._log("Using NaiveQAOAOptimizer")
             self._optimizer = NaiveQAOAOptimizer(
