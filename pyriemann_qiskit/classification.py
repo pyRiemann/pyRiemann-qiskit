@@ -17,7 +17,8 @@ from pyriemann_qiskit.utils import (
     NaiveQAOAOptimizer,
     set_global_optimizer,
 )
-from pyriemann_qiskit.utils.distance import distance_functions, is_qdist
+from pyriemann_qiskit.utils.distance import distance_functions
+from pyriemann_qiskit.utils.utils import is_qfunction
 from qiskit.utils import QuantumInstance
 from qiskit.utils.quantum_instance import logger
 from qiskit_ibm_provider import IBMProvider, least_busy
@@ -682,7 +683,7 @@ class QuanticMDM(QuanticClassifierBase):
     @staticmethod
     def _override_predict_distance(mdm):
         def _predict_distances(X):
-            if is_qdist(mdm.metric_dist):
+            if is_qfunction(mdm.metric_dist):
                 if "hull" in mdm.metric_dist:
                     warn("qdistances to hull should not be use inside MDM")
                 else:

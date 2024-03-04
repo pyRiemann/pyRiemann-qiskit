@@ -185,35 +185,6 @@ def _weights_distance(
     return weights
 
 
-def is_qdist(string):
-    """Indicates if the distance is a distance introduced in pyRiemann-qiskit.
-
-    Return True is "string" represents a
-    distance introduced in pyRiemann-qiskit.
-
-    Parameters
-    ----------
-    string: str
-        A string representation of the distance.
-
-    Returns
-    -------
-    is_q_dist : boolean
-        True if "string" represents a distance available in the library.
-
-    Notes
-    -----
-    .. versionadded:: 0.2.0
-
-    References
-    ----------
-    .. [1] \
-        http://ibmdecisionoptimization.github.io/docplex-doc/cp/creating_model.html
-
-    """
-    return string[0] == "q" and string in distance_functions
-
-
 distance_functions["qlogeuclid_hull"] = weights_logeuclid_to_convex_hull
 distance_functions["qeuclid"] = lambda A, B: _weights_distance(A, B, distance_euclid)
 distance_functions["qlogeuclid"] = lambda A, B: _weights_distance(

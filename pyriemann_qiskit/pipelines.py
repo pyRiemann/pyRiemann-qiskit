@@ -8,7 +8,7 @@ from qiskit_optimization.algorithms import CobylaOptimizer
 from pyriemann.estimation import XdawnCovariances, ERPCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann.preprocessing import Whitening
-from pyriemann_qiskit.utils.mean import is_qmean
+from pyriemann_qiskit.utils.utils import is_qfunction
 from pyriemann_qiskit.utils.filtering import NoDimRed
 from pyriemann_qiskit.utils.hyper_params_factory import (
     # gen_zz_feature_map,
@@ -384,7 +384,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
     def _create_pipe(self):
         print(self.metric)
         print(self.metric["mean"])
-        if is_qmean(self.metric["mean"]):
+        if is_qfunction(self.metric["mean"]):
             if self.quantum:
                 covariances = XdawnCovariances(
                     nfilter=1, estimator="scm", xdawn_estimator="lwf"

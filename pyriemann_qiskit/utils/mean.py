@@ -116,29 +116,5 @@ def qmean_logeuclid(
     return expm(result)
 
 
-def is_qmean(string):
-    """Indicates if the mean is a mean introduced in this library.
-
-    Return True is "string" represents a
-    mean available in the library.
-
-    Parameters
-    ----------
-    string: str
-        A string representation of the mean.
-
-    Returns
-    -------
-    is_qmean : boolean
-        True if "string" represents a mean available in the library.
-
-    Notes
-    -----
-    .. versionadded:: 0.2.0
-
-    """
-    return string[0] == "q" and string in mean_functions
-
-
 mean_functions["qeuclid"] = qmean_euclid
 mean_functions["qlogeuclid"] = qmean_logeuclid
