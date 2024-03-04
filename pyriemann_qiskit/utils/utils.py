@@ -1,6 +1,7 @@
 from .mean import mean_functions
 from .distance import distance_functions
 
+
 def is_qfunction(string):
     """Indicates if the function is a mean or a distance introduced in this library.
 
@@ -22,5 +23,6 @@ def is_qfunction(string):
     .. versionadded:: 0.2.0
 
     """
-    return string[0] == "q" and\
-        ( (string in mean_functions) or (string in distance_functions) )
+    return string[0] == "q" and (
+        (string in mean_functions) or (string in distance_functions)
+    )
