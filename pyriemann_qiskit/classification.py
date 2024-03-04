@@ -588,8 +588,8 @@ class QuanticVQC(QuanticClassifierBase):
 def predict_distances(mdm):
     def _predict_distances(X):
         if is_qdist(mdm.metric_dist):
-            if "qlogeuclid_hull" in mdm.metric_dist:
-                warn("qlogeuclid_hull should not be use inside MDM")
+            if "hull" in mdm.metric_dist:
+                warn("qdistances to hull should not be use inside MDM")
             else:
                 warn(
                     "q-distances for MDM are toy functions.\
