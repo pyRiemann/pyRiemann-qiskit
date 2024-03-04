@@ -129,7 +129,9 @@ def weights_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
     return weights
 
 
-def _weights_distance(A, B, distance=distance_logeuclid, optimizer=ClassicalOptimizer()):
+def _weights_distance(
+    A, B, distance=distance_logeuclid, optimizer=ClassicalOptimizer()
+):
     """`distance` weights between a SPD and a set of SPD matrices.
 
     `distance` weights between a SPD matrix B and each SPD matrix inside A,
