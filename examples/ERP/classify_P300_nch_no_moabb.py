@@ -20,6 +20,7 @@ from moabb.datasets import (
     EPFLP300,
     Lee2019_ERP,
 )
+from qiskit_optimization.algorithms import ADMMOptimizer, SlsqpOptimizer
 from moabb.paradigms import P300
 from sklearn.model_selection import train_test_split
 from pyriemann_qiskit.classification import QuanticNCH
@@ -36,6 +37,8 @@ import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 from mne import set_log_level
+
+from imblearn.under_sampling import NearMiss
 
 set_log_level("CRITICAL")
 
@@ -55,8 +58,12 @@ for subject_i, subject in enumerate(db.subject_list[0:n_subjects]):
     print(X.shape)
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.005, random_state=42
+        X, y, test_size=0.05, random_state=42
     )
+
+    train_size = 40
+    X_train = X_train[0: train_size]
+    y_train = y_train[0: train_size]
 
     pipelines = {}
 
@@ -67,7 +74,7 @@ for subject_i, subject in enumerate(db.subject_list[0:n_subjects]):
             estimator="lwf",
             xdawn_estimator="scm",
         ),
-        QuanticNCH(),
+        QuanticNCH(classical_optimizer=SlsqpOptimizer()),
     )
 
     score = pipelines["RG+NCH"].fit(X_train, y_train).score(X_test, y_test)
