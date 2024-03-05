@@ -719,7 +719,7 @@ class QuanticMDM(QuanticClassifierBase):
         labels = self._predict(X)
         return self._map_indices_to_classes(labels)
 
-class NearestConvexHull(QuanticClassifierBase):
+class QuanticNCH(QuanticClassifierBase):
 
     """Nearest Convex Hull Classifier (NCH)
 

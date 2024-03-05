@@ -37,7 +37,7 @@ from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
 )
 from sklearn.decomposition import PCA
-from pyriemann_qiskit.classification import NearestConvexHull
+from pyriemann_qiskit.classification import QuanticNCH
 
 print(__doc__)
 
@@ -86,7 +86,7 @@ pipelines["RG+NCH"] = make_pipeline(
         estimator="lwf",
         xdawn_estimator="scm",
     ),
-    NearestConvexHull(),  # you can use other classifiers
+    QuanticNCH(),  # you can use other classifiers
 )
 
 # Here we provide a pipeline for comparison:
