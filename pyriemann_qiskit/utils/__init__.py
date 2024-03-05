@@ -20,6 +20,7 @@ from .firebase_connector import (
 )
 from . import distance
 from . import mean
+from . import utils
 
 __all__ = [
     "hyper_params_factory",
@@ -45,4 +46,5 @@ __all__ = [
     "filter_subjects_by_incomplete_results",
     "add_moabb_dataframe_results_to_caches",
     "convert_caches_to_dataframes",
+    "utils",
 ]

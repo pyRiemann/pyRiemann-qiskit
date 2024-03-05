@@ -49,7 +49,17 @@ Ensemble
 Utils function
 --------------
 
-Utils functions are low level functions for the `classification` module.
+Utils functions are low level functions for the `classification` and `pipelines` module.
+
+Utils
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _hyper_params_factory_api:
+.. currentmodule:: pyriemann_qiskit.utils.utils
+
+.. autosummary::
+    :toctree: generated/
+
+    is_qfunction
 
 Hyper-parameters generation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -96,8 +106,8 @@ Mean
 .. autosummary::
     :toctree: generated/
 
-    mean_euclid_cpm
-    mean_logeuclid_cpm
+    qmean_euclid
+    qmean_logeuclid
 
 Distance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -107,7 +117,8 @@ Distance
 .. autosummary::
     :toctree: generated/
 
-    distance_logeuclid_cpm
+    qdistance_logeuclid_to_convex_hull
+    weights_logeuclid_to_convex_hull
 
 Docplex
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

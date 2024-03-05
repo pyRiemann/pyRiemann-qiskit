@@ -4,7 +4,7 @@ from pyriemann.utils.mean import mean_euclid, mean_logeuclid
 from pyriemann.estimation import XdawnCovariances, Shrinkage
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
-from pyriemann_qiskit.utils.mean import mean_euclid_cpm, mean_logeuclid_cpm
+from pyriemann_qiskit.utils.mean import qmean_euclid, qmean_logeuclid
 from pyriemann_qiskit.utils import ClassicalOptimizer, NaiveQAOAOptimizer
 from pyriemann_qiskit.classification import QuanticMDM
 from pyriemann_qiskit.datasets import get_mne_sample
@@ -14,8 +14,8 @@ from qiskit_optimization.algorithms import ADMMOptimizer
 @pytest.mark.parametrize(
     "kernel",
     [
-        ({"mean": "euclid_cpm", "distance": "euclid"}, Shrinkage(shrinkage=0.9)),
-        ({"mean": "logeuclid_cpm", "distance": "logeuclid"}, Shrinkage(shrinkage=0.9)),
+        ({"mean": "qeuclid", "distance": "euclid"}, Shrinkage(shrinkage=0.9)),
+        ({"mean": "qlogeuclid", "distance": "logeuclid"}, Shrinkage(shrinkage=0.9)),
     ],
 )
 def test_performance(kernel):
@@ -33,7 +33,7 @@ def test_performance(kernel):
 
 
 @pytest.mark.parametrize(
-    "means", [(mean_euclid, mean_euclid_cpm), (mean_logeuclid, mean_logeuclid_cpm)]
+    "means", [(mean_euclid, qmean_euclid), (mean_logeuclid, qmean_logeuclid)]
 )
 def test_analytic_vs_cpm_mean(get_covmats, means):
     """Test that analytic and cpm mean returns close results"""
@@ -45,7 +45,7 @@ def test_analytic_vs_cpm_mean(get_covmats, means):
     assert np.allclose(C, C_analytic, atol=0.00001)
 
 
-@pytest.mark.parametrize("mean", [mean_euclid_cpm, mean_logeuclid_cpm])
+@pytest.mark.parametrize("mean", [qmean_euclid, qmean_logeuclid])
 def test_mean_cpm_shape(get_covmats, mean):
     """Test the shape of mean"""
     n_trials, n_channels = 5, 3
@@ -58,7 +58,7 @@ def test_mean_cpm_shape(get_covmats, mean):
     "optimizer",
     [ClassicalOptimizer(optimizer=ADMMOptimizer()), NaiveQAOAOptimizer()],
 )
-@pytest.mark.parametrize("mean", [mean_euclid_cpm])
+@pytest.mark.parametrize("mean", [qmean_euclid])
 def test_mean_cpm_all_zeros(optimizer, mean):
     """Test that the mean of covariance matrices containing zeros
     is a matrix filled with zeros"""
@@ -72,7 +72,7 @@ def test_mean_cpm_all_zeros(optimizer, mean):
     "optimizer",
     [ClassicalOptimizer(optimizer=ADMMOptimizer()), NaiveQAOAOptimizer()],
 )
-@pytest.mark.parametrize("mean", [mean_euclid_cpm])
+@pytest.mark.parametrize("mean", [qmean_euclid])
 def test_mean_cpm_all_ones(optimizer, mean):
     """Test that the mean of covariance matrices containing ones
     is a matrix filled with ones"""
@@ -86,7 +86,7 @@ def test_mean_cpm_all_ones(optimizer, mean):
     "optimizer",
     [ClassicalOptimizer(optimizer=ADMMOptimizer()), NaiveQAOAOptimizer()],
 )
-@pytest.mark.parametrize("mean", [mean_euclid_cpm])
+@pytest.mark.parametrize("mean", [qmean_euclid])
 def test_mean_cpm_all_equals(optimizer, mean):
     """Test that the mean of covariance matrices filled with the same value
     is a matrix identical to the input"""
@@ -100,7 +100,7 @@ def test_mean_cpm_all_equals(optimizer, mean):
     "optimizer",
     [ClassicalOptimizer(optimizer=ADMMOptimizer()), NaiveQAOAOptimizer()],
 )
-@pytest.mark.parametrize("mean", [mean_euclid_cpm])
+@pytest.mark.parametrize("mean", [qmean_euclid])
 def test_mean_cpm_mixed(optimizer, mean):
     """Test that the mean of covariances matrices with zero and ones
     is a matrix filled with 0.5"""
