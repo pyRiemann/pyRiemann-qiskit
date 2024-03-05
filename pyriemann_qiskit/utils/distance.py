@@ -124,6 +124,11 @@ def weights_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
 
     prob.set_objective("min", objective)
     prob.add_constraint(prob.sum(w) == 1)
+    for wi in w:
+        # reinforce constraint on lower and upper bound
+        prob.add_constraint(wi >= 0)
+        prob.add_constraint(wi <= 1)
+
     weights = optimizer.solve(prob, reshape=False)
 
     return weights
