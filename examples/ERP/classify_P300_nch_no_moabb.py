@@ -62,8 +62,8 @@ for subject_i, subject in enumerate(db.subject_list[0:n_subjects]):
     )
 
     train_size = 40
-    X_train = X_train[0: train_size]
-    y_train = y_train[0: train_size]
+    X_train = X_train[0:train_size]
+    y_train = y_train[0:train_size]
 
     pipelines = {}
 
