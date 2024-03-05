@@ -30,7 +30,7 @@ from sklearn.svm import SVC
 
 from .utils.hyper_params_factory import gen_zz_feature_map, gen_two_local, get_spsa
 from .utils import get_provider, get_devices, get_simulator
-from .utils.distance import distance_logeuclid_cpm
+from .utils.distance import qdistance_logeuclid_to_convex_hull
 from joblib import Parallel, delayed
 
 logger.level = logging.WARNING
@@ -800,7 +800,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         
         for c in self.classes_:
             
-            distance = distance_logeuclid_cpm(self.matrices_per_class_[c], test_sample)
+            distance = qdistance_logeuclid_to_convex_hull(self.matrices_per_class_[c], test_sample)
             #print("Distance: ", distance)
             
             if best_distance == -1:
@@ -855,7 +855,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
                 
                 for c in self.classes_:
                     
-                    distance = distance_logeuclid_cpm(self.matrices_per_class_[c], test_sample)
+                    distance = qdistance_logeuclid_to_convex_hull(self.matrices_per_class_[c], test_sample)
                     print("Distance: ", distance)
                     
                     if best_distance == -1:
