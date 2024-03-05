@@ -28,6 +28,7 @@ from sklearn.svm import SVC
 from .utils.hyper_params_factory import gen_zz_feature_map, gen_two_local, get_spsa
 from .utils import get_provider, get_devices, get_simulator
 from .utils.distance import distance_logeuclid_cpm
+from joblib import Parallel, delayed
 
 logger.level = logging.WARNING
 
@@ -832,7 +833,25 @@ class NearestConvexHull(QuanticClassifierBase):
             self.matrices_per_class_[c] = np.array(self.matrices_per_class_[c])
             
         self._log("End NCH Train") 
-
+    
+    def _process_sample(self,test_sample):
+        best_distance = -1
+        best_class = -1
+        
+        for c in self.classes_:
+            
+            distance = distance_logeuclid_cpm(self.matrices_per_class_[c], test_sample)
+            #print("Distance: ", distance)
+            
+            if best_distance == -1:
+                best_distance = distance
+                best_class = c
+            elif distance < best_distance:
+                best_distance = distance
+                best_class = c
+        
+        return best_class
+        
     def predict(self, X):
         """Calculates the predictions.
 
@@ -852,29 +871,36 @@ class NearestConvexHull(QuanticClassifierBase):
         pred = []
         
         self._log("Total test samples:", X.shape[0]) 
-        i = 1;
+        k = 0;
         
-        for test_sample in X:
+        parallel = True
+        
+        if (parallel):
+        
+            pred = Parallel(n_jobs=12)(delayed(self._process_sample)(test_sample) for test_sample in X)
             
-            self._log("Processing sample:", i, " / ", X.shape[0]) 
-            
-            best_distance = -1
-            best_class = -1
-            
-            for c in self.classes_:
+        else:  
+            for test_sample in X:
                 
-                distance = distance_logeuclid_cpm(self.matrices_per_class_[c], test_sample)
-                print("Distance: ", distance)
+                k = k + 1
+                self._log("Processing sample:", k, " / ", X.shape[0]) 
                 
-                if best_distance == -1:
-                    best_distance = distance
-                    best_class = c
-                elif distance < best_distance:
-                    best_distance = distance
-                    best_class = c
-            
-            pred.append(best_class)
-            self._log("Predicted: ", best_class)
-            i=i+1
+                best_distance = -1
+                best_class = -1
+                
+                for c in self.classes_:
+                    
+                    distance = distance_logeuclid_cpm(self.matrices_per_class_[c], test_sample)
+                    print("Distance: ", distance)
+                    
+                    if best_distance == -1:
+                        best_distance = distance
+                        best_class = c
+                    elif distance < best_distance:
+                        best_distance = distance
+                        best_class = c
+                
+                pred.append(best_class)
+                self._log("Predicted: ", best_class)
             
         return np.array(pred)
