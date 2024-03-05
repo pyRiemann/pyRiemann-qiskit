@@ -799,6 +799,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         
         #testing only!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         #labels = [1] * X.shape[0]
+        #print("End NCH Predict")
         #return labels
         
         print("Total test samples:", X.shape[0]) 
@@ -833,7 +834,8 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
                 
                 pred.append(best_class)
                 print("Predicted: ", best_class)
-            
+        
+        print("End NCH Predict") 
         return np.array(pred)
         
     
