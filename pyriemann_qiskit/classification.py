@@ -261,7 +261,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         prob : ndarray, shape (n_samples, n_classes)
             prob[n, i] == 1 if the nth sample is assigned to class `i`.
         """
-
+        
         if not hasattr(self._classifier, "predict_proba"):
             # Classifier has no predict_proba
             # Use the result from predict and apply a softmax
@@ -269,23 +269,17 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                 "No predict_proba method available.\
                        Computing softmax probabilities..."
             )
-            if (self._classifier == None):
-                self._log(
-                    "No classifier available, using class predict()"
+            proba = self._classifier.predict(X)
+            proba = [
+                np.array(
+                    [
+                        1 if c == self.classes_[i] else 0
+                        for i in range(len(self.classes_))
+                    ]
                 )
-                return self.predict(X)
-            else:
-                proba = self._classifier.predict(X)
-                proba = [
-                    np.array(
-                        [
-                            1 if c == self.classes_[i] else 0
-                            for i in range(len(self.classes_))
-                        ]
-                    )
-                    for c in proba
-                ]
-                proba = softmax(proba, axis=0)
+                for c in proba
+            ]
+            proba = softmax(proba, axis=0)
         else:
             proba = self._classifier.predict_proba(X)
 
@@ -719,6 +713,130 @@ class QuanticMDM(QuanticClassifierBase):
         labels = self._predict(X)
         return self._map_indices_to_classes(labels)
 
+from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
+class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
+    
+    def __init__(self, n_jobs=1):
+        """Init."""
+        self.n_jobs = n_jobs
+        self.matrices_per_class_ = {}
+    
+    def fit(self, X, y):
+        """Fit (store the training data).
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_matrices, n_channels, n_channels)
+            Set of SPD matrices.
+        y : ndarray, shape (n_matrices,)
+            Labels for each matrix.
+        sample_weight : None
+            Not used, here for compatibility with sklearn API.
+
+        Returns
+        -------
+        self : NearestNeighbor instance
+            The NearestNeighbor instance.
+        """
+        
+        print("Start NCH Train") 
+        
+        #self.covmeans_ = X
+        #self.classmeans_ = y
+        self.classes_ = np.unique(y)
+        print("Classes:", self.classes_)
+        print("Class 1", sum(y))
+        print("Class 2", len(y) - sum(y))
+        if (max(self.classes_) > 1):
+            raise Exception("Currently designed for two classes 0 et 1")
+        
+        for c in self.classes_:
+            self.matrices_per_class_[c] = []
+        
+        for i in range(0,len(y)):
+            self.matrices_per_class_[y[i]].append(X[i,:,:])
+            
+        for c in self.classes_:
+            self.matrices_per_class_[c] = np.array(self.matrices_per_class_[c])
+            
+        print("End NCH Train") 
+        
+    def _process_sample(self,test_sample):
+        best_distance = -1
+        best_class = -1
+        
+        for c in self.classes_:
+            
+            distance = distance_logeuclid_cpm(self.matrices_per_class_[c], test_sample)
+            #print("Distance: ", distance)
+            
+            if best_distance == -1:
+                best_distance = distance
+                best_class = c
+            elif distance < best_distance:
+                best_distance = distance
+                best_class = c
+        
+        return best_class
+        
+    def predict(self, X):
+        """Calculates the predictions.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_samples, n_features)
+            Input vector, where `n_samples` is the number of samples and
+            `n_features` is the number of features.
+
+        Returns
+        -------
+        pred : array, shape (n_samples,)
+            Class labels for samples in X.
+        """
+        
+        print("Start NCH Predict") 
+        pred = []
+        
+        #testing only!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        #labels = [1] * X.shape[0]
+        #return labels
+        
+        print("Total test samples:", X.shape[0]) 
+        k = 0;
+        
+        parallel = True
+        
+        if (parallel):
+        
+            pred = Parallel(n_jobs=12)(delayed(self._process_sample)(test_sample) for test_sample in X)
+            
+        else:  
+            for test_sample in X:
+                
+                k = k + 1
+                print("Processing sample:", k, " / ", X.shape[0]) 
+                
+                best_distance = -1
+                best_class = -1
+                
+                for c in self.classes_:
+                    
+                    distance = distance_logeuclid_cpm(self.matrices_per_class_[c], test_sample)
+                    print("Distance: ", distance)
+                    
+                    if best_distance == -1:
+                        best_distance = distance
+                        best_class = c
+                    elif distance < best_distance:
+                        best_distance = distance
+                        best_class = c
+                
+                pred.append(best_class)
+                print("Predicted: ", best_class)
+            
+        return np.array(pred)
+        
+    
 class QuanticNCH(QuanticClassifierBase):
 
     """Nearest Convex Hull Classifier (NCH)
@@ -783,7 +901,7 @@ class QuanticNCH(QuanticClassifierBase):
        
         self._log("Nearest Convex Hull Classifier initiating algorithm")
         
-        classifier = None
+        classifier = NearestConvexHull()
         
         if self.quantum:
             self._log("Using NaiveQAOAOptimizer")
@@ -795,112 +913,6 @@ class QuanticNCH(QuanticClassifierBase):
             self._optimizer = ClassicalOptimizer(self.classical_optimizer)
         set_global_optimizer(self._optimizer)
         
-        self.matrices_per_class_ = {}
-        
         return classifier
     
-    def _train(self, X, y):
-        """Fit (store the training data).
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_matrices, n_channels, n_channels)
-            Set of SPD matrices.
-        y : ndarray, shape (n_matrices,)
-            Labels for each matrix.
-        sample_weight : None
-            Not used, here for compatibility with sklearn API.
-
-        Returns
-        -------
-        self : NearestNeighbor instance
-            The NearestNeighbor instance.
-        """
-        
-        self._log("Start NCH Train") 
-        
-        #self.covmeans_ = X
-        #self.classmeans_ = y
-        self.classes_ = np.unique(y)
-        
-        for c in self.classes_:
-            self.matrices_per_class_[c] = []
-        
-        for i in range(0,len(y)):
-            self.matrices_per_class_[y[i]].append(X[i,:,:])
-            
-        for c in self.classes_:
-            self.matrices_per_class_[c] = np.array(self.matrices_per_class_[c])
-            
-        self._log("End NCH Train") 
     
-    def _process_sample(self,test_sample):
-        best_distance = -1
-        best_class = -1
-        
-        for c in self.classes_:
-            
-            distance = distance_logeuclid_cpm(self.matrices_per_class_[c], test_sample)
-            #print("Distance: ", distance)
-            
-            if best_distance == -1:
-                best_distance = distance
-                best_class = c
-            elif distance < best_distance:
-                best_distance = distance
-                best_class = c
-        
-        return best_class
-        
-    def predict(self, X):
-        """Calculates the predictions.
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_samples, n_features)
-            Input vector, where `n_samples` is the number of samples and
-            `n_features` is the number of features.
-
-        Returns
-        -------
-        pred : array, shape (n_samples,)
-            Class labels for samples in X.
-        """
-        
-        self._log("Start NCH Predict") 
-        pred = []
-        
-        self._log("Total test samples:", X.shape[0]) 
-        k = 0;
-        
-        parallel = True
-        
-        if (parallel):
-        
-            pred = Parallel(n_jobs=12)(delayed(self._process_sample)(test_sample) for test_sample in X)
-            
-        else:  
-            for test_sample in X:
-                
-                k = k + 1
-                self._log("Processing sample:", k, " / ", X.shape[0]) 
-                
-                best_distance = -1
-                best_class = -1
-                
-                for c in self.classes_:
-                    
-                    distance = distance_logeuclid_cpm(self.matrices_per_class_[c], test_sample)
-                    print("Distance: ", distance)
-                    
-                    if best_distance == -1:
-                        best_distance = distance
-                        best_class = c
-                    elif distance < best_distance:
-                        best_distance = distance
-                        best_class = c
-                
-                pred.append(best_class)
-                self._log("Predicted: ", best_class)
-            
-        return np.array(pred)
