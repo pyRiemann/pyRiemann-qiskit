@@ -8,13 +8,13 @@ from qiskit_optimization.algorithms import ADMMOptimizer
 
 @deprecated(
     "fro_mean_convex is deprecated and will be removed in 0.3.0; "
-    "please use mean_euclid_cpm."
+    "please use qmean_euclid."
 )
 def fro_mean_convex():
     pass
 
 
-def mean_euclid_cpm(X, sample_weight=None, optimizer=ClassicalOptimizer()):
+def qmean_euclid(X, sample_weight=None, optimizer=ClassicalOptimizer()):
     """Euclidean mean with Constraint Programming Model.
 
     Constraint Programming Model (CPM) [1]_ formulation of the mean
@@ -27,8 +27,8 @@ def mean_euclid_cpm(X, sample_weight=None, optimizer=ClassicalOptimizer()):
     sample_weights : None | ndarray, shape (n_matrices,), default=None
         Weights for each matrix. Never used in practice.
         It is kept only for standardization with pyRiemann.
-    optimizer : pyQiskitOptimizer
-        An instance of pyQiskitOptimizer.
+    optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
+        An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
 
     Returns
     -------
@@ -41,8 +41,8 @@ def mean_euclid_cpm(X, sample_weight=None, optimizer=ClassicalOptimizer()):
     .. versionchanged:: 0.0.4
         Add regularization of the results.
     .. versionchanged:: 0.2.0
-        Rename from `fro_mean_convex` to `mean_euclid_cpm`
-        Remove shrinkage
+        Rename from `fro_mean_convex` to `qmean_euclid`.
+        Remove shrinkage.
 
     References
     ----------
@@ -73,7 +73,7 @@ def mean_euclid_cpm(X, sample_weight=None, optimizer=ClassicalOptimizer()):
     return result
 
 
-def mean_logeuclid_cpm(
+def qmean_logeuclid(
     X, sample_weight=None, optimizer=ClassicalOptimizer(optimizer=ADMMOptimizer())
 ):
     """Log-Euclidean mean with Constraint Programming Model.
@@ -88,8 +88,8 @@ def mean_logeuclid_cpm(
     sample_weights : None | ndarray, shape (n_matrices,), default=None
         Weights for each matrix. Never used in practice.
         It is kept only for standardization with pyRiemann.
-    optimizer : pyQiskitOptimizer
-        An instance of pyQiskitOptimizer.
+    optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
+        An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
 
     Returns
     -------
@@ -112,38 +112,9 @@ def mean_logeuclid_cpm(
     """
 
     log_X = logm(X)
-    result = mean_euclid_cpm(log_X, sample_weight, optimizer)
+    result = qmean_euclid(log_X, sample_weight, optimizer)
     return expm(result)
 
 
-def is_cpm_mean(string):
-    """Indicates if the mean is a CPM mean.
-
-    Return True is "string" represents a Constraint Programming Model (CPM) [1]_
-    mean available in the library.
-
-    Parameters
-    ----------
-    string: str
-        A string representation of the mean.
-
-    Returns
-    -------
-    is_cpm_mean : boolean
-        True if "string" represents a CPM mean aailable in the library.
-
-    Notes
-    -----
-    .. versionadded:: 0.2.0
-
-    References
-    ----------
-    .. [1] \
-        http://ibmdecisionoptimization.github.io/docplex-doc/cp/creating_model.html
-
-    """
-    return "_cpm" in string and string in mean_functions
-
-
-mean_functions["euclid_cpm"] = mean_euclid_cpm
-mean_functions["logeuclid_cpm"] = mean_logeuclid_cpm
+mean_functions["qeuclid"] = qmean_euclid
+mean_functions["qlogeuclid"] = qmean_logeuclid

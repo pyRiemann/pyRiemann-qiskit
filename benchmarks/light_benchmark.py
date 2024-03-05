@@ -82,13 +82,13 @@ pipelines["RG_VQC"] = QuantumClassifierWithDefaultRiemannianPipeline(
 )
 
 pipelines["QMDM_mean"] = QuantumMDMWithRiemannianPipeline(
-    metric={"mean": "euclid_cpm", "distance": "euclid"},
+    metric={"mean": "qeuclid", "distance": "euclid"},
     quantum=True,
     regularization=Shrinkage(shrinkage=0.9),
 )
 
 pipelines["QMDM_dist"] = QuantumMDMWithRiemannianPipeline(
-    metric={"mean": "logeuclid", "distance": "logeuclid_cpm"}, quantum=True
+    metric={"mean": "logeuclid", "distance": "qlogeuclid_hull"}, quantum=True
 )
 
 pipelines["RG_LDA"] = make_pipeline(
