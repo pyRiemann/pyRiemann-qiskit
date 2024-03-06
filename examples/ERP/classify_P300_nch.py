@@ -68,7 +68,7 @@ datasets = [BNCI2014009()]  # MOABB provides several other P300 datasets
 
 # reduce the number of subjects, the Quantum pipeline takes a lot of time
 # if executed on the entire dataset
-n_subjects = 1
+n_subjects = 3
 for dataset in datasets:
     dataset.subject_list = dataset.subject_list[0:n_subjects]
 
@@ -78,15 +78,15 @@ pipelines = {}
 
 # A Riemannian Quantum pipeline provided by pyRiemann-qiskit
 # You can choose between classical SVM and Quantum SVM.
-pipelines["RG+NCH"] = make_pipeline(
+pipelines["NCH"] = make_pipeline(
     # applies XDawn and calculates the covariance matrix, output it matrices
     XdawnCovariances(
-        nfilter=2,
+        nfilter=3,
         classes=[labels_dict["Target"]],
         estimator="lwf",
         xdawn_estimator="scm",
     ),
-    QuanticNCH(),  # you can use other classifiers
+    QuanticNCH(n_max_hull = 50),  # you can use other classifiers
 )
 
 # Here we provide a pipeline for comparison:
@@ -97,7 +97,7 @@ pipelines["RG+NCH"] = make_pipeline(
 pipelines["RG+LDA"] = make_pipeline(
     # applies XDawn and calculates the covariance matrix, output it matrices
     XdawnCovariances(
-        nfilter=2,
+        nfilter=3,
         classes=[labels_dict["Target"]],
         estimator="lwf",
         xdawn_estimator="scm",
