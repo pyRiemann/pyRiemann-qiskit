@@ -86,7 +86,7 @@ pipelines["NCH"] = make_pipeline(
         estimator="lwf",
         xdawn_estimator="scm",
     ),
-    QuanticNCH(n_max_hull = 50),  # you can use other classifiers
+    QuanticNCH(n_max_hull=50),  # you can use other classifiers
 )
 
 # Here we provide a pipeline for comparison:
