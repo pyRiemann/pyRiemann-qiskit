@@ -70,7 +70,7 @@ datasets = [BNCI2014009()]  # MOABB provides several other P300 datasets
 # if executed on the entire dataset
 n_subjects = 3
 for dataset in datasets:
-    dataset.subject_list = dataset.subject_list[0:n_subjects]
+    dataset.subject_list = dataset.subject_list[5:8]
 
 overwrite = True  # set to True if we want to overwrite cached results
 
@@ -86,7 +86,7 @@ pipelines["NCH"] = make_pipeline(
         estimator="lwf",
         xdawn_estimator="scm",
     ),
-    QuanticNCH(n_max_hull = 50),  # you can use other classifiers
+    QuanticNCH(n_max_hull = 15),  # you can use other classifiers
 )
 
 # Here we provide a pipeline for comparison:

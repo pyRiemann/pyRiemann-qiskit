@@ -32,6 +32,7 @@ from .utils.hyper_params_factory import gen_zz_feature_map, gen_two_local, get_s
 from .utils import get_provider, get_devices, get_simulator
 from .utils.distance import qdistance_logeuclid_to_convex_hull
 from joblib import Parallel, delayed
+import random
 
 logger.level = logging.WARNING
 
@@ -789,23 +790,23 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         for c in self.classes_:
             self.matrices_per_class_[c] = []
 
-        max_train_samples_per_class = self.n_max_hull
-        class_0_count = 0
-        class_1_count = 1
-        
-        for i in range(0, len(y)):
-            
-            if (y[i] == 0):
-                class_0_count = class_0_count + 1
-                if class_0_count < max_train_samples_per_class:
-                    self.matrices_per_class_[y[i]].append(X[i, :, :])
-            elif (y[i] == 1):
-                class_1_count = class_1_count + 1
-                if class_1_count < max_train_samples_per_class:
-                    self.matrices_per_class_[y[i]].append(X[i, :, :])
+        # max_train_samples_per_class = self.n_max_hull
+        # class_0_count = 0
+        # class_1_count = 1
         
         # for i in range(0, len(y)):
-        #     self.matrices_per_class_[y[i]].append(X[i, :, :])
+            
+        #     if (y[i] == 0):
+        #         class_0_count = class_0_count + 1
+        #         if class_0_count < max_train_samples_per_class:
+        #             self.matrices_per_class_[y[i]].append(X[i, :, :])
+        #     elif (y[i] == 1):
+        #         class_1_count = class_1_count + 1
+        #         if class_1_count < max_train_samples_per_class:
+        #             self.matrices_per_class_[y[i]].append(X[i, :, :])
+        
+        for i in range(0, len(y)):
+            self.matrices_per_class_[y[i]].append(X[i, :, :])
 
         for c in self.classes_:
             self.matrices_per_class_[c] = np.array(self.matrices_per_class_[c])
@@ -819,10 +820,27 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         best_class = -1
 
         for c in self.classes_:
-            distance = qdistance_logeuclid_to_convex_hull(
-                self.matrices_per_class_[c], test_sample
-            )
-            # print("Distance: ", distance)
+            
+            # distance = qdistance_logeuclid_to_convex_hull(
+            #     self.matrices_per_class_[c], test_sample
+            # )
+            
+            #start using multiple hulls
+            total_distance = 0
+            
+            for i in range(0,3):
+                
+                random_samples = random.sample(range(self.matrices_per_class_[c].shape[0]), k = self.n_max_hull)
+                
+                hull_data = self.matrices_per_class_[c][random_samples,:,:]
+                
+                distance = qdistance_logeuclid_to_convex_hull(
+                    hull_data, test_sample
+                )
+                total_distance = total_distance + distance
+                
+            distance = total_distance #TODO: improve
+            #end using multiple hulls
 
             if best_distance == -1:
                 best_distance = distance
@@ -857,7 +875,6 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         # return labels
 
         print("Total test samples:", X.shape[0])
-        k = 0
 
         parallel = True
 
@@ -867,26 +884,11 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
             )
 
         else:
+            k = 0
             for test_sample in X:
                 k = k + 1
-                print("Processing sample:", k, " / ", X.shape[0])
-
-                best_distance = -1
-                best_class = -1
-
-                for c in self.classes_:
-                    distance = qdistance_logeuclid_to_convex_hull(
-                        self.matrices_per_class_[c], test_sample
-                    )
-                    print("Distance: ", distance)
-
-                    if best_distance == -1:
-                        best_distance = distance
-                        best_class = c
-                    elif distance < best_distance:
-                        best_distance = distance
-                        best_class = c
-
+                print(k)
+                best_class = self._process_sample(test_sample)
                 pred.append(best_class)
                 print("Predicted: ", best_class)
 
