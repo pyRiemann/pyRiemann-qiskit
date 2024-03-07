@@ -1,14 +1,10 @@
 """
 ====================================================================
-Classification of P300 datasets from MOABB
+Classification of P300 datasets from MOABB using NCH
 ====================================================================
 
-It demonstrates the QuantumClassifierWithDefaultRiemannianPipeline(). This
-pipeline uses Riemannian Geometry, Tangent Space and a quantum SVM
-classifier. MOABB is used to access many EEG datasets and also for the
-evaluation and comparison with other classifiers.
+Demonstrates classification with QunatumNCH. 
 
-In QuantumClassifierWithDefaultRiemannianPipeline():
 If parameter "shots" is None then a classical SVM is used similar to the one
 in scikit learn.
 If "shots" is not None and IBM Qunatum token is provided with "q_account_token"
@@ -68,7 +64,7 @@ datasets = [bi2013a()]  # MOABB provides several other P300 datasets
 
 # reduce the number of subjects, the Quantum pipeline takes a lot of time
 # if executed on the entire dataset
-n_subjects = 3
+n_subjects = 1
 for dataset in datasets:
     dataset.subject_list = dataset.subject_list[0:n_subjects]
 
@@ -86,7 +82,7 @@ pipelines["NCH"] = make_pipeline(
         estimator="lwf",
         xdawn_estimator="scm",
     ),
-    QuanticNCH(n_max_hull=15),  # you can use other classifiers
+    QuanticNCH(n_hulls=3, n_samples_per_hull=15),  # you can use other classifiers
 )
 
 # Here we provide a pipeline for comparison:

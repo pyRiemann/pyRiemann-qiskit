@@ -756,10 +756,12 @@ from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 
 
 class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
-    def __init__(self, n_jobs=12, n_max_hull=30):
+    
+    def __init__(self, n_jobs=12, n_hulls=3, n_samples_per_hull=30):
         """Init."""
         self.n_jobs = n_jobs
-        self.n_max_hull = n_max_hull
+        self.n_samples_per_hull = n_samples_per_hull
+        self.n_hulls = n_hulls
         self.matrices_per_class_ = {}
 
     def fit(self, X, y):
@@ -781,42 +783,21 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         """
 
         print("Start NCH Train")
-
-        # self.covmeans_ = X
-        # self.classmeans_ = y
         self.classes_ = np.unique(y)
-        print("Classes:", self.classes_)
-        print("Class 1", sum(y))
-        print("Class 2", len(y) - sum(y))
-        if max(self.classes_) > 1:
-            raise Exception("Currently designed for two classes 0 et 1")
-
+        
         for c in self.classes_:
             self.matrices_per_class_[c] = []
-
-        # max_train_samples_per_class = self.n_max_hull
-        # class_0_count = 0
-        # class_1_count = 1
-
-        # for i in range(0, len(y)):
-
-        #     if (y[i] == 0):
-        #         class_0_count = class_0_count + 1
-        #         if class_0_count < max_train_samples_per_class:
-        #             self.matrices_per_class_[y[i]].append(X[i, :, :])
-        #     elif (y[i] == 1):
-        #         class_1_count = class_1_count + 1
-        #         if class_1_count < max_train_samples_per_class:
-        #             self.matrices_per_class_[y[i]].append(X[i, :, :])
 
         for i in range(0, len(y)):
             self.matrices_per_class_[y[i]].append(X[i, :, :])
 
         for c in self.classes_:
             self.matrices_per_class_[c] = np.array(self.matrices_per_class_[c])
+        
+        print("Samples per class:")
+        for c in self.classes_:
+            print("Class: ", c , " Count: ", self.matrices_per_class_[c].shape[0])
 
-        # print("Class 1 for real training: ", self.matrices_per_class_[0].shape[0])
-        # print("Class 2 for real training: ", self.matrices_per_class_[1].shape[0])
         print("End NCH Train")
 
     def _process_sample(self, test_sample):
@@ -824,16 +805,13 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         best_class = -1
 
         for c in self.classes_:
-            # distance = qdistance_logeuclid_to_convex_hull(
-            #     self.matrices_per_class_[c], test_sample
-            # )
-
-            # start using multiple hulls
+            
             total_distance = 0
 
-            for i in range(0, 3):
+            #using multiple hulls
+            for i in range(0, self.n_hulls):
                 random_samples = random.sample(
-                    range(self.matrices_per_class_[c].shape[0]), k=self.n_max_hull
+                    range(self.matrices_per_class_[c].shape[0]), k=self.n_samples_per_hull
                 )
 
                 hull_data = self.matrices_per_class_[c][random_samples, :, :]
@@ -841,14 +819,11 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
                 distance = qdistance_logeuclid_to_convex_hull(hull_data, test_sample)
                 total_distance = total_distance + distance
 
-            distance = total_distance  # TODO: improve
-            # end using multiple hulls
-
             if best_distance == -1:
-                best_distance = distance
+                best_distance = total_distance
                 best_class = c
-            elif distance < best_distance:
-                best_distance = distance
+            elif total_distance < best_distance:
+                best_distance = total_distance
                 best_class = c
 
         return best_class
@@ -870,11 +845,6 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
 
         print("Start NCH Predict")
         pred = []
-
-        # testing only!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        # labels = [1] * X.shape[0]
-        # print("End NCH Predict")
-        # return labels
 
         print("Total test samples:", X.shape[0])
 
@@ -951,7 +921,8 @@ class QuanticNCH(QuanticClassifierBase):
         regularization=None,
         # classical_optimizer=CobylaOptimizer(rhobeg=2.1, rhoend=0.000001),
         classical_optimizer=SlsqpOptimizer(),
-        n_max_hull=30,
+        n_hulls = 3,
+        n_samples_per_hull=10,
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -959,12 +930,13 @@ class QuanticNCH(QuanticClassifierBase):
         self.upper_bound = upper_bound
         self.regularization = regularization
         self.classical_optimizer = classical_optimizer
-        self.n_max_hull = n_max_hull
+        self.n_hulls = n_hulls
+        self.n_samples_per_hull = n_samples_per_hull
 
     def _init_algo(self, n_features):
         self._log("Nearest Convex Hull Classifier initiating algorithm")
 
-        classifier = NearestConvexHull(n_max_hull=self.n_max_hull)
+        classifier = NearestConvexHull(n_hulls=self.n_hulls, n_samples_per_hull=self.n_samples_per_hull)
 
         if self.quantum:
             self._log("Using NaiveQAOAOptimizer")
