@@ -30,7 +30,7 @@ import warnings
 import seaborn as sns
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from moabb import set_log_level
-from moabb.datasets import bi2012, BNCI2014009
+from moabb.datasets import bi2012, BNCI2014009, bi2013a
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
 from pyriemann_qiskit.pipelines import (
@@ -64,13 +64,13 @@ labels_dict = {"Target": 1, "NonTarget": 0}
 
 paradigm = P300(resample=128)
 
-datasets = [BNCI2014009()]  # MOABB provides several other P300 datasets
+datasets = [bi2013a()]  # MOABB provides several other P300 datasets
 
 # reduce the number of subjects, the Quantum pipeline takes a lot of time
 # if executed on the entire dataset
 n_subjects = 3
 for dataset in datasets:
-    dataset.subject_list = dataset.subject_list[5:8]
+    dataset.subject_list = dataset.subject_list[0:n_subjects]
 
 overwrite = True  # set to True if we want to overwrite cached results
 

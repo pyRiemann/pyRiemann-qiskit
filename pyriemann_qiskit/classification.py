@@ -811,8 +811,8 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         for c in self.classes_:
             self.matrices_per_class_[c] = np.array(self.matrices_per_class_[c])
             
-        print("Class 1 for real training: ", self.matrices_per_class_[0].shape[0])
-        print("Class 2 for real training: ", self.matrices_per_class_[1].shape[0])
+        #print("Class 1 for real training: ", self.matrices_per_class_[0].shape[0])
+        #print("Class 2 for real training: ", self.matrices_per_class_[1].shape[0])
         print("End NCH Train")
 
     def _process_sample(self, test_sample):
