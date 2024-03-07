@@ -24,7 +24,11 @@ from qiskit.utils.quantum_instance import logger
 from qiskit_ibm_provider import IBMProvider, least_busy
 from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
 from qiskit_machine_learning.kernels.quantum_kernel import QuantumKernel
-from qiskit_optimization.algorithms import CobylaOptimizer, ADMMOptimizer, SlsqpOptimizer
+from qiskit_optimization.algorithms import (
+    CobylaOptimizer,
+    ADMMOptimizer,
+    SlsqpOptimizer,
+)
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.svm import SVC
 
@@ -752,7 +756,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 
 
 class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
-    def __init__(self, n_jobs=12, n_max_hull = 30):
+    def __init__(self, n_jobs=12, n_max_hull=30):
         """Init."""
         self.n_jobs = n_jobs
         self.n_max_hull = n_max_hull
@@ -793,9 +797,9 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         # max_train_samples_per_class = self.n_max_hull
         # class_0_count = 0
         # class_1_count = 1
-        
+
         # for i in range(0, len(y)):
-            
+
         #     if (y[i] == 0):
         #         class_0_count = class_0_count + 1
         #         if class_0_count < max_train_samples_per_class:
@@ -804,15 +808,15 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         #         class_1_count = class_1_count + 1
         #         if class_1_count < max_train_samples_per_class:
         #             self.matrices_per_class_[y[i]].append(X[i, :, :])
-        
+
         for i in range(0, len(y)):
             self.matrices_per_class_[y[i]].append(X[i, :, :])
 
         for c in self.classes_:
             self.matrices_per_class_[c] = np.array(self.matrices_per_class_[c])
-            
-        #print("Class 1 for real training: ", self.matrices_per_class_[0].shape[0])
-        #print("Class 2 for real training: ", self.matrices_per_class_[1].shape[0])
+
+        # print("Class 1 for real training: ", self.matrices_per_class_[0].shape[0])
+        # print("Class 2 for real training: ", self.matrices_per_class_[1].shape[0])
         print("End NCH Train")
 
     def _process_sample(self, test_sample):
@@ -820,27 +824,25 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         best_class = -1
 
         for c in self.classes_:
-            
             # distance = qdistance_logeuclid_to_convex_hull(
             #     self.matrices_per_class_[c], test_sample
             # )
-            
-            #start using multiple hulls
+
+            # start using multiple hulls
             total_distance = 0
-            
-            for i in range(0,3):
-                
-                random_samples = random.sample(range(self.matrices_per_class_[c].shape[0]), k = self.n_max_hull)
-                
-                hull_data = self.matrices_per_class_[c][random_samples,:,:]
-                
-                distance = qdistance_logeuclid_to_convex_hull(
-                    hull_data, test_sample
+
+            for i in range(0, 3):
+                random_samples = random.sample(
+                    range(self.matrices_per_class_[c].shape[0]), k=self.n_max_hull
                 )
+
+                hull_data = self.matrices_per_class_[c][random_samples, :, :]
+
+                distance = qdistance_logeuclid_to_convex_hull(hull_data, test_sample)
                 total_distance = total_distance + distance
-                
-            distance = total_distance #TODO: improve
-            #end using multiple hulls
+
+            distance = total_distance  # TODO: improve
+            # end using multiple hulls
 
             if best_distance == -1:
                 best_distance = distance
@@ -947,9 +949,9 @@ class QuanticNCH(QuanticClassifierBase):
         seed=None,
         upper_bound=7,
         regularization=None,
-        #classical_optimizer=CobylaOptimizer(rhobeg=2.1, rhoend=0.000001),
+        # classical_optimizer=CobylaOptimizer(rhobeg=2.1, rhoend=0.000001),
         classical_optimizer=SlsqpOptimizer(),
-        n_max_hull = 30
+        n_max_hull=30,
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -962,7 +964,7 @@ class QuanticNCH(QuanticClassifierBase):
     def _init_algo(self, n_features):
         self._log("Nearest Convex Hull Classifier initiating algorithm")
 
-        classifier = NearestConvexHull(n_max_hull = self.n_max_hull)
+        classifier = NearestConvexHull(n_max_hull=self.n_max_hull)
 
         if self.quantum:
             self._log("Using NaiveQAOAOptimizer")
@@ -975,6 +977,6 @@ class QuanticNCH(QuanticClassifierBase):
         set_global_optimizer(self._optimizer)
 
         return classifier
-    
-    def predict(self,X):
+
+    def predict(self, X):
         return self._predict(X)
