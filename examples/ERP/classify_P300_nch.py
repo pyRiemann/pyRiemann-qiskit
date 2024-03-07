@@ -3,7 +3,7 @@
 Classification of P300 datasets from MOABB using NCH
 ====================================================================
 
-Demonstrates classification with QunatumNCH. 
+Demonstrates classification with QunatumNCH.
 
 If parameter "shots" is None then a classical SVM is used similar to the one
 in scikit learn.

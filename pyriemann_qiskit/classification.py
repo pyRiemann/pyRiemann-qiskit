@@ -756,7 +756,6 @@ from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 
 
 class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
-    
     def __init__(self, n_jobs=12, n_hulls=3, n_samples_per_hull=30):
         """Init."""
         self.n_jobs = n_jobs
@@ -784,7 +783,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
 
         print("Start NCH Train")
         self.classes_ = np.unique(y)
-        
+
         for c in self.classes_:
             self.matrices_per_class_[c] = []
 
@@ -793,10 +792,10 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
 
         for c in self.classes_:
             self.matrices_per_class_[c] = np.array(self.matrices_per_class_[c])
-        
+
         print("Samples per class:")
         for c in self.classes_:
-            print("Class: ", c , " Count: ", self.matrices_per_class_[c].shape[0])
+            print("Class: ", c, " Count: ", self.matrices_per_class_[c].shape[0])
 
         print("End NCH Train")
 
@@ -805,13 +804,13 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         best_class = -1
 
         for c in self.classes_:
-            
             total_distance = 0
 
-            #using multiple hulls
+            # using multiple hulls
             for i in range(0, self.n_hulls):
                 random_samples = random.sample(
-                    range(self.matrices_per_class_[c].shape[0]), k=self.n_samples_per_hull
+                    range(self.matrices_per_class_[c].shape[0]),
+                    k=self.n_samples_per_hull,
                 )
 
                 hull_data = self.matrices_per_class_[c][random_samples, :, :]
@@ -921,7 +920,7 @@ class QuanticNCH(QuanticClassifierBase):
         regularization=None,
         # classical_optimizer=CobylaOptimizer(rhobeg=2.1, rhoend=0.000001),
         classical_optimizer=SlsqpOptimizer(),
-        n_hulls = 3,
+        n_hulls=3,
         n_samples_per_hull=10,
     ):
         QuanticClassifierBase.__init__(
@@ -936,7 +935,9 @@ class QuanticNCH(QuanticClassifierBase):
     def _init_algo(self, n_features):
         self._log("Nearest Convex Hull Classifier initiating algorithm")
 
-        classifier = NearestConvexHull(n_hulls=self.n_hulls, n_samples_per_hull=self.n_samples_per_hull)
+        classifier = NearestConvexHull(
+            n_hulls=self.n_hulls, n_samples_per_hull=self.n_samples_per_hull
+        )
 
         if self.quantum:
             self._log("Using NaiveQAOAOptimizer")
