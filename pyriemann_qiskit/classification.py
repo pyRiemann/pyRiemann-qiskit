@@ -813,21 +813,19 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
             )
 
         else:
-            #k = 0
+            # k = 0
             for test_sample in X:
-                #k = k + 1
-                #print(k)
+                # k = k + 1
+                # print(k)
                 dist_sample = self._process_sample(test_sample)
                 dist.append(dist_sample)
-        
+
         return dist
-        
+
     def _process_sample(self, test_sample):
-        
-        distances=[]
-        
+        distances = []
+
         for c in self.classes_:
-            
             total_distance = 0
 
             # using multiple hulls
@@ -859,14 +857,17 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         """
         print("Start NCH Predict")
         dist = self._predict_distances(X)
-        
-        predictions = [self.classes_[min(range(len(values)), key=values.__getitem__)] for values in dist]
-        #print(predictions)
+
+        predictions = [
+            self.classes_[min(range(len(values)), key=values.__getitem__)]
+            for values in dist
+        ]
+        # print(predictions)
         return predictions
-    
-        #return self.classes_[dist.argmin(axis=1)]
+
+        # return self.classes_[dist.argmin(axis=1)]
         print("End NCH Predict")
-    
+
     def transform(self, X):
         """Get the distance to each convex hull.
         Parameters
@@ -969,7 +970,7 @@ class QuanticNCH(QuanticClassifierBase):
     def predict(self, X):
         print("QuanticNCH Predict")
         return self._predict(X)
-    
+
     def transform(self, X):
         print("QuanticNCH Transform")
         return self._classifier.transform(X)

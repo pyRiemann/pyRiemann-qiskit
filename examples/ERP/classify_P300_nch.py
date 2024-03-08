@@ -84,7 +84,7 @@ pipelines = {}
 #     QuanticNCH(n_hulls=1, n_samples_per_hull=3),  # you can use other classifiers
 # )
 
-#NCH as a transformer
+# NCH as a transformer
 pipelines["NCH+LDA"] = make_pipeline(
     # applies XDawn and calculates the covariance matrix, output it matrices
     XdawnCovariances(
