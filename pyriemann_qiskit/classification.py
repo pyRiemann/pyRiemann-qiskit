@@ -799,11 +799,35 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
 
         print("End NCH Train")
 
-    def _process_sample(self, test_sample):
-        best_distance = -1
-        best_class = -1
+    def _predict_distances(self, X):
+        """Helper to predict the distance. Equivalent to transform."""
+        dist = []
 
+        print("Total test samples:", X.shape[0])
+
+        parallel = True
+
+        if parallel:
+            dist = Parallel(n_jobs=self.n_jobs)(
+                delayed(self._process_sample)(test_sample) for test_sample in X
+            )
+
+        else:
+            #k = 0
+            for test_sample in X:
+                #k = k + 1
+                #print(k)
+                dist_sample = self._process_sample(test_sample)
+                dist.append(dist_sample)
+        
+        return dist
+        
+    def _process_sample(self, test_sample):
+        
+        distances=[]
+        
         for c in self.classes_:
+            
             total_distance = 0
 
             # using multiple hulls
@@ -818,53 +842,44 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
                 distance = qdistance_logeuclid_to_convex_hull(hull_data, test_sample)
                 total_distance = total_distance + distance
 
-            if best_distance == -1:
-                best_distance = total_distance
-                best_class = c
-            elif total_distance < best_distance:
-                best_distance = total_distance
-                best_class = c
+            distances.append(total_distance)
 
-        return best_class
+        return distances
 
     def predict(self, X):
-        """Calculates the predictions.
-
+        """Get the predictions.
         Parameters
         ----------
-        X : ndarray, shape (n_samples, n_features)
-            Input vector, where `n_samples` is the number of samples and
-            `n_features` is the number of features.
-
+        X : ndarray, shape (n_matrices, n_channels, n_channels)
+            Set of SPD matrices.
         Returns
         -------
-        pred : array, shape (n_samples,)
-            Class labels for samples in X.
+        pred : ndarray of int, shape (n_matrices,)
+            Predictions for each matrix according to the closest convex hull.
         """
-
         print("Start NCH Predict")
-        pred = []
-
-        print("Total test samples:", X.shape[0])
-
-        parallel = True
-
-        if parallel:
-            pred = Parallel(n_jobs=self.n_jobs)(
-                delayed(self._process_sample)(test_sample) for test_sample in X
-            )
-
-        else:
-            k = 0
-            for test_sample in X:
-                k = k + 1
-                print(k)
-                best_class = self._process_sample(test_sample)
-                pred.append(best_class)
-                print("Predicted: ", best_class)
-
+        dist = self._predict_distances(X)
+        
+        predictions = [self.classes_[min(range(len(values)), key=values.__getitem__)] for values in dist]
+        #print(predictions)
+        return predictions
+    
+        #return self.classes_[dist.argmin(axis=1)]
         print("End NCH Predict")
-        return np.array(pred)
+    
+    def transform(self, X):
+        """Get the distance to each convex hull.
+        Parameters
+        ----------
+        X : ndarray, shape (n_matrices, n_channels, n_channels)
+            Set of SPD matrices.
+        Returns
+        -------
+        dist : ndarray, shape (n_matrices, n_classes)
+            The distance to each convex hull.
+        """
+        print("NCH Transform")
+        return self._predict_distances(X)
 
 
 class QuanticNCH(QuanticClassifierBase):
@@ -952,4 +967,9 @@ class QuanticNCH(QuanticClassifierBase):
         return classifier
 
     def predict(self, X):
+        print("QuanticNCH Predict")
         return self._predict(X)
+    
+    def transform(self, X):
+        print("QuanticNCH Transform")
+        return self._classifier.transform(X)

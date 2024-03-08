@@ -27,7 +27,7 @@ import seaborn as sns
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from moabb import set_log_level
 from moabb.datasets import bi2012, BNCI2014009, bi2013a
-from moabb.evaluations import WithinSessionEvaluation
+from moabb.evaluations import WithinSessionEvaluation, CrossSubjectEvaluation
 from moabb.paradigms import P300
 from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
@@ -72,9 +72,20 @@ overwrite = True  # set to True if we want to overwrite cached results
 
 pipelines = {}
 
-# A Riemannian Quantum pipeline provided by pyRiemann-qiskit
-# You can choose between classical SVM and Quantum SVM.
-pipelines["NCH"] = make_pipeline(
+# NCH as a classifier
+# pipelines["NCH"] = make_pipeline(
+#     # applies XDawn and calculates the covariance matrix, output it matrices
+#     XdawnCovariances(
+#         nfilter=3,
+#         classes=[labels_dict["Target"]],
+#         estimator="lwf",
+#         xdawn_estimator="scm",
+#     ),
+#     QuanticNCH(n_hulls=1, n_samples_per_hull=3),  # you can use other classifiers
+# )
+
+#NCH as a transformer
+pipelines["NCH+LDA"] = make_pipeline(
     # applies XDawn and calculates the covariance matrix, output it matrices
     XdawnCovariances(
         nfilter=3,
@@ -82,7 +93,8 @@ pipelines["NCH"] = make_pipeline(
         estimator="lwf",
         xdawn_estimator="scm",
     ),
-    QuanticNCH(n_hulls=3, n_samples_per_hull=15),  # you can use other classifiers
+    QuanticNCH(n_hulls=1, n_samples_per_hull=3),
+    LDA(solver="lsqr", shrinkage="auto"),
 )
 
 # Here we provide a pipeline for comparison:
