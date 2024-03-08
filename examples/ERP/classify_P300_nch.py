@@ -93,7 +93,7 @@ pipelines["NCH+LDA"] = make_pipeline(
         estimator="lwf",
         xdawn_estimator="scm",
     ),
-    QuanticNCH(n_hulls=1, n_samples_per_hull=3),
+    QuanticNCH(n_hulls=3, n_samples_per_hull=15),
     LDA(solver="lsqr", shrinkage="auto"),
 )
 
