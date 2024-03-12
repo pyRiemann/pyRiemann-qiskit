@@ -4,6 +4,7 @@ Classification of P300 datasets from MOABB using NCH
 ====================================================================
 
 Demonstrates classification with QunatumNCH.
+Evaluation is done using MOABB.
 
 If parameter "shots" is None then a classical SVM is used similar to the one
 in scikit learn.
@@ -34,6 +35,7 @@ from pyriemann_qiskit.pipelines import (
 )
 from sklearn.decomposition import PCA
 from pyriemann_qiskit.classification import QuanticNCH
+from pyriemann.classification import MDM
 
 print(__doc__)
 
@@ -72,20 +74,7 @@ overwrite = True  # set to True if we want to overwrite cached results
 
 pipelines = {}
 
-# NCH as a classifier
-# pipelines["NCH"] = make_pipeline(
-#     # applies XDawn and calculates the covariance matrix, output it matrices
-#     XdawnCovariances(
-#         nfilter=3,
-#         classes=[labels_dict["Target"]],
-#         estimator="lwf",
-#         xdawn_estimator="scm",
-#     ),
-#     QuanticNCH(n_hulls=1, n_samples_per_hull=3),  # you can use other classifiers
-# )
-
-# NCH as a transformer
-pipelines["NCH+LDA"] = make_pipeline(
+pipelines["NCH"] = make_pipeline(
     # applies XDawn and calculates the covariance matrix, output it matrices
     XdawnCovariances(
         nfilter=3,
@@ -93,26 +82,18 @@ pipelines["NCH+LDA"] = make_pipeline(
         estimator="lwf",
         xdawn_estimator="scm",
     ),
-    QuanticNCH(n_hulls=3, n_samples_per_hull=15),
-    LDA(solver="lsqr", shrinkage="auto"),
+    QuanticNCH(n_hulls=3, n_samples_per_hull=15, n_jobs=12, quantum=False),
 )
 
-# Here we provide a pipeline for comparison:
-
-# This is a standard pipeline similar to
-# QuantumClassifierWithDefaultRiemannianPipeline, but with LDA classifier
-# instead.
-pipelines["RG+LDA"] = make_pipeline(
-    # applies XDawn and calculates the covariance matrix, output it matrices
+#this is a non quantum pipeline
+pipelines["XD+MDM"] = make_pipeline(
     XdawnCovariances(
         nfilter=3,
         classes=[labels_dict["Target"]],
         estimator="lwf",
         xdawn_estimator="scm",
     ),
-    TangentSpace(),
-    PCA(n_components=10),
-    LDA(solver="lsqr", shrinkage="auto"),  # you can use other classifiers
+    MDM()
 )
 
 print("Total pipelines to evaluate: ", len(pipelines))
