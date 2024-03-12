@@ -845,8 +845,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
 
             # using multiple hulls
             for i in range(0, self.n_hulls):
-                
-                if (self.n_samples_per_hull == -1):
+                if self.n_samples_per_hull == -1:
                     hull_data = self.matrices_per_class_[c]
                 else:
                     random_samples = random.sample(
