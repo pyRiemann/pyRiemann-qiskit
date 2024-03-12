@@ -776,7 +776,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         self.n_samples_per_hull = n_samples_per_hull
         self.n_hulls = n_hulls
         self.matrices_per_class_ = {}
-        self.debug = False
+        self.debug = True
 
     def fit(self, X, y):
         """Fit (store the training data).
@@ -845,12 +845,15 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
 
             # using multiple hulls
             for i in range(0, self.n_hulls):
-                random_samples = random.sample(
-                    range(self.matrices_per_class_[c].shape[0]),
-                    k=self.n_samples_per_hull,
-                )
-
-                hull_data = self.matrices_per_class_[c][random_samples, :, :]
+                
+                if (self.n_samples_per_hull == -1):
+                    hull_data = self.matrices_per_class_[c]
+                else:
+                    random_samples = random.sample(
+                        range(self.matrices_per_class_[c].shape[0]),
+                        k=self.n_samples_per_hull,
+                    )
+                    hull_data = self.matrices_per_class_[c][random_samples, :, :]
 
                 distance = qdistance_logeuclid_to_convex_hull(hull_data, test_sample)
                 total_distance = total_distance + distance
