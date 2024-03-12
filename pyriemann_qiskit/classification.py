@@ -770,7 +770,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
     .. versionadded:: 0.2.0
     """
 
-    def __init__(self, n_jobs=6, n_hulls=3, n_samples_per_hull=30):
+    def __init__(self, n_jobs=6, n_hulls=3, n_samples_per_hull=10):
         """Init."""
         self.n_jobs = n_jobs
         self.n_samples_per_hull = n_samples_per_hull
@@ -811,11 +811,9 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
 
         if self.debug:
             print("Samples per class:")
-        for c in self.classes_:
-            if self.debug:
+            for c in self.classes_:
                 print("Class: ", c, " Count: ", self.matrices_per_class_[c].shape[0])
 
-        if self.debug:
             print("End NCH Train")
 
     def _predict_distances(self, X):
@@ -949,7 +947,7 @@ class QuanticNCH(QuanticClassifierBase):
 
     def __init__(
         self,
-        quantum=False,  # change to True in final version
+        quantum=True,
         q_account_token=None,
         verbose=True,
         shots=1024,
