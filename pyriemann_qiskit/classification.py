@@ -27,7 +27,7 @@ from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
 from qiskit_machine_learning.kernels.quantum_kernel import QuantumKernel
 from qiskit_optimization.algorithms import (
     CobylaOptimizer,
-#    ADMMOptimizer,
+    #    ADMMOptimizer,
     SlsqpOptimizer,
 )
 from sklearn.svm import SVC
@@ -756,8 +756,8 @@ from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 
 
 class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
-    
-    '''Nearest Convex Hull Classifier (NCH)
+
+    """Nearest Convex Hull Classifier (NCH)
 
     In NCH, for each class a convex hull is produced by the set of matrices
     corresponding to each class. There is no training. Calculating a distance
@@ -768,8 +768,8 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
     Notes
     -----
     .. versionadded:: 0.2.0
-    '''
-    
+    """
+
     def __init__(self, n_jobs=6, n_hulls=3, n_samples_per_hull=30):
         """Init."""
         self.n_jobs = n_jobs
@@ -796,7 +796,8 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
             The NearestNeighbor instance.
         """
 
-        if (self.debug): print("Start NCH Train")
+        if self.debug:
+            print("Start NCH Train")
         self.classes_ = np.unique(y)
 
         for c in self.classes_:
@@ -808,22 +809,26 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         for c in self.classes_:
             self.matrices_per_class_[c] = np.array(self.matrices_per_class_[c])
 
-        if (self.debug): print("Samples per class:")
+        if self.debug:
+            print("Samples per class:")
         for c in self.classes_:
-            if (self.debug): print("Class: ", c, " Count: ", self.matrices_per_class_[c].shape[0])
+            if self.debug:
+                print("Class: ", c, " Count: ", self.matrices_per_class_[c].shape[0])
 
-        if (self.debug): print("End NCH Train")
+        if self.debug:
+            print("End NCH Train")
 
     def _predict_distances(self, X):
         """Helper to predict the distance. Equivalent to transform."""
         dist = []
 
-        if (self.debug): print("Total test samples:", X.shape[0])
+        if self.debug:
+            print("Total test samples:", X.shape[0])
 
         parallel = self.n_jobs > 1
-        
-        if (self.debug): 
-            if (parallel): 
+
+        if self.debug:
+            if parallel:
                 print("Running in parallel")
             else:
                 print("Not running in parallel")
@@ -873,18 +878,21 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         pred : ndarray of int, shape (n_matrices,)
             Predictions for each matrix according to the closest convex hull.
         """
-        if (self.debug): print("Start NCH Predict")
+        if self.debug:
+            print("Start NCH Predict")
         dist = self._predict_distances(X)
 
         predictions = [
             self.classes_[min(range(len(values)), key=values.__getitem__)]
             for values in dist
         ]
-        if (self.debug): print(predictions)
+        if self.debug:
+            print(predictions)
         return predictions
 
         # return self.classes_[dist.argmin(axis=1)]
-        if (self.debug): print("End NCH Predict")
+        if self.debug:
+            print("End NCH Predict")
 
     def transform(self, X):
         """Get the distance to each convex hull.
@@ -897,8 +905,9 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         dist : ndarray, shape (n_matrices, n_classes)
             The distance to each convex hull.
         """
-        
-        if (self.debug): print("NCH Transform")
+
+        if self.debug:
+            print("NCH Transform")
         return self._predict_distances(X)
 
 
@@ -949,7 +958,7 @@ class QuanticNCH(QuanticClassifierBase):
         upper_bound=7,
         regularization=None,
         n_jobs=6,
-        classical_optimizer=SlsqpOptimizer(), # set here new default optimizer
+        classical_optimizer=SlsqpOptimizer(),  # set here new default optimizer
         n_hulls=3,
         n_samples_per_hull=10,
     ):
@@ -967,7 +976,9 @@ class QuanticNCH(QuanticClassifierBase):
         self._log("Nearest Convex Hull Classifier initiating algorithm")
 
         classifier = NearestConvexHull(
-            n_hulls=self.n_hulls, n_samples_per_hull=self.n_samples_per_hull, n_jobs=self.n_jobs
+            n_hulls=self.n_hulls,
+            n_samples_per_hull=self.n_samples_per_hull,
+            n_jobs=self.n_jobs,
         )
 
         if self.quantum:
@@ -983,9 +994,9 @@ class QuanticNCH(QuanticClassifierBase):
         return classifier
 
     def predict(self, X):
-        #self._log("QuanticNCH Predict")
+        # self._log("QuanticNCH Predict")
         return self._predict(X)
 
     def transform(self, X):
-        #self._log("QuanticNCH Transform")
+        # self._log("QuanticNCH Transform")
         return self._classifier.transform(X)

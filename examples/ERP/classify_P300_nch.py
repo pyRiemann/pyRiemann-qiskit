@@ -85,7 +85,7 @@ pipelines["NCH"] = make_pipeline(
     QuanticNCH(n_hulls=3, n_samples_per_hull=15, n_jobs=12, quantum=False),
 )
 
-#this is a non quantum pipeline
+# this is a non quantum pipeline
 pipelines["XD+MDM"] = make_pipeline(
     XdawnCovariances(
         nfilter=3,
@@ -93,7 +93,7 @@ pipelines["XD+MDM"] = make_pipeline(
         estimator="lwf",
         xdawn_estimator="scm",
     ),
-    MDM()
+    MDM(),
 )
 
 print("Total pipelines to evaluate: ", len(pipelines))
