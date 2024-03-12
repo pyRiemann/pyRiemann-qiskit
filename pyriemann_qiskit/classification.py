@@ -890,7 +890,6 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
             print(predictions)
         return predictions
 
-        # return self.classes_[dist.argmin(axis=1)]
         if self.debug:
             print("End NCH Predict")
 
