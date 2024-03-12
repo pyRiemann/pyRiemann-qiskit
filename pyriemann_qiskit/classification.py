@@ -801,13 +801,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         self.classes_ = np.unique(y)
 
         for c in self.classes_:
-            self.matrices_per_class_[c] = []
-
-        for i in range(0, len(y)):
-            self.matrices_per_class_[y[i]].append(X[i, :, :])
-
-        for c in self.classes_:
-            self.matrices_per_class_[c] = np.array(self.matrices_per_class_[c])
+           self.matrices_per_class_[c] = X[y==c,:,:]
 
         if self.debug:
             print("Samples per class:")
