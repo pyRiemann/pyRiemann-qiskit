@@ -862,10 +862,9 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
 
             # using multiple hulls
             for i in range(0, self.n_hulls_per_class):
-                
-                if self.n_samples_per_hull == -1: # use all data per class
+                if self.n_samples_per_hull == -1:  # use all data per class
                     hull_data = self.matrices_per_class_[c]
-                else: # use a subset of the data per class
+                else:  # use a subset of the data per class
                     random_samples = random.sample(
                         range(self.matrices_per_class_[c].shape[0]),
                         k=self.n_samples_per_hull,
@@ -1009,8 +1008,10 @@ class QuanticNCH(QuanticClassifierBase):
         else:
             self._log("Using ClassicalOptimizer")
             self._optimizer = ClassicalOptimizer(self.classical_optimizer)
-        
-        set_global_optimizer(self._optimizer) # sets the optimizer for the distance functions used in NearestConvexHull class
+
+        set_global_optimizer(
+            self._optimizer
+        )  # sets the optimizer for the distance functions used in NearestConvexHull class
 
         return classifier
 
