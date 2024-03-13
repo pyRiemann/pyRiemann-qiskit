@@ -768,23 +768,23 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
     Notes
     -----
     .. versionadded:: 0.2.0
-    
+
     Parameters
     ----------
     n_jobs : int, default=6
         The number of jobs to use for the computation. This works by computing
         each of the hulls in parallel.
     n_hulls_per_class: int, default 3
-        The number of hulls used per class. 
+        The number of hulls used per class.
     n_samples_per_hull: int, default 15
         Defines how many samples are used to build a hull.
-        
+
     References
     ----------
     .. [1] \
         K. Zhao, A. Wiliem, S. Chen, and B. C. Lovell,
         ‘Convex Class Model on Symmetric Positive Definite Manifolds’,
-        Image and Vision Computing, 2019.   
+        Image and Vision Computing, 2019.
     """
 
     def __init__(self, n_jobs=6, n_hulls_per_class=3, n_samples_per_hull=10):
@@ -961,7 +961,7 @@ class QuanticNCH(QuanticClassifierBase):
         The number of jobs to use for the computation. This works by computing
         each of the hulls in parallel.
     n_hulls_per_class: int, default 3
-        The number of hulls used per class. 
+        The number of hulls used per class.
     n_samples_per_hull: int, default 15
         Defines how many samples are used to build a hull.
 
