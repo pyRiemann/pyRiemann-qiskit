@@ -768,13 +768,30 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
     Notes
     -----
     .. versionadded:: 0.2.0
+    
+    Parameters
+    ----------
+    n_jobs : int, default=6
+        The number of jobs to use for the computation. This works by computing
+        each of the hulls in parallel.
+    n_hulls_per_class: int, default 3
+        The number of hulls used per class. 
+    n_samples_per_hull: int, default 15
+        Defines how many samples are used to build a hull.
+        
+    References
+    ----------
+    .. [1] \
+        K. Zhao, A. Wiliem, S. Chen, and B. C. Lovell,
+        ‘Convex Class Model on Symmetric Positive Definite Manifolds’,
+        Image and Vision Computing, 2019.   
     """
 
-    def __init__(self, n_jobs=6, n_hulls=3, n_samples_per_hull=10):
+    def __init__(self, n_jobs=6, n_hulls_per_class=3, n_samples_per_hull=10):
         """Init."""
         self.n_jobs = n_jobs
         self.n_samples_per_hull = n_samples_per_hull
-        self.n_hulls = n_hulls
+        self.n_hulls_per_class = n_hulls_per_class
         self.matrices_per_class_ = {}
         self.debug = True
 
@@ -844,7 +861,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
             total_distance = 0
 
             # using multiple hulls
-            for i in range(0, self.n_hulls):
+            for i in range(0, self.n_hulls_per_class):
                 if self.n_samples_per_hull == -1:
                     hull_data = self.matrices_per_class_[c]
                 else:
@@ -940,6 +957,13 @@ class QuanticNCH(QuanticClassifierBase):
         Additional post-processing to regularize means.
     classical_optimizer : OptimizationAlgorithm
         An instance of OptimizationAlgorithm [3]_
+    n_jobs : int, default=6
+        The number of jobs to use for the computation. This works by computing
+        each of the hulls in parallel.
+    n_hulls_per_class: int, default 3
+        The number of hulls used per class. 
+    n_samples_per_hull: int, default 15
+        Defines how many samples are used to build a hull.
 
     """
 
@@ -954,7 +978,7 @@ class QuanticNCH(QuanticClassifierBase):
         regularization=None,
         n_jobs=6,
         classical_optimizer=SlsqpOptimizer(),  # set here new default optimizer
-        n_hulls=3,
+        n_hulls_per_class=3,
         n_samples_per_hull=10,
     ):
         QuanticClassifierBase.__init__(
@@ -963,7 +987,7 @@ class QuanticNCH(QuanticClassifierBase):
         self.upper_bound = upper_bound
         self.regularization = regularization
         self.classical_optimizer = classical_optimizer
-        self.n_hulls = n_hulls
+        self.n_hulls_per_class = n_hulls_per_class
         self.n_samples_per_hull = n_samples_per_hull
         self.n_jobs = n_jobs
 
@@ -971,7 +995,7 @@ class QuanticNCH(QuanticClassifierBase):
         self._log("Nearest Convex Hull Classifier initiating algorithm")
 
         classifier = NearestConvexHull(
-            n_hulls=self.n_hulls,
+            n_hulls_per_class=self.n_hulls_per_class,
             n_samples_per_hull=self.n_samples_per_hull,
             n_jobs=self.n_jobs,
         )

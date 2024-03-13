@@ -82,7 +82,7 @@ pipelines["NCH"] = make_pipeline(
         estimator="lwf",
         xdawn_estimator="scm",
     ),
-    QuanticNCH(n_hulls=3, n_samples_per_hull=15, n_jobs=12, quantum=False),
+    QuanticNCH(n_hulls_per_class=3, n_samples_per_hull=15, n_jobs=12, quantum=False),
 )
 
 # this is a non quantum pipeline
