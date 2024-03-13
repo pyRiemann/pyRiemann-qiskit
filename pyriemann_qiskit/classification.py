@@ -893,6 +893,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         ----------
         X : ndarray, shape (n_matrices, n_channels, n_channels)
             Set of SPD matrices.
+
         Returns
         -------
         dist : ndarray, shape (n_matrices, n_classes)
