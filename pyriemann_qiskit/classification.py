@@ -1008,7 +1008,7 @@ class QuanticNCH(QuanticClassifierBase):
         else:
             self._log("Using ClassicalOptimizer")
             self._optimizer = ClassicalOptimizer(self.classical_optimizer)
-        
+
         set_global_optimizer(self._optimizer)
 
         return classifier
