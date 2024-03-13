@@ -19,7 +19,7 @@ def logeucl_dist_convex():
     pass
 
 
-def qdistance_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
+def qdistance_logeuclid_to_convex_hull(A, B, optimizer=get_global_optimizer(ClassicalOptimizer())):
     """Log-Euclidean distance to a convex hull of SPD matrices.
 
     Log-Euclidean distance between a SPD matrix B and the convex hull of a set
@@ -65,7 +65,7 @@ def qdistance_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
     return distance
 
 
-def weights_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
+def weights_logeuclid_to_convex_hull(A, B, optimizer=get_global_optimizer(ClassicalOptimizer())):
     """Weights for Log-Euclidean distance to a convex hull of SPD matrices.
 
     Weights for Log-Euclidean distance between a SPD matrix B
@@ -113,7 +113,6 @@ def weights_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
         return np.nansum(logm(m1).flatten() * logm(m2).flatten())
 
     prob = Model()
-    optimizer = get_global_optimizer(optimizer)
     w = optimizer.get_weights(prob, matrices)
 
     wtLogAtLogAw = prob.sum(
