@@ -889,6 +889,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
 
     def transform(self, X):
         """Get the distance to each convex hull.
+
         Parameters
         ----------
         X : ndarray, shape (n_matrices, n_channels, n_channels)
