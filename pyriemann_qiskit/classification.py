@@ -792,8 +792,8 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
 
         Returns
         -------
-        self : NearestNeighbor instance
-            The NearestNeighbor instance.
+        self : NearestConvexHull instance
+            The NearestConvexHull instance.
         """
 
         if self.debug:
