@@ -74,7 +74,7 @@ overwrite = True  # set to True if we want to overwrite cached results
 
 pipelines = {}
 
-pipelines["NCH"] = make_pipeline(
+pipelines["NCH+RANDOM_HULL"] = make_pipeline(
     # applies XDawn and calculates the covariance matrix, output it matrices
     XdawnCovariances(
         nfilter=3,
@@ -82,7 +82,18 @@ pipelines["NCH"] = make_pipeline(
         estimator="lwf",
         xdawn_estimator="scm",
     ),
-    QuanticNCH(n_hulls_per_class=3, n_samples_per_hull=15, n_jobs=12, quantum=False),
+    QuanticNCH(n_hulls_per_class=1, n_samples_per_hull=3, n_jobs=12, hull_type = "random-hull", quantum=False),
+)
+
+pipelines["NCH+MIN_HULL"] = make_pipeline(
+    # applies XDawn and calculates the covariance matrix, output it matrices
+    XdawnCovariances(
+        nfilter=3,
+        classes=[labels_dict["Target"]],
+        estimator="lwf",
+        xdawn_estimator="scm",
+    ),
+    QuanticNCH(n_hulls_per_class=1, n_samples_per_hull=3, n_jobs=12, hull_type = "min-hull", quantum=False),
 )
 
 # this is a non quantum pipeline
