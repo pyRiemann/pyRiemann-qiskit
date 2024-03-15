@@ -751,6 +751,7 @@ class QuanticMDM(QuanticClassifierBase):
         labels = self._predict(X)
         return self._map_indices_to_classes(labels)
 
+
 class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
 
     """Nearest Convex Hull Classifier (NCH)
@@ -775,7 +776,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
     n_samples_per_hull: int, (default 15)
         Defines how many samples are used to build a hull.
     hull_type: string, (default "min-hull")
-        Selects how the hull is constructed. Possible values are 
+        Selects how the hull is constructed. Possible values are
         "min-hull" and "random-hull"
 
     References
@@ -786,7 +787,9 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         Image and Vision Computing, 2019.
     """
 
-    def __init__(self, n_jobs=6, n_hulls_per_class=3, n_samples_per_hull=10, hull_type = "min-hull"):
+    def __init__(
+        self, n_jobs=6, n_hulls_per_class=3, n_samples_per_hull=10, hull_type="min-hull"
+    ):
         """Init."""
         self.n_jobs = n_jobs
         self.n_samples_per_hull = n_samples_per_hull
@@ -794,8 +797,8 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         self.matrices_per_class_ = {}
         self.debug = False
         self.hull_type = hull_type
-        
-        if (hull_type not in ["min-hull","random-hull"]):
+
+        if hull_type not in ["min-hull", "random-hull"]:
             raise Exception("Error: Unknown hull type.")
 
     def fit(self, X, y):
@@ -820,9 +823,9 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
             print("Start NCH Train")
         self.classes_ = np.unique(y)
 
-        for c in self.classes_:     
+        for c in self.classes_:
             self.matrices_per_class_[c] = X[y == c]
-        
+
         if self.debug:
             print("Samples per class:")
             for c in self.classes_:
@@ -831,43 +834,47 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
             print("End NCH Train")
 
     def _process_sample_min_hull(self, test_sample):
-        """Finds the closes N covmats and uses them to build a single hull per class 
-        """
+        """Finds the closes N covmats and uses them to build a single hull per class"""
         distances = []
-        
+
         for c in self.classes_:
-            distances_to_covs = [distance_logeuclid(test_sample,cov) for cov in self.matrices_per_class_[c]]
-            
-            #take the first N min distances
-            indexes = np.argsort(np.array(distances_to_covs))[0:self.n_samples_per_hull]
-            
+            distances_to_covs = [
+                distance_logeuclid(test_sample, cov)
+                for cov in self.matrices_per_class_[c]
+            ]
+
+            # take the first N min distances
+            indexes = np.argsort(np.array(distances_to_covs))[
+                0 : self.n_samples_per_hull
+            ]
+
             if self.debug:
                 print("Distances to test sample: ", distances_to_covs)
                 print("Smallest N distances indexes:", indexes)
                 print("Smallest N distances: ")
                 for pp in indexes:
                     print(distances_to_covs[pp])
-            
-            d = qdistance_logeuclid_to_convex_hull(self.matrices_per_class_[c][indexes], test_sample)
-            
+
+            d = qdistance_logeuclid_to_convex_hull(
+                self.matrices_per_class_[c][indexes], test_sample
+            )
+
             if self.debug:
                 print("Final hull distance:", d)
-            
+
             distances.append(d)
-            
+
         return distances
-    
+
     def _process_sample_random_hull(self, test_sample):
-        """Uses random samples to build a hull, can be several hulls per class
-        """
+        """Uses random samples to build a hull, can be several hulls per class"""
         distances = []
-    
+
         for c in self.classes_:
             total_distance = 0
-    
+
             # using multiple hulls
             for i in range(0, self.n_hulls_per_class):
-                
                 if self.n_samples_per_hull == -1:  # use all data per class
                     hull_data = self.matrices_per_class_[c]
                 else:  # use a subset of the data per class
@@ -876,14 +883,14 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
                         k=self.n_samples_per_hull,
                     )
                     hull_data = self.matrices_per_class_[c][random_samples, :, :]
-    
+
                 distance = qdistance_logeuclid_to_convex_hull(hull_data, test_sample)
                 total_distance = total_distance + distance
-    
+
             distances.append(total_distance)
-    
+
         return distances
-    
+
     def _predict_distances(self, X):
         """Helper to predict the distance. Equivalent to transform."""
         dist = []
@@ -897,7 +904,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
             self._process_sample = self._process_sample_random_hull
         else:
             raise Exception("Error: Unknown hull type.")
-        
+
         parallel = self.n_jobs > 1
 
         if self.debug:
@@ -940,9 +947,8 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
 
         if self.debug:
             print("End NCH Predict")
-            
+
         return predictions
-        
 
     def transform(self, X):
         """Get the distance to each convex hull.
@@ -1005,7 +1011,7 @@ class QuanticNCH(QuanticClassifierBase):
     n_samples_per_hull: int, (default 15)
         Defines how many samples are used to build a hull.
     hull_type: string, (default "min-hull")
-        Selects how the hull is constructed. Possible values are 
+        Selects how the hull is constructed. Possible values are
         "min-hull" and "random-hull"
 
     """
@@ -1023,7 +1029,7 @@ class QuanticNCH(QuanticClassifierBase):
         classical_optimizer=SlsqpOptimizer(),  # set here new default optimizer
         n_hulls_per_class=3,
         n_samples_per_hull=10,
-        hull_type = "min-hull"
+        hull_type="min-hull",
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -1043,7 +1049,7 @@ class QuanticNCH(QuanticClassifierBase):
             n_hulls_per_class=self.n_hulls_per_class,
             n_samples_per_hull=self.n_samples_per_hull,
             n_jobs=self.n_jobs,
-            hull_type=self.hull_type
+            hull_type=self.hull_type,
         )
 
         if self.quantum:
