@@ -10,6 +10,7 @@ import logging
 import numpy as np
 from warnings import warn
 
+from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from pyriemann.classification import MDM
 from pyriemann_qiskit.datasets import get_feature_dimension
 from pyriemann_qiskit.utils import (
@@ -24,12 +25,18 @@ from qiskit.utils.quantum_instance import logger
 from qiskit_ibm_provider import IBMProvider, least_busy
 from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
 from qiskit_machine_learning.kernels.quantum_kernel import QuantumKernel
-from qiskit_optimization.algorithms import CobylaOptimizer
-from sklearn.base import BaseEstimator, ClassifierMixin
+from qiskit_optimization.algorithms import (
+    CobylaOptimizer,
+    #    ADMMOptimizer,
+    SlsqpOptimizer,
+)
 from sklearn.svm import SVC
 
 from .utils.hyper_params_factory import gen_zz_feature_map, gen_two_local, get_spsa
 from .utils import get_provider, get_devices, get_simulator
+from .utils.distance import qdistance_logeuclid_to_convex_hull, distance_logeuclid
+from joblib import Parallel, delayed
+import random
 
 logger.level = logging.WARNING
 
@@ -743,3 +750,327 @@ class QuanticMDM(QuanticClassifierBase):
         """
         labels = self._predict(X)
         return self._map_indices_to_classes(labels)
+
+
+class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
+
+    """Nearest Convex Hull Classifier (NCH)
+
+    In NCH, for each class a convex hull is produced by the set of matrices
+    corresponding to each class. There is no training. Calculating a distance
+    to a hull is an optimization problem and it is calculated for each testing
+    sample (SPD matrix) and each hull/class. The minimal distance defines the
+    predicted class.
+
+    Notes
+    -----
+    .. versionadded:: 0.2.0
+
+    Parameters
+    ----------
+    n_jobs : int, (default=6)
+        The number of jobs to use for the computation. This works by computing
+        each of the hulls in parallel.
+    n_hulls_per_class: int, (default 3)
+        The number of hulls used per class.
+    n_samples_per_hull: int, (default 15)
+        Defines how many samples are used to build a hull.
+    hull_type: string, (default "min-hull")
+        Selects how the hull is constructed. Possible values are
+        "min-hull" and "random-hull"
+
+    References
+    ----------
+    .. [1] \
+        K. Zhao, A. Wiliem, S. Chen, and B. C. Lovell,
+        ‘Convex Class Model on Symmetric Positive Definite Manifolds’,
+        Image and Vision Computing, 2019.
+    """
+
+    def __init__(
+        self, n_jobs=6, n_hulls_per_class=3, n_samples_per_hull=10, hull_type="min-hull"
+    ):
+        """Init."""
+        self.n_jobs = n_jobs
+        self.n_samples_per_hull = n_samples_per_hull
+        self.n_hulls_per_class = n_hulls_per_class
+        self.matrices_per_class_ = {}
+        self.debug = False
+        self.hull_type = hull_type
+
+        if hull_type not in ["min-hull", "random-hull"]:
+            raise Exception("Error: Unknown hull type.")
+
+    def fit(self, X, y):
+        """Fit (store the training data).
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_matrices, n_channels, n_channels)
+            Set of SPD matrices.
+        y : ndarray, shape (n_matrices,)
+            Labels for each matrix.
+        sample_weight : None
+            Not used, here for compatibility with sklearn API.
+
+        Returns
+        -------
+        self : NearestConvexHull instance
+            The NearestConvexHull instance.
+        """
+
+        if self.debug:
+            print("Start NCH Train")
+        self.classes_ = np.unique(y)
+
+        for c in self.classes_:
+            self.matrices_per_class_[c] = X[y == c]
+
+        if self.debug:
+            print("Samples per class:")
+            for c in self.classes_:
+                print("Class: ", c, " Count: ", self.matrices_per_class_[c].shape[0])
+
+            print("End NCH Train")
+
+    def _process_sample_min_hull(self, test_sample):
+        """Finds the closes N covmats and uses them to build a single hull per class"""
+        distances = []
+
+        for c in self.classes_:
+            distances_to_covs = [
+                distance_logeuclid(test_sample, cov)
+                for cov in self.matrices_per_class_[c]
+            ]
+
+            # take the first N min distances
+            indexes = np.argsort(np.array(distances_to_covs))[
+                0 : self.n_samples_per_hull
+            ]
+
+            if self.debug:
+                print("Distances to test sample: ", distances_to_covs)
+                print("Smallest N distances indexes:", indexes)
+                print("Smallest N distances: ")
+                for pp in indexes:
+                    print(distances_to_covs[pp])
+
+            d = qdistance_logeuclid_to_convex_hull(
+                self.matrices_per_class_[c][indexes], test_sample
+            )
+
+            if self.debug:
+                print("Final hull distance:", d)
+
+            distances.append(d)
+
+        return distances
+
+    def _process_sample_random_hull(self, test_sample):
+        """Uses random samples to build a hull, can be several hulls per class"""
+        distances = []
+
+        for c in self.classes_:
+            total_distance = 0
+
+            # using multiple hulls
+            for i in range(0, self.n_hulls_per_class):
+                if self.n_samples_per_hull == -1:  # use all data per class
+                    hull_data = self.matrices_per_class_[c]
+                else:  # use a subset of the data per class
+                    random_samples = random.sample(
+                        range(self.matrices_per_class_[c].shape[0]),
+                        k=self.n_samples_per_hull,
+                    )
+                    hull_data = self.matrices_per_class_[c][random_samples, :, :]
+
+                distance = qdistance_logeuclid_to_convex_hull(hull_data, test_sample)
+                total_distance = total_distance + distance
+
+            distances.append(total_distance)
+
+        return distances
+
+    def _predict_distances(self, X):
+        """Helper to predict the distance. Equivalent to transform."""
+        dist = []
+
+        if self.debug:
+            print("Total test samples:", X.shape[0])
+
+        if self.hull_type == "min-hull":
+            self._process_sample = self._process_sample_min_hull
+        elif self.hull_type == "random-hull":
+            self._process_sample = self._process_sample_random_hull
+        else:
+            raise Exception("Error: Unknown hull type.")
+
+        parallel = self.n_jobs > 1
+
+        if self.debug:
+            if parallel:
+                print("Running in parallel")
+            else:
+                print("Not running in parallel")
+
+        if parallel:
+            dist = Parallel(n_jobs=self.n_jobs)(
+                delayed(self._process_sample)(test_sample) for test_sample in X
+            )
+
+        else:
+            for test_sample in X:
+                dist_sample = self._process_sample(test_sample)
+                dist.append(dist_sample)
+
+        return dist
+
+    def predict(self, X):
+        """Get the predictions.
+        Parameters
+        ----------
+        X : ndarray, shape (n_matrices, n_channels, n_channels)
+            Set of SPD matrices.
+        Returns
+        -------
+        pred : ndarray of int, shape (n_matrices,)
+            Predictions for each matrix according to the closest convex hull.
+        """
+        if self.debug:
+            print("Start NCH Predict")
+        dist = self._predict_distances(X)
+
+        predictions = [
+            self.classes_[min(range(len(values)), key=values.__getitem__)]
+            for values in dist
+        ]
+
+        if self.debug:
+            print("End NCH Predict")
+
+        return predictions
+
+    def transform(self, X):
+        """Get the distance to each convex hull.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_matrices, n_channels, n_channels)
+            Set of SPD matrices.
+
+        Returns
+        -------
+        dist : ndarray, shape (n_matrices, n_classes)
+            The distance to each convex hull.
+        """
+
+        if self.debug:
+            print("NCH Transform")
+        return self._predict_distances(X)
+
+
+class QuanticNCH(QuanticClassifierBase):
+
+    """A Quantum wrapper around the NCH algorithm. It allows both classical
+    and Quantum versions to be executed.
+
+    Notes
+    -----
+    .. versionadded:: 0.2.0
+
+    Parameters
+    ----------
+    quantum : bool (default: True)
+        Only applies if `metric` contains a cpm distance or mean.
+
+        - If true will run on local or remote backend
+          (depending on q_account_token value),
+        - If false, will perform classical computing instead.
+    q_account_token : string (default:None)
+        If `quantum` is True and `q_account_token` provided,
+        the classification task will be running on a IBM quantum backend.
+        If `load_account` is provided, the classifier will use the previous
+        token saved with `IBMProvider.save_account()`.
+    verbose : bool (default:True)
+        If true, will output all intermediate results and logs.
+    shots : int (default:1024)
+        Number of repetitions of each circuit, for sampling.
+    seed: int | None (default: None)
+        Random seed for the simulation
+    upper_bound : int (default: 7)
+        The maximum integer value for matrix normalization.
+    regularization: MixinTransformer (defulat: None)
+        Additional post-processing to regularize means.
+    classical_optimizer : OptimizationAlgorithm
+        An instance of OptimizationAlgorithm [3]_
+    n_jobs : int, (default=6)
+        The number of jobs to use for the computation. This works by computing
+        each of the hulls in parallel.
+    n_hulls_per_class: int, (default 3)
+        The number of hulls used per class.
+    n_samples_per_hull: int, (default 15)
+        Defines how many samples are used to build a hull.
+    hull_type: string, (default "min-hull")
+        Selects how the hull is constructed. Possible values are
+        "min-hull" and "random-hull"
+
+    """
+
+    def __init__(
+        self,
+        quantum=True,
+        q_account_token=None,
+        verbose=True,
+        shots=1024,
+        seed=None,
+        upper_bound=7,
+        regularization=None,
+        n_jobs=6,
+        classical_optimizer=SlsqpOptimizer(),  # set here new default optimizer
+        n_hulls_per_class=3,
+        n_samples_per_hull=10,
+        hull_type="min-hull",
+    ):
+        QuanticClassifierBase.__init__(
+            self, quantum, q_account_token, verbose, shots, None, seed
+        )
+        self.upper_bound = upper_bound
+        self.regularization = regularization
+        self.classical_optimizer = classical_optimizer
+        self.n_hulls_per_class = n_hulls_per_class
+        self.n_samples_per_hull = n_samples_per_hull
+        self.n_jobs = n_jobs
+        self.hull_type = hull_type
+
+    def _init_algo(self, n_features):
+        self._log("Nearest Convex Hull Classifier initiating algorithm")
+
+        classifier = NearestConvexHull(
+            n_hulls_per_class=self.n_hulls_per_class,
+            n_samples_per_hull=self.n_samples_per_hull,
+            n_jobs=self.n_jobs,
+            hull_type=self.hull_type,
+        )
+
+        if self.quantum:
+            self._log("Using NaiveQAOAOptimizer")
+            self._optimizer = NaiveQAOAOptimizer(
+                quantum_instance=self._quantum_instance, upper_bound=self.upper_bound
+            )
+        else:
+            self._log("Using ClassicalOptimizer")
+            self._optimizer = ClassicalOptimizer(self.classical_optimizer)
+
+        # sets the optimizer for the distance functions
+        # used in NearestConvexHull class
+        set_global_optimizer(self._optimizer)
+
+        return classifier
+
+    def predict(self, X):
+        # self._log("QuanticNCH Predict")
+        return self._predict(X)
+
+    def transform(self, X):
+        # self._log("QuanticNCH Transform")
+        return self._classifier.transform(X)
