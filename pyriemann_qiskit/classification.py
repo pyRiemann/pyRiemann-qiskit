@@ -1063,9 +1063,7 @@ class QuanticNCH(QuanticClassifierBase):
 
         # sets the optimizer for the distance functions
         # used in NearestConvexHull class
-        set_global_optimizer(
-            self._optimizer
-        )
+        set_global_optimizer(self._optimizer)
 
         return classifier
 
