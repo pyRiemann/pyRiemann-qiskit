@@ -20,20 +20,14 @@ A list of real quantum  computers is available in your IBM quantum account.
 # License: BSD (3-clause)
 
 from pyriemann.estimation import XdawnCovariances
-from pyriemann.tangentspace import TangentSpace
 from sklearn.pipeline import make_pipeline
 from matplotlib import pyplot as plt
 import warnings
 import seaborn as sns
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from moabb import set_log_level
-from moabb.datasets import bi2012, BNCI2014009, bi2013a
-from moabb.evaluations import WithinSessionEvaluation, CrossSubjectEvaluation
+from moabb.datasets import bi2013a
+from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
-from pyriemann_qiskit.pipelines import (
-    QuantumClassifierWithDefaultRiemannianPipeline,
-)
-from sklearn.decomposition import PCA
 from pyriemann_qiskit.classification import QuanticNCH
 from pyriemann.classification import MDM
 

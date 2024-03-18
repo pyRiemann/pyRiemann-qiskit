@@ -1061,9 +1061,11 @@ class QuanticNCH(QuanticClassifierBase):
             self._log("Using ClassicalOptimizer")
             self._optimizer = ClassicalOptimizer(self.classical_optimizer)
 
+        # sets the optimizer for the distance functions
+        # used in NearestConvexHull class
         set_global_optimizer(
             self._optimizer
-        )  # sets the optimizer for the distance functions used in NearestConvexHull class
+        )
 
         return classifier
 
