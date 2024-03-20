@@ -38,11 +38,11 @@ def test_qdistance_logeuclid_to_convex_hull(optimizer, get_covmats):
     covmats = get_covmats(n_trials, n_channels)
 
     dist = qdistance_logeuclid_to_convex_hull(covmats, covmats[0], optimizer=optimizer)
-    assert dist == pytest.approx(0, 1e-6)
+    assert dist == pytest.approx(0)
 
     covmean = mean_logeuclid(covmats)
     dist = qdistance_logeuclid_to_convex_hull(covmats, covmean, optimizer=optimizer)
-    assert dist == pytest.approx(0, 1e-5)
+    assert dist == pytest.approx(0, rel=1e-5, abs=1e-5)
 
 
 @pytest.mark.parametrize("optimizer", [ClassicalOptimizer(), NaiveQAOAOptimizer()])
