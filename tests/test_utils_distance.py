@@ -6,7 +6,7 @@ from pyriemann_qiskit.utils import (
 )
 from pyriemann_qiskit.utils.distance import (
     qdistance_logeuclid_to_convex_hull,
-    weights_logeuclid_to_convex_hull
+    weights_logeuclid_to_convex_hull,
 )
 from pyriemann_qiskit.classification import QuanticMDM
 from pyriemann_qiskit.datasets import get_mne_sample
