@@ -11,6 +11,7 @@ import numpy as np
 from warnings import warn
 
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
+from pyriemann.utils.distance import distance, distance_logeuclid
 from pyriemann.classification import MDM
 from pyriemann_qiskit.datasets import get_feature_dimension
 from pyriemann_qiskit.utils import (
@@ -34,7 +35,7 @@ from sklearn.svm import SVC
 
 from .utils.hyper_params_factory import gen_zz_feature_map, gen_two_local, get_spsa
 from .utils import get_provider, get_devices, get_simulator
-from .utils.distance import qdistance_logeuclid_to_convex_hull, distance_logeuclid
+from .utils.distance import qdistance_logeuclid_to_convex_hull
 from joblib import Parallel, delayed
 import random
 
@@ -833,45 +834,39 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
 
             print("End NCH Train")
 
-    def _process_sample_min_hull(self, test_sample):
+    def _process_sample_min_hull(self, x):
         """Finds the closes N covmats and uses them to build a single hull per class"""
-        distances = []
+        dists = []
 
         for c in self.classes_:
-            distances_to_covs = [
-                distance_logeuclid(test_sample, cov)
-                for cov in self.matrices_per_class_[c]
-            ]
-
-            # take the first N min distances
-            indexes = np.argsort(np.array(distances_to_covs))[
-                0 : self.n_samples_per_hull
-            ]
+            dist = distance(self.matrices_per_class_[c], x, metric="logeuclid")[:, 0]
+            # take the closest matrices
+            indexes = np.argsort(dist)[0 : self.n_samples_per_hull]
 
             if self.debug:
-                print("Distances to test sample: ", distances_to_covs)
+                print("Distances to test sample: ", dist)
                 print("Smallest N distances indexes:", indexes)
                 print("Smallest N distances: ")
                 for pp in indexes:
-                    print(distances_to_covs[pp])
+                    print(dist[pp])
 
             d = qdistance_logeuclid_to_convex_hull(
-                self.matrices_per_class_[c][indexes], test_sample
+                self.matrices_per_class_[c][indexes], x
             )
 
             if self.debug:
                 print("Final hull distance:", d)
 
-            distances.append(d)
+            dists.append(d)
 
-        return distances
+        return dists
 
-    def _process_sample_random_hull(self, test_sample):
+    def _process_sample_random_hull(self, x):
         """Uses random samples to build a hull, can be several hulls per class"""
-        distances = []
+        dists = []
 
         for c in self.classes_:
-            total_distance = 0
+            dist_total = 0
 
             # using multiple hulls
             for i in range(0, self.n_hulls_per_class):
@@ -882,18 +877,18 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
                         range(self.matrices_per_class_[c].shape[0]),
                         k=self.n_samples_per_hull,
                     )
-                    hull_data = self.matrices_per_class_[c][random_samples, :, :]
+                    hull_data = self.matrices_per_class_[c][random_samples]
 
-                distance = qdistance_logeuclid_to_convex_hull(hull_data, test_sample)
-                total_distance = total_distance + distance
+                dist = qdistance_logeuclid_to_convex_hull(hull_data, x)
+                dist_total = dist_total + dist
 
-            distances.append(total_distance)
+            dists.append(dist_total)
 
-        return distances
+        return dists
 
     def _predict_distances(self, X):
         """Helper to predict the distance. Equivalent to transform."""
-        dist = []
+        dists = []
 
         if self.debug:
             print("Total test samples:", X.shape[0])
@@ -914,16 +909,16 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
                 print("Not running in parallel")
 
         if parallel:
-            dist = Parallel(n_jobs=self.n_jobs)(
-                delayed(self._process_sample)(test_sample) for test_sample in X
+            dists = Parallel(n_jobs=self.n_jobs)(
+                delayed(self._process_sample)(x) for x in X
             )
 
         else:
-            for test_sample in X:
-                dist_sample = self._process_sample(test_sample)
-                dist.append(dist_sample)
+            for x in X:
+                dist = self._process_sample(x)
+                dists.append(dist)
 
-        return dist
+        return dists
 
     def predict(self, X):
         """Get the predictions.
@@ -940,10 +935,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
             print("Start NCH Predict")
         dist = self._predict_distances(X)
 
-        predictions = [
-            self.classes_[min(range(len(values)), key=values.__getitem__)]
-            for values in dist
-        ]
+        predictions = self.classes_[dist.argmin(axis=1)]
 
         if self.debug:
             print("End NCH Predict")

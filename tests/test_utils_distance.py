@@ -4,10 +4,14 @@ from pyriemann_qiskit.utils import (
     ClassicalOptimizer,
     NaiveQAOAOptimizer,
 )
-from pyriemann_qiskit.utils.distance import weights_logeuclid_to_convex_hull
+from pyriemann_qiskit.utils.distance import (
+    qdistance_logeuclid_to_convex_hull,
+    weights_logeuclid_to_convex_hull
+)
 from pyriemann_qiskit.classification import QuanticMDM
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann.estimation import XdawnCovariances
+from pyriemann.utils.mean import mean_logeuclid
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 
@@ -29,11 +33,24 @@ def test_performance(metric):
 
 
 @pytest.mark.parametrize("optimizer", [ClassicalOptimizer(), NaiveQAOAOptimizer()])
-def test_distance_logeuclid_to_convex_hull_cpm(optimizer):
+def test_qdistance_logeuclid_to_convex_hull(optimizer, get_covmats):
+    n_trials, n_channels = 5, 3
+    covmats = get_covmats(n_trials, n_channels)
+
+    dist = qdistance_logeuclid_to_convex_hull(covmats, covmats[0], optimizer=optimizer)
+    assert dist == 0
+
+    covmean = mean_logeuclid(covmats)
+    dist = qdistance_logeuclid_to_convex_hull(covmats, covmean, optimizer=optimizer)
+    assert dist == 0
+
+
+@pytest.mark.parametrize("optimizer", [ClassicalOptimizer(), NaiveQAOAOptimizer()])
+def test_weight_logeuclid_to_convex_hull(optimizer):
     X_0 = np.array([[0.9, 1.1], [0.9, 1.1]])
     X_1 = X_0 + 1
-    X = np.stack((X_0, X_1))
-    y = (X_0 + X_1) / 3
-    weights = weights_logeuclid_to_convex_hull(X, y, optimizer=optimizer)
+    X_train = np.stack((X_0, X_1))
+    X_test = (X_0 + X_1) / 3
+    weights = weights_logeuclid_to_convex_hull(X_train, X_test, optimizer=optimizer)
     distances = 1 - weights
     assert distances.argmin() == 0
