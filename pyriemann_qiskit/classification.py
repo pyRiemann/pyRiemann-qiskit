@@ -789,7 +789,11 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
     """
 
     def __init__(
-        self, n_jobs=6, n_hulls_per_class=3, n_samples_per_hull=10, subsampling="min-hull"
+        self,
+        n_jobs=6,
+        n_hulls_per_class=3,
+        n_samples_per_hull=10,
+        subsampling="min-hull",
     ):
         """Init."""
         self.n_jobs = n_jobs
