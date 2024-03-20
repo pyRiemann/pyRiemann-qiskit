@@ -793,7 +793,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         n_jobs=6,
         n_hulls_per_class=3,
         n_samples_per_hull=10,
-        subsampling="min-hull",
+        subsampling="min",
     ):
         """Init."""
         self.n_jobs = n_jobs
@@ -804,7 +804,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         self.subsampling = subsampling
 
         if subsampling not in ["min", "random"]:
-            raise Exception("Error: Unknown subsampling type.")
+            raise ValueError(f"Unknown subsampling type {subsampling}.")
 
     def fit(self, X, y):
         """Fit (store the training data).
