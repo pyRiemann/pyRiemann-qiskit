@@ -114,7 +114,7 @@ pipelines["NCH+MIN_HULL"] = make_pipeline(
         n_hulls_per_class=1,
         n_samples_per_hull=3,
         n_jobs=12,
-        hull_type="min",
+        subsampling="min",
         quantum=False,
     ),
 )
