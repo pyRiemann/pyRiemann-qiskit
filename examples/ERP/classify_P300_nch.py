@@ -80,7 +80,7 @@ pipelines["NCH+RANDOM_HULL"] = make_pipeline(
         n_hulls_per_class=1,
         n_samples_per_hull=3,
         n_jobs=12,
-        hull_type="random-hull",
+        subsampling="random",
         quantum=False,
     ),
 )
@@ -97,7 +97,7 @@ pipelines["NCH+MIN_HULL"] = make_pipeline(
         n_hulls_per_class=1,
         n_samples_per_hull=3,
         n_jobs=12,
-        hull_type="min-hull",
+        subsampling="min",
         quantum=False,
     ),
 )

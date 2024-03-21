@@ -902,7 +902,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         elif self.subsampling == "random":
             self._process_sample = self._process_sample_random_hull
         else:
-            raise Exception("Error: Unknown subsampling type.")
+            raise ValueError(f"Unknown subsampling type {self.subsampling}.")
 
         parallel = self.n_jobs > 1
 
@@ -921,6 +921,8 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
             for x in X:
                 dist = self._process_sample(x)
                 dists.append(dist)
+
+        dists = np.concatenate(dists, axis=1)
 
         return dists
 
