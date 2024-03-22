@@ -774,7 +774,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
     n_hulls_per_class : int, default=3
         The number of hulls used per class, when subsampling is "random".
     n_samples_per_hull : int, default=15
-        Defines how many samples are used to build a hull. -1 will include 
+        Defines how many samples are used to build a hull. -1 will include
         all samples per class.
     subsampling : {"min", "random"}, default="min"
         Subsampling strategy of training set to estimate distance to hulls.
@@ -1009,7 +1009,7 @@ class QuanticNCH(QuanticClassifierBase):
     n_hulls_per_class : int, default=3
         The number of hulls used per class.
     n_samples_per_hull : int, default=15
-        Defines how many samples are used to build a hull. -1 will include 
+        Defines how many samples are used to build a hull. -1 will include
         all samples per class.
     subsampling : {"min", "random"}, default="min"
         Subsampling strategy of training set to estimate distance to hulls.
