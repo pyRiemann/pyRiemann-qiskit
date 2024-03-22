@@ -53,7 +53,7 @@ Utils functions are low level functions for the `classification` and `pipelines`
 
 Utils
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. _hyper_params_factory_api:
+.. _utils_api:
 .. currentmodule:: pyriemann_qiskit.utils.utils
 
 .. autosummary::

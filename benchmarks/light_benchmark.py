@@ -27,6 +27,7 @@ from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
     QuantumMDMWithRiemannianPipeline,
 )
+from pyriemann_qiskit.classification import QuanticNCH
 import warnings
 import sys
 
@@ -100,6 +101,22 @@ pipelines["RG_LDA"] = make_pipeline(
     TangentSpace(),
     PCA(n_components=5),
     LDA(solver="lsqr", shrinkage="auto"),
+)
+
+pipelines["NCH+MIN_HULL"] = make_pipeline(
+    XdawnCovariances(
+        nfilter=3,
+        # classes=[labels_dict["Target"]],
+        estimator="lwf",
+        xdawn_estimator="scm",
+    ),
+    QuanticNCH(
+        n_hulls_per_class=1,
+        n_samples_per_hull=3,
+        n_jobs=12,
+        subsampling="min",
+        quantum=False,
+    ),
 )
 
 ##############################################################################
