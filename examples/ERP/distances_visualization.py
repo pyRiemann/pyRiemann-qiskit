@@ -32,7 +32,8 @@ import seaborn as sns
 from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import QuanticNCH
-from pyriemann_qiskit.visualization.distances import plot_bihist, plot_cone, plot_scatter
+from pyriemann_qiskit.visualization.distances import plot_bihist, plot_scatter
+from pyriemann_qiskit.visualization.manifold import plot_manifold
 
 print(__doc__)
 
@@ -100,5 +101,5 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratif
 # dists = mdm.fit(X_train, y_train).transform(X_test)
 points = xd.fit(X_train, y_train).transform(X_test)
 
-plot_cone(points, y_test)
+plot_manifold(points, y_test)
 plt.show()

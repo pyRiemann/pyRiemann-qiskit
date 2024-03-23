@@ -147,6 +147,7 @@ Math
 
     cov_to_corr_matrix
     union_of_diff
+    to_xyz
 
 Firebase
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

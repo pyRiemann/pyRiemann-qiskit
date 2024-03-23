@@ -65,3 +65,27 @@ def union_of_diff(*arrays):
             diff[i] = True
 
     return np.array(diff)
+
+
+def to_xyz(spds):
+    """Plot histogram of bi-class predictions.
+
+    Parameters
+    ----------
+    spds : ndarray, shape (n_matrices, 2, 2)
+        Array of SPD matrices of size 2 x 2.
+
+    Returns
+    -------
+    points : ndarray, shape (n_matrices, 3)
+        Cartesian representation in 3d.
+    
+    Notes
+    -----
+    .. versionadded:: 0.2.0
+    """
+    if spds.ndim != 3:
+        raise ValueError("Input `covs` has not 3 dimensions")
+    if spds.shape[1] != 2 and spds.shape[2] != 2:
+        raise ValueError("SPD matrices must have size 2 x 2")
+    return np.array([[spd[0, 0], spd[0, 1], spd[1, 1]] for spd in spds])

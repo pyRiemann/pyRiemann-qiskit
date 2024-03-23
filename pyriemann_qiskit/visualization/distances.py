@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from matplotlib import cm
-
+from pyriemann_qiskit.utils.math import to_xyz
 
 def plot_bihist(X, y):
     """Plot histogram of bi-class predictions.
@@ -52,25 +52,7 @@ def plot_scatter(X, y):
     sns.lineplot(x=[0, max_point_x], y=[0, max_point_y], color='black')
     plt.show()
 
-
-def cone_surface(radius, height, num_points=100):
-    def f(x, y):
-        return np.sqrt(x ** 2 + y ** 2)
-
-    u, v = np.mgrid[0:2*np.pi:100j, 0:np.pi:80j]
-    x = np.cos(u)*np.sin(v)
-    y = np.sin(u)*np.sin(v)
-    z = f(x, y)
-
-    return x, y, z
-
-def to_xyz(points):
-        return np.array([[point[0, 0], point[0, 1], point[1, 1]] for point in points])
-
-# classif: cov 2d -> cart -> PCA -> MDM?
 def plot_cone(points, y_test):
-    def to_xyz(points):
-        return np.array([[point[0, 0], point[0, 1], point[1, 1]] for point in points])
 
     cart = to_xyz(points[y_test == 'Target', :])
     cart2 = to_xyz(points[y_test == 'NonTarget', :])
@@ -90,20 +72,4 @@ def plot_cone(points, y_test):
     for simplex in hull.simplices:
         plt.plot(cart0[simplex, 0], cart0[simplex, 1], cart0[simplex, 2], 'k--', alpha=0.2)
 
-    
-    # X, Y, Z = cone_surface(1, 3)
-    # print(X.shape, Y.shape, Z.shape)
-    # ax.plot_surface(X, Y, Z, cmap=cm.coolwarm)
-    # ax.plot_surface(X, Y, -Z, alpha=0.5)
     plt.show()
-
-import scipy
-def flood_fill_hull(image):    
-    points = np.transpose(np.where(image))
-    hull = scipy.spatial.ConvexHull(points)
-    deln = scipy.spatial.Delaunay(points[hull.vertices]) 
-    idx = np.stack(np.indices(image.shape), axis = -1)
-    out_idx = np.nonzero(deln.find_simplex(idx) + 1)
-    out_img = np.zeros(image.shape)
-    out_img[out_idx] = 1
-    return out_img, hull
