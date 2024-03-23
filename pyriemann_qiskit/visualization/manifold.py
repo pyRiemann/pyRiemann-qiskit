@@ -1,17 +1,45 @@
-import seaborn as sns
+"""
+Visualization of the covariance matrices on the SPD manifold.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
-from matplotlib import cm
 from pyriemann_qiskit.utils.math import to_xyz
 from scipy.spatial import ConvexHull
 
 def plot_cvx_hull(X, ax):
+    """Plot the convex hull of a set of points.
+
+    Parameters
+    ----------
+    X : ndarray, shape (n_matrices, 3)
+        A set of 3d points in cartesian coordinate.
+    ax : Matplotlib.Axes
+        A figure where to plot the points of the convex hull.
+
+    Notes
+    -----
+    .. versionadded:: 0.2.0
+    """
     hull = ConvexHull(X)
     for simplex in hull.simplices:
         ax.plot(X[simplex, 0], X[simplex, 1], X[simplex, 2], 'k--', alpha=0.2)
 
+
 def plot_manifold(X, y, plot_hull=False):
+    """Plot spd matrices in 3d (cartesian coordinate system).
+
+    Parameters
+    ----------
+    X : ndarray, shape (n_matrices, 2, 2)
+        A set of spds matrices of size 2 x 2.
+    y : ndarray, shape (n_matrices,)
+        The labels.
+
+    Notes
+    -----
+    .. versionadded:: 0.2.0
+    """
     if X.ndim != 3:
         raise ValueError("Input `covs` has not 3 dimensions")
     if X.shape[1] != 2 and X.shape[2] != 2:

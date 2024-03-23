@@ -1,3 +1,7 @@
+"""
+Visualize distances (i.e. how well the classes are separable?)
+"""
+
 import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,6 +23,10 @@ def plot_bihist(X, y):
     -------
     fig : matplotlib figure
         Figure of histogram.
+    
+    Notes
+    -----
+    .. versionadded:: 0.2.0
     """
     if X.ndim != 2:
         raise ValueError("Input X has not 2 dimensions")
