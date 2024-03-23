@@ -46,7 +46,7 @@ Ensemble
     JudgeClassifier
 
 
-Utils function
+Utils functions
 --------------
 
 Utils functions are low level functions for the `classification` and `pipelines` module.
@@ -189,3 +189,41 @@ Quantum Provider
     get_provider
     get_devices
     get_simulator
+
+
+Visualization
+--------------
+
+Helpers to visualize distances, manifold and even "artistic" representation.
+
+Art
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _art_api:
+.. currentmodule:: pyriemann_qiskit.visualization.art
+
+.. autosummary::
+    :toctree: generated/
+
+    weights_spiral
+
+Distances
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _art_api:
+.. currentmodule:: pyriemann_qiskit.visualization.distances
+
+.. autosummary::
+    :toctree: generated/
+
+    plot_bihist
+    plot_scatter
+
+Manifold
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _art_api:
+.. currentmodule:: pyriemann_qiskit.visualization.manifold
+
+.. autosummary::
+    :toctree: generated/
+
+    plot_cvx_hull
+    plot_manifold

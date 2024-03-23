@@ -51,25 +51,3 @@ def plot_scatter(X, y):
     max_point_y = max(class0[:, 1].max(), class1[:, 1].max())
     sns.lineplot(x=[0, max_point_x], y=[0, max_point_y], color='black')
     plt.show()
-
-def plot_cone(points, y_test):
-
-    cart = to_xyz(points[y_test == 'Target', :])
-    cart2 = to_xyz(points[y_test == 'NonTarget', :])
-    cart0 = to_xyz(points)
-    pca = PCA().fit(cart0).components_
-    x, y, z = cart[:, 0], cart[:, 1], cart[:, 2]
-    # cart = cart @ pca
-    # cart2 = cart2 @ pca
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
-    # ax.scatter(pca[:, 0], pca[:, 1], pca[:, 2], color='black')
-    ax.scatter(cart2[:, 0], cart2[:, 1], cart2[:, 2], alpha=0.5, color='blue')
-    ax.scatter(cart[:, 0], cart[:, 1], cart[:, 2], alpha=0.5)
-
-    from scipy.spatial import ConvexHull
-    hull = ConvexHull(cart0)
-    for simplex in hull.simplices:
-        plt.plot(cart0[simplex, 0], cart0[simplex, 1], cart0[simplex, 2], 'k--', alpha=0.2)
-
-    plt.show()

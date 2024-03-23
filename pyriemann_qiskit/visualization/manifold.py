@@ -4,8 +4,18 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from matplotlib import cm
 from pyriemann_qiskit.utils.math import to_xyz
+from scipy.spatial import ConvexHull
 
-def plot_manifold(X, y):
+def plot_cvx_hull(X, ax):
+    hull = ConvexHull(X)
+    for simplex in hull.simplices:
+        ax.plot(X[simplex, 0], X[simplex, 1], X[simplex, 2], 'k--', alpha=0.2)
+
+def plot_manifold(X, y, plot_hull=False):
+    if X.ndim != 3:
+        raise ValueError("Input `covs` has not 3 dimensions")
+    if X.shape[1] != 2 and X.shape[2] != 2:
+        raise ValueError("SPD matrices must have size 2 x 2")
 
     classes = np.unique(y)
 
@@ -19,9 +29,6 @@ def plot_manifold(X, y):
     ax.scatter(points1[:, 0], points1[:, 1], points1[:, 2], alpha=1, color='blue')
     ax.scatter(points0[:, 0], points0[:, 1], points0[:, 2], alpha=0.5)
 
-    from scipy.spatial import ConvexHull
-    hull = ConvexHull(points)
-    for simplex in hull.simplices:
-        plt.plot(points[simplex, 0], points[simplex, 1], points[simplex, 2], 'k--', alpha=0.2)
-
-    plt.show()
+    if plot_hull:
+        plot_cvx_hull(points, ax)
+    return ax

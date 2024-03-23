@@ -85,7 +85,7 @@ def to_xyz(spds):
     .. versionadded:: 0.2.0
     """
     if spds.ndim != 3:
-        raise ValueError("Input `covs` has not 3 dimensions")
+        raise ValueError("Input `spds` has not 3 dimensions")
     if spds.shape[1] != 2 and spds.shape[2] != 2:
         raise ValueError("SPD matrices must have size 2 x 2")
     return np.array([[spd[0, 0], spd[0, 1], spd[1, 1]] for spd in spds])

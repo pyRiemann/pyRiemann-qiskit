@@ -101,5 +101,6 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratif
 # dists = mdm.fit(X_train, y_train).transform(X_test)
 points = xd.fit(X_train, y_train).transform(X_test)
 
-plot_manifold(points, y_test)
+ax = plot_manifold(points, y_test, False)
+
 plt.show()
