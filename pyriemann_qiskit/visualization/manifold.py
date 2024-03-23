@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from pyriemann_qiskit.utils.math import to_xyz
 from scipy.spatial import ConvexHull
 
+
 def plot_cvx_hull(X, ax):
     """Plot the convex hull of a set of points.
 
@@ -23,7 +24,7 @@ def plot_cvx_hull(X, ax):
     """
     hull = ConvexHull(X)
     for simplex in hull.simplices:
-        ax.plot(X[simplex, 0], X[simplex, 1], X[simplex, 2], 'k--', alpha=0.2)
+        ax.plot(X[simplex, 0], X[simplex, 1], X[simplex, 2], "k--", alpha=0.2)
 
 
 def plot_manifold(X, y, plot_hull=False):
@@ -52,10 +53,19 @@ def plot_manifold(X, y, plot_hull=False):
     points1 = points[y == classes[1]]
 
     fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
+    ax = fig.add_subplot(projection="3d")
 
-    ax.scatter(points0[:, 0], points0[:, 1], points0[:, 2], color='red', label=classes[0])
-    ax.scatter(points1[:, 0], points1[:, 1], points1[:, 2], alpha=0.5, color='blue', label=classes[1])
+    ax.scatter(
+        points0[:, 0], points0[:, 1], points0[:, 2], color="red", label=classes[0]
+    )
+    ax.scatter(
+        points1[:, 0],
+        points1[:, 1],
+        points1[:, 2],
+        alpha=0.5,
+        color="blue",
+        label=classes[1],
+    )
 
     ax.legend(title="Classes", loc="upper center")
 

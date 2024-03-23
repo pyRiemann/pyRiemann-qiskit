@@ -9,6 +9,7 @@ from sklearn.decomposition import PCA
 from matplotlib import cm
 from pyriemann_qiskit.utils.math import to_xyz
 
+
 def plot_bihist(X, y):
     """Plot histogram of bi-class predictions.
 
@@ -23,7 +24,7 @@ def plot_bihist(X, y):
     -------
     fig : matplotlib figure
         Figure of histogram.
-    
+
     Notes
     -----
     .. versionadded:: 0.2.0
@@ -41,12 +42,13 @@ def plot_bihist(X, y):
 
     fig, ax = plt.subplots(figsize=(7, 7))
 
-    ax.hist(X[y == classes[0], 0], label=classes[0], color='red')
-    ax.hist(1 - X[y == classes[1], 1], label=classes[1], alpha=0.5, color='blue')
+    ax.hist(X[y == classes[0], 0], label=classes[0], color="red")
+    ax.hist(1 - X[y == classes[1], 1], label=classes[1], alpha=0.5, color="blue")
     ax.set(xlabel="Distances", ylabel="Frequency")
     ax.legend(title="Classes", loc="upper center")
 
     return fig
+
 
 def plot_scatter(X, y):
     """Scatter plot of distances.
@@ -62,7 +64,7 @@ def plot_scatter(X, y):
     -------
     fig : matplotlib figure
         Figure of scatter plot.
-    
+
     Notes
     -----
     .. versionadded:: 0.2.0
@@ -78,10 +80,10 @@ def plot_scatter(X, y):
     classes = np.unique(y)
     class0 = X[y == classes[0]]
     class1 = X[y == classes[1]]
-    ax.scatter(class0[:, 0], class0[:, 1], alpha=1, color='red', label=classes[0])
-    ax.scatter(class1[:, 0], class1[:, 1], alpha=0.5, color='blue', label=classes[1])
+    ax.scatter(class0[:, 0], class0[:, 1], alpha=1, color="red", label=classes[0])
+    ax.scatter(class1[:, 0], class1[:, 1], alpha=0.5, color="blue", label=classes[1])
 
     ax.legend(title="Classes", loc="upper center")
 
-    ax.plot(ax.get_xlim(), ax.get_ylim(), color='black')
+    ax.plot(ax.get_xlim(), ax.get_ylim(), color="black")
     return fig

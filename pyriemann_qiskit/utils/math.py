@@ -79,7 +79,7 @@ def to_xyz(spds):
     -------
     points : ndarray, shape (n_matrices, 3)
         Cartesian representation in 3d.
-    
+
     Notes
     -----
     .. versionadded:: 0.2.0

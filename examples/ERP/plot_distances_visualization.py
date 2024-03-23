@@ -87,7 +87,7 @@ cov2x2 = make_pipeline(
         estimator="scm",
         xdawn_estimator="lwf",
     ),
-    Whitening(dim_red={"n_components": 2})
+    Whitening(dim_red={"n_components": 2}),
 )
 
 ##############################################################################
@@ -104,7 +104,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratif
 # Plot manifold
 # ----------------
 #
-# Plot cov matrices in 3d cartesian space. 
+# Plot cov matrices in 3d cartesian space.
 # (they form a cone)
 
 points = cov2x2.fit(X_train, y_train).transform(X_test)
