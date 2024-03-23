@@ -98,9 +98,12 @@ X, y, _ = paradigm.get_data(ds, subjects=[1])
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y)
 
-# dists = mdm.fit(X_train, y_train).transform(X_test)
-points = xd.fit(X_train, y_train).transform(X_test)
+dists = mdm.fit(X_train, y_train).transform(X_test)
 
+points = xd.fit(X_train, y_train).transform(X_test)
 ax = plot_manifold(points, y_test, False)
+
+fig1 = plot_scatter(dists, y_test)
+fig2 = plot_bihist(dists, y_test)
 
 plt.show()

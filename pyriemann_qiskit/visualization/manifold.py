@@ -34,7 +34,7 @@ def plot_manifold(X, y, plot_hull=False):
     X : ndarray, shape (n_matrices, 2, 2)
         A set of spds matrices of size 2 x 2.
     y : ndarray, shape (n_matrices,)
-        The labels.
+        Labels for each matrix.
 
     Notes
     -----
@@ -54,9 +54,11 @@ def plot_manifold(X, y, plot_hull=False):
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
 
-    ax.scatter(points1[:, 0], points1[:, 1], points1[:, 2], alpha=1, color='blue')
-    ax.scatter(points0[:, 0], points0[:, 1], points0[:, 2], alpha=0.5)
+    ax.scatter(points0[:, 0], points0[:, 1], points0[:, 2], color='red', label=classes[0])
+    ax.scatter(points1[:, 0], points1[:, 1], points1[:, 2], alpha=0.5, color='blue', label=classes[1])
+
+    ax.legend(title="Classes", loc="upper center")
 
     if plot_hull:
         plot_cvx_hull(points, ax)
-    return ax
+    return fig
