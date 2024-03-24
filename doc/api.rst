@@ -47,7 +47,7 @@ Ensemble
 
 
 Utils functions
---------------
+----------------
 
 Utils functions are low level functions for the `classification` and `pipelines` module.
 
@@ -208,7 +208,7 @@ Art
 
 Distances
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. _art_api:
+.. _distances_api:
 .. currentmodule:: pyriemann_qiskit.visualization.distances
 
 .. autosummary::
@@ -219,7 +219,7 @@ Distances
 
 Manifold
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. _art_api:
+.. _manifold_api:
 .. currentmodule:: pyriemann_qiskit.visualization.manifold
 
 .. autosummary::
