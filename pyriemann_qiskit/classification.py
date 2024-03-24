@@ -12,7 +12,6 @@ from warnings import warn
 
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from pyriemann.utils.distance import distance
-from pyriemann.utils.mean import mean_logeuclid
 from pyriemann.classification import MDM
 from pyriemann_qiskit.datasets import get_feature_dimension
 from pyriemann_qiskit.utils import (
@@ -845,7 +844,6 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         dists = []
 
         for c in self.classes_:
-            # bary = mean_logeuclid(self.matrices_per_class_[c])
             dist = distance(self.matrices_per_class_[c], x, metric="logeuclid")[:, 0]
             # take the closest matrices
             indexes = np.argsort(dist)[0 : self.n_samples_per_hull]

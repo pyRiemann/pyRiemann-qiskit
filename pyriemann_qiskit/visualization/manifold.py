@@ -36,6 +36,8 @@ def plot_manifold(X, y, plot_hull=False):
         A set of spds matrices of size 2 x 2.
     y : ndarray, shape (n_matrices,)
         Labels for each matrix.
+    plot_hull : boolean (default: False)
+        If True, plot the convex hull of X.
 
     Notes
     -----

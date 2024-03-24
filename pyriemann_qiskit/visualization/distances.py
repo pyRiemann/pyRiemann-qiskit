@@ -2,12 +2,8 @@
 Visualize distances (i.e. how well the classes are separable?)
 """
 
-import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
-from matplotlib import cm
-from pyriemann_qiskit.utils.math import to_xyz
 
 
 def plot_bihist(X, y):
