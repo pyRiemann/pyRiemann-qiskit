@@ -67,7 +67,7 @@ def union_of_diff(*arrays):
     return np.array(diff)
 
 
-def to_xyz(spds):
+def to_xyz(X):
     """Plot histogram of bi-class predictions.
 
     Parameters
