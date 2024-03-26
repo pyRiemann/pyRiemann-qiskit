@@ -72,7 +72,7 @@ def to_xyz(X):
 
     Parameters
     ----------
-    spds : ndarray, shape (n_matrices, 2, 2)
+    X : ndarray, shape (n_matrices, 2, 2)
         Array of SPD matrices of size 2 x 2.
 
     Returns
@@ -84,8 +84,8 @@ def to_xyz(X):
     -----
     .. versionadded:: 0.2.0
     """
-    if spds.ndim != 3:
-        raise ValueError("Input `spds` has not 3 dimensions")
-    if spds.shape[1] != 2 and spds.shape[2] != 2:
+    if X.ndim != 3:
+        raise ValueError("Input `X` has not 3 dimensions")
+    if X.shape[1] != 2 and X.shape[2] != 2:
         raise ValueError("SPD matrices must have size 2 x 2")
-    return np.array([[spd[0, 0], spd[0, 1], spd[1, 1]] for spd in spds])
+    return np.array([[spd[0, 0], spd[0, 1], spd[1, 1]] for spd in X])
