@@ -14,7 +14,7 @@ def plot_cvx_hull(X, ax):
     Parameters
     ----------
     X : ndarray, shape (n_matrices, 3)
-        A set of 3d points in cartesian coordinate.
+        A set of 3d points in Cartesian coordinates.
     ax : Matplotlib.Axes
         A figure where to plot the points of the convex hull.
 
