@@ -19,12 +19,12 @@ from moabb.paradigms import P300
 from pyriemann.classification import MDM
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.preprocessing import Whitening
+from pyriemann.utils.viz import plot_biscatter, plot_bihist
 
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 
 from pyriemann_qiskit.classification import QuanticNCH
-from pyriemann_qiskit.visualization.distances import plot_bihist, plot_scatter
 from pyriemann_qiskit.visualization.manifold import plot_manifold
 
 
@@ -108,7 +108,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratif
 # (they form a cone)
 
 points = cov2x2.fit(X_train, y_train).transform(X_test)
-ax = plot_manifold(points, y_test, False)
+plot_manifold(points, y_test, False)
 
 
 ##############################################################################
@@ -119,7 +119,7 @@ ax = plot_manifold(points, y_test, False)
 
 dists = estimator.fit(X_train, y_train).transform(X_test)
 
-plot_scatter(dists, y_test)
+plot_biscatter(dists, y_test)
 plot_bihist(dists, y_test)
 
 plt.show()

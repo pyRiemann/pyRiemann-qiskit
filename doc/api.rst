@@ -206,17 +206,6 @@ Art
 
     weights_spiral
 
-Distances
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. _distances_api:
-.. currentmodule:: pyriemann_qiskit.visualization.distances
-
-.. autosummary::
-    :toctree: generated/
-
-    plot_bihist
-    plot_scatter
-
 Manifold
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. _manifold_api:
