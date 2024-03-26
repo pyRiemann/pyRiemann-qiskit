@@ -33,7 +33,7 @@ def plot_manifold(X, y, plot_hull=False):
     Parameters
     ----------
     X : ndarray, shape (n_matrices, 2, 2)
-        A set of spds matrices of size 2 x 2.
+        A set of SPD matrices of size 2 x 2.
     y : ndarray, shape (n_matrices,)
         Labels for each matrix.
     plot_hull : boolean (default: False)
