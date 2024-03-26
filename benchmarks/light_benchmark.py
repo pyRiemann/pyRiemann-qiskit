@@ -103,7 +103,7 @@ pipelines["RG_LDA"] = make_pipeline(
     LDA(solver="lsqr", shrinkage="auto"),
 )
 
-pipelines["NCH+MIN_HULL"] = make_pipeline(
+pipelines["NCH_MIN_HULL"] = make_pipeline(
     XdawnCovariances(
         nfilter=3,
         # classes=[labels_dict["Target"]],
