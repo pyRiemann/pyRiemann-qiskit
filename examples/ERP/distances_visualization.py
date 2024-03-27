@@ -20,7 +20,6 @@ from pyriemann.classification import MDM
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.preprocessing import Whitening
 from pyriemann.utils.viz import plot_biscatter, plot_bihist
-
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 
