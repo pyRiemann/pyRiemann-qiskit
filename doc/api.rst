@@ -46,8 +46,8 @@ Ensemble
     JudgeClassifier
 
 
-Utils function
---------------
+Utils functions
+----------------
 
 Utils functions are low level functions for the `classification` and `pipelines` module.
 
@@ -147,6 +147,7 @@ Math
 
     cov_to_corr_matrix
     union_of_diff
+    to_xyz
 
 Firebase
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -188,3 +189,30 @@ Quantum Provider
     get_provider
     get_devices
     get_simulator
+
+
+Visualization
+--------------
+
+Helpers to visualize distances, manifold and even "artistic" representation.
+
+Art
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _art_api:
+.. currentmodule:: pyriemann_qiskit.visualization.art
+
+.. autosummary::
+    :toctree: generated/
+
+    weights_spiral
+
+Manifold
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _manifold_api:
+.. currentmodule:: pyriemann_qiskit.visualization.manifold
+
+.. autosummary::
+    :toctree: generated/
+
+    plot_cvx_hull
+    plot_manifold
