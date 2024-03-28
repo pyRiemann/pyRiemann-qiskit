@@ -4,8 +4,46 @@ Ensemble classifiers.
 import numpy as np
 from pyriemann_qiskit.utils import union_of_diff
 from sklearn.base import ClassifierMixin, BaseEstimator
+from pyriemann_qiskit.classification import QuanticNCH, QuanticMDM
+from pyriemann.utils.mean import mean_logeuclid
 
-
+class NCHandMDM(BaseEstimator, ClassifierMixin):
+    def fit(self, X, y):
+        self.classes_, counts = np.unique(y, return_counts=True)
+        print(self.classes_, y.shape)
+        self.nch = QuanticNCH(quantum=False, subsampling="random")
+        self.mdm = QuanticMDM(metric={"mean": "logeuclid", "distance": "logeuclid"}, quantum=True)
+        self.mdm.fit(X, y)
+        self.nch.fit(X, y)
+        means_0 = []
+        means_1 = []
+        for i in range(100):
+            mean0 = mean_logeuclid(X[y == self.classes_[0]], np.random.rand(counts[0]))
+            mean1 = mean_logeuclid(X[y == self.classes_[1]], np.random.rand(counts[1]))
+            means_0.append(mean0)
+            means_1.append(mean1)
+        self.dist_mean0 = self.nch.transform(np.array(means_0))[:, 1]
+        self.dist_mean1 = self.nch.transform(np.array(means_1))[:, 0]
+        print(max(self.dist_mean0))
+        print(max(self.dist_mean1))
+    
+    def predict_proba(self, X):
+        dists = self.nch.transform(X)
+        dists_MDM = self.mdm._classifier.transform(X)
+        ret = []
+        for dist, dist_MDM in zip(dists, dists_MDM):
+            print(dist)
+            if dist[0] < max(self.dist_mean0) and dist[1] < max(self.dist_mean1):
+                print("At the intersection")
+                ret.append(dist_MDM)
+            else:
+                ret.append(dist)
+            # if dist[0] < max(self.dist_mean0):
+            #     print(f'  {dist[0]} inside class 0')
+            # if dist[1] < max(self.dist_mean1):
+            #     print(f'  {dist[1]} inside class 1')
+        return np.array(ret)
+    
 class JudgeClassifier(BaseEstimator, ClassifierMixin):
 
     """Judge classifier
