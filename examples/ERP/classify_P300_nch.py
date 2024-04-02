@@ -19,17 +19,19 @@ A list of real quantum  computers is available in your IBM quantum account.
 # Modified from plot_classify_EEG_tangentspace.py of pyRiemann
 # License: BSD (3-clause)
 
-from pyriemann.estimation import XdawnCovariances
-from sklearn.pipeline import make_pipeline
-from matplotlib import pyplot as plt
 import warnings
-import seaborn as sns
+
+from matplotlib import pyplot as plt
 from moabb import set_log_level
 from moabb.datasets import bi2013a
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
-from pyriemann_qiskit.classification import QuanticNCH
 from pyriemann.classification import MDM
+from pyriemann.estimation import XdawnCovariances
+import seaborn as sns
+from sklearn.pipeline import make_pipeline
+
+from pyriemann_qiskit.classification import QuanticNCH
 
 print(__doc__)
 
@@ -80,7 +82,7 @@ pipelines["NCH+RANDOM_HULL"] = make_pipeline(
         n_hulls_per_class=1,
         n_samples_per_hull=3,
         n_jobs=12,
-        hull_type="random-hull",
+        subsampling="random",
         quantum=False,
     ),
 )
@@ -97,7 +99,7 @@ pipelines["NCH+MIN_HULL"] = make_pipeline(
         n_hulls_per_class=1,
         n_samples_per_hull=3,
         n_jobs=12,
-        hull_type="min-hull",
+        subsampling="min",
         quantum=False,
     ),
 )
