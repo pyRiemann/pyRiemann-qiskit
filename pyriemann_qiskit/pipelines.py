@@ -2,7 +2,8 @@
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.decomposition import PCA
-from sklearn.pipeline import make_pipeline
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.pipeline import make_pipeline, FeatureUnion
 from sklearn.ensemble import VotingClassifier
 from qiskit_optimization.algorithms import CobylaOptimizer
 from pyriemann.estimation import XdawnCovariances, ERPCovariances
@@ -23,8 +24,6 @@ from pyriemann_qiskit.classification import (
     QuanticSVM,
     QuanticMDM,
 )
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from sklearn.pipeline import FeatureUnion, make_pipeline
 
 
 class BasePipeline(BaseEstimator, ClassifierMixin, TransformerMixin):
