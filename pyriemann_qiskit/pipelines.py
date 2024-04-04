@@ -17,9 +17,15 @@ from pyriemann_qiskit.utils.hyper_params_factory import (
     gen_two_local,
     get_spsa,
 )
-from pyriemann_qiskit.classification import QuanticNCH, QuanticVQC, QuanticSVM, QuanticMDM
+from pyriemann_qiskit.classification import (
+    QuanticNCH,
+    QuanticVQC,
+    QuanticSVM,
+    QuanticMDM,
+)
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import FeatureUnion, make_pipeline
+
 
 class BasePipeline(BaseEstimator, ClassifierMixin, TransformerMixin):
 
@@ -500,6 +506,7 @@ class QuantumMDMVotingClassifier(BasePipeline):
             )
         )
 
+
 class FeaturesUnionClassifier(BasePipeline):
 
     """An alias for FeatureUnion + Classifier
@@ -529,9 +536,9 @@ class FeaturesUnionClassifier(BasePipeline):
         self,
         transformers=[
             QuanticNCH(quantum=True, subsampling="random", n_jobs=-1),
-            MDM(metric="logeuclid")
+            MDM(metric="logeuclid"),
         ],
-        classifier=LDA()
+        classifier=LDA(),
     ):
         self.transformers = transformers
         self.classifier = classifier
@@ -540,5 +547,5 @@ class FeaturesUnionClassifier(BasePipeline):
     def _create_pipe(self):
         return make_pipeline(
             FeatureUnion([(type(t).__name__, t) for t in self.transformers]),
-            self.classifier
+            self.classifier,
         )

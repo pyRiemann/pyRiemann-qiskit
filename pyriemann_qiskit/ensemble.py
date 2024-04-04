@@ -11,7 +11,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import FeatureUnion, make_pipeline
 from pyriemann.classification import MDM
 
-    
+
 class JudgeClassifier(BaseEstimator, ClassifierMixin):
 
     """Judge classifier
