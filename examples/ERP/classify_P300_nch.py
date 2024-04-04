@@ -32,7 +32,6 @@ import seaborn as sns
 from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import QuanticNCH
-from pyriemann_qiskit.ensemble import NCHandMDM
 
 print(__doc__)
 
@@ -71,59 +70,49 @@ overwrite = True  # set to True if we want to overwrite cached results
 
 pipelines = {}
 
-# pipelines["NCH+RANDOM_HULL"] = make_pipeline(
-#     # applies XDawn and calculates the covariance matrix, output it matrices
-#     XdawnCovariances(
-#         nfilter=3,
-#         classes=[labels_dict["Target"]],
-#         estimator="lwf",
-#         xdawn_estimator="scm",
-#     ),
-#     QuanticNCH(
-#         n_hulls_per_class=1,
-#         n_samples_per_hull=3,
-#         n_jobs=12,
-#         subsampling="random",
-#         quantum=False,
-#     ),
-# )
-
-# pipelines["NCH+MIN_HULL"] = make_pipeline(
-#     # applies XDawn and calculates the covariance matrix, output it matrices
-#     XdawnCovariances(
-#         nfilter=3,
-#         classes=[labels_dict["Target"]],
-#         estimator="lwf",
-#         xdawn_estimator="scm",
-#     ),
-#     QuanticNCH(
-#         n_hulls_per_class=1,
-#         n_samples_per_hull=3,
-#         n_jobs=12,
-#         subsampling="min",
-#         quantum=False,
-#     ),
-# )
-
-# # this is a non quantum pipeline
-# pipelines["XD+MDM"] = make_pipeline(
-#     XdawnCovariances(
-#         nfilter=3,
-#         classes=[labels_dict["Target"]],
-#         estimator="lwf",
-#         xdawn_estimator="scm",
-#     ),
-#     MDM(),
-# )
-
-pipelines['NCH+MDM'] = make_pipeline(
+pipelines["NCH+RANDOM_HULL"] = make_pipeline(
+    # applies XDawn and calculates the covariance matrix, output it matrices
     XdawnCovariances(
         nfilter=3,
         classes=[labels_dict["Target"]],
         estimator="lwf",
         xdawn_estimator="scm",
     ),
-    NCHandMDM(),
+    QuanticNCH(
+        n_hulls_per_class=1,
+        n_samples_per_hull=3,
+        n_jobs=12,
+        subsampling="random",
+        quantum=False,
+    ),
+)
+
+pipelines["NCH+MIN_HULL"] = make_pipeline(
+    # applies XDawn and calculates the covariance matrix, output it matrices
+    XdawnCovariances(
+        nfilter=3,
+        classes=[labels_dict["Target"]],
+        estimator="lwf",
+        xdawn_estimator="scm",
+    ),
+    QuanticNCH(
+        n_hulls_per_class=1,
+        n_samples_per_hull=3,
+        n_jobs=12,
+        subsampling="min",
+        quantum=False,
+    ),
+)
+
+# this is a non quantum pipeline
+pipelines["XD+MDM"] = make_pipeline(
+    XdawnCovariances(
+        nfilter=3,
+        classes=[labels_dict["Target"]],
+        estimator="lwf",
+        xdawn_estimator="scm",
+    ),
+    MDM(),
 )
 
 print("Total pipelines to evaluate: ", len(pipelines))

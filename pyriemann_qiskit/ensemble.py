@@ -4,12 +4,6 @@ Ensemble classifiers.
 import numpy as np
 from pyriemann_qiskit.utils import union_of_diff
 from sklearn.base import ClassifierMixin, BaseEstimator
-from pyriemann_qiskit.classification import QuanticNCH, QuanticMDM
-from pyriemann.utils.mean import mean_logeuclid
-from pyriemann.utils.distance import distance
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from sklearn.pipeline import FeatureUnion, make_pipeline
-from pyriemann.classification import MDM
 
 
 class JudgeClassifier(BaseEstimator, ClassifierMixin):

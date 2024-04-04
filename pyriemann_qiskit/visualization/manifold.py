@@ -8,7 +8,7 @@ from pyriemann_qiskit.utils.math import to_xyz
 from scipy.spatial import ConvexHull
 
 
-def plot_cvx_hull(X, ax):
+def plot_cvx_hull(X, ax): 
     """Plot the convex hull of a set of points.
 
     Parameters
@@ -36,7 +36,7 @@ def plot_manifold(X, y, plot_hull=False):
         A set of SPD matrices of size 2 x 2.
     y : ndarray, shape (n_matrices,)
         Labels for each matrix.
-    plot_hull : boolean (default: False)
+    plot_hull : boolean, default=False
         If True, plot the convex hull of X.
 
     Notes
