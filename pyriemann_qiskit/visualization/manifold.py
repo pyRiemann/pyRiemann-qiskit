@@ -8,7 +8,7 @@ from pyriemann_qiskit.utils.math import to_xyz
 from scipy.spatial import ConvexHull
 
 
-def plot_cvx_hull(X, ax): 
+def plot_cvx_hull(X, ax):
     """Plot the convex hull of a set of points.
 
     Parameters
