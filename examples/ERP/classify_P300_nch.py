@@ -116,7 +116,7 @@ pipelines = {}
 #     MDM(),
 # )
 
-pipelines["NCH+MDM"] = make_pipeline(
+pipelines['NCH+MDM'] = make_pipeline(
     XdawnCovariances(
         nfilter=3,
         classes=[labels_dict["Target"]],
