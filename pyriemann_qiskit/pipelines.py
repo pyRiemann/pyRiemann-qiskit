@@ -515,7 +515,7 @@ class FeaturesUnionClassifier(BasePipeline):
 
     Parameters
     ----------
-    transformers : List[TransformerMixin] (default: [QuanticNCH, MDM])
+    transformers : List[TransformerMixin], default=[QuanticNCH, MDM]
         A list of sklearn transformers.
     classifier : ClassifierMixin, default=LDA()
         A classifier
