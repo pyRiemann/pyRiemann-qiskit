@@ -32,6 +32,7 @@ Pipelines
     QuantumClassifierWithDefaultRiemannianPipeline
     QuantumMDMWithRiemannianPipeline
     QuantumMDMVotingClassifier
+    FeaturesUnionClassifier
 
 
 Ensemble
