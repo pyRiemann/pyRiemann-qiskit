@@ -8,14 +8,21 @@ Performs a benchmark of several variations of the NCH algorithm.
 
 from pyriemann.estimation import XdawnCovariances, ERPCovariances, Covariances
 from sklearn.pipeline import make_pipeline
+
 # from matplotlib import pyplot as plt
 # import warnings
 # import seaborn as sns
 # import pandas as pd
 # from moabb import set_log_level
-from moabb.evaluations import WithinSessionEvaluation, CrossSessionEvaluation, CrossSubjectEvaluation
+from moabb.evaluations import (
+    WithinSessionEvaluation,
+    CrossSessionEvaluation,
+    CrossSubjectEvaluation,
+)
+
 # from moabb.paradigms import P300, MotorImagery, LeftRightImagery
 from pyriemann.classification import MDM
+
 # from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 # from sklearn.linear_model import LogisticRegression
 # from sklearn.neural_network import MLPRegressor
@@ -80,7 +87,7 @@ pipelines["XD+MDM"] = make_pipeline(
     MDM(),
 )
 
-results = benchmark_alpha(pipelines, max_n_subjects = 3)
+results = benchmark_alpha(pipelines, max_n_subjects=3)
 
 print("Results:")
 print(results)
@@ -88,8 +95,10 @@ print(results)
 print("Averaging the session performance:")
 print(results.groupby("pipeline").mean("score")[["score", "time"]])
 
-#save results
-save_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'results_dataframe.csv')
+# save results
+save_path = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), "results_dataframe.csv"
+)
 results.to_csv(save_path, index=True)
 
 plot_stat(results)
