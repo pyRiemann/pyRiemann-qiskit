@@ -83,7 +83,7 @@ warnings.filterwarnings("ignore")
 set_log_level("info")
 
 
-def benchmark_alpha(pipelines, max_n_subjects=-1, overwrite=False):
+def benchmark_alpha(pipelines, max_n_subjects=-1, overwrite=False, n_jobs=12):
     """
 
     Parameters
@@ -200,8 +200,8 @@ def benchmark_alpha(pipelines, max_n_subjects=-1, overwrite=False):
         datasets=datasets_P300,
         suffix="examples",
         overwrite=overwrite,
-        n_jobs=12,
-        n_jobs_evaluation=12,
+        n_jobs=n_jobs,
+        n_jobs_evaluation=n_jobs,
         cache_config=cache_config,
     )
     evaluation_LR = WithinSessionEvaluation(
@@ -209,8 +209,8 @@ def benchmark_alpha(pipelines, max_n_subjects=-1, overwrite=False):
         datasets=datasets_LR,
         suffix="examples",
         overwrite=overwrite,
-        n_jobs=12,
-        n_jobs_evaluation=12,
+        n_jobs=n_jobs,
+        n_jobs_evaluation=n_jobs,
         cache_config=cache_config,
     )
 
@@ -234,8 +234,8 @@ def benchmark_alpha(pipelines, max_n_subjects=-1, overwrite=False):
             paradigm=paradigm_MI,
             datasets=[dataset_MI],
             overwrite=overwrite,
-            n_jobs=12,
-            n_jobs_evaluation=12,
+            n_jobs=n_jobs,
+            n_jobs_evaluation=n_jobs,
             cache_config=cache_config,
         )
 
@@ -243,7 +243,6 @@ def benchmark_alpha(pipelines, max_n_subjects=-1, overwrite=False):
         results = pd.concat([results, results_per_MI_pardigm], ignore_index=True)
 
     return results
-
 
 def plot_stat(results):
     fig, ax = plt.subplots(facecolor="white", figsize=[8, 4])
