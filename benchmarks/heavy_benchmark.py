@@ -244,6 +244,7 @@ def benchmark_alpha(pipelines, max_n_subjects=-1, overwrite=False, n_jobs=12):
 
     return results
 
+
 def plot_stat(results):
     fig, ax = plt.subplots(facecolor="white", figsize=[8, 4])
 
