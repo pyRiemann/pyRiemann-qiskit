@@ -103,7 +103,7 @@ def benchmark_alpha(pipelines, max_n_subjects=-1, overwrite=False, n_jobs=12):
         use=True,
         save_raw=False,
         save_epochs=True,
-        save_array=False,
+        save_array=True,
         overwrite_raw=False,
         overwrite_epochs=False,
         overwrite_array=False,
