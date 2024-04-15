@@ -42,7 +42,7 @@ from moabb import set_download_dir
 
 # start configuration
 hb_max_n_subjects = 3
-hb_n_jobs = 1
+hb_n_jobs = 12
 hb_overwrite = False
 # end configuration
 
