@@ -38,6 +38,13 @@ import os
 
 from pyriemann_qiskit.classification import QuanticNCH
 from heavy_benchmark import benchmark_alpha, plot_stat
+from moabb import set_download_dir
+
+#start configuration
+hb_max_n_subjects = 3
+hb_n_jobs= 1
+hb_overwrite = False
+#end configuration
 
 labels_dict = {"Target": 1, "NonTarget": 0}
 pipelines = {}
@@ -87,7 +94,7 @@ pipelines["XD+MDM"] = make_pipeline(
     MDM(),
 )
 
-results = benchmark_alpha(pipelines, max_n_subjects=3)
+results = benchmark_alpha(pipelines, max_n_subjects = hb_max_n_subjects, n_jobs=hb_n_jobs, overwrite = hb_overwrite)
 
 print("Results:")
 print(results)
