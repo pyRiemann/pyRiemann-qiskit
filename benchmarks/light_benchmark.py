@@ -11,6 +11,7 @@ to run on Ci with each PRs.
 # Modified from plot_classify_P300_bi.py of pyRiemann
 # License: BSD (3-clause)
 
+
 from pyriemann.estimation import XdawnCovariances, Shrinkage
 from pyriemann.tangentspace import TangentSpace
 from sklearn.pipeline import make_pipeline
