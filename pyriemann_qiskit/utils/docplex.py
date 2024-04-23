@@ -13,7 +13,8 @@ from qiskit.algorithms import QAOA
 from qiskit_optimization.algorithms import CobylaOptimizer, MinimumEigenOptimizer
 from qiskit_optimization.converters import IntegerToBinary
 from qiskit_optimization.translators import from_docplex_mp
-from pyriemann_qiskit.utils import cov_to_corr_matrix, get_simulator
+from pyriemann.utils.covariance import normalize
+from pyriemann_qiskit.utils import get_simulator
 
 
 _global_optimizer = [None]
@@ -460,7 +461,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     """
 
     def convert_covmat(self, covmat):
-        corr = cov_to_corr_matrix(covmat)
+        corr = normalize(covmat, "corr")
         return np.round(corr * self.upper_bound, 0)
 
     """Helper to create a docplex representation of a

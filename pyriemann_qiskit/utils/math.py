@@ -1,9 +1,14 @@
 """Module for mathematical helpers"""
 
-from pyriemann.utils.covariance import normalize
 import numpy as np
+from pyriemann.utils.covariance import normalize
+from pyriemann.utils import deprecated
 
 
+@deprecated(
+    "cov_to_corr_matrix is deprecated and will be removed in 0.4.0; "
+    "please use pyriemann.utils.covariance.normalize."
+)
 def cov_to_corr_matrix(covmat):
     """Convert covariance matrices to correlation matrices.
 
