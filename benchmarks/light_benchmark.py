@@ -11,7 +11,6 @@ to run on Ci with each PRs.
 # Modified from plot_classify_P300_bi.py of pyRiemann
 # License: BSD (3-clause)
 
-
 from pyriemann.estimation import XdawnCovariances, Shrinkage
 from pyriemann.tangentspace import TangentSpace
 from sklearn.pipeline import make_pipeline
@@ -144,7 +143,7 @@ print("Scores: ", scores)
 
 
 def set_output(key: str, value: str):
-    print(f"::set-output name={key}::{value}")
+    print(f"::set-output name={key}::{value}") # noqa: E231
 
 
 is_pr = sys.argv[1] == "pr"
