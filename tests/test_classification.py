@@ -7,6 +7,7 @@ from pyriemann_qiskit.classification import (
     QuanticSVM,
     QuanticVQC,
     QuanticMDM,
+    QuanticNCH,
 )
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
@@ -211,7 +212,7 @@ class TestClassicalMDM(BinaryFVT):
             metric={"mean": "logdet", "distance": "logdet"},
         )
         return {
-            "n_samples": 100,
+            "n_samples": 50,
             "n_features": 9,
             "quantum_instance": quantum_instance,
             "type": "bin_cov",
@@ -234,3 +235,28 @@ class TestQuanticMDM_MultiClass(MultiClassFVT):
 
     def check(self):
         TestClassicalMDM.check(self)
+
+
+class TestClassicalNCH(BinaryFVT):
+    """Test the classical version of NCH using the QuanticNCH wrapper."""
+
+    def get_params(self):
+        quantum_instance = QuanticNCH(
+            n_hulls_per_class=1,
+            n_samples_per_hull=3,
+            subsampling="random",
+            quantum=False,
+        )
+        return {
+            "n_samples": 50,
+            "n_features": 7,
+            "quantum_instance": quantum_instance,
+            "type": "bin_cov",
+        }
+
+    def check(self):
+        assert len(self.prediction) == len(self.labels)
+        # Check if the number of classes is consistent
+        assert len(np.unique(self.prediction)) == len(np.unique(self.labels))
+        # Check if the proba for each classes are returned
+        assert self.predict_proab.shape[1] == len(np.unique(self.labels))

@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: deploy_ghpages.yml
@@ -35,7 +35,7 @@ jobs:
             apt-get -y install build-essential
             pip install -r doc/requirements.txt
       - name:  Upload generated HTML as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: DocHTML
           path: doc/build/html/

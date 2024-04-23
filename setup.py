@@ -39,14 +39,16 @@ setup(name='pyriemann-qiskit',
                         'pyriemann==0.5',
                         'qiskit==0.45.0',
                         'qiskit_machine_learning==0.6.1',
-                        'qiskit-ibm-provider==0.7.2',
+                        'qiskit-ibm-provider==0.7.3',
                         'qiskit-optimization==0.5.0',
                         'qiskit-aer==0.13.1',
-                        'cvxpy==1.4.1',
+                        'cvxpy==1.4.2',
                         'scipy==1.11.4',
-                        'docplex>=2.21.207',
-                        'firebase_admin==6.2.0',
-                        'tqdm'
+                        'docplex==2.25.236',
+                        'firebase_admin==6.4.0',
+                        'scikit-learn==1.3.2',
+                        'tqdm',
+                        'pandas'
                         ],
       extras_require={'docs': [
                                 'sphinx-gallery',
@@ -55,7 +57,7 @@ setup(name='pyriemann-qiskit',
                                 'mne',
                                 'seaborn>=0.12.1',
                                 'moabb>=1.0.0',
-                                'imbalanced-learn==0.11.0'
+                                'imbalanced-learn==0.12.0'
                             ],
                       'tests': ['pytest', 'seaborn', 'flake8', 'mne', 'pooch'],
                       # GPU optimization not available on all platform.

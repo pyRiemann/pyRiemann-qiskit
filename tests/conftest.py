@@ -4,7 +4,7 @@ Contains helper methods and classes to manage the tests.
 import pytest
 import numpy as np
 from functools import partial
-from pyriemann.datasets import make_covariances
+from pyriemann.datasets import make_matrices
 from pyriemann_qiskit.datasets import get_mne_sample
 from operator import itemgetter
 
@@ -36,7 +36,9 @@ def rndstate():
 @pytest.fixture
 def get_covmats(rndstate):
     def _gen_cov(n_matrices, n_channels):
-        return make_covariances(n_matrices, n_channels, rndstate, return_params=False)
+        return make_matrices(
+            n_matrices, n_channels, "spd", rndstate, return_params=False
+        )
 
     return _gen_cov
 
@@ -44,7 +46,9 @@ def get_covmats(rndstate):
 @pytest.fixture
 def get_covmats_params(rndstate):
     def _gen_cov_params(n_matrices, n_channels):
-        return make_covariances(n_matrices, n_channels, rndstate, return_params=True)
+        return make_matrices(
+            n_matrices, n_channels, "spd", rndstate, return_params=True
+        )
 
     return _gen_cov_params
 
@@ -94,11 +98,13 @@ def get_dataset(rndstate):
             samples = _get_separable_feats(n_samples, n_features, n_classes)
             labels = _get_labels(n_samples, n_classes)
         elif type == "rand_cov":
-            samples = make_covariances(n_samples, n_features, 0, return_params=False)
+            samples = make_matrices(
+                n_samples, n_features, "spd", 0, return_params=False
+            )
             labels = _get_labels(n_samples, n_classes)
         elif type == "bin_cov":
-            samples_0 = make_covariances(
-                n_samples // n_classes, n_features, 0, return_params=False
+            samples_0 = make_matrices(
+                n_samples // n_classes, n_features, "spd", 0, return_params=False
             )
             samples = np.concatenate(
                 [samples_0 * (i + 1) for i in range(n_classes)], axis=0

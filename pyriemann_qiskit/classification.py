@@ -8,7 +8,10 @@ from datetime import datetime
 from scipy.special import softmax
 import logging
 import numpy as np
+from warnings import warn
 
+from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
+from pyriemann.utils.distance import distance
 from pyriemann.classification import MDM
 from pyriemann_qiskit.datasets import get_feature_dimension
 from pyriemann_qiskit.utils import (
@@ -16,16 +19,25 @@ from pyriemann_qiskit.utils import (
     NaiveQAOAOptimizer,
     set_global_optimizer,
 )
+from pyriemann_qiskit.utils.distance import distance_functions
+from pyriemann_qiskit.utils.utils import is_qfunction
 from qiskit.utils import QuantumInstance
 from qiskit.utils.quantum_instance import logger
 from qiskit_ibm_provider import IBMProvider, least_busy
 from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
 from qiskit_machine_learning.kernels.quantum_kernel import QuantumKernel
-from sklearn.base import BaseEstimator, ClassifierMixin
+from qiskit_optimization.algorithms import (
+    CobylaOptimizer,
+    #    ADMMOptimizer,
+    SlsqpOptimizer,
+)
 from sklearn.svm import SVC
 
 from .utils.hyper_params_factory import gen_zz_feature_map, gen_two_local, get_spsa
 from .utils import get_provider, get_devices, get_simulator
+from .utils.distance import qdistance_logeuclid_to_convex_hull
+from joblib import Parallel, delayed
+import random
 
 logger.level = logging.WARNING
 
@@ -47,24 +59,24 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
 
     Parameters
     ----------
-    quantum : bool (default: True)
+    quantum : bool, default=True
         - If true will run on local or remote quantum backend
           (depending on q_account_token value),
         - If false, will perform classical computing instead.
-    q_account_token : string (default:None)
+    q_account_token : string | None, default=None
         If `quantum` is True and `q_account_token` provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
         token saved with `IBMProvider.save_account()`.
-    verbose : bool (default:True)
+    verbose : bool, default=True
         If true, will output all intermediate results and logs.
-    shots : int (default:1024)
+    shots : int, default=1024
         Number of repetitions of each circuit, for sampling.
-    gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
-                      (default : Callable[int, ZZFeatureMap])
+    gen_feature_map : Callable[int, QuantumCircuit | FeatureMap], \
+                      default=Callable[int, ZZFeatureMap]
         Function generating a feature map to encode data into a quantum state.
-    seed: int | None (default: None)
-        Random seed for the simulation
+    seed : int | None, default=None
+        Random seed for the simulation.
 
     Notes
     -----
@@ -118,7 +130,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                 self._log("Real quantum computation will be performed")
                 if not self.q_account_token == "load_account":
                     IBMProvider.delete_account()
-                    IBMProvider.save_account(token=self.q_account_token, hub="ibm-q")
+                    IBMProvider.save_account(token=self.q_account_token)
                 self._log("Getting provider...")
                 self._provider = get_provider()
             else:
@@ -221,7 +233,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         X : ndarray, shape (n_samples, n_features)
             Input vector, where `n_samples` is the number of samples and
             `n_features` is the number of features.
-        y: ndarray, shape (n_samples,)
+        y : ndarray, shape (n_samples,)
             Predicted target vector relative to X.
 
         Returns
@@ -306,38 +318,38 @@ class QuanticSVM(QuanticClassifierBase):
 
     Parameters
     ----------
-    gamma : float | None (default: None)
+    gamma : float | None, default=None
         Used as input for sklearn rbf_kernel which is used internally.
         See [3]_ for more information about gamma.
-    C : float (default: 1.0)
+    C : float, default=1.0
         Regularization parameter. The strength of the regularization is
         inversely proportional to C. Must be strictly positive.
         Note, if pegasos is enabled you may want to consider
         larger values of C.
-    max_iter: int | None (default: None)
+    max_iter: int | None, default=None
         Number of steps in Pegasos or (Q)SVC.
         If None, respective default values for Pegasos and SVC
         are used. The default value for Pegasos is 1000.
         For (Q)SVC it is -1 (that is not limit).
-    pegasos : boolean (default: False)
+    pegasos : boolean, default=False
         If true, uses Qiskit's PegasosQSVC instead of QSVC.
-    quantum : bool (default: True)
+    quantum : bool, default=True
         - If true will run on local or remote backend
           (depending on q_account_token value),
         - If false, will perform classical computing instead.
-    q_account_token : string (default:None)
+    q_account_token : string | None, default=None
         If `quantum` is True and `q_account_token` provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
         token saved with `IBMProvider.save_account()`.
-    verbose : bool (default:True)
+    verbose : bool, default=True
         If true, will output all intermediate results and logs.
-    shots : int (default:1024)
+    shots : int, default=1024
         Number of repetitions of each circuit, for sampling.
-    gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
-                      (default : Callable[int, ZZFeatureMap])
+    gen_feature_map : Callable[int, QuantumCircuit | FeatureMap], \
+                      default=Callable[int, ZZFeatureMap]
         Function generating a feature map to encode data into a quantum state.
-    seed: int | None (default: None)
+    seed : int | None, default=None
         Random seed for the simulation
 
     See Also
@@ -449,30 +461,29 @@ class QuanticVQC(QuanticClassifierBase):
 
     Parameters
     ----------
-    optimizer : Optimizer (default:SPSA)
-        The classical optimizer to use.
-        See [3]_ for details.
-    gen_var_form : Callable[int, QuantumCircuit | VariationalForm] \
-                   (default: Callable[int, TwoLocal])
+    optimizer : Optimizer, default=SPSA
+        The classical optimizer to use. See [3]_ for details.
+    gen_var_form : Callable[int, QuantumCircuit | VariationalForm], \
+                   default=Callable[int, TwoLocal]
         Function generating a variational form instance.
-    quantum : bool (default: True)
+    quantum : bool, default=True
         - If true will run on local or remote backend
           (depending on q_account_token value).
         - If false, will perform classical computing instead.
-    q_account_token : string (default:None)
+    q_account_token : string | None, default=None
         If `quantum` is True and `q_account_token` provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
         token saved with `IBMProvider.save_account()`.
-    verbose : bool (default:True)
+    verbose : bool, default=True
         If true, will output all intermediate results and logs
-    shots : int (default:1024)
+    shots : int, default=1024
         Number of repetitions of each circuit, for sampling
-    gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
-                      (default : Callable[int, ZZFeatureMap])
+    gen_feature_map : Callable[int, QuantumCircuit | FeatureMap], \
+                      default=Callable[int, ZZFeatureMap]
         Function generating a feature map to encode data into a quantum state.
-    seed: int | None (default: None)
-        Random seed for the simulation
+    seed : int | None, default=None
+        Random seed for the simulation.
 
     Notes
     -----
@@ -582,8 +593,8 @@ class QuanticMDM(QuanticClassifierBase):
 
     """Quantum-enhanced MDM classifier
 
-    This class is a convex implementation of the Minimum Distance to Mean (MDM)
-    [1]_, which can run with quantum optimization.
+    This class is a quantic implementation of the Minimum Distance to Mean
+    (MDM) [1]_, which can run with quantum optimization.
     Only log-Euclidean distance between trial and class prototypes is supported
     at the moment, but any type of metric can be used for centroid estimation.
 
@@ -593,37 +604,42 @@ class QuanticMDM(QuanticClassifierBase):
     .. versionchanged:: 0.1.0
         Fix: copy estimator not keeping base class parameters.
     .. versionchanged:: 0.2.0
-        Add seed parameter
+        Add seed parameter.
+        Add regularization parameter.
+        Add classical_optimizer parameter.
 
     Parameters
     ----------
-    metric : string | dict, default={"mean": 'logeuclid', "distance": 'convex'}
+    metric : string | dict, default={"mean": 'logeuclid', \
+            "distance": 'qlogeuclid_hull'}
         The type of metric used for centroid and distance estimation.
         see `mean_covariance` for the list of supported metric.
         the metric could be a dict with two keys, `mean` and `distance` in
         order to pass different metrics for the centroid estimation and the
-        distance estimation. Typical usecase is to pass 'logeuclid' metric for
-        the mean in order to boost the computional speed and 'riemann' for the
-        distance in order to keep the good sensitivity for the classification.
-    quantum : bool (default: True)
-        Only applies if `metric` contains a convex distance or mean.
+        distance estimation.
+    quantum : bool, default=True
+        Only applies if `metric` contains a quantic distance or mean.
 
         - If true will run on local or remote backend
           (depending on q_account_token value),
         - If false, will perform classical computing instead.
-    q_account_token : string (default:None)
+    q_account_token : string | None, default=None
         If `quantum` is True and `q_account_token` provided,
         the classification task will be running on a IBM quantum backend.
         If `load_account` is provided, the classifier will use the previous
         token saved with `IBMProvider.save_account()`.
-    verbose : bool (default:True)
+    verbose : bool, default=True
         If true, will output all intermediate results and logs.
-    shots : int (default:1024)
+    shots : int, default=1024
         Number of repetitions of each circuit, for sampling.
-    seed: int | None (default: None)
-        Random seed for the simulation
-    upper_bound : int (default: 7)
+    seed : int | None, default=None
+        Random seed for the simulation.
+    upper_bound : int, default=7
         The maximum integer value for matrix normalization.
+    regularization : MixinTransformer, default=None
+        Additional post-processing to regularize means.
+    classical_optimizer : OptimizationAlgorithm, default=CobylaOptimizer()
+        An instance of OptimizationAlgorithm [3]_.
 
     See Also
     --------
@@ -642,27 +658,64 @@ class QuanticMDM(QuanticClassifierBase):
         A. Barachant, S. Bonnet, M. Congedo and C. Jutten. 9th International
         Conference Latent Variable Analysis and Signal Separation
         (LVA/ICA 2010), LNCS vol. 6365, 2010, p. 629-636.
+    .. [3] \
+        https://qiskit-community.github.io/qiskit-optimization/stubs/qiskit_optimization.algorithms.OptimizationAlgorithm.html#optimizationalgorithm
     """
 
     def __init__(
         self,
-        metric={"mean": "logeuclid", "distance": "convex"},
+        metric={"mean": "logeuclid", "distance": "qlogeuclid_hull"},
         quantum=True,
         q_account_token=None,
         verbose=True,
         shots=1024,
         seed=None,
         upper_bound=7,
+        regularization=None,
+        classical_optimizer=CobylaOptimizer(rhobeg=2.1, rhoend=0.000001),
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
         )
         self.metric = metric
         self.upper_bound = upper_bound
+        self.regularization = regularization
+        self.classical_optimizer = classical_optimizer
+
+    @staticmethod
+    def _override_predict_distance(mdm):
+        """Override _predict_distances method of MDM.
+
+        We override the _predict_distances method inside MDM to allow the use
+        of qdistance.
+        This is due to the fact the the signature of qdistances is different
+        from the usual distance functions.
+        """
+
+        def _predict_distances(X):
+            if is_qfunction(mdm.metric_dist):
+                if "hull" in mdm.metric_dist:
+                    warn("qdistances to hull should not be use inside MDM")
+                else:
+                    warn(
+                        "q-distances for MDM are toy functions.\
+                            Use pyRiemann distances instead."
+                    )
+                distance = distance_functions[mdm.metric_dist]
+                centroids = np.array(mdm.covmeans_)
+                weights = [distance(centroids, x) for x in X]
+                return 1 - np.array(weights)
+            else:
+                return MDM._predict_distances(mdm, X)
+
+        return _predict_distances
 
     def _init_algo(self, n_features):
-        self._log("Convex MDM initiating algorithm")
+        self._log("Quantic MDM initiating algorithm")
         classifier = MDM(metric=self.metric)
+        classifier._predict_distances = QuanticMDM._override_predict_distance(
+            classifier
+        )
         if self.quantum:
             self._log("Using NaiveQAOAOptimizer")
             self._optimizer = NaiveQAOAOptimizer(
@@ -670,9 +723,16 @@ class QuanticMDM(QuanticClassifierBase):
             )
         else:
             self._log("Using ClassicalOptimizer (COBYLA)")
-            self._optimizer = ClassicalOptimizer()
+            self._optimizer = ClassicalOptimizer(self.classical_optimizer)
         set_global_optimizer(self._optimizer)
         return classifier
+
+    def _train(self, X, y):
+        QuanticClassifierBase._train(self, X, y)
+        if self.regularization is not None:
+            self._classifier.covmeans_ = self.regularization.fit_transform(
+                self._classifier.covmeans_
+            )
 
     def predict(self, X):
         """Calculates the predictions.
@@ -690,3 +750,329 @@ class QuanticMDM(QuanticClassifierBase):
         """
         labels = self._predict(X)
         return self._map_indices_to_classes(labels)
+
+
+class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
+
+    """Nearest Convex Hull Classifier (NCH)
+
+    In NCH, for each class a convex hull is produced by the set of matrices
+    corresponding to each class. There is no training. Calculating a distance
+    to a hull is an optimization problem and it is calculated for each testing
+    sample (SPD matrix) and each hull/class. The minimal distance defines the
+    predicted class.
+
+    Notes
+    -----
+    .. versionadded:: 0.2.0
+
+    Parameters
+    ----------
+    n_jobs : int, default=6
+        The number of jobs to use for the computation. This works by computing
+        each of the hulls in parallel.
+    n_hulls_per_class : int, default=3
+        The number of hulls used per class, when subsampling is "random".
+    n_samples_per_hull : int, default=15
+        Defines how many samples are used to build a hull. -1 will include
+        all samples per class.
+    subsampling : {"min", "random"}, default="min"
+        Subsampling strategy of training set to estimate distance to hulls.
+        "min" estimates hull using the n_samples_per_hull closest matrices.
+        "random" estimates hull using n_samples_per_hull random matrices.
+
+    References
+    ----------
+    .. [1] \
+        K. Zhao, A. Wiliem, S. Chen, and B. C. Lovell,
+        ‘Convex Class Model on Symmetric Positive Definite Manifolds’,
+        Image and Vision Computing, 2019.
+    """
+
+    def __init__(
+        self,
+        n_jobs=6,
+        n_hulls_per_class=3,
+        n_samples_per_hull=10,
+        subsampling="min",
+    ):
+        """Init."""
+        self.n_jobs = n_jobs
+        self.n_samples_per_hull = n_samples_per_hull
+        self.n_hulls_per_class = n_hulls_per_class
+        self.matrices_per_class_ = {}
+        self.debug = False
+        self.subsampling = subsampling
+
+        if subsampling not in ["min", "random"]:
+            raise ValueError(f"Unknown subsampling type {subsampling}.")
+
+    def fit(self, X, y):
+        """Fit (store the training data).
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_matrices, n_channels, n_channels)
+            Set of SPD matrices.
+        y : ndarray, shape (n_matrices,)
+            Labels for each matrix.
+        sample_weight : None
+            Not used, here for compatibility with sklearn API.
+
+        Returns
+        -------
+        self : NearestConvexHull instance
+            The NearestConvexHull instance.
+        """
+
+        if self.debug:
+            print("Start NCH Train")
+        self.classes_ = np.unique(y)
+
+        for c in self.classes_:
+            self.matrices_per_class_[c] = X[y == c]
+
+        if self.debug:
+            print("Samples per class:")
+            for c in self.classes_:
+                print("Class: ", c, " Count: ", self.matrices_per_class_[c].shape[0])
+
+            print("End NCH Train")
+
+    def _process_sample_min_hull(self, x):
+        """Finds the closes N covmats and uses them to build a single hull per class"""
+        dists = []
+
+        for c in self.classes_:
+            dist = distance(self.matrices_per_class_[c], x, metric="logeuclid")[:, 0]
+            # take the closest matrices
+            indexes = np.argsort(dist)[0 : self.n_samples_per_hull]
+
+            if self.debug:
+                print("Distances to test sample: ", dist)
+                print("Smallest N distances indexes:", indexes)
+                print("Smallest N distances: ")
+                for pp in indexes:
+                    print(dist[pp])
+
+            d = qdistance_logeuclid_to_convex_hull(
+                self.matrices_per_class_[c][indexes], x
+            )
+
+            if self.debug:
+                print("Final hull distance:", d)
+
+            dists.append(d)
+
+        return dists
+
+    def _process_sample_random_hull(self, x):
+        """Uses random samples to build a hull, can be several hulls per class"""
+        dists = []
+
+        for c in self.classes_:
+            dist_total = 0
+
+            # using multiple hulls
+            for i in range(0, self.n_hulls_per_class):
+                if self.n_samples_per_hull == -1:  # use all data per class
+                    hull_data = self.matrices_per_class_[c]
+                else:  # use a subset of the data per class
+                    random_samples = random.sample(
+                        range(self.matrices_per_class_[c].shape[0]),
+                        k=self.n_samples_per_hull,
+                    )
+                    hull_data = self.matrices_per_class_[c][random_samples]
+
+                dist = qdistance_logeuclid_to_convex_hull(hull_data, x)
+                dist_total = dist_total + dist
+
+            dists.append(dist_total)
+
+        return dists
+
+    def _predict_distances(self, X):
+        """Helper to predict the distance. Equivalent to transform."""
+        dists = []
+
+        if self.debug:
+            print("Total test samples:", X.shape[0])
+
+        if self.subsampling == "min":
+            self._process_sample = self._process_sample_min_hull
+        elif self.subsampling == "random":
+            self._process_sample = self._process_sample_random_hull
+        else:
+            raise ValueError(f"Unknown subsampling type {self.subsampling}.")
+
+        parallel = self.n_jobs > 1
+
+        if self.debug:
+            if parallel:
+                print("Running in parallel")
+            else:
+                print("Not running in parallel")
+
+        if parallel:
+            dists = Parallel(n_jobs=self.n_jobs)(
+                delayed(self._process_sample)(x) for x in X
+            )
+
+        else:
+            for x in X:
+                dist = self._process_sample(x)
+                dists.append(dist)
+
+        dists = np.asarray(dists)
+
+        return dists
+
+    def predict(self, X):
+        """Get the predictions.
+        Parameters
+        ----------
+        X : ndarray, shape (n_matrices, n_channels, n_channels)
+            Set of SPD matrices.
+        Returns
+        -------
+        pred : ndarray of int, shape (n_matrices,)
+            Predictions for each matrix according to the closest convex hull.
+        """
+        if self.debug:
+            print("Start NCH Predict")
+        dist = self._predict_distances(X)
+
+        predictions = self.classes_[dist.argmin(axis=1)]
+
+        if self.debug:
+            print("End NCH Predict")
+
+        return predictions
+
+    def transform(self, X):
+        """Get the distance to each convex hull.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_matrices, n_channels, n_channels)
+            Set of SPD matrices.
+
+        Returns
+        -------
+        dist : ndarray, shape (n_matrices, n_classes)
+            The distance to each convex hull.
+        """
+
+        if self.debug:
+            print("NCH Transform")
+        return self._predict_distances(X)
+
+
+class QuanticNCH(QuanticClassifierBase):
+
+    """A Quantum wrapper around the NCH algorithm.
+
+    It allows both classical and Quantum versions to be executed.
+
+    Notes
+    -----
+    .. versionadded:: 0.2.0
+
+    Parameters
+    ----------
+    quantum : bool, default=True
+        Only applies if `metric` contains a cpm distance or mean.
+
+        - If true will run on local or remote backend
+          (depending on q_account_token value),
+        - If false, will perform classical computing instead.
+    q_account_token : string | None, default=None
+        If `quantum` is True and `q_account_token` provided,
+        the classification task will be running on a IBM quantum backend.
+        If `load_account` is provided, the classifier will use the previous
+        token saved with `IBMProvider.save_account()`.
+    verbose : bool, default=True
+        If true, will output all intermediate results and logs.
+    shots : int, default=1024
+        Number of repetitions of each circuit, for sampling.
+    seed : int | None, default=None
+        Random seed for the simulation
+    upper_bound : int, default=7
+        The maximum integer value for matrix normalization.
+    regularization : MixinTransformer | None, default=None
+        Additional post-processing to regularize means.
+    classical_optimizer : OptimizationAlgorithm, default=SlsqpOptimizer()
+        An instance of OptimizationAlgorithm [3]_.
+    n_jobs : int, default=6
+        The number of jobs to use for the computation. This works by computing
+        each of the hulls in parallel.
+    n_hulls_per_class : int, default=3
+        The number of hulls used per class.
+    n_samples_per_hull : int, default=15
+        Defines how many samples are used to build a hull. -1 will include
+        all samples per class.
+    subsampling : {"min", "random"}, default="min"
+        Subsampling strategy of training set to estimate distance to hulls.
+        "min" estimates hull using the n_samples_per_hull closest matrices.
+        "random" estimates hull using n_samples_per_hull random matrices.
+
+    """
+
+    def __init__(
+        self,
+        quantum=True,
+        q_account_token=None,
+        verbose=True,
+        shots=1024,
+        seed=None,
+        upper_bound=7,
+        regularization=None,
+        n_jobs=6,
+        classical_optimizer=SlsqpOptimizer(),  # set here new default optimizer
+        n_hulls_per_class=3,
+        n_samples_per_hull=10,
+        subsampling="min",
+    ):
+        QuanticClassifierBase.__init__(
+            self, quantum, q_account_token, verbose, shots, None, seed
+        )
+        self.upper_bound = upper_bound
+        self.regularization = regularization
+        self.classical_optimizer = classical_optimizer
+        self.n_hulls_per_class = n_hulls_per_class
+        self.n_samples_per_hull = n_samples_per_hull
+        self.n_jobs = n_jobs
+        self.subsampling = subsampling
+
+    def _init_algo(self, n_features):
+        self._log("Nearest Convex Hull Classifier initiating algorithm")
+
+        classifier = NearestConvexHull(
+            n_hulls_per_class=self.n_hulls_per_class,
+            n_samples_per_hull=self.n_samples_per_hull,
+            n_jobs=self.n_jobs,
+            subsampling=self.subsampling,
+        )
+
+        if self.quantum:
+            self._log("Using NaiveQAOAOptimizer")
+            self._optimizer = NaiveQAOAOptimizer(
+                quantum_instance=self._quantum_instance, upper_bound=self.upper_bound
+            )
+        else:
+            self._log("Using ClassicalOptimizer")
+            self._optimizer = ClassicalOptimizer(self.classical_optimizer)
+
+        # sets the optimizer for the distance functions
+        # used in NearestConvexHull class
+        set_global_optimizer(self._optimizer)
+
+        return classifier
+
+    def predict(self, X):
+        # self._log("QuanticNCH Predict")
+        return self._predict(X)
+
+    def transform(self, X):
+        # self._log("QuanticNCH Transform")
+        return self._classifier.transform(X)

@@ -32,12 +32,35 @@ Pipelines
     QuantumClassifierWithDefaultRiemannianPipeline
     QuantumMDMWithRiemannianPipeline
     QuantumMDMVotingClassifier
+    FeaturesUnionClassifier
 
 
-Utils function
---------------
+Ensemble
+---------
+.. _ensemble_api:
+.. currentmodule:: pyriemann_qiskit.ensemble
 
-Utils functions are low level functions for the `classification` module.
+.. autosummary::
+    :toctree: generated/
+    :template: class.rst
+
+    JudgeClassifier
+
+
+Utils functions
+----------------
+
+Utils functions are low level functions for the `classification` and `pipelines` module.
+
+Utils
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _utils_api:
+.. currentmodule:: pyriemann_qiskit.utils.utils
+
+.. autosummary::
+    :toctree: generated/
+
+    is_qfunction
 
 Hyper-parameters generation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -53,6 +76,16 @@ Hyper-parameters generation
     gen_two_local
     get_spsa
     get_spsa_parameters
+
+Preprocessing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _preprocessing_api:
+.. currentmodule:: pyriemann_qiskit.utils.preprocessing
+
+.. autosummary::
+    :toctree: generated/
+
+    NdRobustScaler
 
 Filtering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,7 +107,8 @@ Mean
 .. autosummary::
     :toctree: generated/
 
-    fro_mean_convex
+    qmean_euclid
+    qmean_logeuclid
 
 Distance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -84,7 +118,8 @@ Distance
 .. autosummary::
     :toctree: generated/
 
-    logeucl_dist_convex
+    qdistance_logeuclid_to_convex_hull
+    weights_logeuclid_to_convex_hull
 
 Docplex
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -112,6 +147,8 @@ Math
     :toctree: generated/
 
     cov_to_corr_matrix
+    union_of_diff
+    to_xyz
 
 Firebase
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -153,3 +190,30 @@ Quantum Provider
     get_provider
     get_devices
     get_simulator
+
+
+Visualization
+--------------
+
+Helpers to visualize distances, manifold and even "artistic" representation.
+
+Art
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _art_api:
+.. currentmodule:: pyriemann_qiskit.visualization.art
+
+.. autosummary::
+    :toctree: generated/
+
+    weights_spiral
+
+Manifold
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _manifold_api:
+.. currentmodule:: pyriemann_qiskit.visualization.manifold
+
+.. autosummary::
+    :toctree: generated/
+
+    plot_cvx_hull
+    plot_manifold

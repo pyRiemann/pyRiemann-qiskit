@@ -25,7 +25,7 @@ def set_global_optimizer(optimizer):
     Parameters
     ----------
     optimizer: pyQiskitOptimizer
-      An instance of pyQiskitOptimizer.
+      An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
 
     Notes
     -----
@@ -40,7 +40,7 @@ def get_global_optimizer(default):
     Parameters
     ----------
     default: pyQiskitOptimizer
-      An instance of pyQiskitOptimizer.
+      An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
       It will be returned by default if the global optimizer is None.
 
     Returns
@@ -307,19 +307,32 @@ class ClassicalOptimizer(pyQiskitOptimizer):
 
     """Wrapper for the classical Cobyla optimizer.
 
+    Attributes
+    ----------
+    optimizer : OptimizationAlgorithm
+        An instance of OptimizationAlgorithm [1]_
+
     Notes
     -----
     .. versionadded:: 0.0.2
     .. versionchanged:: 0.0.4
+    .. versionchanged:: 0.2.0
+        Add attribute `optimizer`.
 
     See Also
     --------
     pyQiskitOptimizer
 
+    References
+    ----------
+    .. [1] \
+        https://qiskit-community.github.io/qiskit-optimization/stubs/qiskit_optimization.algorithms.OptimizationAlgorithm.html#optimizationalgorithm
+
     """
 
-    def __init__(self):
+    def __init__(self, optimizer=CobylaOptimizer(rhobeg=2.1, rhoend=0.000001)):
         pyQiskitOptimizer.__init__(self)
+        self.optimizer = optimizer
 
     """Helper to create a docplex representation of a
     covariance matrix variable.
@@ -360,7 +373,7 @@ class ClassicalOptimizer(pyQiskitOptimizer):
         return square_cont_mat_var(prob, channels, name)
 
     def _solve_qp(self, qp, reshape=True):
-        result = CobylaOptimizer(rhobeg=2.1, rhoend=0.000001).solve(qp).x
+        result = self.optimizer.solve(qp).x
         if reshape:
             n_channels = int(math.sqrt(result.shape[0]))
             return np.reshape(result, (n_channels, n_channels))

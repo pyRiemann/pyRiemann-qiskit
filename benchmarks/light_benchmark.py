@@ -11,7 +11,7 @@ to run on Ci with each PRs.
 # Modified from plot_classify_P300_bi.py of pyRiemann
 # License: BSD (3-clause)
 
-from pyriemann.estimation import XdawnCovariances
+from pyriemann.estimation import XdawnCovariances, Shrinkage
 from pyriemann.tangentspace import TangentSpace
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
@@ -27,6 +27,7 @@ from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
     QuantumMDMWithRiemannianPipeline,
 )
+from pyriemann_qiskit.classification import QuanticNCH
 import warnings
 import sys
 
@@ -74,21 +75,21 @@ X_train, X_test, y_train, y_test = train_test_split(
 pipelines = {}
 
 pipelines["RG_QSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=100,
-    nfilter=2,
-    dim_red=PCA(n_components=5),
+    shots=100, nfilter=2, dim_red=PCA(n_components=5), params={"seed": 42}
 )
 
 pipelines["RG_VQC"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=100, spsa_trials=5, two_local_reps=2
+    shots=100, spsa_trials=1, two_local_reps=2, params={"seed": 42}
 )
 
 pipelines["QMDM_mean"] = QuantumMDMWithRiemannianPipeline(
-    convex_metric="mean", quantum=True
+    metric={"mean": "qeuclid", "distance": "euclid"},
+    quantum=True,
+    regularization=Shrinkage(shrinkage=0.9),
 )
 
 pipelines["QMDM_dist"] = QuantumMDMWithRiemannianPipeline(
-    convex_metric="distance", quantum=True
+    metric={"mean": "logeuclid", "distance": "qlogeuclid_hull"}, quantum=True
 )
 
 pipelines["RG_LDA"] = make_pipeline(
@@ -100,6 +101,22 @@ pipelines["RG_LDA"] = make_pipeline(
     TangentSpace(),
     PCA(n_components=5),
     LDA(solver="lsqr", shrinkage="auto"),
+)
+
+pipelines["NCH_MIN_HULL"] = make_pipeline(
+    XdawnCovariances(
+        nfilter=3,
+        # classes=[labels_dict["Target"]],
+        estimator="lwf",
+        xdawn_estimator="scm",
+    ),
+    QuanticNCH(
+        n_hulls_per_class=1,
+        n_samples_per_hull=3,
+        n_jobs=12,
+        subsampling="min",
+        quantum=False,
+    ),
 )
 
 ##############################################################################

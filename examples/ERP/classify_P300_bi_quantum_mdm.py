@@ -6,8 +6,8 @@ Classification of P300 datasets from MOABB using Quantum MDM
 The mean and the distance in MDM algorithm are formulated as
 optimization problems. These optimization problems are translated
 to Qiskit using Docplex and additional glue code. These optimizations
-are enabled when we use convex mean or convex distance. This is set
-using the 'convex_metric' parameter of the QuantumMDMWithRiemannianPipeline.
+are enabled when we use cpm mean or cpm distance. This is set
+using the 'metric' parameter of the QuantumMDMWithRiemannianPipeline.
 
 Classification can be run either on emulation or real quantum computer.
 
@@ -43,7 +43,7 @@ from moabb.datasets import (
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
 
-# inject convex distance and mean to pyriemann (if not done already)
+# inject cpm distance and mean to pyriemann (if not done already)
 from pyriemann_qiskit.utils import distance, mean  # noqa
 from pyriemann_qiskit.pipelines import (
     QuantumMDMVotingClassifier,
@@ -107,15 +107,15 @@ labels_dict = {"Target": 1, "NonTarget": 0}
 
 pipelines = {}
 
-pipelines["mean=convex/distance=euclid"] = QuantumMDMWithRiemannianPipeline(
-    convex_metric="mean", quantum=quantum
+pipelines["mean=qlogeuclid/distance=logeuclid"] = QuantumMDMWithRiemannianPipeline(
+    metric="mean", quantum=quantum
 )
 
-pipelines["mean=logeuclid/distance=convex"] = QuantumMDMWithRiemannianPipeline(
-    convex_metric="distance", quantum=quantum
+pipelines["mean=logeuclid/distance=qlogeuclid"] = QuantumMDMWithRiemannianPipeline(
+    metric="distance", quantum=quantum
 )
 
-pipelines["Voting convex"] = QuantumMDMVotingClassifier(quantum=quantum)
+pipelines["Voting qlogeuclid"] = QuantumMDMVotingClassifier(quantum=quantum)
 
 ##############################################################################
 # Run evaluation

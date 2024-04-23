@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: light_benchmark.yml
@@ -35,7 +35,7 @@ jobs:
       - name: Run benchmark script (main)
         id: run-benchmark-main
         run: |
-          python benchmarks/light_benchmark.py ${{steps.run-benchmark-pr.outputs.RG_QSVM}} ${{steps.run-benchmark-pr.outputs.RG_VQC}} ${{steps.run-benchmark-pr.outputs.QMDM_mean}} ${{steps.run-benchmark-pr.outputs.QMDM_dist}} ${{steps.run-benchmark-pr.outputs.RG_LDA}}
+          python benchmarks/light_benchmark.py ${{steps.run-benchmark-pr.outputs.RG_QSVM}} ${{steps.run-benchmark-pr.outputs.RG_VQC}} ${{steps.run-benchmark-pr.outputs.QMDM_mean}} ${{steps.run-benchmark-pr.outputs.QMDM_dist}} ${{steps.run-benchmark-pr.outputs.RG_LDA}} ${{steps.run-benchmark-pr.outputs.NCH_MIN_HULL}}
       - name: Compare performance
         run: |
           echo ${{steps.run-benchmark-main.outputs.success}}
