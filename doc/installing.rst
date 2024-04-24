@@ -47,7 +47,7 @@ Mandatory dependencies
 
 The project relies mainly on:
 
-- `pyRiemann==0.6.0 <https://github.com/pyRiemann/pyRiemann>`
+- `pyRiemann==0.5.0 <https://github.com/pyRiemann/pyRiemann>`
 
 - `qiskit==0.45.0 <https://qiskit.org/>`__
 
