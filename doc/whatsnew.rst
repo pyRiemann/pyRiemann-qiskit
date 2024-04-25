@@ -19,7 +19,7 @@ v0.2.0
 - Improve Ci with automated benchmarks
 - Deprecate cov_to_corr_matrix
 - Create preprocessing.py
-- Add visualization method 
+- Add visualization method
 - Add an example with BI Illiteracy
 - Add an example with financial data
 - Fix issue with real quantum computer
