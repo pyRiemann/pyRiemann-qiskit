@@ -5,6 +5,7 @@ in several modes quantum/classical and simulated/real
 quantum computer.
 """
 from datetime import datetime
+from pyriemann_qiskit.utils.quantum_provider import get_kernel
 from scipy.special import softmax
 import logging
 import numpy as np
@@ -25,7 +26,6 @@ from qiskit.utils import QuantumInstance
 from qiskit.utils.quantum_instance import logger
 from qiskit_ibm_provider import IBMProvider, least_busy
 from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
-from qiskit_machine_learning.kernels.quantum_kernel import QuantumKernel
 from qiskit_optimization.algorithms import (
     CobylaOptimizer,
     #    ADMMOptimizer,
@@ -403,9 +403,7 @@ class QuanticSVM(QuanticClassifierBase):
     def _init_algo(self, n_features):
         self._log("SVM initiating algorithm")
         if self.quantum:
-            quantum_kernel = QuantumKernel(
-                feature_map=self._feature_map, quantum_instance=self._quantum_instance
-            )
+            quantum_kernel = get_kernel(self._feature_map, self._quantum_instance)
             if self.pegasos:
                 self._log("[Warning] `gamma` is not supported by PegasosQSVC")
                 num_steps = 1000 if self.max_iter is None else self.max_iter

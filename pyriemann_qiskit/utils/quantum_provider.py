@@ -3,6 +3,8 @@
 
 from qiskit_ibm_provider import IBMProvider
 from qiskit_aer import AerSimulator
+from qiskit_aer.quantum_info import AerStatevector
+from qiskit_machine_learning.kernels import FidelityStatevectorKernel, FidelityQuantumKernel
 
 
 def get_provider():
@@ -89,3 +91,15 @@ def get_devices(provider, min_qubits):
             + min_qubits
         )
     return devices
+
+def get_kernel(feature_map, quantum_instance):
+    if isinstance(quantum_instance._backend, AerSimulator):
+        # if this is a simulation, we will not use FidelityQuantumKernel as it is slow
+        # see: https://github.com/qiskit-community/qiskit-machine-learning/issues/547#issuecomment-1486527297
+        kernel = FidelityStatevectorKernel(
+                feature_map, statevector_type=AerStatevector)
+    else:
+        kernel = FidelityQuantumKernel(
+                    feature_map=feature_map, quantum_instance=quantum_instance
+                )
+    return kernel
