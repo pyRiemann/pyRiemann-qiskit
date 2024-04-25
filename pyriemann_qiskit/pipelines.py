@@ -5,7 +5,7 @@ from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline, FeatureUnion
 from sklearn.ensemble import VotingClassifier
-from qiskit_optimization.algorithms import CobylaOptimizer
+from qiskit_optimization.algorithms import SlsqpOptimizer
 from pyriemann.estimation import XdawnCovariances, ERPCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann.preprocessing import Whitening
@@ -375,7 +375,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         shots=1024,
         upper_bound=7,
         regularization=None,
-        classical_optimizer=CobylaOptimizer(rhobeg=2.1, rhoend=0.000001),
+        classical_optimizer=SlsqpOptimizer(),
     ):
         self.metric = metric
         self.quantum = quantum
