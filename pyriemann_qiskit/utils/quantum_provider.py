@@ -127,7 +127,13 @@ def get_quantum_kernel(feature_map, quantum_instance):
         kernel = FidelityQuantumKernel(
                     feature_map=feature_map,
                     fidelity=ComputeUncompute(
-                        BackendSampler(quantum_instance._backend)
+                        BackendSampler(
+                            quantum_instance._backend,
+                            options={
+                                "shots": quantum_instance._run_config.shots,
+                                "seed": quantum_instance._run_config.seed_simulator
+                            }  
+                        )
                     )
                 )
     return kernel

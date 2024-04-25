@@ -547,7 +547,13 @@ class QuanticVQC(QuanticClassifierBase):
             optimizer=self.optimizer,
             feature_map=self._feature_map,
             ansatz=var_form,
-            sampler=BackendSampler(self._quantum_instance._backend),
+            sampler=BackendSampler(
+                self._quantum_instance._backend,
+                options={
+                    "shots": self._quantum_instance._run_config.shots,
+                    "seed": self._quantum_instance._run_config.seed_simulator
+                }
+            ),
             num_qubits=n_features,
         )
         return vqc
