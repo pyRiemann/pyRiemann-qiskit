@@ -107,8 +107,8 @@ def get_quantum_kernel(feature_map, quantum_instance):
     ----------
     feature_map: QuantumCircuit | FeatureMap
         An instance of a feature map.
-    quantum_instance: QuantumInstance
-        A quantum instance.
+    quantum_instance: BaseSampler
+        A instance of BaseSampler.
 
     Returns
     -------
