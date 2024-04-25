@@ -509,12 +509,14 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         if self.quantum_instance is None:
             backend = get_simulator()
             quantum_instance = BackendSampler(
-                backend, 
+                backend,
                 # options={"shots": self.shots, "seed": self.seed}
             )
         else:
             quantum_instance = self.quantum_instance
-        qaoa_mes = QAOA(sampler=quantum_instance, optimizer=SLSQP(), initial_point=[0.0, 0.0])
+        qaoa_mes = QAOA(
+            sampler=quantum_instance, optimizer=SLSQP(), initial_point=[0.0, 0.0]
+        )
         qaoa = MinimumEigenOptimizer(qaoa_mes)
         result = conv.interpret(qaoa.solve(qubo))
         if reshape:
