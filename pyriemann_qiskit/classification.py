@@ -208,12 +208,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
             self._log("Quantum backend = ", self._backend)
             self._log("seed = ", self.seed)
             self._quantum_instance = BackendSampler(
-                self._backend,
-                    options={
-                        "shots": self.shots,
-                        "seed": self.seed
-                    }  
-                )
+                self._backend, options={"shots": self.shots, "seed": self.seed}
+            )
         self._classifier = self._init_algo(n_features)
         self._train(X, y)
         return self
@@ -405,7 +401,9 @@ class QuanticSVM(QuanticClassifierBase):
     def _init_algo(self, n_features):
         self._log("SVM initiating algorithm")
         if self.quantum:
-            quantum_kernel = get_quantum_kernel(self._feature_map, self._quantum_instance)
+            quantum_kernel = get_quantum_kernel(
+                self._feature_map, self._quantum_instance
+            )
             if self.pegasos:
                 self._log("[Warning] `gamma` is not supported by PegasosQSVC")
                 num_steps = 1000 if self.max_iter is None else self.max_iter
