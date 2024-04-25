@@ -9,7 +9,6 @@ from qiskit_machine_learning.kernels import (
     FidelityQuantumKernel,
 )
 from qiskit_algorithms.state_fidelities import ComputeUncompute
-from qiskit.primitives import BackendSampler
 
 
 def get_provider():
@@ -121,8 +120,9 @@ def get_quantum_kernel(feature_map, quantum_instance):
     .. versionadded:: 0.3.0
     """
     if isinstance(quantum_instance._backend, AerSimulator):
-        # if this is a simulation, we will not use FidelityQuantumKernel as it is slow
-        # see: https://github.com/qiskit-community/qiskit-machine-learning/issues/547#issuecomment-1486527297
+        # if this is a simulation,
+        # we will not use FidelityQuantumKernel as it is slow. See
+        # https://github.com/qiskit-community/qiskit-machine-learning/issues/547#issuecomment-1486527297
         kernel = FidelityStatevectorKernel(
             feature_map=feature_map,
             statevector_type=AerStatevector,
