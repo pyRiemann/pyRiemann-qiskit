@@ -207,12 +207,13 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                     self._backend = devices[0]
             self._log("Quantum backend = ", self._backend)
             self._log("seed = ", self.seed)
-            self._quantum_instance = QuantumInstance(
+            self._quantum_instance = BackendSampler(
                 self._backend,
-                shots=self.shots,
-                seed_simulator=self.seed,
-                seed_transpiler=self.seed,
-            )
+                    options={
+                        "shots": self.shots,
+                        "seed": self.seed
+                    }  
+                )
         self._classifier = self._init_algo(n_features)
         self._train(X, y)
         return self
@@ -547,13 +548,7 @@ class QuanticVQC(QuanticClassifierBase):
             optimizer=self.optimizer,
             feature_map=self._feature_map,
             ansatz=var_form,
-            sampler=BackendSampler(
-                self._quantum_instance._backend,
-                options={
-                    "shots": self._quantum_instance._run_config.shots,
-                    "seed": self._quantum_instance._run_config.seed_simulator
-                }
-            ),
+            sampler=self._quantum_instance,
             num_qubits=n_features,
         )
         return vqc
