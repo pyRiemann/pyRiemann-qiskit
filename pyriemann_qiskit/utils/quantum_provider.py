@@ -5,7 +5,8 @@ from qiskit_ibm_provider import IBMProvider
 from qiskit_aer import AerSimulator
 from qiskit_aer.quantum_info import AerStatevector
 from qiskit_machine_learning.kernels import FidelityStatevectorKernel, FidelityQuantumKernel
-
+from qiskit_algorithms.state_fidelities import ComputeUncompute
+from qiskit.primitives import BackendSampler
 
 def get_provider():
     """Return an IBM quantum provider.
@@ -92,14 +93,41 @@ def get_devices(provider, min_qubits):
         )
     return devices
 
-def get_kernel(feature_map, quantum_instance):
+
+def get_quantum_kernel(feature_map, quantum_instance):
+    """Get a quantum kernel
+
+    Return an instance of FidelityQuantumKernel or
+    FidelityStatevectorKernel (in the case of a simulation).
+
+    Parameters
+    ----------
+    feature_map: QuantumCircuit | FeatureMap
+        An instance of a feature map.
+    quantum_instance: QuantumInstance
+        A quantum instance.
+
+    Returns
+    -------
+    kernel: QuantumKernel
+        The quantum kernel.
+
+    Notes
+    -----
+    .. versionadded:: 0.3.0
+    """
     if isinstance(quantum_instance._backend, AerSimulator):
         # if this is a simulation, we will not use FidelityQuantumKernel as it is slow
         # see: https://github.com/qiskit-community/qiskit-machine-learning/issues/547#issuecomment-1486527297
         kernel = FidelityStatevectorKernel(
-                feature_map, statevector_type=AerStatevector)
+                feature_map=feature_map,
+                statevector_type=AerStatevector,
+                shots=quantum_instance._run_config.shots)
     else:
         kernel = FidelityQuantumKernel(
-                    feature_map=feature_map, quantum_instance=quantum_instance
+                    feature_map=feature_map,
+                    fidelity=ComputeUncompute(
+                        BackendSampler(quantum_instance._backend)
+                    )
                 )
     return kernel

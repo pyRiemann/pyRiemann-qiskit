@@ -5,7 +5,7 @@ in several modes quantum/classical and simulated/real
 quantum computer.
 """
 from datetime import datetime
-from pyriemann_qiskit.utils.quantum_provider import get_kernel
+from pyriemann_qiskit.utils.quantum_provider import get_quantum_kernel
 from scipy.special import softmax
 import logging
 import numpy as np
@@ -23,6 +23,7 @@ from pyriemann_qiskit.utils import (
 from pyriemann_qiskit.utils.distance import distance_functions
 from pyriemann_qiskit.utils.utils import is_qfunction
 from qiskit.utils import QuantumInstance
+from qiskit.primitives import BackendSampler
 from qiskit.utils.quantum_instance import logger
 from qiskit_ibm_provider import IBMProvider, least_busy
 from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
@@ -403,7 +404,7 @@ class QuanticSVM(QuanticClassifierBase):
     def _init_algo(self, n_features):
         self._log("SVM initiating algorithm")
         if self.quantum:
-            quantum_kernel = get_kernel(self._feature_map, self._quantum_instance)
+            quantum_kernel = get_quantum_kernel(self._feature_map, self._quantum_instance)
             if self.pegasos:
                 self._log("[Warning] `gamma` is not supported by PegasosQSVC")
                 num_steps = 1000 if self.max_iter is None else self.max_iter
@@ -546,7 +547,7 @@ class QuanticVQC(QuanticClassifierBase):
             optimizer=self.optimizer,
             feature_map=self._feature_map,
             ansatz=var_form,
-            quantum_instance=self._quantum_instance,
+            sampler=BackendSampler(self._quantum_instance._backend),
             num_qubits=n_features,
         )
         return vqc

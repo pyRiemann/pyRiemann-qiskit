@@ -190,6 +190,7 @@ Quantum Provider
     get_provider
     get_devices
     get_simulator
+    get_quantum_kernel
 
 
 Visualization
