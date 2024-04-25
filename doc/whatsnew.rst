@@ -5,6 +5,30 @@
 What's new in the package
 =========================
 
+v0.2.0
+------
+
+- Bump dependencies
+- Correct implementation of logeuclid distance
+- Refactor MDM implementation
+- Change default parameters for QuantumMDM
+- Introduce Nearest Convex Hull classifier (NCH)
+- Change the default feature map for quantum SVC
+- Improve documentation
+- Add pyRiemann-qiskit to the Qiskit ecosystem
+- Improve Ci with automated benchmarks
+- Deprecate cov_to_corr_matrix
+- Create preprocessing.py
+- Add visualization method
+- Add an example with BI Illiteracy
+- Add an example with financial data
+- Fix issue with real quantum computer
+- Add Judge Classifier
+
+Details:
+
+https://github.com/pyRiemann/pyRiemann-qiskit/releases/tag/v0.2.0
+
 v0.1.0
 ------
 
