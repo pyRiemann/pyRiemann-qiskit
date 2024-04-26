@@ -508,10 +508,13 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         qubo = conv.convert(qp)
         if self.quantum_instance is None:
             backend = get_simulator()
+            seed = 42
+            shots = 1024
             quantum_instance = BackendSampler(
                 backend,
-                # options={"shots": self.shots, "seed": self.seed}
+                options={"shots": shots, "seed_simulator": seed}
             )
+            quantum_instance.transpile_options['seed_transpiler'] = seed
         else:
             quantum_instance = self.quantum_instance
         qaoa_mes = QAOA(

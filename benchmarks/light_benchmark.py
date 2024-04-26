@@ -86,10 +86,12 @@ pipelines["QMDM_mean"] = QuantumMDMWithRiemannianPipeline(
     metric={"mean": "qeuclid", "distance": "euclid"},
     quantum=True,
     regularization=Shrinkage(shrinkage=0.9),
+    seed=42
 )
 
 pipelines["QMDM_dist"] = QuantumMDMWithRiemannianPipeline(
-    metric={"mean": "logeuclid", "distance": "qlogeuclid_hull"}, quantum=True
+    metric={"mean": "logeuclid", "distance": "qlogeuclid_hull"}, quantum=True,
+    seed=42
 )
 
 pipelines["RG_LDA"] = make_pipeline(
