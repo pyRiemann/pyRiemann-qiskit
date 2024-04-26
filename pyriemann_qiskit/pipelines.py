@@ -342,7 +342,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         An instance of OptimizationAlgorithm [1]_
     seed : int | None, default=None
         Random seed for the simulation and transpilation.
-    
+
 
     Attributes
     ----------
@@ -381,7 +381,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         upper_bound=7,
         regularization=None,
         classical_optimizer=SlsqpOptimizer(),
-        seed=None
+        seed=None,
     ):
         self.metric = metric
         self.quantum = quantum
@@ -420,7 +420,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
             upper_bound=self.upper_bound,
             regularization=self.regularization,
             classical_optimizer=self.classical_optimizer,
-            seed=self.seed
+            seed=self.seed,
         )
 
         return make_pipeline(covariances, filtering, clf)

@@ -23,6 +23,7 @@ from pyriemann_qiskit.utils import (
 from pyriemann_qiskit.utils.distance import distance_functions
 from pyriemann_qiskit.utils.utils import is_qfunction
 from qiskit.primitives import BackendSampler
+
 # from qiskit.utils.quantum_instance import logger
 from qiskit_ibm_provider import IBMProvider, least_busy
 from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
@@ -211,9 +212,10 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
             self._log("Quantum backend = ", self._backend)
             self._log("seed = ", self.seed)
             self._quantum_instance = BackendSampler(
-                self._backend, options={"shots": self.shots, "seed_simulator": self.seed}
+                self._backend,
+                options={"shots": self.shots, "seed_simulator": self.seed},
             )
-            self._quantum_instance.transpile_options['seed_transpiler'] = self.seed
+            self._quantum_instance.transpile_options["seed_transpiler"] = self.seed
         self._classifier = self._init_algo(n_features)
         self._train(X, y)
         return self
