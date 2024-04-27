@@ -29,7 +29,6 @@ from qiskit_ibm_provider import IBMProvider, least_busy
 from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
 from qiskit_optimization.algorithms import (
     CobylaOptimizer,
-    #    ADMMOptimizer,
     SlsqpOptimizer,
 )
 from sklearn.svm import SVC
