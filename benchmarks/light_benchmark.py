@@ -166,5 +166,7 @@ else:
     for key, score in scores.items():
         i = i + 1
         pr_score = sys.argv[i]
-        success = success and (True if int(float(pr_score) * 100) >= int(score * 100) else False)
+        success = success and (
+            True if int(float(pr_score) * 100) >= int(score * 100) else False
+        )
     set_output("success", "1" if success else "0")
