@@ -40,10 +40,6 @@ from .utils.distance import qdistance_logeuclid_to_convex_hull
 from joblib import Parallel, delayed
 import random
 
-# logger.level = logging.WARNING
-
-import logging
-
 logging.basicConfig(level=logging.WARNING)
 
 
