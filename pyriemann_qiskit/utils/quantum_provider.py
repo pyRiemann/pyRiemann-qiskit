@@ -98,7 +98,7 @@ def get_devices(provider, min_qubits):
     return devices
 
 
-def get_quantum_kernel(feature_map, quantum_instance):
+def get_quantum_kernel(feature_map, quantum_instance, use_fidelity_state_vector_kernel):
     """Get a quantum kernel
 
     Return an instance of FidelityQuantumKernel or
@@ -110,6 +110,8 @@ def get_quantum_kernel(feature_map, quantum_instance):
         An instance of a feature map.
     quantum_instance: BaseSampler
         A instance of BaseSampler.
+    use_fidelity_state_vector_kernel: boolean
+        if True, use a FidelitystatevectorKernel for simulation.
 
     Returns
     -------
@@ -120,7 +122,7 @@ def get_quantum_kernel(feature_map, quantum_instance):
     -----
     .. versionadded:: 0.3.0
     """
-    if isinstance(quantum_instance._backend, AerSimulator):
+    if use_fidelity_state_vector_kernel and isinstance(quantum_instance._backend, AerSimulator):
         logging.log(
             logging.WARN,
             """FidelityQuantumKernel skipped because of time.

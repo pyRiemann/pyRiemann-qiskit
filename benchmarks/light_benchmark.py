@@ -75,7 +75,8 @@ X_train, X_test, y_train, y_test = train_test_split(
 pipelines = {}
 
 pipelines["RG_QSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=2000, nfilter=2, dim_red=PCA(n_components=5), params={"seed": 42}
+    shots=100, nfilter=2, dim_red=PCA(n_components=5),
+    params={"seed": 42, "use_fidelity_state_vector_kernel": False}, 
 )
 
 pipelines["RG_VQC"] = QuantumClassifierWithDefaultRiemannianPipeline(

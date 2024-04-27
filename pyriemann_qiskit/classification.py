@@ -315,6 +315,8 @@ class QuanticSVM(QuanticClassifierBase):
         Add seed parameter
         SVC and QSVC now compute probability (may impact performance)
         Predict is now using predict_proba with a softmax, when using QSVC.
+    .. versionchanged:: 0.3.0
+        Add use_fidelity_state_vector_kernel parameter   
 
     Parameters
     ----------
@@ -351,6 +353,8 @@ class QuanticSVM(QuanticClassifierBase):
         Function generating a feature map to encode data into a quantum state.
     seed : int | None, default=None
         Random seed for the simulation
+    use_fidelity_state_vector_kernel: boolean (default=True)
+        if True, use a FidelitystatevectorKernel for simulation.
 
     See Also
     --------
@@ -391,6 +395,7 @@ class QuanticSVM(QuanticClassifierBase):
         shots=1024,
         gen_feature_map=gen_zz_feature_map(),
         seed=None,
+        use_fidelity_state_vector_kernel=True,
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, gen_feature_map, seed
@@ -399,12 +404,15 @@ class QuanticSVM(QuanticClassifierBase):
         self.C = C
         self.max_iter = max_iter
         self.pegasos = pegasos
+        self.use_fidelity_state_vector_kernel = use_fidelity_state_vector_kernel
 
     def _init_algo(self, n_features):
         self._log("SVM initiating algorithm")
         if self.quantum:
             quantum_kernel = get_quantum_kernel(
-                self._feature_map, self._quantum_instance
+                self._feature_map,
+                self._quantum_instance, 
+                self.use_fidelity_state_vector_kernel
             )
             if self.pegasos:
                 self._log("[Warning] `gamma` is not supported by PegasosQSVC")
