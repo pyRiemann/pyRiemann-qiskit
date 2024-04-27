@@ -91,8 +91,10 @@ pipelines["QMDM_mean"] = QuantumMDMWithRiemannianPipeline(
 )
 
 pipelines["QMDM_dist"] = QuantumMDMWithRiemannianPipeline(
-    metric={"mean": "logeuclid", "distance": "qlogeuclid_hull"}, quantum=True, seed=42,
-    shots=100
+    metric={"mean": "logeuclid", "distance": "qlogeuclid_hull"},
+    quantum=True,
+    seed=42,
+    shots=100,
 )
 
 pipelines["RG_LDA"] = make_pipeline(
@@ -119,7 +121,7 @@ pipelines["NCH_MIN_HULL"] = make_pipeline(
         n_jobs=12,
         subsampling="min",
         quantum=False,
-        shots=100
+        shots=100,
     ),
 )
 

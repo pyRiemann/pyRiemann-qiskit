@@ -11,6 +11,7 @@ from qiskit_machine_learning.kernels import (
 from qiskit_algorithms.state_fidelities import ComputeUncompute
 import logging
 
+
 def get_provider():
     """Return an IBM quantum provider.
 
@@ -120,13 +121,14 @@ def get_quantum_kernel(feature_map, quantum_instance):
     .. versionadded:: 0.3.0
     """
     if isinstance(quantum_instance._backend, AerSimulator):
-        logging.log(logging.WARN,
-                    """FidelityQuantumKernel skipped because of time.
+        logging.log(
+            logging.WARN,
+            """FidelityQuantumKernel skipped because of time.
                     Using FidelityStatevectorKernel with AerStatevector.
                     Seed cannot be set with FidelityStatevectorKernel.
-                    Increase the number of shots to diminish the noise."""
-                )
-                
+                    Increase the number of shots to diminish the noise.""",
+        )
+
         # if this is a simulation,
         # we will not use FidelityQuantumKernel as it is slow. See
         # https://github.com/qiskit-community/qiskit-machine-learning/issues/547#issuecomment-1486527297
