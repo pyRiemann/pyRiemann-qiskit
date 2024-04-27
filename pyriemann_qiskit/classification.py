@@ -316,7 +316,7 @@ class QuanticSVM(QuanticClassifierBase):
         SVC and QSVC now compute probability (may impact performance)
         Predict is now using predict_proba with a softmax, when using QSVC.
     .. versionchanged:: 0.3.0
-        Add use_fidelity_state_vector_kernel parameter   
+        Add use_fidelity_state_vector_kernel parameter
 
     Parameters
     ----------
@@ -411,8 +411,8 @@ class QuanticSVM(QuanticClassifierBase):
         if self.quantum:
             quantum_kernel = get_quantum_kernel(
                 self._feature_map,
-                self._quantum_instance, 
-                self.use_fidelity_state_vector_kernel
+                self._quantum_instance,
+                self.use_fidelity_state_vector_kernel,
             )
             if self.pegasos:
                 self._log("[Warning] `gamma` is not supported by PegasosQSVC")

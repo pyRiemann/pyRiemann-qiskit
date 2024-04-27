@@ -122,7 +122,9 @@ def get_quantum_kernel(feature_map, quantum_instance, use_fidelity_state_vector_
     -----
     .. versionadded:: 0.3.0
     """
-    if use_fidelity_state_vector_kernel and isinstance(quantum_instance._backend, AerSimulator):
+    if use_fidelity_state_vector_kernel and isinstance(
+        quantum_instance._backend, AerSimulator
+    ):
         logging.log(
             logging.WARN,
             """FidelityQuantumKernel skipped because of time.
