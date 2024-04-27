@@ -132,10 +132,10 @@ class TestQuanticSVM(TestClassicalSVM):
 
     def get_params(self):
         # use_fidelity_state_vector_kernel=False
-        # fix an issue on MacOs 
-        quantum_instance = QuanticSVM(quantum=True,
-                                      verbose=False,
-                                      use_fidelity_state_vector_kernel=False)
+        # fix an issue on MacOs
+        quantum_instance = QuanticSVM(
+            quantum=True, verbose=False, use_fidelity_state_vector_kernel=False
+        )
         return {
             "n_samples": 10,
             "n_features": 4,
