@@ -75,7 +75,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 pipelines = {}
 
 pipelines["RG_QSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=100, nfilter=2, dim_red=PCA(n_components=5), params={"seed": 42}
+    shots=2000, nfilter=2, dim_red=PCA(n_components=5), params={"seed": 42}
 )
 
 pipelines["RG_VQC"] = QuantumClassifierWithDefaultRiemannianPipeline(
@@ -86,11 +86,13 @@ pipelines["QMDM_mean"] = QuantumMDMWithRiemannianPipeline(
     metric={"mean": "qeuclid", "distance": "euclid"},
     quantum=True,
     regularization=Shrinkage(shrinkage=0.9),
-    seed=42,
+    shots=1024,
+    seed=696288,
 )
 
 pipelines["QMDM_dist"] = QuantumMDMWithRiemannianPipeline(
-    metric={"mean": "logeuclid", "distance": "qlogeuclid_hull"}, quantum=True, seed=42
+    metric={"mean": "logeuclid", "distance": "qlogeuclid_hull"}, quantum=True, seed=42,
+    shots=100
 )
 
 pipelines["RG_LDA"] = make_pipeline(
@@ -117,6 +119,7 @@ pipelines["NCH_MIN_HULL"] = make_pipeline(
         n_jobs=12,
         subsampling="min",
         quantum=False,
+        shots=100
     ),
 )
 

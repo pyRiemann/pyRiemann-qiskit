@@ -121,7 +121,7 @@ def get_quantum_kernel(feature_map, quantum_instance):
     """
     if isinstance(quantum_instance._backend, AerSimulator):
         logging.log(logging.WARN,
-                    """FidelityQuantumKernel skip for time constraint.
+                    """FidelityQuantumKernel skipped because of time.
                     Using FidelityStatevectorKernel with AerStatevector.
                     Seed cannot be set with FidelityStatevectorKernel.
                     Increase the number of shots to diminish the noise."""
