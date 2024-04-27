@@ -78,7 +78,7 @@ pipelines["RG_QSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
     shots=100,
     nfilter=2,
     dim_red=PCA(n_components=5),
-    params={"seed": 42, "use_fidelity_state_vector_kernel": False},
+    params={"seed": 42, "use_fidelity_state_vector_kernel": True},
 )
 
 pipelines["RG_VQC"] = QuantumClassifierWithDefaultRiemannianPipeline(
