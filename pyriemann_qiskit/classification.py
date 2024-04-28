@@ -23,8 +23,6 @@ from pyriemann_qiskit.utils import (
 from pyriemann_qiskit.utils.distance import distance_functions
 from pyriemann_qiskit.utils.utils import is_qfunction
 from qiskit.primitives import BackendSampler
-
-# from qiskit.utils.quantum_instance import logger
 from qiskit_ibm_provider import IBMProvider, least_busy
 from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
 from qiskit_optimization.algorithms import (
