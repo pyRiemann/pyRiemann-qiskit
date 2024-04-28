@@ -17,6 +17,8 @@ Classification
     QuanticSVM
     QuanticVQC
     QuanticMDM
+    QuanticNCH
+    NearestConvexHull
 
 
 Pipelines

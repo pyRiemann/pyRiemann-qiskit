@@ -27,7 +27,7 @@ setup(name='pyriemann-qiskit',
       long_description=long_description,
       long_description_content_type='text/markdown',
       project_urls={
-          'Documentation': 'https://pyriemann.readthedocs.io',
+          'Documentation': 'https://pyriemann-qiskit.readthedocs.io/',
           'Source': 'https://github.com/pyRiemann/pyRiemann-qiskit',
           'Tracker': 'https://github.com/pyRiemann/pyRiemann-qiskit/issues/',
       },
