@@ -157,5 +157,8 @@ else:
     for key, score in scores.items():
         i = i + 1
         pr_score = sys.argv[i]
-        success = success and (True if float(pr_score) >= score else False)
+        pr_score_trun = int(float(pr_score) * 100)
+        score_trun = int(score * 100)
+        success = success and (True if pr_score_trun >= score_trun else False)
+        print(f"{key}: {pr_score_trun} (PR) >= {score} (main): {success}")
     set_output("success", "1" if success else "0")
