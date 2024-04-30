@@ -10,7 +10,7 @@ import numpy as np
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
 from qiskit.primitives import BackendSampler
 from qiskit_algorithms import QAOA
-from qiskit.algorithms.optimizers import SLSQP
+from qiskit_algorithms.optimizers import SLSQP
 from qiskit_optimization.algorithms import CobylaOptimizer, MinimumEigenOptimizer
 from qiskit_optimization.converters import IntegerToBinary
 from qiskit_optimization.translators import from_docplex_mp
