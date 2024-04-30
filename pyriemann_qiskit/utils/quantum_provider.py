@@ -1,7 +1,7 @@
 """Module containing helpers for IBM quantum backends
    providers and simulators."""
 
-from qiskit_ibm_provider import IBMProvider
+from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit_aer import AerSimulator
 from qiskit_aer.quantum_info import AerStatevector
 from qiskit_machine_learning.kernels import (
@@ -17,16 +17,18 @@ def get_provider():
 
     Returns
     -------
-    provider : IBMProvider
-        An instance of IBMProvider.
+    provider : QiskitRuntimeService
+        An instance of QiskitRuntimeService.
 
     Notes
     -----
     .. versionadded:: 0.0.4
     .. versionchanged:: 0.1.0
         IBMProvider is not a static API anymore but need to be instanciated.
+    .. versionchanged:: 0.3.0
+        Swithc from IBMProvider to QiskitRuntimeService.
     """
-    return IBMProvider()
+    return QiskitRuntimeService()
 
 
 def get_simulator():
@@ -53,7 +55,7 @@ def get_simulator():
     return backend
 
 
-def get_devices(provider, min_qubits):
+def get_device(provider, min_qubits):
     """Returns all real remote quantum backends.
 
     Returns all real remote quantum backends,
@@ -80,22 +82,12 @@ def get_devices(provider, min_qubits):
     Notes
     -----
     .. versionadded:: 0.0.4
+    .. versionchanged:: 0.3.0
+        Rename get_devices to get_device
+        Switch from IBMProvider to QiskitRuntimeService
     """
 
-    def filters(device):
-        return (
-            device.configuration().n_qubits >= min_qubits
-            and not device.configuration().simulator
-            and device.status().operational
-        )
-
-    devices = provider.backends(filters=filters)
-    if devices is None or len(devices) == 0:
-        raise ValueError(
-            "No devices matching: real quantum backend, operational and n_qubits>="
-            + min_qubits
-        )
-    return devices
+    return provider.least_busy(operational=True, simulator=False, min_num_qubits=min_qubits)
 
 
 def get_quantum_kernel(feature_map, quantum_instance, use_fidelity_state_vector_kernel):

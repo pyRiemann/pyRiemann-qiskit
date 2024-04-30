@@ -1,5 +1,5 @@
 from . import hyper_params_factory, filtering, preprocessing
-from .quantum_provider import get_provider, get_devices, get_simulator
+from .quantum_provider import get_provider, get_device, get_simulator
 from .math import cov_to_corr_matrix, union_of_diff
 from .docplex import (
     square_cont_mat_var,
@@ -27,7 +27,7 @@ __all__ = [
     "filtering",
     "preprocessing",
     "get_provider",
-    "get_devices",
+    "get_device",
     "get_simulator",
     "cov_to_corr_matrix",
     "union_of_diff",

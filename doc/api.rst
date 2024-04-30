@@ -190,7 +190,7 @@ Quantum Provider
     :toctree: generated/
 
     get_provider
-    get_devices
+    get_device
     get_simulator
     get_quantum_kernel
 
