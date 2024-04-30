@@ -75,7 +75,10 @@ X_train, X_test, y_train, y_test = train_test_split(
 pipelines = {}
 
 pipelines["RG_QSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=100, nfilter=2, dim_red=PCA(n_components=5), params={"seed": 42}
+    shots=100,
+    nfilter=2,
+    dim_red=PCA(n_components=5),
+    params={"seed": 42, "use_fidelity_state_vector_kernel": True},
 )
 
 pipelines["RG_VQC"] = QuantumClassifierWithDefaultRiemannianPipeline(
@@ -86,10 +89,15 @@ pipelines["QMDM_mean"] = QuantumMDMWithRiemannianPipeline(
     metric={"mean": "qeuclid", "distance": "euclid"},
     quantum=True,
     regularization=Shrinkage(shrinkage=0.9),
+    shots=1024,
+    seed=696288,
 )
 
 pipelines["QMDM_dist"] = QuantumMDMWithRiemannianPipeline(
-    metric={"mean": "logeuclid", "distance": "qlogeuclid_hull"}, quantum=True
+    metric={"mean": "logeuclid", "distance": "qlogeuclid_hull"},
+    quantum=True,
+    seed=42,
+    shots=100,
 )
 
 pipelines["RG_LDA"] = make_pipeline(
@@ -116,6 +124,7 @@ pipelines["NCH_MIN_HULL"] = make_pipeline(
         n_jobs=12,
         subsampling="min",
         quantum=False,
+        shots=100,
     ),
 )
 
@@ -160,5 +169,5 @@ else:
         pr_score_trun = int(float(pr_score) * 100)
         score_trun = int(score * 100)
         success = success and (True if pr_score_trun >= score_trun else False)
-        print(f"{key}: {pr_score_trun} (PR) >= {score} (main): {success}")
+        print(f"{key}: {pr_score_trun} (PR) >= {score_trun} (main): {success}")
     set_output("success", "1" if success else "0")

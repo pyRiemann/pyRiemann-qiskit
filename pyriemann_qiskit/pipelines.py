@@ -5,7 +5,7 @@ from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline, FeatureUnion
 from sklearn.ensemble import VotingClassifier
-from qiskit_optimization.algorithms import CobylaOptimizer
+from qiskit_optimization.algorithms import SlsqpOptimizer
 from pyriemann.estimation import XdawnCovariances, ERPCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann.preprocessing import Whitening
@@ -340,6 +340,9 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         Additional post-processing to regularize means.
     classical_optimizer : OptimizationAlgorithm
         An instance of OptimizationAlgorithm [1]_
+    seed : int | None, default=None
+        Random seed for the simulation and transpilation.
+
 
     Attributes
     ----------
@@ -354,6 +357,8 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         Add classical_optimizer parameter.
         Change metric, so you can pass the kernel of your choice\
             as when using MDM.
+    .. versionchanged:: 0.3.0
+        Add seed parameter.
 
     See Also
     --------
@@ -375,7 +380,8 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         shots=1024,
         upper_bound=7,
         regularization=None,
-        classical_optimizer=CobylaOptimizer(rhobeg=2.1, rhoend=0.000001),
+        classical_optimizer=SlsqpOptimizer(),
+        seed=None,
     ):
         self.metric = metric
         self.quantum = quantum
@@ -385,6 +391,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         self.upper_bound = upper_bound
         self.regularization = regularization
         self.classical_optimizer = classical_optimizer
+        self.seed = seed
 
         BasePipeline.__init__(self, "QuantumMDMWithRiemannianPipeline")
 
@@ -413,6 +420,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
             upper_bound=self.upper_bound,
             regularization=self.regularization,
             classical_optimizer=self.classical_optimizer,
+            seed=self.seed,
         )
 
         return make_pipeline(covariances, filtering, clf)

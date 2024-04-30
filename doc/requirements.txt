@@ -11,11 +11,12 @@ imbalanced-learn==0.12.0
 joblib
 pandas
 cvxpy==1.4.2
-qiskit==0.45.0
-qiskit_machine_learning==0.6.1
+qiskit==0.46.1
+qiskit_algorithms==0.3.0
+qiskit_machine_learning==0.7.2
 qiskit-ibm-provider==0.7.3
-qiskit-optimization==0.5.0
-qiskit-aer==0.12.2
+qiskit-optimization==0.6.1
+qiskit-aer==0.14.0.1
 scipy==1.11.4
 moabb>=1.0.0
 pyriemann==0.5

@@ -8,8 +8,9 @@ It is for example suitable for:
 import math
 import numpy as np
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
-from qiskit.utils import QuantumInstance
-from qiskit.algorithms import QAOA
+from qiskit.primitives import BackendSampler
+from qiskit_algorithms import QAOA
+from qiskit.algorithms.optimizers import SLSQP
 from qiskit_optimization.algorithms import CobylaOptimizer, MinimumEigenOptimizer
 from qiskit_optimization.converters import IntegerToBinary
 from qiskit_optimization.translators import from_docplex_mp
@@ -507,10 +508,17 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         qubo = conv.convert(qp)
         if self.quantum_instance is None:
             backend = get_simulator()
-            quantum_instance = QuantumInstance(backend)
+            seed = 42
+            shots = 1024
+            quantum_instance = BackendSampler(
+                backend, options={"shots": shots, "seed_simulator": seed}
+            )
+            quantum_instance.transpile_options["seed_transpiler"] = seed
         else:
             quantum_instance = self.quantum_instance
-        qaoa_mes = QAOA(quantum_instance=quantum_instance, initial_point=[0.0, 0.0])
+        qaoa_mes = QAOA(
+            sampler=quantum_instance, optimizer=SLSQP(), initial_point=[0.0, 0.0]
+        )
         qaoa = MinimumEigenOptimizer(qaoa_mes)
         result = conv.interpret(qaoa.solve(qubo))
         if reshape:

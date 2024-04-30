@@ -5,6 +5,7 @@ in several modes quantum/classical and simulated/real
 quantum computer.
 """
 from datetime import datetime
+from pyriemann_qiskit.utils.quantum_provider import get_quantum_kernel
 from scipy.special import softmax
 import logging
 import numpy as np
@@ -21,14 +22,11 @@ from pyriemann_qiskit.utils import (
 )
 from pyriemann_qiskit.utils.distance import distance_functions
 from pyriemann_qiskit.utils.utils import is_qfunction
-from qiskit.utils import QuantumInstance
-from qiskit.utils.quantum_instance import logger
+from qiskit.primitives import BackendSampler
 from qiskit_ibm_provider import IBMProvider, least_busy
 from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
-from qiskit_machine_learning.kernels.quantum_kernel import QuantumKernel
 from qiskit_optimization.algorithms import (
     CobylaOptimizer,
-    #    ADMMOptimizer,
     SlsqpOptimizer,
 )
 from sklearn.svm import SVC
@@ -39,7 +37,7 @@ from .utils.distance import qdistance_logeuclid_to_convex_hull
 from joblib import Parallel, delayed
 import random
 
-logger.level = logging.WARNING
+logging.basicConfig(level=logging.WARNING)
 
 
 class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
@@ -206,12 +204,11 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
                     self._backend = devices[0]
             self._log("Quantum backend = ", self._backend)
             self._log("seed = ", self.seed)
-            self._quantum_instance = QuantumInstance(
+            self._quantum_instance = BackendSampler(
                 self._backend,
-                shots=self.shots,
-                seed_simulator=self.seed,
-                seed_transpiler=self.seed,
+                options={"shots": self.shots, "seed_simulator": self.seed},
             )
+            self._quantum_instance.transpile_options["seed_transpiler"] = self.seed
         self._classifier = self._init_algo(n_features)
         self._train(X, y)
         return self
@@ -315,6 +312,8 @@ class QuanticSVM(QuanticClassifierBase):
         Add seed parameter
         SVC and QSVC now compute probability (may impact performance)
         Predict is now using predict_proba with a softmax, when using QSVC.
+    .. versionchanged:: 0.3.0
+        Add use_fidelity_state_vector_kernel parameter
 
     Parameters
     ----------
@@ -351,6 +350,8 @@ class QuanticSVM(QuanticClassifierBase):
         Function generating a feature map to encode data into a quantum state.
     seed : int | None, default=None
         Random seed for the simulation
+    use_fidelity_state_vector_kernel: boolean (default=True)
+        if True, use a FidelitystatevectorKernel for simulation.
 
     See Also
     --------
@@ -391,6 +392,7 @@ class QuanticSVM(QuanticClassifierBase):
         shots=1024,
         gen_feature_map=gen_zz_feature_map(),
         seed=None,
+        use_fidelity_state_vector_kernel=True,
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, gen_feature_map, seed
@@ -399,12 +401,15 @@ class QuanticSVM(QuanticClassifierBase):
         self.C = C
         self.max_iter = max_iter
         self.pegasos = pegasos
+        self.use_fidelity_state_vector_kernel = use_fidelity_state_vector_kernel
 
     def _init_algo(self, n_features):
         self._log("SVM initiating algorithm")
         if self.quantum:
-            quantum_kernel = QuantumKernel(
-                feature_map=self._feature_map, quantum_instance=self._quantum_instance
+            quantum_kernel = get_quantum_kernel(
+                self._feature_map,
+                self._quantum_instance,
+                self.use_fidelity_state_vector_kernel,
             )
             if self.pegasos:
                 self._log("[Warning] `gamma` is not supported by PegasosQSVC")
@@ -548,7 +553,7 @@ class QuanticVQC(QuanticClassifierBase):
             optimizer=self.optimizer,
             feature_map=self._feature_map,
             ansatz=var_form,
-            quantum_instance=self._quantum_instance,
+            sampler=self._quantum_instance,
             num_qubits=n_features,
         )
         return vqc

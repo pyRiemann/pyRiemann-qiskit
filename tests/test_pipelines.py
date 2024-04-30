@@ -27,7 +27,7 @@ class TestQuantumClassifierWithDefaultRiemannianPipeline(BinaryFVT):
 
     def get_params(self):
         quantum_instance = QuantumClassifierWithDefaultRiemannianPipeline(
-            params={"verbose": False}
+            params={"verbose": False, "use_fidelity_state_vector_kernel": False}
         )
         return {
             "n_samples": 4,
