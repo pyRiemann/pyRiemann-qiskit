@@ -87,7 +87,9 @@ def get_device(provider, min_qubits):
         Switch from IBMProvider to QiskitRuntimeService
     """
 
-    return provider.least_busy(operational=True, simulator=False, min_num_qubits=min_qubits)
+    return provider.least_busy(
+        operational=True, simulator=False, min_num_qubits=min_qubits
+    )
 
 
 def get_quantum_kernel(feature_map, quantum_instance, use_fidelity_state_vector_kernel):
