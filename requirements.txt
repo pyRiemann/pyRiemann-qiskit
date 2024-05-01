@@ -11,6 +11,6 @@ qiskit-aer==0.14.0.1
 cvxpy==1.4.2
 scipy==1.11.4
 docplex>=2.21.207
-firebase_admin==6.4.0
+firebase_admin==6.5.0
 tqdm
 pandas
