@@ -76,7 +76,9 @@ warnings.filterwarnings("ignore")
 set_log_level("info")
 
 
-def benchmark_alpha(pipelines, max_n_subjects=-1, overwrite=False, n_jobs=12, skip_MR_LR = False):
+def benchmark_alpha(
+    pipelines, max_n_subjects=-1, overwrite=False, n_jobs=12, skip_MR_LR=False
+):
     """
 
     Parameters
@@ -86,19 +88,19 @@ def benchmark_alpha(pipelines, max_n_subjects=-1, overwrite=False, n_jobs=12, sk
         When switching from P300 to Motor Imagery and if the first transformer
         is XdawnCovariances then it will be automatically replaced by Covariances()
     max_n_subjects : int, default = -1
-        The maxmium number of subjects to be used per database.  
+        The maxmium number of subjects to be used per database.
     overwrite : bool, optional
         Set to True if we want to overwrite cached results.
     n_jobs : int, default=12
         The number of jobs to use for the computation. It is used in WithinSessionEvaluation().
     skip_MR_LR : default = False
         Only P300 ERP databases will be used for this benchmark.
-    
+
     Returns
     -------
     df : Pandas dataframe
         Returns a dataframe with results from the tests.
-    
+
 
     """
 
@@ -219,7 +221,7 @@ def benchmark_alpha(pipelines, max_n_subjects=-1, overwrite=False, n_jobs=12, sk
 
     results_P300 = evaluation_P300.process(pipelines)
 
-    if skip_MR_LR == False: 
+    if skip_MR_LR == False:
         # replace XDawnCovariances with Covariances when using MI or LeftRightMI
         for pipe_name in pipelines:
             pipeline = pipelines[pipe_name]
@@ -227,11 +229,11 @@ def benchmark_alpha(pipelines, max_n_subjects=-1, overwrite=False, n_jobs=12, sk
                 pipeline.steps.pop(0)
                 pipeline.steps.insert(0, ["covariances", Covariances("oas")])
                 print("xdawncovariances repalced by covariances")
-    
+
         results_LR = evaluation_LR.process(pipelines)
-    
+
         results = pd.concat([results_P300, results_LR], ignore_index=True)
-    
+
         # each MI dataset uses its own configured MI paradigm
         for paradigm_MI, dataset_MI in zip(paradigms_MI, datasets_MI):
             evaluation_MI = WithinSessionEvaluation(
@@ -242,7 +244,7 @@ def benchmark_alpha(pipelines, max_n_subjects=-1, overwrite=False, n_jobs=12, sk
                 n_jobs_evaluation=n_jobs,
                 cache_config=cache_config,
             )
-    
+
             results_per_MI_pardigm = evaluation_MI.process(pipelines)
             results = pd.concat([results, results_per_MI_pardigm], ignore_index=True)
     else:
@@ -251,15 +253,14 @@ def benchmark_alpha(pipelines, max_n_subjects=-1, overwrite=False, n_jobs=12, sk
     return results
 
 
-
-def _AdjustDF(df, removeP300  = False, removeMI_LR = False):
+def _AdjustDF(df, removeP300=False, removeMI_LR=False):
     """
     Allows the results to contain only P300 databases or only Motor Imagery databases.
-    Adds "P" and "M" to each database name for each P300 and MI result. 
+    Adds "P" and "M" to each database name for each P300 and MI result.
 
     Parameters
     ----------
-    df : Pandas dataframe 
+    df : Pandas dataframe
         A dataframe with results from the benchrmark.
     removeP300 : bool, default = False
         P300 results will be removed from the dataframe.
@@ -272,59 +273,63 @@ def _AdjustDF(df, removeP300  = False, removeMI_LR = False):
         Returns a dataframe with filtered results.
 
     """
-    
-    datasets_P300 = ['BrainInvaders2013a', 
-                     'BNCI2014-008', 
-                     'BNCI2014-009', 
-                     'BNCI2015-003', 
-                     'BrainInvaders2015a', 
-                     'BrainInvaders2015b', 
-                     #'Sosulski2019', 
-                     'BrainInvaders2014a', 
-                     'BrainInvaders2014b', 
-                      #'EPFLP300'
-                     ]
-    datasets_MI = [ 'BNCI2015-004',  #5 classes, 
-                    'BNCI2015-001',  #2 classes
-                    'BNCI2014-002',  #2 classes
-                    #'AlexMI',        #3 classes, Error: Classification metrics can't handle a mix of multiclass and continuous targets
-                  ]
-    datasets_LR = [ 'BNCI2014-001',
-                    'BNCI2014-004',
-                    'Cho2017',      #49 subjects
-                    'GrosseWentrup2009',
-                    'PhysionetMotorImagery',  #109 subjects
-                    'Shin2017A', 
-                    'Weibo2014', 
-                    'Zhou2016',
-                  ]
+
+    datasets_P300 = [
+        "BrainInvaders2013a",
+        "BNCI2014-008",
+        "BNCI2014-009",
+        "BNCI2015-003",
+        "BrainInvaders2015a",
+        "BrainInvaders2015b",
+        #'Sosulski2019',
+        "BrainInvaders2014a",
+        "BrainInvaders2014b",
+        #'EPFLP300'
+    ]
+    datasets_MI = [
+        "BNCI2015-004",  # 5 classes,
+        "BNCI2015-001",  # 2 classes
+        "BNCI2014-002",  # 2 classes
+        #'AlexMI',        #3 classes, Error: Classification metrics can't handle a mix of multiclass and continuous targets
+    ]
+    datasets_LR = [
+        "BNCI2014-001",
+        "BNCI2014-004",
+        "Cho2017",  # 49 subjects
+        "GrosseWentrup2009",
+        "PhysionetMotorImagery",  # 109 subjects
+        "Shin2017A",
+        "Weibo2014",
+        "Zhou2016",
+    ]
     for ind in df.index:
         dataset_classified = False
-        if (df['dataset'][ind] in datasets_P300):
-            df['dataset'][ind] = df['dataset'][ind] + "_P"
+        if df["dataset"][ind] in datasets_P300:
+            df["dataset"][ind] = df["dataset"][ind] + "_P"
             dataset_classified = True
-            
-        elif (df['dataset'][ind] in datasets_MI or df['dataset'][ind] in datasets_LR): 
-             df['dataset'][ind] = df['dataset'][ind] + "_M"
-             dataset_classified = True
+
+        elif df["dataset"][ind] in datasets_MI or df["dataset"][ind] in datasets_LR:
+            df["dataset"][ind] = df["dataset"][ind] + "_M"
+            dataset_classified = True
         if dataset_classified == False:
-            print("This dataset was not classified:", df['dataset'][ind])
-    
-    if (removeP300):
-        df = df.drop(df[df['dataset'].str.endswith('_P', na=None)].index)
-            
-    if (removeMI_LR):
-        df = df.drop(df[df['dataset'].str.endswith('_M', na=None)].index)
-            
+            print("This dataset was not classified:", df["dataset"][ind])
+
+    if removeP300:
+        df = df.drop(df[df["dataset"].str.endswith("_P", na=None)].index)
+
+    if removeMI_LR:
+        df = df.drop(df[df["dataset"].str.endswith("_M", na=None)].index)
+
     return df
 
-def plot_stat(results, removeP300  = False, removeMI_LR = False):
+
+def plot_stat(results, removeP300=False, removeMI_LR=False):
     """
     Generates a point plot for each pipeline.
-    Generate statistical plots by comparing every 2 pipelines. Test if the 
+    Generate statistical plots by comparing every 2 pipelines. Test if the
     difference is significant by using SMD. It does that per database and overall
-    with the "Meta-effect" line. 
-    Generates a summary plot - a significance matrix to compare the pipelines. It uses as a heatmap 
+    with the "Meta-effect" line.
+    Generates a summary plot - a significance matrix to compare the pipelines. It uses as a heatmap
     with green/grey/red for significantly higher/significantly lower.
 
     Parameters
@@ -341,8 +346,8 @@ def plot_stat(results, removeP300  = False, removeMI_LR = False):
     None.
 
     """
-    results = _AdjustDF(results, removeP300 = removeP300, removeMI_LR = removeMI_LR)
-    
+    results = _AdjustDF(results, removeP300=removeP300, removeMI_LR=removeMI_LR)
+
     fig, ax = plt.subplots(facecolor="white", figsize=[8, 4])
 
     sns.stripplot(
@@ -387,6 +392,6 @@ def plot_stat(results, removeP300  = False, removeMI_LR = False):
     # Visualize significances as a heatmap with green/grey/red for significantly higher/significantly lower.
     moabb_plt.summary_plot(P, T)
     plt.show()
-    
+
     print("Evaluation in %:")
     print(results.groupby("pipeline").mean("score")[["score", "time"]])
