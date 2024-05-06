@@ -168,8 +168,9 @@ else:
         pr_score = sys.argv[i]
         pr_score_trun = int(float(pr_score) * 100)
         score_trun = int(score * 100)
-        success = success and (pr_score_trun >= score_trun)
+        better_pr_score = pr_score_trun >= score_trun
+        success = success and better_pr_score
         print(
-            f"{key}: {pr_score_trun} (PR) >= {score_trun} (main): {pr_score_trun >= score_trun }"
+            f"{key}: {pr_score_trun} (PR) >= {score_trun} (main): {better_pr_score}"
         )
     set_output("success", "1" if success else "0")
