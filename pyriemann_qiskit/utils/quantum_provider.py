@@ -28,7 +28,7 @@ def get_provider():
     .. versionchanged:: 0.3.0
         Swithc from IBMProvider to QiskitRuntimeService.
     """
-    return QiskitRuntimeService()
+    return QiskitRuntimeService(channel="ibm_quantum")
 
 
 def get_simulator():
