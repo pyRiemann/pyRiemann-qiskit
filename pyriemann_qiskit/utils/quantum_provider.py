@@ -26,7 +26,7 @@ def get_provider():
     .. versionchanged:: 0.1.0
         IBMProvider is not a static API anymore but need to be instanciated.
     .. versionchanged:: 0.3.0
-        Swithc from IBMProvider to QiskitRuntimeService.
+        Switch from IBMProvider to QiskitRuntimeService.
     """
     return QiskitRuntimeService(channel="ibm_quantum")
 
