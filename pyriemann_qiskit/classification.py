@@ -23,7 +23,7 @@ from pyriemann_qiskit.utils import (
 from pyriemann_qiskit.utils.distance import distance_functions
 from pyriemann_qiskit.utils.utils import is_qfunction
 from qiskit.primitives import BackendSampler
-from qiskit_ibm_provider import IBMProvider, least_busy
+from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
 from qiskit_optimization.algorithms import (
     CobylaOptimizer,
@@ -32,7 +32,7 @@ from qiskit_optimization.algorithms import (
 from sklearn.svm import SVC
 
 from .utils.hyper_params_factory import gen_zz_feature_map, gen_two_local, get_spsa
-from .utils import get_provider, get_devices, get_simulator
+from .utils import get_provider, get_device, get_simulator
 from .utils.distance import qdistance_logeuclid_to_convex_hull
 from joblib import Parallel, delayed
 import random
@@ -83,6 +83,8 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         Added support for multi-class classification.
     .. versionchanged:: 0.2.0
         Add seed parameter
+    .. versionchanged:: 0.3.0
+        Switch from IBMProvider to QiskitRuntimeService.
 
     Attributes
     ----------
@@ -127,8 +129,12 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
             if self.q_account_token:
                 self._log("Real quantum computation will be performed")
                 if not self.q_account_token == "load_account":
-                    IBMProvider.delete_account()
-                    IBMProvider.save_account(token=self.q_account_token)
+                    QiskitRuntimeService.delete_account()
+                    QiskitRuntimeService.save_account(
+                        channel="ibm_quantum",
+                        token=self.q_account_token,
+                        overwrite=True,
+                    )
                 self._log("Getting provider...")
                 self._provider = get_provider()
             else:
@@ -196,12 +202,7 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
             self._feature_map = self.gen_feature_map(n_features)
         if self.quantum:
             if not hasattr(self, "_backend"):
-                devices = get_devices(self._provider, n_features)
-                try:
-                    self._backend = least_busy(devices)
-                except Exception:
-                    self._log("Devices are all busy. Getting the first one...")
-                    self._backend = devices[0]
+                self._backend = get_device(self._provider, n_features)
             self._log("Quantum backend = ", self._backend)
             self._log("seed = ", self.seed)
             self._quantum_instance = BackendSampler(
