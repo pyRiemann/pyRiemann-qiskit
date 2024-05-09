@@ -52,7 +52,7 @@ mdm = QuantumMDMWithRiemannianPipeline(
     regularization=Shrinkage(shrinkage=0.9),
     shots=1024,
     seed=696288,
-    qaoa_optimizer=optimizer
+    qaoa_optimizer=optimizer,
 )
 
 ###############################################################################

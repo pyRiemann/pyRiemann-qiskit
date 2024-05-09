@@ -434,7 +434,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     .. versionchanged:: 0.3.0
         add evaluated_values_ attribute.
         add optimizer parameter.
-    
+
     Attributes
     ----------
     evaluated_values_ : list[int]
@@ -530,6 +530,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
             quantum_instance = self.quantum_instance
 
         self.evaluated_values_ = []
+
         def _callback(_eval_count, _weights, value, _meta):
             self.evaluated_values_.append(value)
 
@@ -537,7 +538,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
             sampler=quantum_instance,
             optimizer=self.optimizer,
             initial_point=[0.0, 0.0],
-            callback = _callback
+            callback=_callback,
         )
         qaoa = MinimumEigenOptimizer(qaoa_mes)
         result = conv.interpret(qaoa.solve(qubo))

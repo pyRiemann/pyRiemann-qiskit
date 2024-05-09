@@ -559,6 +559,7 @@ class QuanticVQC(QuanticClassifierBase):
         self._log("VQC training...")
         var_form = self.gen_var_form(n_features)
         self.evaluated_values_ = []
+
         def _callback(_weights, value):
             self.evaluated_values_.append(value)
 
@@ -568,7 +569,7 @@ class QuanticVQC(QuanticClassifierBase):
             ansatz=var_form,
             sampler=self._quantum_instance,
             num_qubits=n_features,
-            callback=_callback
+            callback=_callback,
         )
         return vqc
 
@@ -697,7 +698,7 @@ class QuanticMDM(QuanticClassifierBase):
         upper_bound=7,
         regularization=None,
         classical_optimizer=CobylaOptimizer(rhobeg=2.1, rhoend=0.000001),
-        qaoa_optimizer=SLSQP()
+        qaoa_optimizer=SLSQP(),
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -747,7 +748,7 @@ class QuanticMDM(QuanticClassifierBase):
             self._optimizer = NaiveQAOAOptimizer(
                 quantum_instance=self._quantum_instance,
                 upper_bound=self.upper_bound,
-                optimizer = self.qaoa_optimizer
+                optimizer=self.qaoa_optimizer,
             )
         else:
             self._log("Using ClassicalOptimizer (COBYLA)")
@@ -1065,7 +1066,7 @@ class QuanticNCH(QuanticClassifierBase):
         n_hulls_per_class=3,
         n_samples_per_hull=10,
         subsampling="min",
-        qaoa_optimizer=SLSQP()
+        qaoa_optimizer=SLSQP(),
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -1094,7 +1095,7 @@ class QuanticNCH(QuanticClassifierBase):
             self._optimizer = NaiveQAOAOptimizer(
                 quantum_instance=self._quantum_instance,
                 upper_bound=self.upper_bound,
-                optimizer=self.qaoa_optimizer
+                optimizer=self.qaoa_optimizer,
             )
         else:
             self._log("Using ClassicalOptimizer")

@@ -386,7 +386,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         regularization=None,
         classical_optimizer=SlsqpOptimizer(),
         seed=None,
-        qaoa_optimizer=SLSQP()
+        qaoa_optimizer=SLSQP(),
     ):
         self.metric = metric
         self.quantum = quantum
@@ -427,7 +427,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
             regularization=self.regularization,
             classical_optimizer=self.classical_optimizer,
             seed=self.seed,
-            qaoa_optimizer=self.qaoa_optimizer
+            qaoa_optimizer=self.qaoa_optimizer,
         )
 
         return make_pipeline(covariances, filtering, clf)
