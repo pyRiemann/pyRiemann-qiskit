@@ -1,9 +1,10 @@
 """
 ====================================================================
-Plot training curve of VQC and QAOA
+Plot training curve of VQC and MDM with SPSA
 ====================================================================
 
-Plot the training curve of quantum neural network VQC and QAOA.
+In this example, we will show how to plot the training curve
+of quantum neural network VQC and MDM, using an SPSA optimizer.
 
 """
 
@@ -12,59 +13,73 @@ Plot the training curve of quantum neural network VQC and QAOA.
 
 from pyriemann_qiskit.datasets.utils import get_mne_sample
 from pyriemann_qiskit.pipelines import QuantumMDMWithRiemannianPipeline
-from pyriemann_qiskit.utils.hyper_params_factory import gen_two_local, get_spsa
+from pyriemann_qiskit.utils.hyper_params_factory import get_spsa
 import matplotlib.pyplot as plt
 from pyriemann_qiskit.datasets import generate_linearly_separable_dataset
-from pyriemann_qiskit.classification import QuanticNCH, QuanticVQC
-from pyriemann_qiskit.visualization import weights_spiral
-from pyriemann.estimation import XdawnCovariances, Shrinkage
+from pyriemann_qiskit.classification import QuanticVQC
+from pyriemann.estimation import Shrinkage
 
 print(__doc__)
 
 ###############################################################################
-# In this example we will display weights variability of the parameter inside
-# the variational quantum circuit which is used by VQC.
-#
-# The idea is simple:
-#
-# - We initialize a VQC with different number of parameters and number of samples.
-# - We train the VQC a couple of times and we store the fitted weights.
-# - We compute variability of the weight and display it in a fashionable way.
+# Setup
 
-# Let's start by defining some plot area.
+# Define the plot area
 fig, axes = plt.subplots(1, 2)
 fig.suptitle("Training curve")
 
-X, y = generate_linearly_separable_dataset(n_samples=20)
-vqc = QuanticVQC()
-vqc.fit(X, y)
+# Generate vectors for VQC
+Xv, yv = generate_linearly_separable_dataset(n_samples=20)
 
+# ... and matrices for MDM
+Xm, ym = get_mne_sample(n_trials=100)
+
+###############################################################################
+# Instantiate the pipelines
+
+# Create the SPSA optimizer
+optimizer = get_spsa(max_trials=100)
+
+# Instantiate VQC
+vqc = QuanticVQC(optimizer=optimizer)
+
+# ... and the quantum MDM
+# This used QAOA under the hood, which is a quantum parametric circuit
+# analog to neural network
+mdm = QuantumMDMWithRiemannianPipeline(
+    metric={"mean": "qlogeuclid", "distance": "logeuclid"},
+    quantum=True,
+    regularization=Shrinkage(shrinkage=0.9),
+    shots=1024,
+    seed=696288,
+    qaoa_optimizer=optimizer
+)
+
+###############################################################################
+# Fit and plot learning curve for VQC
+
+vqc.fit(Xv, yv)
 evaluated_values = vqc.evaluated_values_
-print(evaluated_values)
+
+# Note: The optimizer converge:
+# VQC+SPSA is appropriate for the toy dataset.
 axe = axes[0]
 axe.plot(evaluated_values)
 axe.set_ylabel("Evaluated values (VQC)")
 axe.set_xlabel("Evaluations")
 
-X, y = get_mne_sample(n_trials=100)
-mdm = QuantumMDMWithRiemannianPipeline(
-    metric={"mean": "qeuclid", "distance": "euclid"},
-    quantum=True,
-    regularization=Shrinkage(shrinkage=0.9),
-    shots=1024,
-    seed=696288,
-    qaoa_optimizer=get_spsa()
-)
-mdm.fit(X, y)
+###############################################################################
+# Fit and plot learning curve for MDM with QAOA
+
+mdm.fit(Xm, ym)
 evaluated_values = mdm._pipe[2]._optimizer.evaluated_values_
-print(evaluated_values)
+
+# Note: The optimizer doesn't converge:
+# QAOA+SPSA is not appropriate for the MNE dataset.
 axe = axes[1]
 axe.plot(evaluated_values)
 axe.set_ylabel("Evaluated values (QAOA)")
 axe.set_xlabel("Evaluations")
-
-# axe.set_xticks(())
-# axe.set_yticks(())
 
 plt.tight_layout()
 plt.show()
