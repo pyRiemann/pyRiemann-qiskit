@@ -415,7 +415,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
 
     """Wrapper for the quantum optimizer QAOA.
 
-    Attributes
+    Parameters
     ----------
     upper_bound : int (default: 7)
         The maximum integer value for matrix normalization.
