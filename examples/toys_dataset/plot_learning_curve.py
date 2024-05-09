@@ -26,7 +26,7 @@ print(__doc__)
 
 # Define the plot area
 fig, axes = plt.subplots(1, 2)
-fig.suptitle("Training curve")
+fig.suptitle("Training curves")
 
 # Generate vectors for VQC
 Xv, yv = generate_linearly_separable_dataset(n_samples=20)
@@ -78,7 +78,7 @@ evaluated_values = mdm._pipe[2]._optimizer.evaluated_values_
 # QAOA+SPSA is not appropriate for the MNE dataset.
 axe = axes[1]
 axe.plot(evaluated_values)
-axe.set_ylabel("Evaluated values (QAOA)")
+axe.set_ylabel("Evaluated values (MDM)")
 axe.set_xlabel("Evaluations")
 
 plt.tight_layout()
