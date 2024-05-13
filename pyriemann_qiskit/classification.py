@@ -662,7 +662,7 @@ class QuanticMDM(QuanticClassifierBase):
         Additional post-processing to regularize means.
     classical_optimizer : OptimizationAlgorithm, default=CobylaOptimizer()
         An instance of OptimizationAlgorithm [3]_.
-    qaoa_optimizer : SciPyOptimizer (default: SLSQP)
+    qaoa_optimizer : SciPyOptimizer, default=SLSQP()
         An instance of a scipy optimizer to find the optimal weights for the
         parametric circuit (ansatz).
 
