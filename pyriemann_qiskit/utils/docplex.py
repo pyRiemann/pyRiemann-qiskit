@@ -417,7 +417,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
 
     Parameters
     ----------
-    upper_bound : int (default: 7)
+    upper_bound : int, default=7
         The maximum integer value for matrix normalization.
     quantum_instance: QuantumInstance (default: None)
         A quantum backend instance.
