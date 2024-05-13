@@ -422,7 +422,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     quantum_instance : QuantumInstance, default=None
         A quantum backend instance.
         If None, AerSimulator will be used.
-    optimizer: SciPyOptimizer (default: SLSQP)
+    optimizer : SciPyOptimizer, default=SLSQP()
         An instance of a scipy optimizer to find the optimal weights for the
         parametric circuit (ansatz).
 
