@@ -343,7 +343,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         An instance of OptimizationAlgorithm [1]_
     seed : int | None, default=None
         Random seed for the simulation and transpilation.
-    qaoa_optimizer : SciPyOptimizer (default: SLSQP)
+    qaoa_optimizer : SciPyOptimizer, default=SLSQP()
         An instance of a scipy optimizer to find the optimal weights for the
         parametric circuit (ansatz).
 
