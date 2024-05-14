@@ -29,6 +29,7 @@ from qiskit_optimization.algorithms import (
     CobylaOptimizer,
     SlsqpOptimizer,
 )
+from qiskit_algorithms.optimizers import SLSQP
 from sklearn.svm import SVC
 
 from .utils.hyper_params_factory import gen_zz_feature_map, gen_two_local, get_spsa
@@ -491,6 +492,11 @@ class QuanticVQC(QuanticClassifierBase):
     seed : int | None, default=None
         Random seed for the simulation.
 
+    Attributes
+    ----------
+    evaluated_values_ : list[int]
+        Training curve values.
+
     Notes
     -----
     .. versionadded:: 0.0.1
@@ -499,6 +505,8 @@ class QuanticVQC(QuanticClassifierBase):
         Added support for multi-class classification.
     .. versionchanged:: 0.2.0
         Add seed parameter
+    .. versionchanged:: 0.3.0
+        Add evaluated_values_ attribute.
 
     See Also
     --------
@@ -550,12 +558,18 @@ class QuanticVQC(QuanticClassifierBase):
     def _init_algo(self, n_features):
         self._log("VQC training...")
         var_form = self.gen_var_form(n_features)
+        self.evaluated_values_ = []
+
+        def _callback(_weights, value):
+            self.evaluated_values_.append(value)
+
         vqc = VQC(
             optimizer=self.optimizer,
             feature_map=self._feature_map,
             ansatz=var_form,
             sampler=self._quantum_instance,
             num_qubits=n_features,
+            callback=_callback,
         )
         return vqc
 
@@ -613,6 +627,8 @@ class QuanticMDM(QuanticClassifierBase):
         Add seed parameter.
         Add regularization parameter.
         Add classical_optimizer parameter.
+    .. versionchanged:: 0.3.0
+        Add qaoa_optimizer parameter.
 
     Parameters
     ----------
@@ -646,6 +662,9 @@ class QuanticMDM(QuanticClassifierBase):
         Additional post-processing to regularize means.
     classical_optimizer : OptimizationAlgorithm, default=CobylaOptimizer()
         An instance of OptimizationAlgorithm [3]_.
+    qaoa_optimizer : SciPyOptimizer, default=SLSQP()
+        An instance of a scipy optimizer to find the optimal weights for the
+        parametric circuit (ansatz).
 
     See Also
     --------
@@ -679,6 +698,7 @@ class QuanticMDM(QuanticClassifierBase):
         upper_bound=7,
         regularization=None,
         classical_optimizer=CobylaOptimizer(rhobeg=2.1, rhoend=0.000001),
+        qaoa_optimizer=SLSQP(),
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -687,6 +707,7 @@ class QuanticMDM(QuanticClassifierBase):
         self.upper_bound = upper_bound
         self.regularization = regularization
         self.classical_optimizer = classical_optimizer
+        self.qaoa_optimizer = qaoa_optimizer
 
     @staticmethod
     def _override_predict_distance(mdm):
@@ -725,7 +746,9 @@ class QuanticMDM(QuanticClassifierBase):
         if self.quantum:
             self._log("Using NaiveQAOAOptimizer")
             self._optimizer = NaiveQAOAOptimizer(
-                quantum_instance=self._quantum_instance, upper_bound=self.upper_bound
+                quantum_instance=self._quantum_instance,
+                upper_bound=self.upper_bound,
+                optimizer=self.qaoa_optimizer,
             )
         else:
             self._log("Using ClassicalOptimizer (COBYLA)")
@@ -983,6 +1006,8 @@ class QuanticNCH(QuanticClassifierBase):
     Notes
     -----
     .. versionadded:: 0.2.0
+    .. versionchanged:: 0.3.0
+        Add qaoa_optimizer parameter.
 
     Parameters
     ----------
@@ -1021,6 +1046,9 @@ class QuanticNCH(QuanticClassifierBase):
         Subsampling strategy of training set to estimate distance to hulls.
         "min" estimates hull using the n_samples_per_hull closest matrices.
         "random" estimates hull using n_samples_per_hull random matrices.
+    qaoa_optimizer : SciPyOptimizer, default=SLSQP()
+        An instance of a scipy optimizer to find the optimal weights for the
+        parametric circuit (ansatz).
 
     """
 
@@ -1038,6 +1066,7 @@ class QuanticNCH(QuanticClassifierBase):
         n_hulls_per_class=3,
         n_samples_per_hull=10,
         subsampling="min",
+        qaoa_optimizer=SLSQP(),
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -1049,6 +1078,7 @@ class QuanticNCH(QuanticClassifierBase):
         self.n_samples_per_hull = n_samples_per_hull
         self.n_jobs = n_jobs
         self.subsampling = subsampling
+        self.qaoa_optimizer = qaoa_optimizer
 
     def _init_algo(self, n_features):
         self._log("Nearest Convex Hull Classifier initiating algorithm")
@@ -1063,7 +1093,9 @@ class QuanticNCH(QuanticClassifierBase):
         if self.quantum:
             self._log("Using NaiveQAOAOptimizer")
             self._optimizer = NaiveQAOAOptimizer(
-                quantum_instance=self._quantum_instance, upper_bound=self.upper_bound
+                quantum_instance=self._quantum_instance,
+                upper_bound=self.upper_bound,
+                optimizer=self.qaoa_optimizer,
             )
         else:
             self._log("Using ClassicalOptimizer")

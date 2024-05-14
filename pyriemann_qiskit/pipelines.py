@@ -6,6 +6,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline, FeatureUnion
 from sklearn.ensemble import VotingClassifier
 from qiskit_optimization.algorithms import SlsqpOptimizer
+from qiskit_algorithms.optimizers import SLSQP
 from pyriemann.estimation import XdawnCovariances, ERPCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann.preprocessing import Whitening
@@ -342,7 +343,9 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         An instance of OptimizationAlgorithm [1]_
     seed : int | None, default=None
         Random seed for the simulation and transpilation.
-
+    qaoa_optimizer : SciPyOptimizer, default=SLSQP()
+        An instance of a scipy optimizer to find the optimal weights for the
+        parametric circuit (ansatz).
 
     Attributes
     ----------
@@ -359,6 +362,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
             as when using MDM.
     .. versionchanged:: 0.3.0
         Add seed parameter.
+        Add qaoa_optimizer
 
     See Also
     --------
@@ -382,6 +386,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         regularization=None,
         classical_optimizer=SlsqpOptimizer(),
         seed=None,
+        qaoa_optimizer=SLSQP(),
     ):
         self.metric = metric
         self.quantum = quantum
@@ -392,6 +397,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         self.regularization = regularization
         self.classical_optimizer = classical_optimizer
         self.seed = seed
+        self.qaoa_optimizer = qaoa_optimizer
 
         BasePipeline.__init__(self, "QuantumMDMWithRiemannianPipeline")
 
@@ -421,6 +427,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
             regularization=self.regularization,
             classical_optimizer=self.classical_optimizer,
             seed=self.seed,
+            qaoa_optimizer=self.qaoa_optimizer,
         )
 
         return make_pipeline(covariances, filtering, clf)
