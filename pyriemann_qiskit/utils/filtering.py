@@ -1,4 +1,5 @@
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.base import TransformerMixin
+from pyriemann.estimation import Covariances
 import numpy as np
 
 
@@ -114,54 +115,85 @@ class NaiveDimRed(TransformerMixin):
         return X[:, offset::2]
 
 
-class Vectorizer(BaseEstimator, TransformerMixin):
-    """Vectorization.
+class EpochChannelSelection(TransformerMixin):
+    """Select channel in epochs.
 
-    This is an auxiliary transformer that allows one to vectorize data
-    structures in a pipeline. For instance, in the case of an X with
-    dimensions (n_samples, n_features, n_channels),
-    one might be interested in a new data structure with dimensions
-    (n_samples, n_features x n_channels)
+    Select channels based on covariance information,
+    keeping only channels with maximum covariances.
+
+    Work on signal epochs.
+
+    Parameters
+    ----------
+    n_chan : int
+        The number of channels to select.
+    cov_est : string (default: lwf)
+        The covariance estimator.
 
     Notes
     -----
-    .. versionadded:: 0.0.1
-
+    .. versionadded:: 0.3.0
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, n_chan, cov_est="lwf"):
+        self.n_chan = n_chan
+        self.cov_est = cov_est
 
-    def fit(self, X, y):
-        """Fit the training data.
+    @staticmethod
+    def _get_indices(maxes, mean_cov):
+        indices = []
+        for v in maxes:
+            indices.extend(np.argwhere(mean_cov == v).flatten())
+        return np.unique(indices)
+
+    def fit(self, X, _y=None, **kwargs):
+        """Select channel based on covariances
 
         Parameters
         ----------
-        X : ndarray, shape (n_samples, n_features)
-            Training vector, where `n_samples` is the number of samples and
-            `n_features` is the number of features.
-        y : ndarray, shape (n_samples,) (default: None)
-            Target vector relative to X.
-            In practice, never used.
+        X : ndarray, shape (n_matrices, n_features, n_samples)
+            Training matrices.
+        _y : ndarray, shape (n_samples,)
+            Unused. Kept for scikit-learn compatibility.
 
         Returns
         -------
-        self : Vectorizer instance
-            The Vectorizer instance.
+        self : EpochChannelSelection instance
+            The EpochChannelSelection instance.
         """
+
+        # Get the covariances of the channels for each epoch.
+        covs = Covariances(estimator=self.cov_est).fit_transform(X)
+        # Get the average covariance between the channels.
+        mean_cov = np.mean(covs, axis=0)
+        n_feats, _ = mean_cov.shape
+        # Select the `n_chan` channels having the maximum covariances.
+        all_max = []
+        for i in range(n_feats):
+            for j in range(i, n_feats):
+                self._chs_idx = EpochChannelSelection._get_indices(all_max, mean_cov)
+
+                if len(self._chs_idx) < self.n_chan:
+                    all_max.append(mean_cov[i, j])
+                else:
+                    if mean_cov[i, j] > max(all_max):
+                        all_max[np.argmin(all_max)] = mean_cov[i, j]
+
         return self
 
-    def transform(self, X):
-        """Vectorize matrices.
+    def transform(self, X, **kwargs):
+        """Select channels based on the computed covariance.
 
         Parameters
         ----------
-        X : ndarray, shape (n_samples, n_features, n_channels)
-            ndarray of feature vectors.
+        X : ndarray, shape (n_matrices, n_features, n_samples)
+            Matrices to scale.
+        _y : ndarray, shape (n_samples,)
+            Unused. Kept for scikit-learn compatibility.
 
         Returns
         -------
-        X : ndarray, shape (n_samples, n_features x n_channels)
-            The vectorized matrices.
+        self : ndarray, shape (n_matrices, n_chan, n_samples)
+            Matrices with only the selected channel.
         """
-        return np.reshape(X, (X.shape[0], -1))
+        return X[:, self._chs_idx, :]
