@@ -135,8 +135,8 @@ class EpochChannelSelection(TransformerMixin):
     .. versionadded:: 0.3.0
     """
 
-    def __init__(self, n_chan, cov_est="lwf"):
-        self.n_chan = n_chan
+    def __init__(self, n_channels, cov_est="lwf"):
+        self.n_channels = n_channels
         self.cov_est = cov_est
 
     @staticmethod
