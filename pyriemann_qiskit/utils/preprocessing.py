@@ -136,7 +136,7 @@ class Devectorizer(TransformerMixin):
 
     Parameters
     ----------
-    n_feats : int
+    n_features : int
         The number of features of the matrices.
     n_times : int
         The number of samples of the matrices.
