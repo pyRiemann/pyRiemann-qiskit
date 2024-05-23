@@ -191,7 +191,7 @@ class ChannelSelection(TransformerMixin):
 
         Returns
         -------
-        self : ndarray, shape (n_matrices, n_channels, n_samples)
+        X_new : ndarray, shape (n_matrices, n_channels, n_samples)
             Matrices with only the selected channel.
         """
         return X[:, self._chs_idx, :]

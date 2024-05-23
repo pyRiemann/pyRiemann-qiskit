@@ -100,7 +100,7 @@ class Vectorizer(BaseEstimator, TransformerMixin):
         ----------
         X : ndarray, shape (n_matrices, n_features, n_samples)
             Training matrices.
-        y : ndarray, shape (n_matrices,) (default: None)
+        y : ndarray, shape (n_matrices,)
             Target vector relative to X.
             In practice, never used.
 
@@ -121,7 +121,7 @@ class Vectorizer(BaseEstimator, TransformerMixin):
 
         Returns
         -------
-        X : ndarray, shape (n_matrices, n_features x n_samples)
+        X_new : ndarray, shape (n_matrices, n_features x n_samples)
             The vectorized matrices.
         """
         return np.reshape(X, (X.shape[0], -1))
@@ -161,7 +161,7 @@ class Devectorizer(TransformerMixin):
         ----------
         X : ndarray, shape (n_matrices, n_features x n_samples)
             Training matrices.
-        y : ndarray, shape (n_matrices,) (default: None)
+        y : ndarray, shape (n_matrices,), default=None
             Target vector relative to X.
             In practice, never used.
 
@@ -182,9 +182,9 @@ class Devectorizer(TransformerMixin):
 
         Returns
         -------
-        X : ndarray, shape (n_matrices, n_features, n_samples)
+        X_new : ndarray, shape (n_matrices, n_features, n_samples)
             The matrices.
         """
 
-        n_trial, _ = X.shape
-        return X.reshape((n_trial, self.n_features, self.n_samples))
+        n_matrices, _ = X.shape
+        return X.reshape((n_matrices, self.n_features, self.n_samples))
