@@ -113,8 +113,8 @@ class BasicQnnAutoencoder(TransformerMixin):
 
     def _compute_fidelities(self, X):
         fidelities = []
-        for trial in X:
-            param_values = np.concatenate((trial, self._opt_result.x))
+        for x in X:
+            param_values = np.concatenate((x, self._opt_result.x))
             output_qc = self._transformer.assign_parameters(param_values)
             output_state = Statevector(output_qc).data
 
