@@ -11,23 +11,24 @@ This is experimental and should be used for research purpose only.
 # Authors: A. Mostafa, Y. Chauhan, W. Ahmed, and G. Cattan
 # License: BSD (3-clause)
 
-from matplotlib import pyplot as plt
+import logging
 import warnings
-import seaborn as sns
+
+from matplotlib import pyplot as plt
 from moabb import set_log_level
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from sklearn.pipeline import make_pipeline
-from pyriemann.tangentspace import TangentSpace
 from moabb.datasets import Hinss2021
 from moabb.evaluations import CrossSessionEvaluation
 from moabb.paradigms import RestingStateToP300Adapter
-from pyriemann_qiskit.autoencoders import BasicQnnAutoencoder
-from pyriemann_qiskit.utils.preprocessing import Vectorizer, Devectorizer
-from pyriemann_qiskit.utils.filtering import EpochChannelSelection
 from pyriemann.estimation import Covariances
+from pyriemann.tangentspace import TangentSpace
 from qiskit_algorithms.optimizers import COBYLA
+import seaborn as sns
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.pipeline import make_pipeline
 
-import logging
+from pyriemann_qiskit.autoencoders import BasicQnnAutoencoder
+from pyriemann_qiskit.utils.filtering import EpochChannelSelection
+from pyriemann_qiskit.utils.preprocessing import Vectorizer, Devectorizer
 
 print(__doc__)
 
