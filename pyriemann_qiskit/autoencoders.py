@@ -211,8 +211,8 @@ class BasicQnnAutoencoder(TransformerMixin):
 
         Returns
         -------
-        outputs : ndarray, shape (n_trials, 2 ** n_qubits)
-            The autocoded trial. n_qubits = num_trash + num_latent.
+        outputs : ndarray, shape (n_samples, 2 ** n_qubits)
+            The autocoded sample. n_qubits = num_trash + num_latent.
         """
 
         _, n_features = X.shape
