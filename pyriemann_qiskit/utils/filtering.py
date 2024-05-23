@@ -146,7 +146,7 @@ class ChannelSelection(TransformerMixin):
             indices.extend(np.argwhere(mean_cov == v).flatten())
         return np.unique(indices)
 
-    def fit(self, X, _y=None, **kwargs):
+    def fit(self, X, y=None, **kwargs):
         """Select channel based on covariances
 
         Parameters
