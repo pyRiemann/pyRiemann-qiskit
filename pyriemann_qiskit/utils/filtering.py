@@ -125,7 +125,7 @@ class EpochChannelSelection(TransformerMixin):
 
     Parameters
     ----------
-    n_chan : int
+    n_channels : int
         The number of channels to select.
     cov_est : string (default: lwf)
         The covariance estimator.
