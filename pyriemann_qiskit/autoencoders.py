@@ -50,7 +50,7 @@ class BasicQnnAutoencoder(TransformerMixin):
         The number of qubits in the trash space.
     opt : Optimizer, default=SPSA(maxiter=100, blocking=True)
         The classical optimizer to use.
-    callback : Callable[int, double] (default=None)
+    callback : Callable[int, double], default=None
         An additional callback for the optimizer.
         The first parameter is the number of cost evaluation call.
         The second parameter is the cost.
