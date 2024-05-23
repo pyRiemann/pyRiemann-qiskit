@@ -1,4 +1,7 @@
 """
+===============================================================================
+Quantum autoencoder for signal denoising
+===============================================================================
 This is a basic example of a quantum autoencoder for signal denoising,
 based on [1]_ and [2]_.
 
