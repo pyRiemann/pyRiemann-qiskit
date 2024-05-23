@@ -134,10 +134,10 @@ class BasicQnnAutoencoder(TransformerMixin):
 
         Parameters
         ----------
-        X : ndarray, shape (n_trials, n_feats)
+        X : ndarray, shape (n_samples, n_features)
             Set of time epochs.
-            n_feats must equal 2 ** n_qubits,
-            where n_qubit = num_trash + num_latent.
+            n_features must equal 2 ** n_qubits,
+            where n_qubits = num_trash + num_latent.
 
         Returns
         -------
