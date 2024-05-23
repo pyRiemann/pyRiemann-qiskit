@@ -127,7 +127,7 @@ class ChannelSelection(TransformerMixin):
     ----------
     n_channels : int
         The number of channels to select.
-    cov_est : string (default: lwf)
+    cov_est : string, default="lwf"
         The covariance estimator.
 
     Notes
