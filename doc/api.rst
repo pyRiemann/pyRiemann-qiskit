@@ -113,7 +113,7 @@ Filtering
 
     NoDimRed
     NaiveDimRed
-    EpochChannelSelection
+    ChannelSelection
 
 Mean
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

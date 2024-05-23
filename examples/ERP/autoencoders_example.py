@@ -30,7 +30,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.autoencoders import BasicQnnAutoencoder
-from pyriemann_qiskit.utils.filtering import EpochChannelSelection
+from pyriemann_qiskit.utils.filtering import ChannelSelection
 from pyriemann_qiskit.utils.preprocessing import Vectorizer, Devectorizer
 
 print(__doc__)
@@ -102,7 +102,7 @@ pipelines = {}
 n_components, n_times = 8, 64
 
 pipelines["QNN+LDA"] = make_pipeline(
-    EpochChannelSelection(n_chan=n_components),
+    ChannelSelection(n_chan=n_components),
     Vectorizer(),
     # Use COBYLA with only 1 iteration (this is for runnin in Ci/Cd)
     BasicQnnAutoencoder(
@@ -118,7 +118,7 @@ pipelines["QNN+LDA"] = make_pipeline(
 )
 
 pipelines["LDA"] = make_pipeline(
-    EpochChannelSelection(n_chan=n_components),
+    ChannelSelection(n_chan=n_components),
     Vectorizer(),
     Devectorizer(n_components, n_times),
     Covariances(),

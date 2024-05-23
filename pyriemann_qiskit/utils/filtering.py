@@ -115,7 +115,7 @@ class NaiveDimRed(TransformerMixin):
         return X[:, offset::2]
 
 
-class EpochChannelSelection(TransformerMixin):
+class ChannelSelection(TransformerMixin):
     """Select channel in epochs.
 
     Select channels based on covariance information,
@@ -158,8 +158,8 @@ class EpochChannelSelection(TransformerMixin):
 
         Returns
         -------
-        self : EpochChannelSelection instance
-            The EpochChannelSelection instance.
+        self : ChannelSelection instance
+            The ChannelSelection instance.
         """
 
         # Get the covariances of the channels for each epoch.
@@ -167,13 +167,13 @@ class EpochChannelSelection(TransformerMixin):
         # Get the average covariance between the channels.
         mean_cov = np.mean(covs, axis=0)
         n_feats, _ = mean_cov.shape
-        # Select the `n_chan` channels having the maximum covariances.
+        # Select the `n_channels` channels having the maximum covariances.
         all_max = []
         for i in range(n_feats):
             for j in range(i, n_feats):
-                self._chs_idx = EpochChannelSelection._get_indices(all_max, mean_cov)
+                self._chs_idx = ChannelSelection._get_indices(all_max, mean_cov)
 
-                if len(self._chs_idx) < self.n_chan:
+                if len(self._chs_idx) < self.n_channels:
                     all_max.append(mean_cov[i, j])
                 else:
                     if mean_cov[i, j] > max(all_max):
@@ -191,7 +191,7 @@ class EpochChannelSelection(TransformerMixin):
 
         Returns
         -------
-        self : ndarray, shape (n_matrices, n_chan, n_samples)
+        self : ndarray, shape (n_matrices, n_channels, n_samples)
             Matrices with only the selected channel.
         """
         return X[:, self._chs_idx, :]
