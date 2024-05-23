@@ -102,7 +102,7 @@ pipelines = {}
 n_components, n_times = 8, 64
 
 pipelines["QNN+LDA"] = make_pipeline(
-    ChannelSelection(n_chan=n_components),
+    ChannelSelection(n_channels=n_components),
     Vectorizer(),
     # Use COBYLA with only 1 iteration (this is for runnin in Ci/Cd)
     BasicQnnAutoencoder(
@@ -118,7 +118,7 @@ pipelines["QNN+LDA"] = make_pipeline(
 )
 
 pipelines["LDA"] = make_pipeline(
-    ChannelSelection(n_chan=n_components),
+    ChannelSelection(n_channels=n_components),
     Vectorizer(),
     Devectorizer(n_components, n_times),
     Covariances(),

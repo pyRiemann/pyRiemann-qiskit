@@ -118,7 +118,7 @@ class BasicQnnAutoencoder(TransformerMixin):
             output_qc = self._transformer.assign_parameters(param_values)
             output_state = Statevector(output_qc).data
 
-            original_qc = self._feature_map.assign_parameters(trial)
+            original_qc = self._feature_map.assign_parameters(x)
             original_state = Statevector(original_qc).data
 
             fidelity = np.sqrt(np.dot(original_state.conj(), output_state) ** 2)
