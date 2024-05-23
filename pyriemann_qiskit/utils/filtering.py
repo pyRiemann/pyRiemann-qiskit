@@ -153,7 +153,7 @@ class ChannelSelection(TransformerMixin):
         ----------
         X : ndarray, shape (n_matrices, n_features, n_samples)
             Training matrices.
-        _y : ndarray, shape (n_samples,)
+        y : None | ndarray, shape (n_samples,), default=None
             Unused. Kept for scikit-learn compatibility.
 
         Returns
