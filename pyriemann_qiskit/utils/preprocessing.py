@@ -98,7 +98,7 @@ class Vectorizer(BaseEstimator, TransformerMixin):
 
         Parameters
         ----------
-        X : ndarray, shape (n_trials, n_features, n_times)
+        X : ndarray, shape (n_trials, n_features, n_samples)
             Training matrices.
         y : ndarray, shape (n_trials,) (default: None)
             Target vector relative to X.
@@ -116,12 +116,12 @@ class Vectorizer(BaseEstimator, TransformerMixin):
 
         Parameters
         ----------
-        X : ndarray, shape (n_trials, n_features, n_times)
+        X : ndarray, shape (n_trials, n_features, n_samples)
             The matrices to vectorize.
 
         Returns
         -------
-        X : ndarray, shape (n_trials, n_features x n_times)
+        X : ndarray, shape (n_trials, n_features x n_samples)
             The vectorized matrices.
         """
         return np.reshape(X, (X.shape[0], -1))
@@ -131,14 +131,14 @@ class Devectorizer(TransformerMixin):
     """Transform vector to matrices
 
     This is an auxiliary transformer that allows one to
-    transform vectors of shape (n_feats x n_times)
-    into matrices of size (n_feats, n_times)
+    transform vectors of shape (n_features x n_samples)
+    into matrices of size (n_features, n_samples)
 
     Parameters
     ----------
     n_features : int
         The number of features of the matrices.
-    n_times : int
+    n_samples : int
         The number of samples of the matrices.
 
     Notes
@@ -150,16 +150,16 @@ class Devectorizer(TransformerMixin):
 
     """
 
-    def __init__(self, n_feats, n_times):
-        self.n_feats = n_feats
-        self.n_times = n_times
+    def __init__(self, n_features, n_samples):
+        self.n_features = n_features
+        self.n_samples = n_samples
 
     def fit(self, X, y=None):
         """Fit the training data.
 
         Parameters
         ----------
-        X : ndarray, shape (n_trials, n_features x n_times)
+        X : ndarray, shape (n_trials, n_features x n_samples)
             Training matrices.
         y : ndarray, shape (n_trials,) (default: None)
             Target vector relative to X.
@@ -177,14 +177,14 @@ class Devectorizer(TransformerMixin):
 
         Parameters
         ----------
-        X : ndarray, shape (n_trials, n_features x n_times)
+        X : ndarray, shape (n_trials, n_features x n_samples)
             The vectors.
 
         Returns
         -------
-        X : ndarray, shape (n_trials, n_features, n_times)
+        X : ndarray, shape (n_trials, n_features, n_samples)
             The matrices.
         """
 
         n_trial, _ = X.shape
-        return X.reshape((n_trial, self.n_feats, self.n_times))
+        return X.reshape((n_trial, self.n_features, self.n_samples))
