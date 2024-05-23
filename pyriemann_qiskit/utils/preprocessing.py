@@ -1,6 +1,6 @@
-from sklearn.preprocessing import RobustScaler
-from sklearn.base import BaseEstimator, TransformerMixin
 import numpy as np
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.preprocessing import RobustScaler
 
 
 class NdRobustScaler(TransformerMixin):
