@@ -217,8 +217,8 @@ class BasicQnnAutoencoder(TransformerMixin):
 
         _, n_features = X.shape
         outputs = []
-        for trial in X:
-            param_values = np.concatenate((trial, self._opt_result.x))
+        for x in X:
+            param_values = np.concatenate((x, self._opt_result.x))
             output_qc = self._transformer.assign_parameters(param_values)
             output_sv = Statevector(output_qc).data
             output_sv = np.reshape(np.abs(output_sv) ** 2, n_features)
