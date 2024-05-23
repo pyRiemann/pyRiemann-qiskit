@@ -142,10 +142,10 @@ print("Averaging the session performance:")
 print(results.groupby("pipeline").mean("score")[["score", "time"]])
 
 # ##############################################################################
-# # Plot Results
-# # ----------------
-# #
-# # Here we plot the results to compare two pipelines
+# Plot Results
+# ----------------
+#
+# Here we plot the results to compare two pipelines
 
 fig, ax = plt.subplots(facecolor="white", figsize=[8, 4])
 
