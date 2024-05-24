@@ -63,7 +63,7 @@ class BasicQnnAutoencoder(TransformerMixin):
     ----------
     costs_ : list
         The values of the cost function.
-    fidelities_ : list, shape(n_samples,)
+    fidelities_ : list, shape (n_samples,)
         fidelities (one fidelity for each sample).
 
     References
