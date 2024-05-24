@@ -21,6 +21,18 @@ Classification
     NearestConvexHull
 
 
+Autoencoders
+-------------
+.. _autoencoders_api:
+.. currentmodule:: pyriemann_qiskit.autoencoders
+
+.. autosummary::
+    :toctree: generated/
+    :template: class.rst
+
+    BasicQnnAutoencoder
+
+
 Pipelines
 ---------
 .. _pipelines_api:
@@ -88,6 +100,8 @@ Preprocessing
     :toctree: generated/
 
     NdRobustScaler
+    Vectorizer
+    Devectorizer
 
 Filtering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -99,7 +113,7 @@ Filtering
 
     NoDimRed
     NaiveDimRed
-    Vectorizer
+    ChannelSelection
 
 Mean
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

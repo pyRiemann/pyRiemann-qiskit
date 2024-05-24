@@ -1,4 +1,5 @@
-from sklearn.base import TransformerMixin
+import numpy as np
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import RobustScaler
 
 
@@ -69,3 +70,121 @@ class NdRobustScaler(TransformerMixin):
         for i in range(n_features):
             X[:, i, :] = self._scalers[i].transform(X[:, i, :])
         return X
+
+
+class Vectorizer(BaseEstimator, TransformerMixin):
+    """Vectorization.
+
+    This is an auxiliary transformer that allows one to vectorize data
+    structures in a pipeline. For instance, in the case of an X with
+    dimensions (n_samples, n_features, n_channels),
+    one might be interested in a new data structure with dimensions
+    (n_samples, n_features x n_channels)
+
+    Notes
+    -----
+    .. versionadded:: 0.0.1
+    .. versionchanged:: 0.3.0
+        Move from filtering to preprocessing module.
+        Fix documentation.
+
+    """
+
+    def __init__(self):
+        pass
+
+    def fit(self, X, y):
+        """Fit the training data.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_matrices, n_features, n_samples)
+            Training matrices.
+        y : ndarray, shape (n_matrices,)
+            Target vector relative to X.
+            In practice, never used.
+
+        Returns
+        -------
+        self : Vectorizer
+            The Vectorizer instance.
+        """
+        return self
+
+    def transform(self, X):
+        """Vectorize matrices.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_matrices, n_features, n_samples)
+            The matrices to vectorize.
+
+        Returns
+        -------
+        X_new : ndarray, shape (n_matrices, n_features x n_samples)
+            The vectorized matrices.
+        """
+        return np.reshape(X, (X.shape[0], -1))
+
+
+class Devectorizer(TransformerMixin):
+    """Transform vector to matrices
+
+    This is an auxiliary transformer that allows one to
+    transform vectors of shape (n_features x n_samples)
+    into matrices of size (n_features, n_samples)
+
+    Parameters
+    ----------
+    n_features : int
+        The number of features of the matrices.
+    n_samples : int
+        The number of samples of the matrices.
+
+    Notes
+    -----
+    .. versionadded:: 0.0.1
+    .. versionchanged:: 0.3.0
+        Move from filtering to preprocessing module.
+        Fix documentation.
+
+    """
+
+    def __init__(self, n_features, n_samples):
+        self.n_features = n_features
+        self.n_samples = n_samples
+
+    def fit(self, X, y=None):
+        """Fit the training data.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_matrices, n_features x n_samples)
+            Training matrices.
+        y : ndarray, shape (n_matrices,), default=None
+            Target vector relative to X.
+            In practice, never used.
+
+        Returns
+        -------
+        self : Devectorizer
+            The Devectorizer instance.
+        """
+        return self
+
+    def transform(self, X, y=None):
+        """Transform vectors into matrices.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_matrices, n_features x n_samples)
+            The vectors.
+
+        Returns
+        -------
+        X_new : ndarray, shape (n_matrices, n_features, n_samples)
+            The matrices.
+        """
+
+        n_matrices, _ = X.shape
+        return X.reshape((n_matrices, self.n_features, self.n_samples))
