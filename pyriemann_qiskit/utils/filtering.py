@@ -1,6 +1,6 @@
-from sklearn.base import TransformerMixin
-from pyriemann.estimation import Covariances
 import numpy as np
+from pyriemann.estimation import Covariances
+from sklearn.base import TransformerMixin
 
 
 class NoDimRed(TransformerMixin):
