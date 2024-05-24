@@ -1,14 +1,14 @@
+import logging
+
 import numpy as np
-from qiskit import ClassicalRegister, QuantumRegister
-from qiskit import QuantumCircuit
+from qiskit import ClassicalRegister, QuantumRegister, QuantumCircuit
 from qiskit.circuit.library import RealAmplitudes
-from qiskit_algorithms.optimizers import SPSA
 from qiskit.quantum_info import Statevector
+from qiskit_algorithms.optimizers import SPSA
+from qiskit_algorithms.utils import algorithm_globals
 from qiskit_machine_learning.circuit.library import RawFeatureVector
 from qiskit_machine_learning.neural_networks import SamplerQNN
-from qiskit_algorithms.utils import algorithm_globals
 from sklearn.base import TransformerMixin
-import logging
 
 
 def _ansatz(num_qubits):
