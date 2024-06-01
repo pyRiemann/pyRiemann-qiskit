@@ -9,7 +9,7 @@ qiskit-ibm-provider==0.11.0
 qiskit-optimization==0.6.1
 qiskit-aer==0.14.1
 cvxpy==1.4.2
-scipy==1.11.4
+scipy==1.13.1
 docplex>=2.21.207
 firebase_admin==6.5.0
 tqdm
