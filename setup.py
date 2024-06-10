@@ -49,7 +49,7 @@ setup(name='pyriemann-qiskit',
                         'grpcio-status==1.62.1',
                         'protobuf==4.25.3',
                         'firebase_admin==6.5.0',
-                        'scikit-learn==1.3.2',
+                        'scikit-learn==1.4.2',
                         'tqdm',
                         'pandas'
                         ],
