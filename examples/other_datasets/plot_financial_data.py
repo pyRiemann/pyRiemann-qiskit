@@ -251,7 +251,7 @@ class OptionalWhitening(TransformerMixin, BaseEstimator):
     def transform(self, X):
         if not self.process:
             return X
-        return Whitening(dim_red={"n_components": 4}).fit_transform(X)
+        return Whitening(dim_red={"n_components": self.n_components}).fit_transform(X)
 
 
 # Create a RandomForest for baseline comparison of direct classification:
