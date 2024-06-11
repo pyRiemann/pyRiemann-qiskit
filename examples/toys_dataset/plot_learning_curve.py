@@ -81,5 +81,4 @@ axe.plot(evaluated_values)
 axe.set_ylabel("Evaluated values (MDM)")
 axe.set_xlabel("Evaluations")
 
-plt.tight_layout()
 plt.show()
