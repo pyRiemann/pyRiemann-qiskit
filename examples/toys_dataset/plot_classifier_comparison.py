@@ -23,7 +23,8 @@ from pyriemann_qiskit.datasets import (
     generate_linearly_separable_dataset,
     generate_qiskit_dataset,
 )
-from pyriemann_qiskit.classification import QuanticSVM
+from pyriemann_qiskit.classification import QuanticSVM, QuanticVQC
+from pyriemann_qiskit.utils.hyper_params_factory import get_spsa
 
 # uncomment to run comparison with QuanticVQC (disabled for CI/CD)
 # from pyriemann_qiskit.classification import QuanticVQC
@@ -36,14 +37,20 @@ print(__doc__)
 
 h = 0.02  # step size in the mesh
 labels = (0, 1)
-names = ["Linear SVM", "RBF SVM", "VQC", "QSVM"]
+names = [
+    "Linear SVM",
+    "RBF SVM",
+    # uncomment to run comparison with QuanticVQC (disabled for CI/CD)
+    # "VQC",
+    "QSVM"
+]
 
 classifiers = [
     SVC(kernel="linear", C=0.025),
     SVC(gamma="auto", C=0.001),
     # uncomment to run comparison with QuanticVQC (disabled for CI/CD)
     # QuanticVQC(),
-    QuanticSVM(quantum=False),
+    QuanticSVM(quantum=False),#quantum=False for CI
 ]
 
 # Warning: There is a known convergence issue with QSVM
