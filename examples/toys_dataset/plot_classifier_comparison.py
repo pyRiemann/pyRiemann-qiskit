@@ -42,7 +42,7 @@ names = [
     "RBF SVM",
     # uncomment to run comparison with QuanticVQC (disabled for CI/CD)
     # "VQC",
-    "QSVM"
+    "QSVM",
 ]
 
 classifiers = [
@@ -50,7 +50,7 @@ classifiers = [
     SVC(gamma="auto", C=0.001),
     # uncomment to run comparison with QuanticVQC (disabled for CI/CD)
     # QuanticVQC(),
-    QuanticSVM(quantum=False),#quantum=False for CI
+    QuanticSVM(quantum=False),  # quantum=False for CI
 ]
 
 # Warning: There is a known convergence issue with QSVM
