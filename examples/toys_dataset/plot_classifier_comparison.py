@@ -23,8 +23,11 @@ from pyriemann_qiskit.datasets import (
     generate_linearly_separable_dataset,
     generate_qiskit_dataset,
 )
-from pyriemann_qiskit.classification import QuanticSVM, QuanticVQC
-from pyriemann_qiskit.utils.hyper_params_factory import get_spsa
+from pyriemann_qiskit.classification import (
+    QuanticSVM,
+    # uncomment to run comparison with QuanticVQC (disabled for CI/CD)
+    # QuanticVQC
+)
 
 # uncomment to run comparison with QuanticVQC (disabled for CI/CD)
 # from pyriemann_qiskit.classification import QuanticVQC
