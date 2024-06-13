@@ -63,7 +63,7 @@ Ensemble
 
 Alias
 ---------
-.. _ensemble_api:
+.. _alias_api:
 .. currentmodule:: pyriemann_qiskit.alias
 
 .. autosummary::
