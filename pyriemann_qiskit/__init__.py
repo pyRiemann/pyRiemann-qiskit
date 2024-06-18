@@ -1,5 +1,5 @@
 from ._version import __version__
-from . import classification, pipelines, ensemble, autoencoders, alias
+from . import classification, pipelines, ensemble, autoencoders
 
 __all__ = [
     "__version__",
@@ -7,5 +7,4 @@ __all__ = [
     "pipelines",
     "ensemble",
     "autoencoders",
-    "alias",
 ]
