@@ -61,18 +61,6 @@ Ensemble
     JudgeClassifier
 
 
-Alias
----------
-.. _alias_api:
-.. currentmodule:: pyriemann_qiskit.alias
-
-.. autosummary::
-    :toctree: generated/
-    :template: class.rst
-
-    ERPCov_MDM
-
-
 Utils functions
 ----------------
 

@@ -21,7 +21,7 @@ from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import MotorImagery
 
 # inject cpm distance and mean to pyriemann (if not done already)
-from pyriemann_qiskit.alias import ERPCov_MDM
+from helpers.alias import ERPCov_MDM
 from pyriemann_qiskit.utils import distance, mean  # noqa
 from pyriemann_qiskit.pipelines import (
     QuantumMDMWithRiemannianPipeline,

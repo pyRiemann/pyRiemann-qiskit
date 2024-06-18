@@ -13,7 +13,7 @@ Execution takes approximately 1h.
 # Modified from plot_classify_EEG_quantum_svm
 # License: BSD (3-clause)
 
-from pyriemann_qiskit.alias import ERPCov_MDM
+from helpers.alias import ERPCov_MDM
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,

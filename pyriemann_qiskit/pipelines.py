@@ -402,8 +402,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         BasePipeline.__init__(self, "QuantumMDMWithRiemannianPipeline")
 
     def _create_pipe(self):
-        print(self.metric)
-        print(self.metric["mean"])
+        self._log(f"Running QMDM with metric {self.metric}")
         if is_qfunction(self.metric["mean"]):
             if self.quantum:
                 covariances = XdawnCovariances(
