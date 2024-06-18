@@ -285,7 +285,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
                 gen_feature_map=feature_map,
                 shots=self.shots,
                 quantum=is_quantum,
-                **self.params
+                **self.params,
             )
         else:
             self._log("QuanticSVM chosen.")
@@ -296,7 +296,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
                 max_iter=self.max_iter,
                 gen_feature_map=feature_map,
                 shots=self.shots,
-                **self.params
+                **self.params,
             )
 
         return make_pipeline(
