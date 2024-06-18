@@ -285,7 +285,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
                 gen_feature_map=feature_map,
                 shots=self.shots,
                 quantum=is_quantum,
-                **self.params
+                **self.params,
             )
         else:
             self._log("QuanticSVM chosen.")
@@ -296,7 +296,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
                 max_iter=self.max_iter,
                 gen_feature_map=feature_map,
                 shots=self.shots,
-                **self.params
+                **self.params,
             )
 
         return make_pipeline(
@@ -402,8 +402,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         BasePipeline.__init__(self, "QuantumMDMWithRiemannianPipeline")
 
     def _create_pipe(self):
-        print(self.metric)
-        print(self.metric["mean"])
+        self._log(f"Running QMDM with metric {self.metric}")
         if is_qfunction(self.metric["mean"]):
             if self.quantum:
                 covariances = XdawnCovariances(
