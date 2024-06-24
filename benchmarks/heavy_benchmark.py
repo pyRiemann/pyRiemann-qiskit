@@ -16,8 +16,7 @@ when switching from P300 to MI.
 """
 # Author: Anton Andreev
 
-from pyriemann.estimation import XdawnCovariances, ERPCovariances, Covariances
-from sklearn.pipeline import make_pipeline
+from pyriemann.estimation import Covariances
 from matplotlib import pyplot as plt
 import warnings
 import seaborn as sns
@@ -30,8 +29,8 @@ from moabb.datasets import (
     BNCI2014_008,
     BNCI2014_009,
     BNCI2015_003,
-    EPFLP300,
-    Lee2019_ERP,
+    # EPFLP300,
+    # Lee2019_ERP,
     BI2014a,
     BI2014b,
     BI2015a,
@@ -42,8 +41,8 @@ from moabb.datasets import (
 from moabb.datasets import (
     BNCI2014_001,
     Zhou2016,
-    BNCI2015_001,
-    BNCI2014_002,
+    # BNCI2015_001,
+    # BNCI2014_002,
     BNCI2014_004,
     # BNCI2015_004, #not tested
     AlexMI,
@@ -57,7 +56,6 @@ from moabb.datasets import (
 )
 from moabb.evaluations import (
     WithinSessionEvaluation,
-    CrossSessionEvaluation,
     CrossSubjectEvaluation,
 )
 from moabb.paradigms import P300, MotorImagery, LeftRightImagery
