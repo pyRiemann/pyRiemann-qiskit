@@ -88,5 +88,5 @@ save_path = os.path.join(
 )
 results.to_csv(save_path, index=True)
 
-#Provides statistics
+# Provides statistics
 plot_stat(results)
