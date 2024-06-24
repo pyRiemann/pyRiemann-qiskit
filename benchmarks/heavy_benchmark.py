@@ -419,11 +419,11 @@ def plot_stat(results, removeP300=False, removeMI=False):
     Parameters
     ----------
     results : Pandas dataframe
-        A dataframe with results from the benchmark
-    removeP300 : TYPE, optional
-        DESCRIPTION. The default is False.
-    removeMI_LR : TYPE, optional
-        DESCRIPTION. The default is False.
+        A dataframe with results from a benchmark
+    removeMI : default = False
+        Do not icnclude Motor Imagery datasets in the statistics plots.
+    removeP300 : default = False
+        Do not icnclude P300 datasets in the statistics plots.
 
     Returns
     -------
