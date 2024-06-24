@@ -181,7 +181,7 @@ def benchmark_alpha(
         Shin2017A(accept=True),
         Weibo2014(),
         # gives error with covariance estimator "cov" so regularized "oas" covariance estimator is required
-        Zhou2016(),  
+        Zhou2016(),
         Lee2019_MI(),  # requires a newer version of MOABB with url fixed
         Schirrmeister2017(),
     ]
