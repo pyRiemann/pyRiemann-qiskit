@@ -45,7 +45,7 @@ from moabb.datasets import (
     # BNCI2014_002,
     BNCI2014_004,
     # BNCI2015_004, #not tested
-    AlexMI,
+    # AlexMI,
     Weibo2014,
     Cho2017,
     GrosseWentrup2009,
@@ -105,7 +105,8 @@ def benchmark_alpha(
     overwrite : bool, optional
         Set to True if we want to overwrite cached results.
     n_jobs : int, default=12
-        The number of jobs to use for the computation. It is used in WithinSessionEvaluation().
+        The number of jobs to use for the computation.
+        It is used in WithinSessionEvaluation().
     skip_MI : default = False
         Skip Motor Imagery datasets for this benchmark.
     skip_P300 : default = False
@@ -179,7 +180,8 @@ def benchmark_alpha(
         PhysionetMI(),  # D2
         Shin2017A(accept=True),
         Weibo2014(),
-        Zhou2016(),  # gives error with covariance estimator "cov" so regularized "oas" covariance estimator is required
+        # gives error with covariance estimator "cov" so regularized "oas" covariance estimator is required
+        Zhou2016(),  
         Lee2019_MI(),  # requires a newer version of MOABB with url fixed
         Schirrmeister2017(),
     ]
@@ -280,10 +282,10 @@ def benchmark_alpha(
     else:
         raise ValueError("Unknown evaluation type!")
 
-    if skip_P300 == False:
+    if not skip_P300:
         results_P300 = evaluation_P300.process(pipelines, param_grid=params_grid)
 
-    if skip_MI == False and replace_x_dawn_cov_par_cov_for_MI == True:
+    if not skip_MI and replace_x_dawn_cov_par_cov_for_MI:
         # replace XDawnCovariances with Covariances when using MI or LeftRightMI
         for pipe_name in pipelines:
             pipeline = pipelines[pipe_name]
@@ -294,7 +296,7 @@ def benchmark_alpha(
 
         results_LR = evaluation_LR.process(pipelines, param_grid=params_grid)
 
-        if skip_P300 == False:
+        if not skip_P300:
             results = pd.concat([results_P300, results_LR], ignore_index=True)
         else:
             results = results_LR
