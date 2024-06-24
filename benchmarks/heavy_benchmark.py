@@ -415,7 +415,8 @@ def plot_stat(results, removeP300=False, removeMI=False):
     Generate statistical plots by comparing every 2 pipelines. Test if the
     difference is significant by using SMD. It does that per database and overall
     with the "Meta-effect" line.
-    Generates a summary plot - a significance matrix to compare the pipelines. It uses as a heatmap
+    Generates a summary plot - a significance matrix to compare the pipelines.
+    It uses as a heatmap
     with green/grey/red for significantly higher/significantly lower.
 
     Parameters
@@ -454,7 +455,8 @@ def plot_stat(results, removeP300=False, removeMI=False):
     plt.show()
 
     # Generate statistics for the summary plot
-    # Computes matrices of p-values and effects for all algorithms over all datasets via combined p-values and
+    # Computes matrices of p-values and effects for all algorithms
+    # over all datasets via combined p-values and
     # combined effects methods
     stats = compute_dataset_statistics(results)
     P, T = find_significant_differences(stats)
