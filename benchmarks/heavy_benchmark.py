@@ -180,13 +180,15 @@ def benchmark_alpha(
         PhysionetMI(),  # D2
         Shin2017A(accept=True),
         Weibo2014(),
-        # gives error with covariance estimator "cov" so regularized "oas" covariance estimator is required
+        # gives error with covariance estimator "cov" so regularized
+        # "oas" covariance estimator is required
         Zhou2016(),
         Lee2019_MI(),  # requires a newer version of MOABB with url fixed
         Schirrmeister2017(),
     ]
 
-    # each MI dataset can have different classes and events and this requires a different MI paradigm
+    # each MI dataset can have different classes and events
+    # and this requires a different MI paradigm
     paradigms_MI = []
     for dataset in datasets_MI:
         events = list(dataset.event_id)
@@ -363,10 +365,10 @@ def _AdjustDF(df, removeP300=False, removeMI=False):
         "BNCI2015-003",
         "BrainInvaders2015a",
         "BrainInvaders2015b",
-        #'Sosulski2019',
+        # 'Sosulski2019',
         "BrainInvaders2014a",
         "BrainInvaders2014b",
-        #'EPFLP300'
+        # 'EPFLP300'
     ]
     datasets_MI = [
         "BNCI2015-004",  # 5 classes,
@@ -395,7 +397,7 @@ def _AdjustDF(df, removeP300=False, removeMI=False):
         elif df["dataset"][ind] in datasets_MI or df["dataset"][ind] in datasets_LR:
             df["dataset"][ind] = df["dataset"][ind] + "_M"
             dataset_classified = True
-        if dataset_classified == False:
+        if not dataset_classified:
             print("This dataset was not classified:", df["dataset"][ind])
 
     if removeP300:
@@ -458,20 +460,24 @@ def plot_stat(results, removeP300=False, removeMI=False):
     P, T = find_significant_differences(stats)
     print(stats.to_string())  # not all datasets are in stats
 
-    # Negative SMD value favors the first(left) algorithm, postive SMD the second(right)
-    # A meta-analysis style plot that shows the standardized effect with confidence intervals over
-    # all datasets for two algorithms. Hypothesis is that alg1 is larger than alg2
+    # Negative SMD value favors the first(left) algorithm,
+    # postive SMD the second(right)
+    # A meta-analysis style plot that shows the
+    # standardized effect with confidence intervals over
+    # all datasets for two algorithms.
+    # Hypothesis is that alg1 is larger than alg2
     pipelines = results["pipeline"].unique()
     pipelines_sorted = sorted(pipelines)
     for i in range(0, len(pipelines_sorted)):
         for j in range(i + 1, len(pipelines_sorted)):
-            fig = moabb_plt.meta_analysis_plot(
+            moabb_plt.meta_analysis_plot(
                 stats, pipelines_sorted[i], pipelines_sorted[j]
             )
             plt.show()
 
     # Summary Plot - provides a significance matrix to compare pipelines.
-    # Visualizes the significances as a heatmap with green/grey/red for significantly higher/significantly lower.
+    # Visualizes the significances as a heatmap with green/grey/red
+    # for significantly higher/significantly lower.
     moabb_plt.summary_plot(P, T)
     plt.show()
 
