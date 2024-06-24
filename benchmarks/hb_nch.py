@@ -1,44 +1,19 @@
 # -*- coding: utf-8 -*-
 """
 
+A demo on how to use benchmark_alpha.
 Performs a benchmark of several variations of the NCH algorithm.
 
 @author: anton andreev
 """
 
-from pyriemann.estimation import XdawnCovariances, ERPCovariances, Covariances
+from pyriemann.estimation import XdawnCovariances
 from sklearn.pipeline import make_pipeline
-
-# from matplotlib import pyplot as plt
-# import warnings
-# import seaborn as sns
-# import pandas as pd
-# from moabb import set_log_level
-from moabb.evaluations import (
-    WithinSessionEvaluation,
-    CrossSessionEvaluation,
-    CrossSubjectEvaluation,
-)
-
-# from moabb.paradigms import P300, MotorImagery, LeftRightImagery
 from pyriemann.classification import MDM
-
-# from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-# from sklearn.linear_model import LogisticRegression
-# from sklearn.neural_network import MLPRegressor
-# from sklearn.gaussian_process import GaussianProcessRegressor
-# from sklearn.gaussian_process.kernels import RBF
-# from sklearn import svm
-# import moabb.analysis.plotting as moabb_plt
-# from moabb.analysis.meta_analysis import (
-#     compute_dataset_statistics,
-#     find_significant_differences,
-# )
 import os
 
 from pyriemann_qiskit.classification import QuanticNCH
 from heavy_benchmark import benchmark_alpha, plot_stat
-from moabb import set_download_dir
 
 # start configuration
 hb_max_n_subjects = 3
@@ -113,4 +88,5 @@ save_path = os.path.join(
 )
 results.to_csv(save_path, index=True)
 
+#Provides statistics
 plot_stat(results)
