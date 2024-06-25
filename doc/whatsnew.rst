@@ -11,8 +11,12 @@ v0.3.0
 - Migrate to Qiskit 1.0
 - Update to Moabb 1.1.0, scipy 1.13.1 and pyRiemann 0.6
 - Plot training curve for VQC and QAOA
-- Quantum Autoencoder
+- Quantum Autoencoder:
+   A transformer based on a quantum circuit.
+   It can be used for quantum denoising for example. 
+   (experimental)
 - Example with distance visualization
+   An example to display the distance between two classes using MDM and NCH estimator.
 - Add a new benchmark over many datasets
 
 Details:
