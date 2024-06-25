@@ -13,7 +13,7 @@ v0.3.0
 - Plot training curve for VQC and QAOA
 - Quantum Autoencoder:
    A transformer based on a quantum circuit.
-   It can be used for quantum denoising for example. 
+   It can be used for quantum denoising for example.
    (experimental)
 - Example with distance visualization
    An example to display the distance between two classes using MDM and NCH estimator.
