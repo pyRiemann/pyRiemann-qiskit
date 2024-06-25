@@ -15,9 +15,10 @@ v0.3.0
    A transformer implemented as a quantum circuit.
    It can be used for quantum denoising for example.
    (experimental)
-- Example with distance visualization
-   An example to display the distance between two classes using MDM and NCH estimator.
-- Add a new benchmark over many datasets
+- Example with distance visualization:
+   An example on how to visualize the distance between two classes using MDM and NCH estimator.
+- Added a new benchmark over many datasets:
+   It allows pipelines to be evaluated on a fixed number of datasets for P300 and Motor Imagery. It also provides statisitcal plots using standardized mean differences (SMD) from MOABB for performance comparison of pipelines (or algorithms).
 
 Details:
 
