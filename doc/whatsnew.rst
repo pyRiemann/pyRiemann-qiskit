@@ -7,6 +7,7 @@ What's new in the package
 
 v0.3.0
 ------
+
 - Migrate to Qiskit 1.0
 - Update to Moabb 1.1.0, scipy 1.13.1 and pyRiemann 0.6
 - Plot training curve for VQC and QAOA
