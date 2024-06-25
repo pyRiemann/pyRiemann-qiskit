@@ -12,7 +12,7 @@ v0.3.0
 - Update to Moabb 1.1.0, scipy 1.13.1 and pyRiemann 0.6
 - Plot training curve for VQC and QAOA
 - Quantum Autoencoder:
-   A transformer based on a quantum circuit.
+   A transformer implemented as a quantum circuit.
    It can be used for quantum denoising for example.
    (experimental)
 - Example with distance visualization
