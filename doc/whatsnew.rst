@@ -5,6 +5,25 @@
 What's new in the package
 =========================
 
+v0.3.0
+------
+
+- Migrate to Qiskit 1.0
+- Update to Moabb 1.1.0, scipy 1.13.1 and pyRiemann 0.6
+- Plot training curve for VQC and QAOA
+- Quantum Autoencoder:
+   A transformer implemented as a quantum circuit.
+   It can be used for quantum denoising for example.
+   (experimental)
+- Example with distance visualization:
+   An example on how to visualize the distance between two classes using MDM and NCH estimator.
+- Added a new benchmark over many datasets:
+   It allows pipelines to be evaluated on a fixed number of datasets for P300 and Motor Imagery. It also provides statisitcal plots using standardized mean differences (SMD) from MOABB for performance comparison of pipelines (or algorithms).
+
+Details:
+
+https://github.com/pyRiemann/pyRiemann-qiskit/releases/tag/v0.3.0
+
 v0.2.0
 ------
 
