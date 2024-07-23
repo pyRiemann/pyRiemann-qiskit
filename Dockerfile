@@ -18,7 +18,7 @@ RUN apt-get -y install build-essential
 # RUN pip install scs==3.2.5
 # RUN pip install google_cloud_firestore==2.16.0
 
-RUN python setup.py develop
+RUN pip install .
 RUN pip install .[docs]
 RUN pip install .[tests]
 
