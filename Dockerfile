@@ -16,7 +16,7 @@ RUN pip install urllib3==2.1.0
 RUN pip install requests==2.32.2
 RUN pip install "numpy<1.24"
 RUN pip install scs==3.2.5
-RUN pip install -e protobuf==4.25.3
+RUN pip install protobuf==4.25.3
 RUN python setup.py develop
 RUN pip install .[docs]
 RUN pip install .[tests]
