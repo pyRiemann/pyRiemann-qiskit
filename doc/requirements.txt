@@ -18,7 +18,7 @@ qiskit_machine_learning==0.7.2
 qiskit_ibm_runtime==0.23.0
 qiskit-optimization==0.6.1
 qiskit-aer==0.14.1
-scipy==1.13.1
+scipy==1.14.0
 moabb==1.1.0
 pyriemann==0.6
 docplex>=2.21.207
