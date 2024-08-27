@@ -7,13 +7,18 @@ It is for example suitable for:
 """
 import math
 import numpy as np
+import time
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
 from qiskit.primitives import BackendSampler
+from qiskit.quantum_info import Statevector
+from qiskit.circuit.library import QAOAAnsatz
 from qiskit_algorithms import QAOA
 from qiskit_algorithms.optimizers import SLSQP
 from qiskit_optimization.algorithms import CobylaOptimizer, MinimumEigenOptimizer
 from qiskit_optimization.converters import IntegerToBinary
 from qiskit_optimization.translators import from_docplex_mp
+from qiskit_optimization.problems import VarType
+from sklearn.preprocessing import MinMaxScaler
 from pyriemann.utils.covariance import normalize
 from pyriemann_qiskit.utils import get_simulator
 
@@ -575,3 +580,138 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         )
         w = np.array([w[key] for key in w])
         return w
+
+
+class QAOACVOptimizer(pyQiskitOptimizer):
+
+    """Wrapper for the quantum optimizer QAOA.
+
+    Parameters
+    ----------
+    upper_bound : int, default=7
+        The maximum integer value for matrix normalization.
+    quantum_instance : QuantumInstance, default=None
+        A quantum backend instance.
+        If None, AerSimulator will be used.
+    optimizer : SciPyOptimizer, default=SLSQP()
+        An instance of a scipy optimizer to find the optimal weights for the
+        parametric circuit (ansatz).
+
+    Notes
+    -----
+    .. versionadded:: 0.0.2
+    .. versionchanged:: 0.0.4
+        add get_weights method.
+    .. versionchanged:: 0.3.0
+        add evaluated_values_ attribute.
+        add optimizer parameter.
+
+    Attributes
+    ----------
+    x_ : list[int]
+        Training curve values.
+    y_:
+    solution_:
+    run_time_
+    optim_params_
+    minimum_
+    state_vector_
+
+    See Also
+    --------
+    pyQiskitOptimizer
+    """
+
+    def __init__(self, create_mixer, n_reps, n_var, quantum_instance=None, optimizer=SLSQP()):
+        pyQiskitOptimizer.__init__(self)
+        self.n_var = n_var
+        self.n_reps = n_reps
+        self.create_mixer = create_mixer
+        self.quantum_instance = quantum_instance
+        self.optimizer = optimizer
+
+    @staticmethod
+    def prepare_model(qp):
+        scalers = []
+        for v in qp.variables:
+            if v.vartype == VarType.CONTINUOUS:
+                scaler = MinMaxScaler().fit(
+                    np.array([v.lowerbound, v.upperbound]).reshape(-1, 1)
+                )
+                # print(scaler.data_min_, scaler.data_max_)
+                scalers.append(scaler)
+                v.vartype = VarType.BINARY
+        return scalers
+
+    def _solve_qp(self, qp, reshape=True):
+            # Extract the objective function from the docplex model
+        # We want the object expression with continuous variable
+        objective_expr = qp._objective
+
+        # Convert continous variable to binary ones
+        # Get scalers corresponding to the definition range of each variables
+        scalers = QAOACVOptimizer.prepare_model(qp)
+
+        # Check all variables are converted to binary, and scalers are registered
+        # print(qp.prettyprint(), scalers)
+
+        # cost operator
+        # Get operator associated with model
+        cost, _offset = qp.to_ising()
+
+        mixer = self.create_mixer(cost.num_qubits)
+
+        # QAOA cirtcuit
+        ansatz_0 = QAOAAnsatz(
+            cost_operator=cost, reps=self.n_reps, initial_state=None, mixer_operator=mixer
+        ).decompose()
+        ansatz = QAOAAnsatz(
+            cost_operator=cost, reps=self.n_reps, initial_state=None, mixer_operator=mixer
+        ).decompose()
+        ansatz.measure_all()
+
+        def prob(job, i):
+            quasi_dists = job.result().quasi_dists[0]
+            p = 0
+            for key in quasi_dists:
+                if key & 2 ** (self.n_var - 1 - i):
+                    p += quasi_dists[key]
+
+            # p is in the range [0, 1].
+            # We now need to scale it in the definition range of our continuous variables
+            p = scalers[i].inverse_transform([[p]])[0][0]
+            return p
+
+        # defining loss function
+        self.x_ = []
+        self.y_ = []
+
+        def loss(params):
+            job = self.quantum_instance.run(ansatz, params)
+            var_hat = [prob(job, i) for i in range(self.n_var)]
+            cost = objective_expr.evaluate(var_hat)
+            self.x_.append(len(x))
+            self.y_.append(cost)
+            return cost
+
+        # Initial guess for the parameters
+        initial_guess = np.array([1, 1] * self.n_reps)
+
+        # minimize function to search for the optimal parameters
+        # result = minimize(loss, initial_guess, method='COBYLA', options={"maxiter":1000})
+        start_time = time.time()
+        result = self.optimizer.minimize(loss, initial_guess)
+        stop_time = time.time()
+        self.run_time_ = stop_time - start_time
+        
+        self.optim_params_ = result.x
+
+        # running QAOA circuit with optimal parameters
+        job = self.quantum_instance.run(ansatz, self.optim_params_)
+        solution = [prob(job, i) for i in range(self.n_var)]
+        self.minimum_ = objective_expr.evaluate(self.solution)
+
+        optimized_circuit = ansatz_0.assign_parameters(self.optim_params_)
+        self.state_vector_ = Statevector(optimized_circuit)
+
+        return solution
