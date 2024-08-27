@@ -1,25 +1,14 @@
-  !pip install qiskit
-  !pip install qiskit-aer
-  !pip install qiskit-optimization
-  !pip install docplex
-  import qiskit_optimization
-
 from qiskit_aer import AerSimulator
-from qiskit import transpile
-from qiskit.circuit import Parameter, QuantumCircuit, QuantumRegister
+from qiskit.circuit import QuantumCircuit, QuantumRegister
 import numpy as np
 from qiskit.primitives import BackendSampler
 
-from qiskit_optimization.algorithms import MinimumEigenOptimizer
 from qiskit_algorithms.optimizers import SLSQP
-from qiskit_algorithms import QAOA
-from qiskit_aer import Aer
-from qiskit_optimization.problems import QuadraticProgram, VarType
+from qiskit_optimization.problems import VarType
 from docplex.mp.model import Model
 from qiskit_optimization.translators import from_docplex_mp
 
 from qiskit.circuit.library import QAOAAnsatz
-from scipy.optimize import minimize
 
 from qiskit_algorithms.optimizers import COBYLA, ADAM, SLSQP, SPSA
 
@@ -28,60 +17,11 @@ import time
 import math
 
 from qiskit.quantum_info import Statevector
-from qiskit.visualization import plot_state_city
 from sklearn.preprocessing import MinMaxScaler
-from qiskit.quantum_info import SparsePauliOp
 
 from qiskit import QuantumCircuit
-from qiskit.quantum_info import DensityMatrix, partial_trace
 import math
-from scipy import (zeros, array, arange, exp, real, conj, pi,
-                   copy, sqrt, meshgrid, size, polyval, fliplr, conjugate,
-                   cos, sin)
-from scipy.integrate import simps
 
-  # Define the problem instance
-  mdl = Model("docplex model")
-  x = mdl.binary_var("x")
-  mdl.minimize((x - 0.83)**2)
-
-  qp = from_docplex_mp(mdl)
-  print(qp.prettyprint())
-
-  # Define the optimizer
-  optimizer = SLSQP()  # Replace with your optimizer
-
-  # Define the BackendSampler (previously QuantumInstance)
-  backend = AerSimulator(method="statevector", cuStateVec_enable=True)
-  quantum_instance = BackendSampler(
-                  backend, options={"shots": 200, "seed_simulator": 42}
-              )
-  quantum_instance.transpile_options["seed_transpiler"] = 42
-
-
-  # Define the QAOA measurement setting
-  qaoa_mes = QAOA(
-      optimizer=optimizer,
-      sampler=quantum_instance)
-
-  # Create a MinimumEigenOptimizer object
-  qaoa = MinimumEigenOptimizer(qaoa_mes)
-
-  # Solve the optimization problem
-  qaoa_result = qaoa.solve(qp)
-
-  qaoa_ansatz = qaoa_mes.ansatz
-  print(qaoa_ansatz)
-
-  # Print the result
-  print(qaoa_result)
-
-
-print(qaoa_result.min_eigen_solver_result.optimal_point)
-print(qaoa_result.min_eigen_solver_result.optimal_parameters)
-
-print(qaoa_result.samples)
-quantum_instance.run(qaoa_ansatz, qaoa_result.min_eigen_solver_result.optimal_point)
 
 def prepare_model(qp):
   scalers = []
@@ -223,14 +163,10 @@ def run_qaoa_cv(n_reps, optimizer, create_mixer):
   optimized_circuit = ansatz_0.assign_parameters(optim_params)
   state = Statevector(optimized_circuit)
   print(state)
-  # plot_state_city(state, alpha=0.6)
-  # plot_wigner_state_circuit(optimized_circuit)
 
   plt.show()
 
   return (run_time, minimum)
-
-# run_qaoa_cv(2, COBYLA(maxiter=500), None)
 
 # List of optimizers
 maxiter=1000
@@ -257,79 +193,3 @@ for angle in range(4):
             key = f"{angle}_{type(opt).__name__}_{rep}_{create_mixer.__name__}"
             ret[key] = run_qaoa_cv(rep, opt, create_mixer)
 
-print(ret)
-
-ret
-
-def wigner(rho, xvec, yvec, g=math.sqrt(2)):
-    """
-    https://qutip.org/docs/4.0.2/modules/qutip/wigner.html#wigner
-    Using an iterative method to evaluate the wigner functions for the Fock
-    state :math:`|m><n|`.
-
-    The Wigner function is calculated as
-    :math:`W = \sum_{mn} \\rho_{mn} W_{mn}` where :math:`W_{mn}` is the Wigner
-    function for the density matrix :math:`|m><n|`.
-
-    In this implementation, for each row m, Wlist contains the Wigner functions
-    Wlist = [0, ..., W_mm, ..., W_mN]. As soon as one W_mn Wigner function is
-    calculated, the corresponding contribution is added to the total Wigner
-    function, weighted by the corresponding element in the density matrix
-    :math:`rho_{mn}`.
-    """
-
-    M = np.prod(rho.shape[0])
-    X, Y = meshgrid(xvec, yvec)
-    A = 0.5 * g * (X + 1.0j * Y)
-
-    Wlist = array([zeros(np.shape(A), dtype=complex) for k in range(M)])
-    Wlist[0] = exp(-2.0 * abs(A) ** 2) / pi
-
-    W = real(rho[0, 0]) * real(Wlist[0])
-    for n in range(1, M):
-        Wlist[n] = (2.0 * A * Wlist[n - 1]) / sqrt(n)
-        W += 2 * real(rho[0, n] * Wlist[n])
-
-    for m in range(1, M):
-        temp = copy(Wlist[m])
-        Wlist[m] = (2 * conj(A) * temp - sqrt(m) * Wlist[m - 1]) / sqrt(m)
-
-        # Wlist[m] = Wigner function for |m><m|
-        W += real(rho[m, m] * Wlist[m])
-
-        for n in range(m + 1, M):
-            temp2 = (2 * A * Wlist[n - 1] - sqrt(m) * temp) / sqrt(n)
-            temp = copy(Wlist[n])
-            Wlist[n] = temp2
-
-            # Wlist[n] = Wigner function for |m><n|
-            W += 2 * real(rho[m, n] * Wlist[n])
-
-    return 0.5 * W * g ** 2
-
-def plot_wigner_state_circuit(qc):
-
-  rho = DensityMatrix(qc)
-  # rho = Statevector(qc)
-  print(rho.data.shape[0])
-
-  # rho_a = partial_trace(state=rho, qargs=[1, 2])
-
-  a = 300
-  final = wigner(rho.data, [i/100 for i in range(-a, a)], [i/100 for i in range(-a,a)])
-
-  x = np.array([i/10 for i in range(-a, a)])
-  y = []
-
-
-  for i in range(0, len(x)):
-      res = simps([final[k][i] for k in range(0, len(x))], x)
-      y.append(res)
-
-  y = np.array(y)
-
-  opt = x[y == y.max()][0]
-  print((opt + a/10) / (2*a/10))
-  plt.plot(x, y)
-
-run_qaoa_cv(4, COBYLA(), create_mixer_X_gates)
