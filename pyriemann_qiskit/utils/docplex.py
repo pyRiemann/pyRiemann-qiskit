@@ -688,7 +688,8 @@ class QAOACVOptimizer(pyQiskitOptimizer):
                     p += quasi_dists[key]
 
             # p is in the range [0, 1].
-            # We now need to scale it in the definition range of our continuous variables
+            # We now need to scale it in the definition
+            # range of our continuous variables
             p = scalers[i].inverse_transform([[p]])[0][0]
             return p
 
@@ -708,7 +709,6 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         initial_guess = np.array([1, 1] * self.n_reps)
 
         # minimize function to search for the optimal parameters
-        # result = minimize(loss, initial_guess, method='COBYLA', options={"maxiter":1000})
         start_time = time.time()
         result = self.optimizer.minimize(loss, initial_guess)
         stop_time = time.time()

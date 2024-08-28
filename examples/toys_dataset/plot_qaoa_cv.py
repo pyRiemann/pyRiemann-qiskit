@@ -14,7 +14,6 @@ on a simple objective function.
 
 """
 
-from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
 from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.primitives import BackendSampler
@@ -145,7 +144,10 @@ for angle in range(4):
         for rep in repetitions:
             for create_mixer in mixers:
                 print(
-                    f"Running QAOA with angle {angle}, optimizer {type(opt).__name__}, {rep} repetitions and {create_mixer.__name__} method"
+                    f"Running QAOA with angle {angle},\
+                    optimizer {type(opt).__name__},\
+                    {rep} repetitions and\
+                    {create_mixer.__name__} method"
                 )
                 key = f"{angle}_{type(opt).__name__}_{rep}_{create_mixer.__name__}"
                 ret[key] = run_qaoa_cv(rep, opt, create_mixer)
