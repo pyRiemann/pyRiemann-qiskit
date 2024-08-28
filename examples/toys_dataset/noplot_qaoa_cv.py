@@ -56,8 +56,6 @@ def run_qaoa_cv(n_reps, optimizer, create_mixer):
     z = mdl.continuous_var(1.1, 2.2, "z")
     mdl.minimize((x - 0.83 + y + 2 * z) ** 2)
 
-    n_var = mdl.number_of_variables
-
     # Define the BackendSampler (previously QuantumInstance)
     backend = AerSimulator(method="statevector", cuStateVec_enable=True)
     quantum_instance = BackendSampler(
@@ -65,7 +63,7 @@ def run_qaoa_cv(n_reps, optimizer, create_mixer):
     )
     quantum_instance.transpile_options["seed_transpiler"] = 42
 
-    qaoa_cv = QAOACVOptimizer(create_mixer, n_reps, n_var, quantum_instance, optimizer)
+    qaoa_cv = QAOACVOptimizer(create_mixer, n_reps, quantum_instance, optimizer)
     solution = qaoa_cv.solve(mdl)
 
     print(f"time = {qaoa_cv.run_time_}")
