@@ -622,7 +622,9 @@ class QAOACVOptimizer(pyQiskitOptimizer):
     pyQiskitOptimizer
     """
 
-    def __init__(self, create_mixer, n_reps, n_var, quantum_instance=None, optimizer=SLSQP()):
+    def __init__(
+        self, create_mixer, n_reps, n_var, quantum_instance=None, optimizer=SLSQP()
+    ):
         pyQiskitOptimizer.__init__(self)
         self.n_var = n_var
         self.n_reps = n_reps
@@ -644,7 +646,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         return scalers
 
     def _solve_qp(self, qp, reshape=True):
-            # Extract the objective function from the docplex model
+        # Extract the objective function from the docplex model
         # We want the object expression with continuous variable
         objective_expr = qp._objective
 
@@ -663,10 +665,16 @@ class QAOACVOptimizer(pyQiskitOptimizer):
 
         # QAOA cirtcuit
         ansatz_0 = QAOAAnsatz(
-            cost_operator=cost, reps=self.n_reps, initial_state=None, mixer_operator=mixer
+            cost_operator=cost,
+            reps=self.n_reps,
+            initial_state=None,
+            mixer_operator=mixer,
         ).decompose()
         ansatz = QAOAAnsatz(
-            cost_operator=cost, reps=self.n_reps, initial_state=None, mixer_operator=mixer
+            cost_operator=cost,
+            reps=self.n_reps,
+            initial_state=None,
+            mixer_operator=mixer,
         ).decompose()
         ansatz.measure_all()
 
@@ -703,7 +711,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         result = self.optimizer.minimize(loss, initial_guess)
         stop_time = time.time()
         self.run_time_ = stop_time - start_time
-        
+
         self.optim_params_ = result.x
 
         # running QAOA circuit with optimal parameters
