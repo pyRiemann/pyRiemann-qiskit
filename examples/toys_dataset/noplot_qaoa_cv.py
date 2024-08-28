@@ -2,9 +2,8 @@ from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
 from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.primitives import BackendSampler
-from qiskit_algorithms.optimizers import SLSQP
+from qiskit_algorithms.optimizers import COBYLA, SPSA
 from docplex.mp.model import Model
-from qiskit_algorithms.optimizers import COBYLA, ADAM, SLSQP, SPSA
 from pyriemann_qiskit.utils.docplex import QAOACVOptimizer
 import matplotlib.pyplot as plt
 import math
@@ -67,7 +66,7 @@ def run_qaoa_cv(n_reps, optimizer, create_mixer):
     quantum_instance.transpile_options["seed_transpiler"] = 42
 
     qaoa_cv = QAOACVOptimizer(create_mixer, n_reps, n_var, quantum_instance, optimizer)
-    solution = qaoa_cv.solve(qp)
+    solution = qaoa_cv.solve(mdl)
 
     print(f"time = {qaoa_cv.run_time_}")
 
@@ -85,11 +84,9 @@ def run_qaoa_cv(n_reps, optimizer, create_mixer):
 
 
 # List of optimizers
-maxiter = 1000
+maxiter = 500
 optimizers = [
     COBYLA(maxiter=maxiter),
-    ADAM(maxiter=maxiter, lr=0.1, tol=1e-8, noise_factor=1e-3, amsgrad=True),
-    SLSQP(maxiter=maxiter),
     SPSA(maxiter=maxiter),
 ]
 
