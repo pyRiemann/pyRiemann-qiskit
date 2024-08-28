@@ -3,7 +3,7 @@
 QAOA-CV optimization
 ====================================================================
 
-QAOA is a parametric quantum circuit, which is usually used to 
+QAOA is a parametric quantum circuit, which is usually used to
 solve QUBO problems, i.e, problems with binary variables.
 
 In this example we will show how to use pyRiemann-qiskit implementation
@@ -27,11 +27,11 @@ import math
 ###############################################################################
 # Define mixer operators
 #
-# QAOA is a quantum circuit that is a repetition of 
+# QAOA is a quantum circuit that is a repetition of
 # a cost an mixer operator.
-# 
+#
 # We will use some of the mixer operators defined in [1]_.
-# 
+#
 
 
 def create_mixer_rotational_X_gates(angle):
@@ -75,9 +75,10 @@ def create_mixer_rotational_XZ_gates(angle):
 
 ###############################################################################
 # Run QAOA-CV
-# 
+#
 # Let's define a handy function to run and plot the result of the QAOA-CV
-# 
+#
+
 
 def run_qaoa_cv(n_reps, optimizer, create_mixer):
     # Define docplex model
@@ -119,7 +120,7 @@ def run_qaoa_cv(n_reps, optimizer, create_mixer):
 
 ###############################################################################
 # Hyper-parameters
-# 
+#
 # We will now try different combination of optimizer and mixers.
 #
 

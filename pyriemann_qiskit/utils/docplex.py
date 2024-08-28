@@ -626,9 +626,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
     pyQiskitOptimizer
     """
 
-    def __init__(
-        self, create_mixer, n_reps, quantum_instance=None, optimizer=SLSQP()
-    ):
+    def __init__(self, create_mixer, n_reps, quantum_instance=None, optimizer=SLSQP()):
         pyQiskitOptimizer.__init__(self)
         self.n_reps = n_reps
         self.create_mixer = create_mixer
