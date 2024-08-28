@@ -151,6 +151,7 @@ Docplex
     pyQiskitOptimizer
     ClassicalOptimizer
     NaiveQAOAOptimizer
+    QAOACVOptimizer
     set_global_optimizer
     get_global_optimizer
 
