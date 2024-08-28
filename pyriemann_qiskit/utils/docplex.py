@@ -584,12 +584,16 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
 
 class QAOACVOptimizer(pyQiskitOptimizer):
 
-    """Wrapper for the quantum optimizer QAOA.
+    """QAOA with continuous variables.
 
     Parameters
     ----------
-    upper_bound : int, default=7
-        The maximum integer value for matrix normalization.
+    create_mixer : Callable[int,QuantumCircuit]
+        A delegate that takes into input an angle and returns a QuantumCircuit
+    n_reps : int
+        The number of repetitions for the QAOA ansatz.
+        It defines how many time Mixer and Cost operators will be repeated
+        in the circuit.
     quantum_instance : QuantumInstance, default=None
         A quantum backend instance.
         If None, AerSimulator will be used.
@@ -599,23 +603,23 @@ class QAOACVOptimizer(pyQiskitOptimizer):
 
     Notes
     -----
-    .. versionadded:: 0.0.2
-    .. versionchanged:: 0.0.4
-        add get_weights method.
-    .. versionchanged:: 0.3.0
-        add evaluated_values_ attribute.
-        add optimizer parameter.
+    .. versionadded:: 0.4.0
 
     Attributes
     ----------
-    x_ : list[int]
-        Training curve values.
-    y_:
-    solution_:
-    run_time_
-    optim_params_
-    minimum_
-    state_vector_
+    x_: list[int]
+        Indices of the loss function.
+    y_: list[int]
+        Cost computed by the loss function.
+    run_time_: float
+        Time taken by the optimizer
+    optim_params_: list[float]
+        The optimal rotation for the gate in the circuit.
+    minimum_: float
+        The value of the objective function with the optimal parameters.
+    state_vector_: StateVector
+        State vector of the optimized quantum circuit
+        (optimal parameters assigned to the parametric gates).
 
     See Also
     --------
