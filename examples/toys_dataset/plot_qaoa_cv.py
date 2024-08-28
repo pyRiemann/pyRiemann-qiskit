@@ -144,8 +144,8 @@ for angle in range(4):
         for rep in repetitions:
             for create_mixer in mixers:
                 print(
-                    f"Running QAOA with angle {angle},\
-                    optimizer {type(opt).__name__},\
+                    f"Running QAOA with angle {angle}, \
+                    optimizer {type(opt).__name__}, \
                     {rep} repetitions and\
                     {create_mixer.__name__} method"
                 )
