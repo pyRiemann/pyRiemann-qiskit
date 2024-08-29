@@ -14,14 +14,15 @@ on a simple objective function.
 
 """
 
-from qiskit_aer import AerSimulator
+import math
+
+from docplex.mp.model import Model
+import matplotlib.pyplot as plt
 from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.primitives import BackendSampler
+from qiskit_aer import AerSimulator
 from qiskit_algorithms.optimizers import COBYLA, SPSA
-from docplex.mp.model import Model
 from pyriemann_qiskit.utils.docplex import QAOACVOptimizer
-import matplotlib.pyplot as plt
-import math
 
 ###############################################################################
 # Define mixer operators
