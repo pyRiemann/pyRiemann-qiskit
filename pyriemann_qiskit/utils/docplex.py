@@ -6,8 +6,9 @@ It is for example suitable for:
 - computation of matrices mean.
 """
 import math
-import numpy as np
 import time
+
+import numpy as np
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
 from qiskit.primitives import BackendSampler
 from qiskit.quantum_info import Statevector
