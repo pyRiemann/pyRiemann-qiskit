@@ -130,19 +130,20 @@ optimizers = [
     SPSA(maxiter=maxiter),
 ]
 
-repetitions = range(1, 5)
+n_angles = 4
+n_repetitions = 5
 
 ret = {}
 
-for angle in range(4):
-    angle = math.pi / 4 * angle
+for angle in range(n_angles):
+    angle = math.pi * angle / n_angles
     mixers = [
         create_mixer_rotational_X_gates(angle),
         create_mixer_rotational_XY_gates(angle),
         create_mixer_rotational_XZ_gates(angle),
     ]
     for opt in optimizers:
-        for rep in repetitions:
+        for rep in range(1, n_repetitions):
             for create_mixer in mixers:
                 print(
                     f"Running QAOA with angle {angle}, \
