@@ -6,14 +6,20 @@ It is for example suitable for:
 - computation of matrices mean.
 """
 import math
+import time
+
 import numpy as np
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
 from qiskit.primitives import BackendSampler
+from qiskit.quantum_info import Statevector
+from qiskit.circuit.library import QAOAAnsatz
 from qiskit_algorithms import QAOA
 from qiskit_algorithms.optimizers import SLSQP
 from qiskit_optimization.algorithms import CobylaOptimizer, MinimumEigenOptimizer
 from qiskit_optimization.converters import IntegerToBinary
 from qiskit_optimization.translators import from_docplex_mp
+from qiskit_optimization.problems import VarType
+from sklearn.preprocessing import MinMaxScaler
 from pyriemann.utils.covariance import normalize
 from pyriemann_qiskit.utils import get_simulator
 
@@ -575,3 +581,147 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         )
         w = np.array([w[key] for key in w])
         return w
+
+
+class QAOACVOptimizer(pyQiskitOptimizer):
+
+    """QAOA with continuous variables.
+
+    Parameters
+    ----------
+    create_mixer : Callable[int,QuantumCircuit]
+        A delegate that takes into input an angle and returns a QuantumCircuit
+    n_reps : int
+        The number of repetitions for the QAOA ansatz.
+        It defines how many time Mixer and Cost operators will be repeated
+        in the circuit.
+    quantum_instance : QuantumInstance, default=None
+        A quantum backend instance.
+        If None, AerSimulator will be used.
+    optimizer : SciPyOptimizer, default=SLSQP()
+        An instance of a scipy optimizer to find the optimal weights for the
+        parametric circuit (ansatz).
+
+    Notes
+    -----
+    .. versionadded:: 0.4.0
+
+    Attributes
+    ----------
+    x_: list[int]
+        Indices of the loss function.
+    y_: list[int]
+        Cost computed by the loss function.
+    run_time_: float
+        Time taken by the optimizer
+    optim_params_: list[float]
+        The optimal rotation for the gate in the circuit.
+    minimum_: float
+        The value of the objective function with the optimal parameters.
+    state_vector_: StateVector
+        State vector of the optimized quantum circuit
+        (optimal parameters assigned to the parametric gates).
+
+    See Also
+    --------
+    pyQiskitOptimizer
+    """
+
+    def __init__(self, create_mixer, n_reps, quantum_instance=None, optimizer=SLSQP()):
+        self.n_reps = n_reps
+        self.create_mixer = create_mixer
+        self.quantum_instance = quantum_instance
+        self.optimizer = optimizer
+
+    @staticmethod
+    def prepare_model(qp):
+        scalers = []
+        for v in qp.variables:
+            if v.vartype == VarType.CONTINUOUS:
+                scaler = MinMaxScaler().fit(
+                    np.array([v.lowerbound, v.upperbound]).reshape(-1, 1)
+                )
+                # print(scaler.data_min_, scaler.data_max_)
+                scalers.append(scaler)
+                v.vartype = VarType.BINARY
+        return scalers
+
+    def _solve_qp(self, qp, reshape=True):
+        n_var = qp.get_num_vars()
+        # Extract the objective function from the docplex model
+        # We want the object expression with continuous variable
+        objective_expr = qp._objective
+
+        # Convert continous variable to binary ones
+        # Get scalers corresponding to the definition range of each variables
+        scalers = QAOACVOptimizer.prepare_model(qp)
+
+        # Check all variables are converted to binary, and scalers are registered
+        # print(qp.prettyprint(), scalers)
+
+        # cost operator
+        # Get operator associated with model
+        cost, _offset = qp.to_ising()
+
+        mixer = self.create_mixer(cost.num_qubits)
+
+        # QAOA cirtcuit
+        ansatz_0 = QAOAAnsatz(
+            cost_operator=cost,
+            reps=self.n_reps,
+            initial_state=None,
+            mixer_operator=mixer,
+        ).decompose()
+        ansatz = QAOAAnsatz(
+            cost_operator=cost,
+            reps=self.n_reps,
+            initial_state=None,
+            mixer_operator=mixer,
+        ).decompose()
+        ansatz.measure_all()
+
+        def prob(job, i):
+            quasi_dists = job.result().quasi_dists[0]
+            p = 0
+            for key in quasi_dists:
+                if key & 2 ** (n_var - 1 - i):
+                    p += quasi_dists[key]
+
+            # p is in the range [0, 1].
+            # We now need to scale it in the definition
+            # range of our continuous variables
+            p = scalers[i].inverse_transform([[p]])[0][0]
+            return p
+
+        # defining loss function
+        self.x_ = []
+        self.y_ = []
+
+        def loss(params):
+            job = self.quantum_instance.run(ansatz, params)
+            var_hat = [prob(job, i) for i in range(n_var)]
+            cost = objective_expr.evaluate(var_hat)
+            self.x_.append(len(self.x_))
+            self.y_.append(cost)
+            return cost
+
+        # Initial guess for the parameters
+        initial_guess = np.array([1, 1] * self.n_reps)
+
+        # minimize function to search for the optimal parameters
+        start_time = time.time()
+        result = self.optimizer.minimize(loss, initial_guess)
+        stop_time = time.time()
+        self.run_time_ = stop_time - start_time
+
+        self.optim_params_ = result.x
+
+        # running QAOA circuit with optimal parameters
+        job = self.quantum_instance.run(ansatz, self.optim_params_)
+        solution = [prob(job, i) for i in range(n_var)]
+        self.minimum_ = objective_expr.evaluate(solution)
+
+        optimized_circuit = ansatz_0.assign_parameters(self.optim_params_)
+        self.state_vector_ = Statevector(optimized_circuit)
+
+        return solution
