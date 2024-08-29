@@ -36,21 +36,21 @@ from pyriemann_qiskit.utils.docplex import QAOACVOptimizer
 
 def create_mixer_rotational_X_gates(angle):
     def mixer_X(n_qubits):
-        qr = QuantumRegister(num_qubits)
+        qr = QuantumRegister(n_qubits)
         mixer = QuantumCircuit(qr)
 
-        for i in range(num_qubits):
+        for i in range(n_qubits):
             mixer.rx(angle, qr[i])
 
     return mixer_X
 
 
 def create_mixer_rotational_XY_gates(angle):
-    def mixer_XY(num_qubits):
-        qr = QuantumRegister(num_qubits)
+    def mixer_XY(n_qubits):
+        qr = QuantumRegister(n_qubits)
         mixer = QuantumCircuit(qr)
 
-        for i in range(num_qubits - 1):
+        for i in range(n_qubits - 1):
             mixer.rx(angle, qr[i])
             mixer.rx(angle, qr[i + 1])
             mixer.ry(angle, qr[i])
@@ -60,11 +60,11 @@ def create_mixer_rotational_XY_gates(angle):
 
 
 def create_mixer_rotational_XZ_gates(angle):
-    def mixer_XZ(num_qubits):
-        qr = QuantumRegister(num_qubits)
+    def mixer_XZ(n_qubits):
+        qr = QuantumRegister(n_qubits)
         mixer = QuantumCircuit(qr)
 
-        for i in range(1, num_qubits - 1):
+        for i in range(1, n_qubits - 1):
             mixer.rz(angle, qr[i - 1])
             mixer.rx(angle, qr[i])
             mixer.rx(angle + math.pi / 2, qr[i])
