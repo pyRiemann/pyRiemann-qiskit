@@ -35,7 +35,7 @@ from pyriemann_qiskit.utils.docplex import QAOACVOptimizer
 
 
 def create_mixer_rotational_X_gates(angle):
-    def mixer_X(num_qubits):
+    def mixer_X(n_qubits):
         qr = QuantumRegister(num_qubits)
         mixer = QuantumCircuit(qr)
 
