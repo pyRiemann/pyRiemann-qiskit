@@ -90,6 +90,9 @@ Hyper-parameters generation
     gen_two_local
     get_spsa
     get_spsa_parameters
+    create_mixer_rotational_X_gates
+    create_mixer_rotational_XY_gates
+    create_mixer_rotational_XZ_gates
 
 Preprocessing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

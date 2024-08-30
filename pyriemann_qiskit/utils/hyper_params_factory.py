@@ -2,6 +2,7 @@ from qiskit.circuit.library import ZZFeatureMap, ZFeatureMap, PauliFeatureMap
 from qiskit_algorithms.optimizers import SPSA
 from qiskit.circuit.library import TwoLocal
 import inspect
+import math
 
 
 def gen_x_feature_map(reps=2):
@@ -335,3 +336,117 @@ def get_spsa_parameters(spsa):
         signature.parameters["gamma"].default,
         signature.parameters["stability_constant"].default,
     )
+
+
+def create_mixer_rotational_X_gates(angle):
+    """Return the default mixing operator with QAOA.
+
+    H_X = \sum_{i}^{N} X_i
+
+    See [1]_ for details.
+
+    Parameters
+    ----------
+    angle : float
+        The angle of the gates' rotation.
+
+    Returns
+    -------
+    mixer : QuantumCircuit
+        The mixer.
+
+    Notes
+    -----
+    .. versionadded:: 0.4.0
+
+    References
+    ----------
+    .. [1] \
+        https://dice.cyfronet.pl/papers/JPlewa_JSienko_msc_v2.pdf
+    """
+    def mixer_X(n_qubits):
+        qr = QuantumRegister(n_qubits)
+        mixer = QuantumCircuit(qr)
+
+        for i in range(n_qubits):
+            mixer.rx(angle, qr[i])
+
+    return mixer_X
+
+
+def create_mixer_rotational_XY_gates(angle):
+    """Return the XY mixer
+
+    H_{XY} = \sum_{i}^{N-1} \left( X_i X_{i+1} + Y_i Y_{i+1} \right),
+
+    See [1]_ for details.
+
+    Parameters
+    ----------
+    angle : float
+        The angle of the gates' rotation.
+
+    Returns
+    -------
+    mixer : QuantumCircuit
+        The mixer.
+
+    Notes
+    -----
+    .. versionadded:: 0.4.0
+
+    References
+    ----------
+    .. [1] \
+        https://dice.cyfronet.pl/papers/JPlewa_JSienko_msc_v2.pdf
+    """
+    def mixer_XY(n_qubits):
+        qr = QuantumRegister(n_qubits)
+        mixer = QuantumCircuit(qr)
+
+        for i in range(n_qubits - 1):
+            mixer.rx(angle, qr[i])
+            mixer.rx(angle, qr[i + 1])
+            mixer.ry(angle, qr[i])
+            mixer.ry(angle, qr[i + 1])
+
+    return mixer_XY
+
+
+def create_mixer_rotational_XZ_gates(angle):
+    """Return a mixing operator with XZ gates
+
+    H_{\text{mix}} = \sum_{i}^{N-1} \left( Z_{i-1} X_i - X_i Z_{i+1} \right).
+
+    See [1]_ for details.
+
+    Parameters
+    ----------
+    angle : float
+        The angle of the gates' rotation.
+
+    Returns
+    -------
+    mixer : QuantumCircuit
+        The mixer.
+
+    Notes
+    -----
+    .. versionadded:: 0.4.0
+
+    References
+    ----------
+    .. [1] \
+        https://dice.cyfronet.pl/papers/JPlewa_JSienko_msc_v2.pdf
+    """
+    def mixer_XZ(n_qubits):
+        qr = QuantumRegister(n_qubits)
+        mixer = QuantumCircuit(qr)
+
+        for i in range(1, n_qubits - 1):
+            mixer.rz(angle, qr[i - 1])
+            mixer.rx(angle, qr[i])
+            mixer.rx(angle + math.pi / 2, qr[i])
+            mixer.rz(angle, qr[i + 1])
+
+    return mixer_XZ
