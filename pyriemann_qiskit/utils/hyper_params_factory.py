@@ -364,6 +364,7 @@ def create_mixer_rotational_X_gates(angle):
     .. [1] \
         https://dice.cyfronet.pl/papers/JPlewa_JSienko_msc_v2.pdf
     """
+
     def mixer_X(n_qubits):
         qr = QuantumRegister(n_qubits)
         mixer = QuantumCircuit(qr)
@@ -400,6 +401,7 @@ def create_mixer_rotational_XY_gates(angle):
     .. [1] \
         https://dice.cyfronet.pl/papers/JPlewa_JSienko_msc_v2.pdf
     """
+
     def mixer_XY(n_qubits):
         qr = QuantumRegister(n_qubits)
         mixer = QuantumCircuit(qr)
@@ -439,6 +441,7 @@ def create_mixer_rotational_XZ_gates(angle):
     .. [1] \
         https://dice.cyfronet.pl/papers/JPlewa_JSienko_msc_v2.pdf
     """
+
     def mixer_XZ(n_qubits):
         qr = QuantumRegister(n_qubits)
         mixer = QuantumCircuit(qr)

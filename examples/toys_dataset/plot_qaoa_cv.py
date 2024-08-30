@@ -18,7 +18,11 @@ import math
 
 from docplex.mp.model import Model
 import matplotlib.pyplot as plt
-from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_rotational_X_gates, create_mixer_rotational_XY_gates, create_mixer_rotational_XZ_gates
+from pyriemann_qiskit.utils.hyper_params_factory import (
+    create_mixer_rotational_X_gates,
+    create_mixer_rotational_XY_gates,
+    create_mixer_rotational_XZ_gates,
+)
 from qiskit.primitives import BackendSampler
 from qiskit_aer import AerSimulator
 from qiskit_algorithms.optimizers import COBYLA, SPSA
@@ -30,6 +34,7 @@ from pyriemann_qiskit.utils.docplex import QAOACVOptimizer
 #
 # Let's define a handy function to run and plot the result of the QAOA-CV
 #
+
 
 def run_qaoa_cv(n_reps, optimizer, create_mixer):
     # Define docplex model
