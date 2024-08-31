@@ -1,5 +1,6 @@
 from qiskit.circuit.library import ZZFeatureMap, ZFeatureMap, PauliFeatureMap
 from qiskit_algorithms.optimizers import SPSA
+from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.circuit.library import TwoLocal
 import inspect
 import math
