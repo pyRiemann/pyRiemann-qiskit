@@ -340,7 +340,7 @@ def get_spsa_parameters(spsa):
 
 
 def create_mixer_rotational_X_gates(angle):
-    """Return the default mixing operator with QAOA.
+    r"""Return the default mixing operator with QAOA.
 
     .. math::
         H_X = \sum_{i}^{N} X_i
@@ -378,7 +378,7 @@ def create_mixer_rotational_X_gates(angle):
 
 
 def create_mixer_rotational_XY_gates(angle):
-    """Return the XY mixer
+    r"""Return the XY mixer
 
     .. math::
         H_{XY} = \sum_{i}^{N-1} \left( X_i X_{i+1} + Y_i Y_{i+1} \right),
@@ -419,7 +419,7 @@ def create_mixer_rotational_XY_gates(angle):
 
 
 def create_mixer_rotational_XZ_gates(angle):
-    """Return a mixing operator with XZ gates
+    r"""Return a mixing operator with XZ gates
 
     .. math::
         H_{\text{mix}} = \sum_{i}^{N-1} \left( Z_{i-1} X_i - X_i Z_{i+1} \right).
