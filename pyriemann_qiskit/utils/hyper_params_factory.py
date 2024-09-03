@@ -383,7 +383,7 @@ def create_mixer_rotational_X_gates(angle):
 
 
 def create_mixer_rotational_XY_gates(angle):
-    r"""Return the XY mixer
+    r"""Return the XY mixer.
 
     .. math::
         H_{XY} = \sum_{i}^{N-1} \left( X_i X_{i+1} + Y_i Y_{i+1} \right),
