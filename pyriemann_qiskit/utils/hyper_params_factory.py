@@ -1,9 +1,14 @@
-from qiskit.circuit.library import ZZFeatureMap, ZFeatureMap, PauliFeatureMap
-from qiskit_algorithms.optimizers import SPSA
-from qiskit.circuit import QuantumCircuit, QuantumRegister
-from qiskit.circuit.library import TwoLocal
 import inspect
 import math
+
+from qiskit.circuit import QuantumCircuit, QuantumRegister
+from qiskit.circuit.library import (
+    ZZFeatureMap,
+    ZFeatureMap,
+    PauliFeatureMap,
+    TwoLocal,
+)
+from qiskit_algorithms.optimizers import SPSA
 
 
 def gen_x_feature_map(reps=2):
