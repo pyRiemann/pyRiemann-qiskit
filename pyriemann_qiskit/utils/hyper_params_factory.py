@@ -376,8 +376,8 @@ def create_mixer_rotational_X_gates(angle):
         qr = QuantumRegister(n_qubits)
         mixer = QuantumCircuit(qr)
 
-        for i in range(n_qubits):
-            mixer.rx(angle, qr[i])
+        for qr_ in qr:
+            mixer.rx(angle, qr_)
 
     return mixer_X
 
