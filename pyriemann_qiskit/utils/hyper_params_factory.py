@@ -424,7 +424,7 @@ def create_mixer_rotational_XY_gates(angle):
 
 
 def create_mixer_rotational_XZ_gates(angle):
-    r"""Return a mixing operator with XZ gates
+    r"""Return a mixing operator with XZ gates.
 
     .. math::
         H_{\text{mix}} = \sum_{i}^{N-1} \left( Z_{i-1} X_i - X_i Z_{i+1} \right).
