@@ -18,59 +18,15 @@ import math
 
 from docplex.mp.model import Model
 import matplotlib.pyplot as plt
-from qiskit.circuit import QuantumCircuit, QuantumRegister
+from pyriemann_qiskit.utils.hyper_params_factory import (
+    create_mixer_rotational_X_gates,
+    create_mixer_rotational_XY_gates,
+    create_mixer_rotational_XZ_gates,
+)
 from qiskit.primitives import BackendSampler
 from qiskit_aer import AerSimulator
 from qiskit_algorithms.optimizers import COBYLA, SPSA
 from pyriemann_qiskit.utils.docplex import QAOACVOptimizer
-
-###############################################################################
-# Define mixer operators
-#
-# QAOA is a quantum circuit that is a repetition of
-# a cost an mixer operator.
-#
-# We will use some of the mixer operators defined in [1]_.
-#
-
-
-def create_mixer_rotational_X_gates(angle):
-    def mixer_X(n_qubits):
-        qr = QuantumRegister(n_qubits)
-        mixer = QuantumCircuit(qr)
-
-        for i in range(n_qubits):
-            mixer.rx(angle, qr[i])
-
-    return mixer_X
-
-
-def create_mixer_rotational_XY_gates(angle):
-    def mixer_XY(n_qubits):
-        qr = QuantumRegister(n_qubits)
-        mixer = QuantumCircuit(qr)
-
-        for i in range(n_qubits - 1):
-            mixer.rx(angle, qr[i])
-            mixer.rx(angle, qr[i + 1])
-            mixer.ry(angle, qr[i])
-            mixer.ry(angle, qr[i + 1])
-
-    return mixer_XY
-
-
-def create_mixer_rotational_XZ_gates(angle):
-    def mixer_XZ(n_qubits):
-        qr = QuantumRegister(n_qubits)
-        mixer = QuantumCircuit(qr)
-
-        for i in range(1, n_qubits - 1):
-            mixer.rz(angle, qr[i - 1])
-            mixer.rx(angle, qr[i])
-            mixer.rx(angle + math.pi / 2, qr[i])
-            mixer.rz(angle, qr[i + 1])
-
-    return mixer_XZ
 
 
 ###############################################################################
@@ -120,6 +76,9 @@ def run_qaoa_cv(n_reps, optimizer, create_mixer):
 
 ###############################################################################
 # Hyper-parameters
+#
+# QAOA is a quantum circuit that is a repetition of
+# a cost an mixer operator.
 #
 # We will now try different combination of optimizer and mixers.
 #
