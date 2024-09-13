@@ -19,15 +19,18 @@ entanglement or the number of shots.
 # Author: Gregoire Cattan
 # License: BSD (3-clause)
 
+from sklearn.decomposition import PCA
+from sklearn.model_selection import StratifiedKFold, GridSearchCV
+
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
 )
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
-from sklearn.decomposition import PCA
-from sklearn.model_selection import StratifiedKFold, GridSearchCV
 
 print(__doc__)
+
+###############################################################################
 
 X, y = get_mne_sample(n_trials=10)
 

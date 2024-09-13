@@ -438,7 +438,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     .. versionchanged:: 0.0.4
         add get_weights method.
     .. versionchanged:: 0.3.0
-        add evaluated_values_ attribute.
+        add `evaluated_values_` attribute.
         add optimizer parameter.
 
     Attributes

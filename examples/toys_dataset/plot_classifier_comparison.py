@@ -12,13 +12,14 @@ classifiers on toys datasets.
 # Modified for pyRiemann-qiskit by Gregoire Cattan
 # License: BSD 3 clause
 
-import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.datasets import make_moons, make_circles
 from sklearn.svm import SVC
+
 from pyriemann_qiskit.datasets import (
     generate_linearly_separable_dataset,
     generate_qiskit_dataset,

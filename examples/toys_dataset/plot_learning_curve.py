@@ -11,13 +11,15 @@ of quantum neural network VQC and MDM, using an SPSA optimizer.
 # Author: Gregoire Cattan
 # License: BSD (3-clause)
 
+import matplotlib.pyplot as plt
+from pyriemann.estimation import Shrinkage
+
 from pyriemann_qiskit.datasets.utils import get_mne_sample
 from pyriemann_qiskit.pipelines import QuantumMDMWithRiemannianPipeline
 from pyriemann_qiskit.utils.hyper_params_factory import get_spsa
-import matplotlib.pyplot as plt
 from pyriemann_qiskit.datasets import generate_linearly_separable_dataset
 from pyriemann_qiskit.classification import QuanticVQC
-from pyriemann.estimation import Shrinkage
+
 
 print(__doc__)
 

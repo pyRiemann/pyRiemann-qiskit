@@ -506,7 +506,7 @@ class QuanticVQC(QuanticClassifierBase):
     .. versionchanged:: 0.2.0
         Add seed parameter
     .. versionchanged:: 0.3.0
-        Add evaluated_values_ attribute.
+        Add `evaluated_values_` attribute.
 
     See Also
     --------
@@ -1033,7 +1033,7 @@ class QuanticNCH(QuanticClassifierBase):
     regularization : MixinTransformer | None, default=None
         Additional post-processing to regularize means.
     classical_optimizer : OptimizationAlgorithm, default=SlsqpOptimizer()
-        An instance of OptimizationAlgorithm [3]_.
+        An instance of OptimizationAlgorithm [1]_.
     n_jobs : int, default=6
         The number of jobs to use for the computation. This works by computing
         each of the hulls in parallel.
@@ -1050,6 +1050,10 @@ class QuanticNCH(QuanticClassifierBase):
         An instance of a scipy optimizer to find the optimal weights for the
         parametric circuit (ansatz).
 
+`    References
+    ----------
+    .. [1] \
+        https://qiskit-community.github.io/qiskit-optimization/stubs/qiskit_optimization.algorithms.OptimizationAlgorithm.html#optimizationalgorithm
     """
 
     def __init__(

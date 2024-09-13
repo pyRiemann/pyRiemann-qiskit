@@ -23,9 +23,9 @@ pip install moabb==0.5.0
 # Modified from plot_classify_EEG_tangentspace.py of pyRiemann
 # License: BSD (3-clause)
 
-from matplotlib import pyplot as plt
 import warnings
-import seaborn as sns
+
+from matplotlib import pyplot as plt
 from moabb import set_log_level
 from moabb.datasets import (
     # bi2012,
@@ -42,6 +42,7 @@ from moabb.datasets import (
 )
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
+import seaborn as sns
 
 # inject cpm distance and mean to pyriemann (if not done already)
 from pyriemann_qiskit.utils import distance, mean  # noqa

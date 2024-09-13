@@ -11,8 +11,9 @@ classifier.
 # Author: Gregoire Cattan
 # License: BSD (3-clause)
 
-from pyriemann_qiskit.utils.hyper_params_factory import gen_two_local
 import matplotlib.pyplot as plt
+
+from pyriemann_qiskit.utils.hyper_params_factory import gen_two_local
 from pyriemann_qiskit.datasets import generate_linearly_separable_dataset
 from pyriemann_qiskit.classification import QuanticVQC
 from pyriemann_qiskit.visualization import weights_spiral
