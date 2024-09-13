@@ -6,6 +6,7 @@ from sklearn.base import ClassifierMixin, BaseEstimator
 
 from .utils import union_of_diff
 
+
 class JudgeClassifier(BaseEstimator, ClassifierMixin):
 
     """Judge classifier
