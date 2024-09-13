@@ -2,13 +2,13 @@
 Contains helper methods and classes to manage datasets.
 """
 from warnings import warn
-import numpy as np
 
 try:
     from mne import io, read_events, pick_types, Epochs
     from mne.datasets import sample
 except Exception:
     warn("mne not available. get_mne_sample will fail.")
+import numpy as np
 from qiskit_machine_learning.datasets import ad_hoc_data
 from sklearn.datasets import make_classification
 

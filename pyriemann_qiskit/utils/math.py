@@ -1,5 +1,6 @@
 """Module for mathematical helpers"""
 from typing_extensions import deprecated
+
 import numpy as np
 from pyriemann.utils.covariance import normalize
 

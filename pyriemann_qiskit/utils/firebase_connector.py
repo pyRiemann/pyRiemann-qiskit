@@ -1,8 +1,6 @@
 import firebase_admin
 import os
-import pandas as pd
 from warnings import warn
-
 try:
     from firebase_admin import credentials, firestore
 except Exception:
@@ -10,6 +8,9 @@ except Exception:
         """No firebase_admin found. Firebase connector \
          can only run with mock data."""
     )
+
+import pandas as pd
+
 from .firebase_cert import certificate
 
 

@@ -2,9 +2,9 @@
 Ensemble classifiers.
 """
 import numpy as np
-from pyriemann_qiskit.utils import union_of_diff
 from sklearn.base import ClassifierMixin, BaseEstimator
 
+from .utils import union_of_diff
 
 class JudgeClassifier(BaseEstimator, ClassifierMixin):
 
@@ -19,13 +19,12 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
 
     Parameters
     ----------
-    clfs : ClassifierMixin[]
-        A list of ClassifierMixin.
-
     judge : ClassifierMixin
-        An instance of ClassifierMixin.
-        This classifier is trained on the labels for which
-        classifiers clfs obtain different predictions.
+        Classifier trained on the inputs for which
+        classifiers `clfs` obtain different predictions.
+
+    clfs : list of ClassifierMixin
+        Classifiers trained on the balanced dataset.
 
     Notes
     -----

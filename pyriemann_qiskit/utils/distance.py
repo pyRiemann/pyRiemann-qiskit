@@ -1,6 +1,7 @@
-import numpy as np
+from typing_extensions import deprecated
+
 from docplex.mp.model import Model
-from pyriemann_qiskit.utils.docplex import ClassicalOptimizer, get_global_optimizer
+import numpy as np
 from pyriemann.utils.distance import (
     distance_functions,
     distance_logeuclid,
@@ -8,7 +9,8 @@ from pyriemann.utils.distance import (
 )
 from pyriemann.utils.base import logm
 from pyriemann.utils.mean import mean_logeuclid
-from typing_extensions import deprecated
+
+from .utils.docplex import ClassicalOptimizer, get_global_optimizer
 
 
 @deprecated(

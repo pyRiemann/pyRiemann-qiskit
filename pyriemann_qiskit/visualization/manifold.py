@@ -2,10 +2,11 @@
 Visualization of the covariance matrices on the SPD manifold.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-from pyriemann_qiskit.utils.math import to_xyz
+import numpy as np
 from scipy.spatial import ConvexHull
+
+from .utils.math import to_xyz
 
 
 def plot_cvx_hull(X, ax):
