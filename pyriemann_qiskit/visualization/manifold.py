@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.spatial import ConvexHull
 
-from .utils.math import to_xyz
+from ..utils.math import to_xyz
 
 
 def plot_cvx_hull(X, ax):

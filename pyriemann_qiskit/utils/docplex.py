@@ -22,7 +22,7 @@ from qiskit_optimization.translators import from_docplex_mp
 from qiskit_optimization.problems import VarType
 from sklearn.preprocessing import MinMaxScaler
 
-from .utils import get_simulator
+from .quantum_provider import get_simulator
 
 
 _global_optimizer = [None]

@@ -10,7 +10,7 @@ from pyriemann.utils.distance import (
 from pyriemann.utils.base import logm
 from pyriemann.utils.mean import mean_logeuclid
 
-from .utils.docplex import ClassicalOptimizer, get_global_optimizer
+from .docplex import ClassicalOptimizer, get_global_optimizer
 
 
 @deprecated(
