@@ -62,7 +62,7 @@ plot_html_show_source_link = False
 sphinx_gallery_conf = {
     'examples_dirs': ['../examples'],
     'gallery_dirs': ['auto_examples'],
-    'doc_module': 'pyriemann-qiskit',
+    'doc_module': 'pyriemann_qiskit',
     'backreferences_dir': 'generated',
     'plot_gallery': 'True',
 }
