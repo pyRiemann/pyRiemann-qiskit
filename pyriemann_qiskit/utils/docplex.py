@@ -8,11 +8,12 @@ It is for example suitable for:
 import math
 import time
 
-import numpy as np
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
+import numpy as np
+from pyriemann.utils.covariance import normalize
+from qiskit.circuit.library import QAOAAnsatz
 from qiskit.primitives import BackendSampler
 from qiskit.quantum_info import Statevector
-from qiskit.circuit.library import QAOAAnsatz
 from qiskit_algorithms import QAOA
 from qiskit_algorithms.optimizers import SLSQP
 from qiskit_optimization.algorithms import CobylaOptimizer, MinimumEigenOptimizer
@@ -20,8 +21,8 @@ from qiskit_optimization.converters import IntegerToBinary
 from qiskit_optimization.translators import from_docplex_mp
 from qiskit_optimization.problems import VarType
 from sklearn.preprocessing import MinMaxScaler
-from pyriemann.utils.covariance import normalize
-from pyriemann_qiskit.utils import get_simulator
+
+from .quantum_provider import get_simulator
 
 
 _global_optimizer = [None]
@@ -438,7 +439,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     .. versionchanged:: 0.0.4
         add get_weights method.
     .. versionchanged:: 0.3.0
-        add evaluated_values_ attribute.
+        add `evaluated_values_` attribute.
         add optimizer parameter.
 
     Attributes

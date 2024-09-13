@@ -80,4 +80,4 @@ References
 
 How to cite?
 ================================
-Anton Andreev, Grégoire Cattan, Sylvain Chevallier, and Quentin Barthélemy. ‘PyRiemann-Qiskit: A Sandbox for Quantum Classification Experiments with Riemannian Geometry’. Research Ideas and Outcomes 9 (20 March 2023). https://doi.org/10.3897/rio.9.e101006.
+Anton Andreev, Grégoire Cattan, Sylvain Chevallier, and Quentin Barthélemy. ‘pyRiemann-qiskit: A Sandbox for Quantum Classification Experiments with Riemannian Geometry’. Research Ideas and Outcomes 9 (20 March 2023). https://doi.org/10.3897/rio.9.e101006.

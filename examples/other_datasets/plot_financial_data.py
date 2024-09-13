@@ -30,26 +30,27 @@ with quantum computing.
 # Authors: Gregoire Cattan, Filipe Barroso
 # License: BSD (3-clause)
 
+import os
+import warnings
+
+from imblearn.under_sampling import NearMiss
+from matplotlib import pyplot as plt
+import numpy as np
+import pandas as pd
+from pyriemann.preprocessing import Whitening
+from pyriemann.estimation import XdawnCovariances
+from pyriemann.utils.viz import plot_waveforms
 from sklearn.base import TransformerMixin, BaseEstimator, ClassifierMixin
 from sklearn.experimental import enable_halving_search_cv  # noqa
-from sklearn.model_selection import HalvingGridSearchCV
+from sklearn.model_selection import HalvingGridSearchCV, train_test_split
 from sklearn.pipeline import make_pipeline
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import balanced_accuracy_score
-from imblearn.under_sampling import NearMiss
-from pyriemann.preprocessing import Whitening
-from pyriemann.estimation import XdawnCovariances
-from pyriemann.utils.viz import plot_waveforms
+
 from pyriemann_qiskit.classification import QuanticSVM
 from pyriemann_qiskit.utils.preprocessing import NdRobustScaler
-from matplotlib import pyplot as plt
-import warnings
-import pandas as pd
-import numpy as np
-import os
 
 print(__doc__)
 
@@ -86,7 +87,6 @@ def plot_ERP(X, title, n=10, ylim=None, add_digest=False):
 
 
 def merge_2axes(fig1, fig2, file_name1="f1.png", file_name2="f2.png"):
-    # Modified from [4]
     fig1.savefig(file_name1)
     fig2.savefig(file_name2)
     plt.close(fig1)
@@ -466,5 +466,3 @@ print("ID involved in probable collusion: ", high_warning_id)
 # .. [2] 'Synthetic Data of Transactions for Inmediate Loans Fraud'
 #         https://zenodo.org/records/7418458
 # .. [3] https://pyriemann.readthedocs.io/en/latest/auto_examples/ERP/plot_ERP.html
-#
-# .. [4] https://stackoverflow.com/questions/16748577

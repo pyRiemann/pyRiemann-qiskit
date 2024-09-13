@@ -13,11 +13,9 @@ classifier. It is compared to the classical SVM on binary classification.
 # Modified from plot_classify_EEG_tangentspace.py of pyRiemann
 # License: BSD (3-clause)
 
+from matplotlib import pyplot as plt
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
-from pyriemann_qiskit.classification import QuanticSVM
-from pyriemann_qiskit.utils.filtering import NaiveDimRed
-from pyriemann_qiskit.datasets import get_mne_sample
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import (
@@ -25,11 +23,14 @@ from sklearn.metrics import (
     ConfusionMatrixDisplay,
     balanced_accuracy_score,
 )
-from matplotlib import pyplot as plt
 
+from pyriemann_qiskit.classification import QuanticSVM
+from pyriemann_qiskit.utils.filtering import NaiveDimRed
+from pyriemann_qiskit.datasets import get_mne_sample
 
 print(__doc__)
 
+##############################################################################
 
 X, y = get_mne_sample(n_trials=-1)
 

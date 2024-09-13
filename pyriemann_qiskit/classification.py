@@ -5,38 +5,46 @@ in several modes quantum/classical and simulated/real
 quantum computer.
 """
 from datetime import datetime
-from pyriemann_qiskit.utils.quantum_provider import get_quantum_kernel
-from scipy.special import softmax
 import logging
-import numpy as np
+import random
 from warnings import warn
 
-from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
-from pyriemann.utils.distance import distance
+from joblib import Parallel, delayed
+import numpy as np
 from pyriemann.classification import MDM
-from pyriemann_qiskit.datasets import get_feature_dimension
-from pyriemann_qiskit.utils import (
-    ClassicalOptimizer,
-    NaiveQAOAOptimizer,
-    set_global_optimizer,
-)
-from pyriemann_qiskit.utils.distance import distance_functions
-from pyriemann_qiskit.utils.utils import is_qfunction
+from pyriemann.utils.distance import distance
 from qiskit.primitives import BackendSampler
+from qiskit_algorithms.optimizers import SLSQP
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
 from qiskit_optimization.algorithms import (
     CobylaOptimizer,
     SlsqpOptimizer,
 )
-from qiskit_algorithms.optimizers import SLSQP
+from scipy.special import softmax
+from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.svm import SVC
 
-from .utils.hyper_params_factory import gen_zz_feature_map, gen_two_local, get_spsa
-from .utils import get_provider, get_device, get_simulator
-from .utils.distance import qdistance_logeuclid_to_convex_hull
-from joblib import Parallel, delayed
-import random
+from .datasets import get_feature_dimension
+from .utils import (
+    get_provider,
+    get_device,
+    get_simulator,
+    set_global_optimizer,
+    ClassicalOptimizer,
+    NaiveQAOAOptimizer,
+)
+from .utils.distance import (
+    distance_functions,
+    qdistance_logeuclid_to_convex_hull,
+)
+from .utils.hyper_params_factory import (
+    gen_zz_feature_map,
+    gen_two_local,
+    get_spsa,
+)
+from .utils.quantum_provider import get_quantum_kernel
+from .utils.utils import is_qfunction
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -506,7 +514,7 @@ class QuanticVQC(QuanticClassifierBase):
     .. versionchanged:: 0.2.0
         Add seed parameter
     .. versionchanged:: 0.3.0
-        Add evaluated_values_ attribute.
+        Add `evaluated_values_` attribute.
 
     See Also
     --------
@@ -1033,7 +1041,7 @@ class QuanticNCH(QuanticClassifierBase):
     regularization : MixinTransformer | None, default=None
         Additional post-processing to regularize means.
     classical_optimizer : OptimizationAlgorithm, default=SlsqpOptimizer()
-        An instance of OptimizationAlgorithm [3]_.
+        An instance of OptimizationAlgorithm [1]_.
     n_jobs : int, default=6
         The number of jobs to use for the computation. This works by computing
         each of the hulls in parallel.
@@ -1050,6 +1058,10 @@ class QuanticNCH(QuanticClassifierBase):
         An instance of a scipy optimizer to find the optimal weights for the
         parametric circuit (ansatz).
 
+    References
+    ----------
+    .. [1] \
+        https://qiskit-community.github.io/qiskit-optimization/stubs/qiskit_optimization.algorithms.OptimizationAlgorithm.html#optimizationalgorithm
     """
 
     def __init__(

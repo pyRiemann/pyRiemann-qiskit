@@ -10,10 +10,10 @@ https://www.kaggle.com/c/titanic/data
 # Author: Adrien Veres
 # License: BSD (3-clause)
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
 from sklearn.impute import KNNImputer
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.decomposition import PCA
@@ -21,6 +21,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.metrics import balanced_accuracy_score
+
 from pyriemann_qiskit.classification import QuanticSVM
 
 print(__doc__)

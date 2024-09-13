@@ -4,7 +4,7 @@ QAOA-CV optimization
 ====================================================================
 
 QAOA is a parametric quantum circuit, which is usually used to
-solve QUBO problems, i.e, problems with binary variables.
+solve QUBO problems, i.e, problems with binary variables [1]_.
 
 In this example we will show how to use pyRiemann-qiskit implementation
 of QAOA-CV, which accepts continuous variables.
@@ -18,22 +18,22 @@ import math
 
 from docplex.mp.model import Model
 import matplotlib.pyplot as plt
+from qiskit.primitives import BackendSampler
+from qiskit_aer import AerSimulator
+from qiskit_algorithms.optimizers import COBYLA, SPSA
+
+from pyriemann_qiskit.utils.docplex import QAOACVOptimizer
 from pyriemann_qiskit.utils.hyper_params_factory import (
     create_mixer_rotational_X_gates,
     create_mixer_rotational_XY_gates,
     create_mixer_rotational_XZ_gates,
 )
-from qiskit.primitives import BackendSampler
-from qiskit_aer import AerSimulator
-from qiskit_algorithms.optimizers import COBYLA, SPSA
-from pyriemann_qiskit.utils.docplex import QAOACVOptimizer
 
 
 ###############################################################################
 # Run QAOA-CV
 #
 # Let's define a handy function to run and plot the result of the QAOA-CV
-#
 
 
 def run_qaoa_cv(n_reps, optimizer, create_mixer):
@@ -81,7 +81,6 @@ def run_qaoa_cv(n_reps, optimizer, create_mixer):
 # a cost an mixer operator.
 #
 # We will now try different combination of optimizer and mixers.
-#
 
 maxiter = 500
 optimizers = [
@@ -118,4 +117,3 @@ for angle in range(n_angles):
 # References
 # ----------
 # .. [1] https://dice.cyfronet.pl/papers/JPlewa_JSienko_msc_v2.pdf
-#

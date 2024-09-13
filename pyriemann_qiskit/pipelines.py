@@ -1,30 +1,31 @@
 """Module for pipelines."""
 import numpy as np
+from pyriemann.classification import MDM
+from pyriemann.estimation import XdawnCovariances, ERPCovariances
+from pyriemann.preprocessing import Whitening
+from pyriemann.tangentspace import TangentSpace
+from qiskit_algorithms.optimizers import SLSQP
+from qiskit_optimization.algorithms import SlsqpOptimizer
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline, FeatureUnion
 from sklearn.ensemble import VotingClassifier
-from qiskit_optimization.algorithms import SlsqpOptimizer
-from qiskit_algorithms.optimizers import SLSQP
-from pyriemann.estimation import XdawnCovariances, ERPCovariances
-from pyriemann.tangentspace import TangentSpace
-from pyriemann.preprocessing import Whitening
-from pyriemann.classification import MDM
-from pyriemann_qiskit.utils.utils import is_qfunction
-from pyriemann_qiskit.utils.filtering import NoDimRed
-from pyriemann_qiskit.utils.hyper_params_factory import (
-    # gen_zz_feature_map,
-    gen_x_feature_map,
-    gen_two_local,
-    get_spsa,
-)
-from pyriemann_qiskit.classification import (
+
+from .classification import (
     QuanticNCH,
     QuanticVQC,
     QuanticSVM,
     QuanticMDM,
 )
+from .utils.filtering import NoDimRed
+from .utils.hyper_params_factory import (
+    # gen_zz_feature_map,
+    gen_x_feature_map,
+    gen_two_local,
+    get_spsa,
+)
+from .utils.utils import is_qfunction
 
 
 class BasePipeline(BaseEstimator, ClassifierMixin, TransformerMixin):

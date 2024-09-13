@@ -18,8 +18,7 @@ import matplotlib
 
 # mne update path
 import mne
-print(mne.datasets.sample.data_path(update_path=True))
-print(mne.datasets.eegbci.load_data(1, [6, 10, 14], update_path=True))
+print(mne.datasets.sample.data_path(update_path=True, download=False))
 
 matplotlib.use('Agg')
 import shlex
@@ -61,8 +60,11 @@ plot_html_show_formats = False
 plot_html_show_source_link = False
 
 sphinx_gallery_conf = {
-    'examples_dirs': ['../examples', '../tutorials'],
-    'gallery_dirs': ['auto_examples']
+    'examples_dirs': ['../examples'],
+    'gallery_dirs': ['auto_examples'],
+    'doc_module': 'pyriemann_qiskit',
+    'backreferences_dir': 'generated',
+    'plot_gallery': 'True',
 }
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

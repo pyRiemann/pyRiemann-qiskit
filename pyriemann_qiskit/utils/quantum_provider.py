@@ -1,15 +1,16 @@
 """Module containing helpers for IBM quantum backends
    providers and simulators."""
 
-from qiskit_ibm_runtime import QiskitRuntimeService
+import logging
+
 from qiskit_aer import AerSimulator
 from qiskit_aer.quantum_info import AerStatevector
+from qiskit_algorithms.state_fidelities import ComputeUncompute
+from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit_machine_learning.kernels import (
     FidelityStatevectorKernel,
     FidelityQuantumKernel,
 )
-from qiskit_algorithms.state_fidelities import ComputeUncompute
-import logging
 
 
 def get_provider():
