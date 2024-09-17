@@ -3,6 +3,7 @@ import numpy as np
 from pyriemann_qiskit.utils.docplex import (
     ClassicalOptimizer,
     NaiveQAOAOptimizer,
+    QAOACVOptimizer
 )
 from pyriemann_qiskit.utils.distance import (
     qdistance_logeuclid_to_convex_hull,
@@ -32,7 +33,9 @@ def test_performance(metric):
     assert score.mean() > 0
 
 
-@pytest.mark.parametrize("optimizer", [ClassicalOptimizer(), NaiveQAOAOptimizer()])
+@pytest.mark.parametrize("optimizer", [
+    ClassicalOptimizer(), NaiveQAOAOptimizer(), QAOACVOptimizer()
+])
 def test_qdistance_logeuclid_to_convex_hull(optimizer, get_covmats):
     n_trials, n_channels = 5, 3
     covmats = get_covmats(n_trials, n_channels)
@@ -45,7 +48,9 @@ def test_qdistance_logeuclid_to_convex_hull(optimizer, get_covmats):
     assert dist == pytest.approx(0, rel=1e-5, abs=1e-5)
 
 
-@pytest.mark.parametrize("optimizer", [ClassicalOptimizer(), NaiveQAOAOptimizer()])
+@pytest.mark.parametrize("optimizer", [
+    ClassicalOptimizer(), NaiveQAOAOptimizer(), QAOACVOptimizer()
+])
 def test_weight_logeuclid_to_convex_hull(optimizer):
     X_0 = np.array([[0.9, 1.1], [0.9, 1.1]])
     X_1 = X_0 + 1
