@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from pyriemann_qiskit.utils import (
+from pyriemann_qiskit.utils.docplex import (
     ClassicalOptimizer,
     NaiveQAOAOptimizer,
 )

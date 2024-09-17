@@ -5,7 +5,7 @@ from pyriemann.estimation import XdawnCovariances, Shrinkage
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from pyriemann_qiskit.utils.mean import qmean_euclid, qmean_logeuclid
-from pyriemann_qiskit.utils import ClassicalOptimizer, NaiveQAOAOptimizer
+from pyriemann_qiskit.utils.docplex import ClassicalOptimizer, NaiveQAOAOptimizer
 from pyriemann_qiskit.classification import QuanticMDM
 from pyriemann_qiskit.datasets import get_mne_sample
 from qiskit_optimization.algorithms import ADMMOptimizer

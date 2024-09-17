@@ -26,10 +26,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.svm import SVC
 
 from .datasets import get_feature_dimension
-from .utils import (
-    get_provider,
-    get_device,
-    get_simulator,
+from .utils.docplex import (
     set_global_optimizer,
     ClassicalOptimizer,
     NaiveQAOAOptimizer,
@@ -43,7 +40,12 @@ from .utils.hyper_params_factory import (
     gen_two_local,
     get_spsa,
 )
-from .utils.quantum_provider import get_quantum_kernel
+from .utils.quantum_provider import (
+    get_quantum_kernel,
+    get_simulator,
+    get_provider,
+    get_device,
+)
 from .utils.utils import is_qfunction
 
 logging.basicConfig(level=logging.WARNING)
