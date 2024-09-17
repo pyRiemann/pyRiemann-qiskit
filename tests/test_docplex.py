@@ -39,8 +39,8 @@ def test_get_square_cont_var(square_mat_var):
     assert type(first_element.vartype) is expected_result_type
 
 
-@pytest.mark.parametrize("optimizer", [
-    ClassicalOptimizer, NaiveQAOAOptimizer, QAOACVOptimizer
-])
+@pytest.mark.parametrize(
+    "optimizer", [ClassicalOptimizer, NaiveQAOAOptimizer, QAOACVOptimizer]
+)
 def test_optimizer_creation(optimizer):
     assert optimizer()

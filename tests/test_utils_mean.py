@@ -6,7 +6,9 @@ from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from pyriemann_qiskit.utils.mean import qmean_euclid, qmean_logeuclid
 from pyriemann_qiskit.utils.docplex import (
-    ClassicalOptimizer, NaiveQAOAOptimizer, QAOACVOptimizer
+    ClassicalOptimizer,
+    NaiveQAOAOptimizer,
+    QAOACVOptimizer,
 )
 from pyriemann_qiskit.classification import QuanticMDM
 from pyriemann_qiskit.datasets import get_mne_sample
@@ -58,7 +60,11 @@ def test_mean_cpm_shape(get_covmats, mean):
 
 @pytest.mark.parametrize(
     "optimizer",
-    [ClassicalOptimizer(optimizer=ADMMOptimizer()), NaiveQAOAOptimizer(), QAOACVOptimizer()],
+    [
+        ClassicalOptimizer(optimizer=ADMMOptimizer()),
+        NaiveQAOAOptimizer(),
+        QAOACVOptimizer(),
+    ],
 )
 @pytest.mark.parametrize("mean", [qmean_euclid])
 def test_mean_cpm_all_zeros(optimizer, mean):
@@ -72,7 +78,11 @@ def test_mean_cpm_all_zeros(optimizer, mean):
 
 @pytest.mark.parametrize(
     "optimizer",
-    [ClassicalOptimizer(optimizer=ADMMOptimizer()), NaiveQAOAOptimizer(), QAOACVOptimizer()],
+    [
+        ClassicalOptimizer(optimizer=ADMMOptimizer()),
+        NaiveQAOAOptimizer(),
+        QAOACVOptimizer(),
+    ],
 )
 @pytest.mark.parametrize("mean", [qmean_euclid])
 def test_mean_cpm_all_ones(optimizer, mean):
@@ -86,7 +96,11 @@ def test_mean_cpm_all_ones(optimizer, mean):
 
 @pytest.mark.parametrize(
     "optimizer",
-    [ClassicalOptimizer(optimizer=ADMMOptimizer()), NaiveQAOAOptimizer(), QAOACVOptimizer()],
+    [
+        ClassicalOptimizer(optimizer=ADMMOptimizer()),
+        NaiveQAOAOptimizer(),
+        QAOACVOptimizer(),
+    ],
 )
 @pytest.mark.parametrize("mean", [qmean_euclid])
 def test_mean_cpm_all_equals(optimizer, mean):
@@ -100,7 +114,11 @@ def test_mean_cpm_all_equals(optimizer, mean):
 
 @pytest.mark.parametrize(
     "optimizer",
-    [ClassicalOptimizer(optimizer=ADMMOptimizer()), NaiveQAOAOptimizer(), QAOACVOptimizer()],
+    [
+        ClassicalOptimizer(optimizer=ADMMOptimizer()),
+        NaiveQAOAOptimizer(),
+        QAOACVOptimizer(),
+    ],
 )
 @pytest.mark.parametrize("mean", [qmean_euclid])
 def test_mean_cpm_mixed(optimizer, mean):

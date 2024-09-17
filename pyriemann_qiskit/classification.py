@@ -621,14 +621,15 @@ class QuanticVQC(QuanticClassifierBase):
 
 
 def _get_docplex_optimizer_from_params_bag(
-        logger,
-        quantum,
-        quantum_instance,
-        upper_bound,
-        qaoa_optimizer,
-        classical_optimizer,
-        create_mixer,
-        n_reps):
+    logger,
+    quantum,
+    quantum_instance,
+    upper_bound,
+    qaoa_optimizer,
+    classical_optimizer,
+    create_mixer,
+    n_reps,
+):
     if quantum:
         if create_mixer:
             logger._log("Using QAOACVOptimizer")
@@ -636,7 +637,7 @@ def _get_docplex_optimizer_from_params_bag(
                 create_mixer=create_mixer,
                 n_reps=n_reps,
                 quantum_instance=quantum_instance,
-                optimizer=qaoa_optimizer
+                optimizer=qaoa_optimizer,
             )
         else:
             logger._log("Using NaiveQAOAOptimizer")
@@ -644,10 +645,11 @@ def _get_docplex_optimizer_from_params_bag(
                 quantum_instance=quantum_instance,
                 upper_bound=upper_bound,
                 optimizer=qaoa_optimizer,
-            )  
+            )
     else:
         logger._log("Using ClassicalOptimizer (COBYLA)")
         return ClassicalOptimizer(classical_optimizer)
+
 
 class QuanticMDM(QuanticClassifierBase):
 
@@ -802,7 +804,7 @@ class QuanticMDM(QuanticClassifierBase):
             self.qaoa_optimizer,
             self.classical_optimizer,
             self.create_mixer,
-            self.n_reps
+            self.n_reps,
         )
         set_global_optimizer(self._optimizer)
         return classifier
@@ -1130,7 +1132,7 @@ class QuanticNCH(QuanticClassifierBase):
         subsampling="min",
         qaoa_optimizer=SLSQP(),
         create_mixer=None,
-        n_reps=3
+        n_reps=3,
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -1164,7 +1166,7 @@ class QuanticNCH(QuanticClassifierBase):
             self.qaoa_optimizer,
             self.classical_optimizer,
             self.create_mixer,
-            self.n_reps
+            self.n_reps,
         )
 
         # sets the optimizer for the distance functions
