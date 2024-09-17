@@ -31,11 +31,7 @@ from .utils.docplex import (
     ClassicalOptimizer,
     NaiveQAOAOptimizer,
 )
-from .utils.quantum_provider import (
-    get_simulator,
-    get_provider,
-    get_device
-)
+from .utils.quantum_provider import get_simulator, get_provider, get_device
 from .utils.distance import (
     distance_functions,
     qdistance_logeuclid_to_convex_hull,
