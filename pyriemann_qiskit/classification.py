@@ -44,7 +44,7 @@ from .utils.quantum_provider import (
     get_quantum_kernel,
     get_simulator,
     get_provider,
-    get_device
+    get_device,
 )
 from .utils.utils import is_qfunction
 
