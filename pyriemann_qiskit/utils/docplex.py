@@ -11,6 +11,7 @@ import time
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
 import numpy as np
 from pyriemann.utils.covariance import normalize
+from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_rotational_X_gates
 from qiskit.circuit.library import QAOAAnsatz
 from qiskit.primitives import BackendSampler
 from qiskit.quantum_info import Statevector
@@ -590,9 +591,9 @@ class QAOACVOptimizer(pyQiskitOptimizer):
 
     Parameters
     ----------
-    create_mixer : Callable[int, QuantumCircuit]
+    create_mixer : Callable[int, QuantumCircuit], default=create_mixer_rotational_X_gates(0)
         A delegate that takes into input an angle and returns a QuantumCircuit.
-    n_reps : int
+    n_reps : int, default=3
         The number of repetitions for the QAOA ansatz.
         It defines how many time Mixer and Cost operators will be repeated
         in the circuit.
@@ -626,9 +627,10 @@ class QAOACVOptimizer(pyQiskitOptimizer):
     See Also
     --------
     pyQiskitOptimizer
+    create_mixer_rotational_X_gates
     """
 
-    def __init__(self, create_mixer, n_reps, quantum_instance=None, optimizer=SLSQP()):
+    def __init__(self, create_mixer=create_mixer_rotational_X_gates(0), n_reps=3, quantum_instance=None, optimizer=SLSQP()):
         self.n_reps = n_reps
         self.create_mixer = create_mixer
         self.quantum_instance = quantum_instance

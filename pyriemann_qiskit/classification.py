@@ -671,6 +671,8 @@ class QuanticMDM(QuanticClassifierBase):
         Add classical_optimizer parameter.
     .. versionchanged:: 0.3.0
         Add qaoa_optimizer parameter.
+    .. versionchanged:: 0.4.0
+        Add QAOA-CV optimization.
 
     Parameters
     ----------
@@ -1061,6 +1063,8 @@ class QuanticNCH(QuanticClassifierBase):
     .. versionadded:: 0.2.0
     .. versionchanged:: 0.3.0
         Add qaoa_optimizer parameter.
+    .. versionchanged:: 0.4.0
+        Add QAOA-CV optimization.
 
     Parameters
     ----------
