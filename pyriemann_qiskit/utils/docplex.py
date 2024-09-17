@@ -630,7 +630,13 @@ class QAOACVOptimizer(pyQiskitOptimizer):
     create_mixer_rotational_X_gates
     """
 
-    def __init__(self, create_mixer=create_mixer_rotational_X_gates(0), n_reps=3, quantum_instance=None, optimizer=SLSQP()):
+    def __init__(
+        self,
+        create_mixer=create_mixer_rotational_X_gates(0),
+        n_reps=3,
+        quantum_instance=None,
+        optimizer=SLSQP(),
+    ):
         self.n_reps = n_reps
         self.create_mixer = create_mixer
         self.quantum_instance = quantum_instance
