@@ -618,6 +618,35 @@ class QuanticVQC(QuanticClassifierBase):
         return 0
 
 
+def _get_docplex_optimizer_from_params_bag(
+        logger,
+        quantum,
+        quantum_instance,
+        upper_bound,
+        qaoa_optimizer,
+        classical_optimizer,
+        create_mixer,
+        n_reps):
+    if quantum:
+        if create_mixer:
+            logger._log("Using QAOACVOptimizer")
+            return QAOACVOptimizer(
+                create_mixer=create_mixer,
+                n_reps=n_reps,
+                quantum_instance=quantum_instance,
+                optimizer=qaoa_optimizer
+            )
+        else:
+            logger._log("Using NaiveQAOAOptimizer")
+            return NaiveQAOAOptimizer(
+                quantum_instance=quantum_instance,
+                upper_bound=upper_bound,
+                optimizer=qaoa_optimizer,
+            )  
+    else:
+        logger._log("Using ClassicalOptimizer (COBYLA)")
+        return ClassicalOptimizer(classical_optimizer)
+
 class QuanticMDM(QuanticClassifierBase):
 
     """Quantum-enhanced MDM classifier
@@ -674,6 +703,13 @@ class QuanticMDM(QuanticClassifierBase):
     qaoa_optimizer : SciPyOptimizer, default=SLSQP()
         An instance of a scipy optimizer to find the optimal weights for the
         parametric circuit (ansatz).
+    create_mixer : Callable[int, QuantumCircuit], default=None
+        A delegate that takes into input an angle and returns a QuantumCircuit.
+        This circuit is the mixer operatior for the QAOA-CV algorithm.
+        If None and quantum, the NaiveQAOAOptimizer will be used instead.
+    n_reps : int, default=3
+        The number of time the mixer and cost operator are repeated in the QAOA-CV
+        circuit.
 
     See Also
     --------
@@ -708,6 +744,8 @@ class QuanticMDM(QuanticClassifierBase):
         regularization=None,
         classical_optimizer=CobylaOptimizer(rhobeg=2.1, rhoend=0.000001),
         qaoa_optimizer=SLSQP(),
+        create_mixer=None,
+        n_reps=3,
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -717,6 +755,8 @@ class QuanticMDM(QuanticClassifierBase):
         self.regularization = regularization
         self.classical_optimizer = classical_optimizer
         self.qaoa_optimizer = qaoa_optimizer
+        self.create_mixer = create_mixer
+        self.n_reps = n_reps
 
     @staticmethod
     def _override_predict_distance(mdm):
@@ -752,22 +792,16 @@ class QuanticMDM(QuanticClassifierBase):
         classifier._predict_distances = QuanticMDM._override_predict_distance(
             classifier
         )
-        if self.quantum:
-            self._log("Using NaiveQAOAOptimizer")
-            self._optimizer = NaiveQAOAOptimizer(
-                quantum_instance=self._quantum_instance,
-                upper_bound=self.upper_bound,
-                optimizer=self.qaoa_optimizer,
-            )
-            # self._optimizer = QAOACVOptimizer(
-            #     create_mixer=None,
-            #     n_reps=None,
-            #     quantum_instance=self._quantum_instance,
-            #     optimizer=self.qaoa_optimizer
-            # )
-        else:
-            self._log("Using ClassicalOptimizer (COBYLA)")
-            self._optimizer = ClassicalOptimizer(self.classical_optimizer)
+        self._optimizer = _get_docplex_optimizer_from_params_bag(
+            self,
+            self.quantum,
+            self._quantum_instance,
+            self.upper_bound,
+            self.qaoa_optimizer,
+            self.classical_optimizer,
+            self.create_mixer,
+            self.n_reps
+        )
         set_global_optimizer(self._optimizer)
         return classifier
 
@@ -1064,6 +1098,13 @@ class QuanticNCH(QuanticClassifierBase):
     qaoa_optimizer : SciPyOptimizer, default=SLSQP()
         An instance of a scipy optimizer to find the optimal weights for the
         parametric circuit (ansatz).
+    create_mixer : Callable[int, QuantumCircuit], default=None
+        A delegate that takes into input an angle and returns a QuantumCircuit.
+        This circuit is the mixer operatior for the QAOA-CV algorithm.
+        If None and quantum, the NaiveQAOAOptimizer will be used instead.
+    n_reps : int, default=3
+        The number of time the mixer and cost operator are repeated in the QAOA-CV
+        circuit.
 
     References
     ----------
@@ -1086,6 +1127,8 @@ class QuanticNCH(QuanticClassifierBase):
         n_samples_per_hull=10,
         subsampling="min",
         qaoa_optimizer=SLSQP(),
+        create_mixer=None,
+        n_reps=3
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -1098,6 +1141,8 @@ class QuanticNCH(QuanticClassifierBase):
         self.n_jobs = n_jobs
         self.subsampling = subsampling
         self.qaoa_optimizer = qaoa_optimizer
+        self.create_mixer = create_mixer
+        self.n_reps = n_reps
 
     def _init_algo(self, n_features):
         self._log("Nearest Convex Hull Classifier initiating algorithm")
@@ -1109,16 +1154,16 @@ class QuanticNCH(QuanticClassifierBase):
             subsampling=self.subsampling,
         )
 
-        if self.quantum:
-            self._log("Using NaiveQAOAOptimizer")
-            self._optimizer = NaiveQAOAOptimizer(
-                quantum_instance=self._quantum_instance,
-                upper_bound=self.upper_bound,
-                optimizer=self.qaoa_optimizer,
-            )
-        else:
-            self._log("Using ClassicalOptimizer")
-            self._optimizer = ClassicalOptimizer(self.classical_optimizer)
+        self._optimizer = _get_docplex_optimizer_from_params_bag(
+            self,
+            self.quantum,
+            self._quantum_instance,
+            self.upper_bound,
+            self.qaoa_optimizer,
+            self.classical_optimizer,
+            self.create_mixer,
+            self.n_reps
+        )
 
         # sets the optimizer for the distance functions
         # used in NearestConvexHull class
