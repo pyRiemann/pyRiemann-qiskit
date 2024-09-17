@@ -31,7 +31,6 @@ from .utils.docplex import (
     ClassicalOptimizer,
     NaiveQAOAOptimizer,
 )
-from .utils.quantum_provider import get_simulator, get_provider, get_device
 from .utils.distance import (
     distance_functions,
     qdistance_logeuclid_to_convex_hull,
@@ -41,7 +40,12 @@ from .utils.hyper_params_factory import (
     gen_two_local,
     get_spsa,
 )
-from .utils.quantum_provider import get_quantum_kernel
+from .utils.quantum_provider import (
+    get_quantum_kernel,
+    get_simulator,
+    get_provider,
+    get_device
+)
 from .utils.utils import is_qfunction
 
 logging.basicConfig(level=logging.WARNING)
