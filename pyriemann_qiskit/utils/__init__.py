@@ -1,16 +1,7 @@
 from . import hyper_params_factory, filtering, preprocessing
-from .quantum_provider import get_provider, get_device, get_simulator
+from . import quantum_provider
 from .math import cov_to_corr_matrix, union_of_diff
-from .docplex import (
-    square_cont_mat_var,
-    square_int_mat_var,
-    square_bin_mat_var,
-    ClassicalOptimizer,
-    NaiveQAOAOptimizer,
-    QAOACVOptimizer,
-    set_global_optimizer,
-    get_global_optimizer,
-)
+from . import docplex
 from .firebase_connector import (
     FirebaseConnector,
     Cache,
@@ -27,19 +18,10 @@ __all__ = [
     "hyper_params_factory",
     "filtering",
     "preprocessing",
-    "get_provider",
-    "get_device",
-    "get_simulator",
+    "quantum_provider",
     "cov_to_corr_matrix",
     "union_of_diff",
-    "square_cont_mat_var",
-    "square_int_mat_var",
-    "square_bin_mat_var",
-    "ClassicalOptimizer",
-    "NaiveQAOAOptimizer",
-    "QAOACVOptimizer",
-    "set_global_optimizer",
-    "get_global_optimizer",
+    "docplex",
     "distance",
     "mean",
     "FirebaseConnector",
