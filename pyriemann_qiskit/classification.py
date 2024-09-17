@@ -33,6 +33,7 @@ from .utils import (
     set_global_optimizer,
     ClassicalOptimizer,
     NaiveQAOAOptimizer,
+    QAOACVOptimizer,
 )
 from .utils.distance import (
     distance_functions,
@@ -758,6 +759,12 @@ class QuanticMDM(QuanticClassifierBase):
                 upper_bound=self.upper_bound,
                 optimizer=self.qaoa_optimizer,
             )
+            # self._optimizer = QAOACVOptimizer(
+            #     create_mixer=None,
+            #     n_reps=None,
+            #     quantum_instance=self._quantum_instance,
+            #     optimizer=self.qaoa_optimizer
+            # )
         else:
             self._log("Using ClassicalOptimizer (COBYLA)")
             self._optimizer = ClassicalOptimizer(self.classical_optimizer)
