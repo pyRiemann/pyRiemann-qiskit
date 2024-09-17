@@ -1,7 +1,7 @@
 import pytest
 from docplex.mp.model import Model
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
-from pyriemann_qiskit.utils import (
+from pyriemann_qiskit.utils.docplex import (
     square_cont_mat_var,
     square_int_mat_var,
     square_bin_mat_var,
