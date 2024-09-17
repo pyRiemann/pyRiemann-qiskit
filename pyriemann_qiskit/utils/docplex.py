@@ -591,7 +591,8 @@ class QAOACVOptimizer(pyQiskitOptimizer):
 
     Parameters
     ----------
-    create_mixer : Callable[int, QuantumCircuit], default=create_mixer_rotational_X_gates(0)
+    create_mixer : Callable[int, QuantumCircuit], \
+            default=create_mixer_rotational_X_gates(0)
         A delegate that takes into input an angle and returns a QuantumCircuit.
     n_reps : int, default=3
         The number of repetitions for the QAOA ansatz.
