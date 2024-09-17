@@ -1,5 +1,5 @@
 from . import hyper_params_factory, filtering, preprocessing
-from .quantum_provider import get_provider, get_device, get_simulator
+from . import quantum_provider
 from .math import cov_to_corr_matrix, union_of_diff
 from . import docplex
 from .firebase_connector import (
@@ -18,9 +18,7 @@ __all__ = [
     "hyper_params_factory",
     "filtering",
     "preprocessing",
-    "get_provider",
-    "get_device",
-    "get_simulator",
+    "quantum_provider",
     "cov_to_corr_matrix",
     "union_of_diff",
     "docplex",

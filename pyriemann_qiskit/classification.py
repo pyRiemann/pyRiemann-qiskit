@@ -27,12 +27,12 @@ from sklearn.svm import SVC
 
 from .datasets import get_feature_dimension
 from .utils.docplex import (
-    get_simulator,
     set_global_optimizer,
     ClassicalOptimizer,
     NaiveQAOAOptimizer,
 )
 from .utils.quantum_provider import (
+    get_simulator,
     get_provider,
     get_device
 )
