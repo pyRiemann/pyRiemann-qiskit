@@ -49,7 +49,8 @@ setup(name='pyriemann-qiskit',
                         'firebase_admin==6.5.0',
                         'scikit-learn==1.5.1',
                         'tqdm',
-                        'pandas'
+                        'pandas',
+                        'qiskit-symb'
                         ],
       extras_require={'docs': [
                                 'sphinx-gallery',

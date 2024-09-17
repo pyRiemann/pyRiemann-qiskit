@@ -2,6 +2,7 @@
    providers and simulators."""
 
 import logging
+import numpy as np
 
 from qiskit_aer import AerSimulator
 from qiskit_aer.quantum_info import AerStatevector
@@ -11,6 +12,24 @@ from qiskit_machine_learning.kernels import (
     FidelityStatevectorKernel,
     FidelityQuantumKernel,
 )
+from qiskit_symb.quantum_info import Statevector
+
+
+class SymbFidelityStatevectorKernel:
+    def __init__(self, circuit):
+        self.circuit = circuit
+        self.function = Statevector(circuit).to_lambda()
+
+    def evaluate(self, x_vec, y_vec=None):
+        if y_vec is None:
+            y_vec = x_vec
+        shape = (len(x_vec), len(y_vec))
+        kernel_matrix = np.empty(shape=shape)
+        for i, x in enumerate(x_vec):
+            for j, y in enumerate(y_vec):
+                fidelity = abs(self.function(*x, *y)[0, 0]) ** 2
+                kernel_matrix[i, j] = fidelity
+        return kernel_matrix
 
 
 def get_provider():
@@ -99,6 +118,8 @@ def get_quantum_kernel(feature_map, quantum_instance, use_fidelity_state_vector_
     Return an instance of FidelityQuantumKernel or
     FidelityStatevectorKernel (in the case of a simulation).
 
+    For simulation with a small number of qubits (< 9), qiskit-symb is used.
+
     Parameters
     ----------
     feature_map: QuantumCircuit | FeatureMap
@@ -116,25 +137,40 @@ def get_quantum_kernel(feature_map, quantum_instance, use_fidelity_state_vector_
     Notes
     -----
     .. versionadded:: 0.3.0
+    .. versionchanged:: 0.4.0
+        Add support for qiskit-symb
     """
     if use_fidelity_state_vector_kernel and isinstance(
         quantum_instance._backend, AerSimulator
     ):
-        logging.log(
+
+        # For simulation:
+        if feature_map.num_qubits <= 9:
+            # With a small number of qubits, let's use qiskit-symb
+            # See:
+            # https://medium.com/qiskit/qiskit-symb-a-qiskit-ecosystem-package-for-symbolic-quantum-computation-b6b4407fa705
+            kernel = SymbFidelityStatevectorKernel(circuit=feature_map)
+            logging.log(
+            logging.WARN,
+            """FidelityQuantumKernel skipped because of time.
+                    As the number of qubits is low,
+                    we will use qiskit-symb.""",
+        )
+        else:
+            # For a larger number of qubits,
+            # we will not use FidelityQuantumKernel as it is slow. See
+            # https://github.com/qiskit-community/qiskit-machine-learning/issues/547#issuecomment-1486527297
+            kernel = FidelityStatevectorKernel(
+                feature_map=feature_map,
+                statevector_type=AerStatevector,
+                shots=quantum_instance.options["shots"],
+            )
+            logging.log(
             logging.WARN,
             """FidelityQuantumKernel skipped because of time.
                     Using FidelityStatevectorKernel with AerStatevector.
                     Seed cannot be set with FidelityStatevectorKernel.
                     Increase the number of shots to diminish the noise.""",
-        )
-
-        # if this is a simulation,
-        # we will not use FidelityQuantumKernel as it is slow. See
-        # https://github.com/qiskit-community/qiskit-machine-learning/issues/547#issuecomment-1486527297
-        kernel = FidelityStatevectorKernel(
-            feature_map=feature_map,
-            statevector_type=AerStatevector,
-            shots=quantum_instance.options["shots"],
         )
     else:
         kernel = FidelityQuantumKernel(
