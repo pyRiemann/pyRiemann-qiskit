@@ -149,7 +149,12 @@ def get_quantum_kernel(feature_map, quantum_instance, use_fidelity_state_vector_
             # With a small number of qubits, let's use qiskit-symb
             # See:
             # https://medium.com/qiskit/qiskit-symb-a-qiskit-ecosystem-package-for-symbolic-quantum-computation-b6b4407fa705
-            kernel = SymbFidelityStatevectorKernel(circuit=feature_map)
+            circuit = feature_map.compose(feature_map.inverse()).decompose()
+            from qiskit.circuit.library import ZZFeatureMap
+            fm1 = ZZFeatureMap(feature_dimension=feature_map.num_qubits, parameter_prefix="a")
+            fm2 = ZZFeatureMap(feature_dimension=feature_map.num_qubits, parameter_prefix="b")
+            circuit = fm1.compose(fm2.inverse()).decompose()
+            kernel = SymbFidelityStatevectorKernel(circuit=circuit)
             logging.log(
             logging.WARN,
             """FidelityQuantumKernel skipped because of time.
