@@ -418,6 +418,7 @@ class ClassicalOptimizer(pyQiskitOptimizer):
         w = np.array([w[key] for key in w])
         return w
 
+
 def _get_quantum_instance(self):
     if self.quantum_instance is None:
         backend = get_simulator()
@@ -430,7 +431,8 @@ def _get_quantum_instance(self):
     else:
         quantum_instance = self.quantum_instance
     return quantum_instance
-            
+
+
 class NaiveQAOAOptimizer(pyQiskitOptimizer):
 
     """Wrapper for the quantum optimizer QAOA.
@@ -658,8 +660,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
                 scalers.append(scaler)
                 v.vartype = VarType.BINARY
         return scalers
-    
-    
+
     """
     Parameters
     ----------
@@ -692,9 +693,10 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
 
     """
+
     def covmat_var(self, prob, channels, name):
         return ClassicalOptimizer.covmat_var(self, prob, channels, name)
-    
+
     """Helper to create a docplex representation of a
     weight vector.
 
@@ -716,6 +718,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
     .. versionadded:: 0.4.0
 
     """
+
     def get_weights(self, prob, classes):
         return ClassicalOptimizer.get_weights(self, prob, classes)
 
