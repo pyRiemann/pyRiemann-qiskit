@@ -418,7 +418,19 @@ class ClassicalOptimizer(pyQiskitOptimizer):
         w = np.array([w[key] for key in w])
         return w
 
-
+def _get_quantum_instance(self):
+    if self.quantum_instance is None:
+        backend = get_simulator()
+        seed = 42
+        shots = 1024
+        quantum_instance = BackendSampler(
+            backend, options={"shots": shots, "seed_simulator": seed}
+        )
+        quantum_instance.transpile_options["seed_transpiler"] = seed
+    else:
+        quantum_instance = self.quantum_instance
+    return quantum_instance
+            
 class NaiveQAOAOptimizer(pyQiskitOptimizer):
 
     """Wrapper for the quantum optimizer QAOA.
@@ -526,16 +538,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     def _solve_qp(self, qp, reshape=True):
         conv = IntegerToBinary()
         qubo = conv.convert(qp)
-        if self.quantum_instance is None:
-            backend = get_simulator()
-            seed = 42
-            shots = 1024
-            quantum_instance = BackendSampler(
-                backend, options={"shots": shots, "seed_simulator": seed}
-            )
-            quantum_instance.transpile_options["seed_transpiler"] = seed
-        else:
-            quantum_instance = self.quantum_instance
+        quantum_instance = _get_quantum_instance(self)
 
         self.evaluated_values_ = []
 
@@ -655,8 +658,70 @@ class QAOACVOptimizer(pyQiskitOptimizer):
                 scalers.append(scaler)
                 v.vartype = VarType.BINARY
         return scalers
+    
+    
+    """
+    Parameters
+    ----------
+    prob : Model
+        An instance of the docplex model [1]_
+    channels : list
+        The list of channels. A channel can be any Python object,
+        such as channels'name or number but None.
+    name : string
+        An custom name for the variable. The name is used internally by docplex
+        and may appear if your print the model to a file for example.
+
+    Returns
+    -------
+    docplex_covmat : dict
+        A square matrix of continuous decision variables representing
+        our covariance matrix.
+
+    See Also
+    -----
+    square_cont_mat_var
+
+    Notes
+    -----
+    .. versionadded:: 0.4.0
+
+    References
+    ----------
+    .. [1] \
+        http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+
+    """
+    def covmat_var(self, prob, channels, name):
+        return ClassicalOptimizer.covmat_var(self, prob, channels, name)
+    
+    """Helper to create a docplex representation of a
+    weight vector.
+
+    Parameters
+    ----------
+    prob : Model
+        An instance of the docplex model [1]_
+    classes : list
+        The classes.
+
+    Returns
+    -------
+    docplex_weights : dict
+        A vector of integer decision variables representing
+        our weights.
+
+    Notes
+    -----
+    .. versionadded:: 0.4.0
+
+    """
+    def get_weights(self, prob, classes):
+        return ClassicalOptimizer.get_weights(self, prob, classes)
 
     def _solve_qp(self, qp, reshape=True):
+        quantum_instance = _get_quantum_instance(self)
+
         n_var = qp.get_num_vars()
         # Extract the objective function from the docplex model
         # We want the object expression with continuous variable
@@ -708,7 +773,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         self.y_ = []
 
         def loss(params):
-            job = self.quantum_instance.run(ansatz, params)
+            job = quantum_instance.run(ansatz, params)
             var_hat = [prob(job, i) for i in range(n_var)]
             cost = objective_expr.evaluate(var_hat)
             self.x_.append(len(self.x_))
@@ -727,7 +792,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         self.optim_params_ = result.x
 
         # running QAOA circuit with optimal parameters
-        job = self.quantum_instance.run(ansatz, self.optim_params_)
+        job = quantum_instance.run(ansatz, self.optim_params_)
         solution = [prob(job, i) for i in range(n_var)]
         self.minimum_ = objective_expr.evaluate(solution)
 
