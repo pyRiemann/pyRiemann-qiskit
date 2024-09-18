@@ -796,10 +796,14 @@ class QAOACVOptimizer(pyQiskitOptimizer):
 
         # running QAOA circuit with optimal parameters
         job = quantum_instance.run(ansatz, self.optim_params_)
-        solution = [prob(job, i) for i in range(n_var)]
+        solution = np.array([prob(job, i) for i in range(n_var)])
         self.minimum_ = objective_expr.evaluate(solution)
 
         optimized_circuit = ansatz_0.assign_parameters(self.optim_params_)
         self.state_vector_ = Statevector(optimized_circuit)
+
+        if reshape:
+            n_channels = int(math.sqrt(solution.shape[0]))
+            return np.reshape(solution, (n_channels, n_channels))
 
         return solution
