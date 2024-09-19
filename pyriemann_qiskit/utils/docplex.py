@@ -18,7 +18,7 @@ from qiskit.quantum_info import Statevector
 from qiskit_algorithms import QAOA
 from qiskit_algorithms.optimizers import SLSQP
 from qiskit_optimization.algorithms import CobylaOptimizer, MinimumEigenOptimizer
-from qiskit_optimization.converters import IntegerToBinary, InequalityToEquality
+from qiskit_optimization.converters import IntegerToBinary, LinearEqualityToPenalty
 from qiskit_optimization.translators import from_docplex_mp
 from qiskit_optimization.problems import VarType
 from sklearn.preprocessing import MinMaxScaler
@@ -659,7 +659,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
                 # print(scaler.data_min_, scaler.data_max_)
                 scalers.append(scaler)
                 v.vartype = VarType.BINARY
-        conv = InequalityToEquality()
+        conv = LinearEqualityToPenalty()
         qp = conv.convert(qp)
 
         return qp, scalers
@@ -735,7 +735,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
 
         # Convert continous variable to binary ones
         # Get scalers corresponding to the definition range of each variables
-        scalers, qp = QAOACVOptimizer.prepare_model(qp)
+        qp, scalers = QAOACVOptimizer.prepare_model(qp)
 
         # Check all variables are converted to binary, and scalers are registered
         # print(qp.prettyprint(), scalers)
