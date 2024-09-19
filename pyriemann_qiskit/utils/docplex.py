@@ -12,6 +12,7 @@ from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
 import numpy as np
 from pyriemann.utils.covariance import normalize
 from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_rotational_X_gates
+from pyriemann_qiskit.utils.math import is_pauli_identity
 from qiskit.circuit.library import QAOAAnsatz
 from qiskit.primitives import BackendSampler
 from qiskit.quantum_info import Statevector
@@ -590,19 +591,6 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         return w
 
 
-from qiskit.quantum_info import Pauli, SparsePauliOp
-
-def _is_pauli_identity(operator):
-    if isinstance(operator, SparsePauliOp):
-        if len(operator.paulis) == 1:
-            operator = operator.paulis[0]  # check if the single Pauli is identity below
-        else:
-            return False
-    if isinstance(operator, Pauli):
-        return not np.any(np.logical_or(operator.x, operator.z))
-    return False
-
-
 class QAOACVOptimizer(pyQiskitOptimizer):
 
     """QAOA with continuous variables.
@@ -763,7 +751,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         # the number of parameters in the QAOAAnsatz will be 0.
         # We will then create a mixer with parameters
         # So we get some parameters in our circuit to optimize
-        cost_op_has_no_parameter = _is_pauli_identity(cost) \
+        cost_op_has_no_parameter = is_pauli_identity(cost) \
             or len(cost.parameters) == 0
 
         mixer = self.create_mixer(cost.num_qubits, use_params=cost_op_has_no_parameter)
