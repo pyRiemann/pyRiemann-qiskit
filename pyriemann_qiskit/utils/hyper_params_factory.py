@@ -359,9 +359,11 @@ def create_mixer_rotational_X_gates(angle):
 
     Returns
     -------
-    mixer : Callable[int, QuantumCircuit]
+    mixer : Callable[[int, boolean], QuantumCircuit]
         A method that create the mixer with the correct angle.
-        This method takes into parameters the number of qubits in the circuit.
+        This method takes into parameters the number of qubits in the circuit, 
+        and a parameter `use_params`.
+        if True, `use_params` create a Parameter in the circuit (same for all gates)
 
     Notes
     -----
@@ -399,12 +401,15 @@ def create_mixer_rotational_XY_gates(angle):
     ----------
     angle : float
         The angle of the gates' rotation.
+    use_params : if True, create a Parameter in the circuit (same for all gates)
 
     Returns
     -------
-    mixer : Callable[int, QuantumCircuit]
+    mixer : Callable[[int, boolean], QuantumCircuit]
         A method that create the mixer with the correct angle.
-        This method takes into parameters the number of qubits in the circuit.
+        This method takes into parameters the number of qubits in the circuit, 
+        and a parameter `use_params`.
+        if True, `use_params` create a Parameter in the circuit (same for all gates)
 
     Notes
     -----
@@ -416,15 +421,16 @@ def create_mixer_rotational_XY_gates(angle):
         https://dice.cyfronet.pl/papers/JPlewa_JSienko_msc_v2.pdf
     """
 
-    def mixer_XY(n_qubits):
+    def mixer_XY(n_qubits, use_params):
         qr = QuantumRegister(n_qubits)
         mixer = QuantumCircuit(qr)
-
+        p = Parameter("beta")
         for i in range(n_qubits - 1):
-            mixer.rx(angle, qr[i])
-            mixer.rx(angle, qr[i + 1])
-            mixer.ry(angle, qr[i])
-            mixer.ry(angle, qr[i + 1])
+            if use_params:
+                mixer.rxx(p + angle, qr[i], qr[i+1])
+            else:
+                mixer.rxx(angle, qr[i], qr[i+1])
+            mixer.ryy(0 + angle,qr[i], qr[i+1])
         return mixer
 
     return mixer_XY
@@ -445,9 +451,11 @@ def create_mixer_rotational_XZ_gates(angle):
 
     Returns
     -------
-    mixer : Callable[int, QuantumCircuit]
+    mixer : Callable[[int, boolean], QuantumCircuit]
         A method that create the mixer with the correct angle.
-        This method takes into parameters the number of qubits in the circuit.
+        This method takes into parameters the number of qubits in the circuit, 
+        and a parameter `use_params`.
+        if True, `use_params` create a Parameter in the circuit (same for all gates)
     Notes
     -----
     .. versionadded:: 0.4.0
@@ -458,15 +466,17 @@ def create_mixer_rotational_XZ_gates(angle):
         https://dice.cyfronet.pl/papers/JPlewa_JSienko_msc_v2.pdf
     """
 
-    def mixer_XZ(n_qubits):
+    def mixer_XZ(n_qubits, use_params):
         qr = QuantumRegister(n_qubits)
         mixer = QuantumCircuit(qr)
 
-        for i in range(1, n_qubits - 1):
-            mixer.rz(angle, qr[i - 1])
-            mixer.rx(angle, qr[i])
-            mixer.rx(angle + math.pi / 2, qr[i])
-            mixer.rz(angle, qr[i + 1])
+        p = Parameter("beta")
+        for i in range(n_qubits - 1):
+            if use_params:
+                mixer.rzx(p + angle, qr[i], qr[i+1])
+            else:
+                mixer.rzx(angle, qr[i], qr[i + 1])
+            mixer.rzx(0 + angle, qr[i], qr[i+1]).inverse(annotated=True)
         return mixer
 
     return mixer_XZ
