@@ -592,6 +592,8 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
 
 from qiskit.quantum_info import Operator, Pauli, SparsePauliOp
 import numpy as np
+
+
 def _is_pauli_identity(operator):
     if isinstance(operator, SparsePauliOp):
         if len(operator.paulis) == 1:
@@ -601,6 +603,7 @@ def _is_pauli_identity(operator):
     if isinstance(operator, Pauli):
         return not np.any(np.logical_or(operator.x, operator.z))
     return False
+
 
 class QAOACVOptimizer(pyQiskitOptimizer):
 
@@ -764,10 +767,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         # So we get some parameters in our circuit to optimize
         is_cost_pauli_identity = _is_pauli_identity(cost)
 
-        mixer = self.create_mixer(
-                cost.num_qubits,
-                use_params=is_cost_pauli_identity
-            )
+        mixer = self.create_mixer(cost.num_qubits, use_params=is_cost_pauli_identity)
 
         # QAOA cirtcuit
         ansatz_0 = QAOAAnsatz(
@@ -783,6 +783,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
             mixer_operator=mixer,
         ).decompose()
         ansatz.measure_all()
+
         # raise ValueError(f"{len(ansatz.parameters)} {len(cost.parameters)} {len(mixer.parameters)} {_is_pauli_identity(cost)}")
         def prob(job, i):
             quasi_dists = job.result().quasi_dists[0]
