@@ -801,7 +801,7 @@ class QuanticMDM(QuanticClassifierBase):
         self._optimizer = _get_docplex_optimizer_from_params_bag(
             self,
             self.quantum,
-            self._quantum_instance if hasattr(self, "_quantum_instance") else None,
+            self._quantum_instance if self.quantum else None,
             self.upper_bound,
             self.qaoa_optimizer,
             self.classical_optimizer,
@@ -1165,7 +1165,7 @@ class QuanticNCH(QuanticClassifierBase):
         self._optimizer = _get_docplex_optimizer_from_params_bag(
             self,
             self.quantum,
-            self._quantum_instance if hasattr(self, "_quantum_instance") else None,
+            self._quantum_instance if self.quantum else None,
             self.upper_bound,
             self.qaoa_optimizer,
             self.classical_optimizer,
