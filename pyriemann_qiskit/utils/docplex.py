@@ -661,7 +661,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
                 v.vartype = VarType.BINARY
         conv = InequalityToEquality()
         qp = conv.encode(qp)
-        
+
         return qp, scalers
 
     """
