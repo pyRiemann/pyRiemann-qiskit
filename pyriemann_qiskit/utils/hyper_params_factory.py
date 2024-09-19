@@ -343,6 +343,7 @@ def get_spsa_parameters(spsa):
         signature.parameters["stability_constant"].default,
     )
 
+
 def create_mixer_qiskit_default(_angle):
     r"""Return the default mixing operator with QAOA.
     (qiskit implementation)
@@ -398,7 +399,7 @@ def create_mixer_rotational_X_gates(angle):
     -------
     mixer : Callable[[int, boolean], QuantumCircuit]
         A method that create the mixer with the correct angle.
-        This method takes into parameters the number of qubits in the circuit, 
+        This method takes into parameters the number of qubits in the circuit,
         and a parameter `use_params`.
         if True, `use_params` create a Parameter in the circuit (same for all gates)
 
@@ -444,7 +445,7 @@ def create_mixer_rotational_XY_gates(angle):
     -------
     mixer : Callable[[int, boolean], QuantumCircuit]
         A method that create the mixer with the correct angle.
-        This method takes into parameters the number of qubits in the circuit, 
+        This method takes into parameters the number of qubits in the circuit,
         and a parameter `use_params`.
         if True, `use_params` create a Parameter in the circuit (same for all gates)
 
@@ -464,10 +465,10 @@ def create_mixer_rotational_XY_gates(angle):
         p = Parameter("beta")
         for i in range(n_qubits - 1):
             if use_params:
-                mixer.rxx(p + angle, qr[i], qr[i+1])
+                mixer.rxx(p + angle, qr[i], qr[i + 1])
             else:
-                mixer.rxx(angle, qr[i], qr[i+1])
-            mixer.ryy(0 + angle,qr[i], qr[i+1])
+                mixer.rxx(angle, qr[i], qr[i + 1])
+            mixer.ryy(0 + angle, qr[i], qr[i + 1])
         return mixer
 
     return mixer_XY
@@ -490,7 +491,7 @@ def create_mixer_rotational_XZ_gates(angle):
     -------
     mixer : Callable[[int, boolean], QuantumCircuit]
         A method that create the mixer with the correct angle.
-        This method takes into parameters the number of qubits in the circuit, 
+        This method takes into parameters the number of qubits in the circuit,
         and a parameter `use_params`.
         if True, `use_params` create a Parameter in the circuit (same for all gates)
     Notes
@@ -510,10 +511,10 @@ def create_mixer_rotational_XZ_gates(angle):
         p = Parameter("beta")
         for i in range(n_qubits - 1):
             if use_params:
-                mixer.rzx(p + angle, qr[i], qr[i+1])
+                mixer.rzx(p + angle, qr[i], qr[i + 1])
             else:
                 mixer.rzx(angle, qr[i], qr[i + 1])
-            mixer.rzx(0 + angle, qr[i], qr[i+1]).inverse(annotated=True)
+            mixer.rzx(0 + angle, qr[i], qr[i + 1]).inverse(annotated=True)
         return mixer
 
     return mixer_XZ

@@ -49,7 +49,9 @@ def run_qaoa_cv(n_reps, optimizer, create_mixer):
 
     # Instanciate the QAOA-CV
     # Note: if quantum_instance is None, it will be created inside the optimizer.
-    qaoa_cv = QAOACVOptimizer(create_mixer, n_reps, quantum_instance=None, optimizer=optimizer)
+    qaoa_cv = QAOACVOptimizer(
+        create_mixer, n_reps, quantum_instance=None, optimizer=optimizer
+    )
 
     # reshape is when working with covariance matrices
     # So the vector of solution is reshaped into a matrix

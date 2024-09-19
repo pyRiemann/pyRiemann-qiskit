@@ -751,8 +751,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         # the number of parameters in the QAOAAnsatz will be 0.
         # We will then create a mixer with parameters
         # So we get some parameters in our circuit to optimize
-        cost_op_has_no_parameter = is_pauli_identity(cost) \
-            or len(cost.parameters) == 0
+        cost_op_has_no_parameter = is_pauli_identity(cost) or len(cost.parameters) == 0
 
         mixer = self.create_mixer(cost.num_qubits, use_params=cost_op_has_no_parameter)
 
