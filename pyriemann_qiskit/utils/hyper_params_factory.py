@@ -1,7 +1,7 @@
 import inspect
 import math
 
-from qiskit.circuit import QuantumCircuit, QuantumRegister
+from qiskit.circuit import QuantumCircuit, QuantumRegister, Parameter
 from qiskit.circuit.library import (
     ZZFeatureMap,
     ZFeatureMap,
@@ -359,8 +359,9 @@ def create_mixer_rotational_X_gates(angle):
 
     Returns
     -------
-    mixer : QuantumCircuit
-        The mixer.
+    mixer : Callable[int, QuantumCircuit]
+        A method that create the mixer with the correct angle.
+        This method takes into parameters the number of qubits in the circuit.
 
     Notes
     -----
@@ -372,12 +373,16 @@ def create_mixer_rotational_X_gates(angle):
         https://dice.cyfronet.pl/papers/JPlewa_JSienko_msc_v2.pdf
     """
 
-    def mixer_X(n_qubits):
+    def mixer_X(n_qubits, use_params=False):
         qr = QuantumRegister(n_qubits)
         mixer = QuantumCircuit(qr)
-
+        p = Parameter("beta")
         for qr_ in qr:
-            mixer.rx(angle, qr_)
+            if use_params:
+                mixer.rx(p + angle, qr_)
+            else:
+                mixer.rx(angle, qr_)
+        return mixer
 
     return mixer_X
 
@@ -397,8 +402,9 @@ def create_mixer_rotational_XY_gates(angle):
 
     Returns
     -------
-    mixer : QuantumCircuit
-        The mixer.
+    mixer : Callable[int, QuantumCircuit]
+        A method that create the mixer with the correct angle.
+        This method takes into parameters the number of qubits in the circuit.
 
     Notes
     -----
@@ -419,6 +425,7 @@ def create_mixer_rotational_XY_gates(angle):
             mixer.rx(angle, qr[i + 1])
             mixer.ry(angle, qr[i])
             mixer.ry(angle, qr[i + 1])
+        return mixer
 
     return mixer_XY
 
@@ -438,9 +445,9 @@ def create_mixer_rotational_XZ_gates(angle):
 
     Returns
     -------
-    mixer : QuantumCircuit
-        The mixer.
-
+    mixer : Callable[int, QuantumCircuit]
+        A method that create the mixer with the correct angle.
+        This method takes into parameters the number of qubits in the circuit.
     Notes
     -----
     .. versionadded:: 0.4.0
@@ -460,5 +467,6 @@ def create_mixer_rotational_XZ_gates(angle):
             mixer.rx(angle, qr[i])
             mixer.rx(angle + math.pi / 2, qr[i])
             mixer.rz(angle, qr[i + 1])
+        return mixer
 
     return mixer_XZ

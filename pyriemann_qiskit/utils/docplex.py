@@ -590,6 +590,18 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         return w
 
 
+from qiskit.quantum_info import Operator, Pauli, SparsePauliOp
+import numpy as np
+def _is_pauli_identity(operator):
+    if isinstance(operator, SparsePauliOp):
+        if len(operator.paulis) == 1:
+            operator = operator.paulis[0]  # check if the single Pauli is identity below
+        else:
+            return False
+    if isinstance(operator, Pauli):
+        return not np.any(np.logical_or(operator.x, operator.z))
+    return False
+
 class QAOACVOptimizer(pyQiskitOptimizer):
 
     """QAOA with continuous variables.
@@ -659,6 +671,8 @@ class QAOACVOptimizer(pyQiskitOptimizer):
                 # print(scaler.data_min_, scaler.data_max_)
                 scalers.append(scaler)
                 v.vartype = VarType.BINARY
+                v.lowerbound = 0
+                v.upperbound = 1
         conv = LinearEqualityToPenalty()
         qp = conv.convert(qp)
 
@@ -744,7 +758,16 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         # Get operator associated with model
         cost, _offset = qp.to_ising()
 
-        mixer = self.create_mixer(cost.num_qubits)
+        # If the cost operator is a Pauli identity
+        # the number of parameters in the QAOAAnsatz will be 0.
+        # We will then create a mixer with parameters
+        # So we get some parameters in our circuit to optimize
+        is_cost_pauli_identity = _is_pauli_identity(cost)
+
+        mixer = self.create_mixer(
+                cost.num_qubits,
+                use_params=is_cost_pauli_identity
+            )
 
         # QAOA cirtcuit
         ansatz_0 = QAOAAnsatz(
@@ -760,7 +783,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
             mixer_operator=mixer,
         ).decompose()
         ansatz.measure_all()
-
+        # raise ValueError(f"{len(ansatz.parameters)} {len(cost.parameters)} {len(mixer.parameters)} {_is_pauli_identity(cost)}")
         def prob(job, i):
             quasi_dists = job.result().quasi_dists[0]
             p = 0
@@ -786,8 +809,8 @@ class QAOACVOptimizer(pyQiskitOptimizer):
             self.y_.append(cost)
             return cost
 
-        # Initial guess for the parameters
-        initial_guess = np.array([1, 1] * self.n_reps)
+        # Initial guess for the parameters.
+        initial_guess = np.array([1] * self.n_reps)
 
         # minimize function to search for the optimal parameters
         start_time = time.time()
