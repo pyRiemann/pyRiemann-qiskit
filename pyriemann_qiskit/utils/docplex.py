@@ -590,9 +590,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         return w
 
 
-from qiskit.quantum_info import Operator, Pauli, SparsePauliOp
-import numpy as np
-
+from qiskit.quantum_info import Pauli, SparsePauliOp
 
 def _is_pauli_identity(operator):
     if isinstance(operator, SparsePauliOp):
