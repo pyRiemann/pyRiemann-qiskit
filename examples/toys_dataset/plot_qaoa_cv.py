@@ -24,6 +24,7 @@ from qiskit_algorithms.optimizers import COBYLA, SPSA
 
 from pyriemann_qiskit.utils.docplex import QAOACVOptimizer
 from pyriemann_qiskit.utils.hyper_params_factory import (
+    create_mixer_qiskit_default,
     create_mixer_rotational_X_gates,
     create_mixer_rotational_XY_gates,
     create_mixer_rotational_XZ_gates,
@@ -94,6 +95,7 @@ ret = {}
 for angle in range(n_angles):
     angle = math.pi * angle / n_angles
     mixers = [
+        create_mixer_qiskit_default(angle),
         create_mixer_rotational_X_gates(angle),
         create_mixer_rotational_XY_gates(angle),
         create_mixer_rotational_XZ_gates(angle),

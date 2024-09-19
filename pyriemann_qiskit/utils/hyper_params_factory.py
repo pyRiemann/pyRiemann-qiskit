@@ -343,6 +343,43 @@ def get_spsa_parameters(spsa):
         signature.parameters["stability_constant"].default,
     )
 
+def create_mixer_qiskit_default(_angle):
+    r"""Return the default mixing operator with QAOA.
+    (qiskit implementation)
+
+    .. math::
+        H_X = \sum_{i}^{N} X_i
+
+    See [1]_ for details.
+
+    Parameters
+    ----------
+    angle : float
+        The angle of the gates' rotation.
+        Not used. Just kept for compatibility with other
+        `create_mixer`
+
+    Returns
+    -------
+    mixer : Callable[[int, boolean], QuantumCircuit]
+        A method that returns None,
+        forcing qiskit to use its own implementation of the mixer.
+
+    Notes
+    -----
+    .. versionadded:: 0.4.0
+
+    References
+    ----------
+    .. [1] \
+        https://dice.cyfronet.pl/papers/JPlewa_JSienko_msc_v2.pdf
+    """
+
+    def mixer_qiskit_default(n_qubits, use_params=False):
+        return None
+
+    return mixer_qiskit_default
+
 
 def create_mixer_rotational_X_gates(angle):
     r"""Return the default mixing operator with QAOA.

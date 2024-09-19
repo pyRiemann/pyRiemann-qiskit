@@ -759,11 +759,12 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         # Get operator associated with model
         cost, _offset = qp.to_ising()
 
-        # If the cost operator is a Pauli identity
+        # If the cost operator is a Pauli identity or the cost operator has no parameters
         # the number of parameters in the QAOAAnsatz will be 0.
         # We will then create a mixer with parameters
         # So we get some parameters in our circuit to optimize
-        is_cost_pauli_identity = _is_pauli_identity(cost)
+        is_cost_pauli_identity = _is_pauli_identity(cost) \
+            or len(cost.parameters) == 0
 
         mixer = self.create_mixer(cost.num_qubits, use_params=is_cost_pauli_identity)
 
@@ -809,7 +810,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
             return cost
 
         # Initial guess for the parameters.
-        initial_guess = np.array([1] * self.n_reps)
+        initial_guess = np.array([1, 1] * self.n_reps)
 
         # minimize function to search for the optimal parameters
         start_time = time.time()
