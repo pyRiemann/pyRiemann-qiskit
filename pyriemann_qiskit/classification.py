@@ -1001,14 +1001,13 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         if parallel:
             # Get global optimizer in this process
             optimizer = get_global_optimizer(default=None)
+
             def job(x):
                 # Set the global optimizer inside the new process
                 set_global_optimizer(optimizer)
                 return self._process_sample(x)
 
-            dists = Parallel(n_jobs=self.n_jobs)(
-                delayed(job)(x) for x in X
-            )
+            dists = Parallel(n_jobs=self.n_jobs)(delayed(job)(x) for x in X)
 
         else:
             for x in X:

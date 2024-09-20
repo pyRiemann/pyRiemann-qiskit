@@ -145,7 +145,7 @@ pipelines["NCH_MIN_HULL_QAOACV"] = make_pipeline(
         # Provide create_mixer to force QAOA-CV optimization
         create_mixer=create_mixer_rotational_X_gates(0),
         shots=100,
-        qaoa_optimizer=SPSA(maxiter=500)
+        qaoa_optimizer=SPSA(maxiter=500),
     ),
 )
 
