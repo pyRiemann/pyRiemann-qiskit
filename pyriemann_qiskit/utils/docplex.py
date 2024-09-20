@@ -17,7 +17,7 @@ from qiskit.circuit.library import QAOAAnsatz
 from qiskit.primitives import BackendSampler
 from qiskit.quantum_info import Statevector
 from qiskit_algorithms import QAOA
-from qiskit_algorithms.optimizers import SLSQP
+from qiskit_algorithms.optimizers import SLSQP, SPSA
 from qiskit_optimization.algorithms import CobylaOptimizer, MinimumEigenOptimizer
 from qiskit_optimization.converters import IntegerToBinary, LinearEqualityToPenalty
 from qiskit_optimization.translators import from_docplex_mp
@@ -607,7 +607,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
     quantum_instance : QuantumInstance, default=None
         A quantum backend instance.
         If None, AerSimulator will be used.
-    optimizer : SciPyOptimizer, default=SLSQP()
+    optimizer : SciPyOptimizer, default=SPSA()
         An instance of a scipy optimizer to find the optimal weights for the
         parametric circuit (ansatz).
 
@@ -642,7 +642,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         create_mixer=create_mixer_rotational_X_gates(0),
         n_reps=3,
         quantum_instance=None,
-        optimizer=SLSQP(),
+        optimizer=SPSA(),
     ):
         self.n_reps = n_reps
         self.create_mixer = create_mixer
