@@ -28,6 +28,7 @@ from sklearn.svm import SVC
 from .datasets import get_feature_dimension
 from .utils.docplex import (
     set_global_optimizer,
+    get_global_optimizer,
     ClassicalOptimizer,
     NaiveQAOAOptimizer,
     QAOACVOptimizer,
@@ -998,8 +999,15 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
                 print("Not running in parallel")
 
         if parallel:
+            # Get global optimizer in this process
+            optimizer = get_global_optimizer(default=None)
+            def job(x):
+                # Set the global optimizer inside the new process
+                set_global_optimizer(optimizer)
+                return self._process_sample(x)
+
             dists = Parallel(n_jobs=self.n_jobs)(
-                delayed(self._process_sample)(x) for x in X
+                delayed(job)(x) for x in X
             )
 
         else:
