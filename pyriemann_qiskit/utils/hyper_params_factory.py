@@ -438,7 +438,6 @@ def create_mixer_rotational_XY_gates(angle):
     ----------
     angle : float
         The angle of the gates' rotation.
-    use_params : if True, create a Parameter in the circuit (same for all gates)
 
     Returns
     -------
