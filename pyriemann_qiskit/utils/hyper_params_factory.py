@@ -1,5 +1,4 @@
 import inspect
-import math
 
 from qiskit.circuit import QuantumCircuit, QuantumRegister, Parameter
 from qiskit.circuit.library import (

@@ -18,8 +18,6 @@ import math
 
 from docplex.mp.model import Model
 import matplotlib.pyplot as plt
-from qiskit.primitives import BackendSampler
-from qiskit_aer import AerSimulator
 from qiskit_algorithms.optimizers import COBYLA, SPSA
 
 from pyriemann_qiskit.utils.docplex import QAOACVOptimizer

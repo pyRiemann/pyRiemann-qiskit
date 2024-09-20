@@ -747,7 +747,8 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         # Get operator associated with model
         cost, _offset = qp.to_ising()
 
-        # If the cost operator is a Pauli identity or the cost operator has no parameters
+        # If the cost operator is a Pauli identity
+        # or the cost operator has no parameters
         # the number of parameters in the QAOAAnsatz will be 0.
         # We will then create a mixer with parameters
         # So we get some parameters in our circuit to optimize
@@ -770,7 +771,6 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         ).decompose()
         ansatz.measure_all()
 
-        # raise ValueError(f"{len(ansatz.parameters)} {len(cost.parameters)} {len(mixer.parameters)} {_is_pauli_identity(cost)}")
         def prob(job, i):
             quasi_dists = job.result().quasi_dists[0]
             p = 0
