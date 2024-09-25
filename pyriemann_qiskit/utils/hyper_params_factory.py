@@ -25,8 +25,11 @@ def gen_x_feature_map(reps=2):
 
     Returns
     -------
-    ret : XFeatureMap
-        An instance of XFeatureMap.
+    ret : Callable[[int, str], XFeatureMap]
+        A callable that takes into arguments:
+        - the number of features
+        - the prefix string for the parameters
+        And returns an instance of XFeatureMap.
 
     Raises
     ------
@@ -41,6 +44,8 @@ def gen_x_feature_map(reps=2):
     Notes
     -----
     .. versionadded:: 0.2.0
+    .. versionchanged:: 0.4.0
+        Possibility to specify parameter prefix.
     """
     if reps < 1:
         raise ValueError(f"Parameter reps must be superior or equal to 1 (Got {reps})")
@@ -70,8 +75,11 @@ def gen_z_feature_map(reps=2):
 
     Returns
     -------
-    ret : ZFeatureMap
-        An instance of ZFeatureMap.
+    ret : Callable[[int, str], ZFeatureMap]
+        A callable that takes into arguments:
+        - the number of features
+        - the prefix string for the parameters
+        And returns an instance of ZFeatureMap.
 
     Raises
     ------
@@ -86,11 +94,17 @@ def gen_z_feature_map(reps=2):
     Notes
     -----
     .. versionadded:: 0.2.0
+    .. versionchanged:: 0.4.0
+        Possibility to specify parameter prefix.
     """
     if reps < 1:
         raise ValueError(f"Parameter reps must be superior or equal to 1 (Got {reps})")
 
-    return lambda n_features: ZFeatureMap(feature_dimension=n_features, reps=reps)
+    return lambda n_features, param_prefix="x": ZFeatureMap(
+        feature_dimension=n_features,
+        reps=reps,
+        parameter_prefix=param_prefix,
+    )
 
 
 def gen_zz_feature_map(reps=2, entanglement="linear"):
@@ -114,8 +128,11 @@ def gen_zz_feature_map(reps=2, entanglement="linear"):
 
     Returns
     -------
-    ret : ZZFeatureMap
-        An instance of ZZFeatureMap.
+    ret : Callable[[int, str], ZZFeatureMap]
+        A callable that takes into arguments:
+        - the number of features
+        - the prefix string for the parameters
+        And returns an instance of ZZFeatureMap.
 
     Raises
     ------
@@ -132,12 +149,17 @@ def gen_zz_feature_map(reps=2, entanglement="linear"):
     Notes
     -----
     .. versionadded:: 0.0.1
+    .. versionchanged:: 0.4.0
+        Possibility to specify parameter prefix.
     """
     if reps < 1:
         raise ValueError(f"Parameter reps must be superior or equal to 1 (Got {reps})")
 
-    return lambda n_features: ZZFeatureMap(
-        feature_dimension=n_features, reps=reps, entanglement=entanglement
+    return lambda n_features, param_prefix="x": ZZFeatureMap(
+        feature_dimension=n_features,
+        reps=reps,
+        entanglement=entanglement,
+        param_prefix=param_prefix
     )
 
 
