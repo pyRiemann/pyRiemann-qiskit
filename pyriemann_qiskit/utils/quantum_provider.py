@@ -12,6 +12,7 @@ from qiskit_machine_learning.kernels import (
     FidelityStatevectorKernel,
     FidelityQuantumKernel,
 )
+from qiskit.circuit import Parameter
 from qiskit_symb.quantum_info import Statevector
 
 
@@ -145,15 +146,24 @@ def get_quantum_kernel(feature_map, quantum_instance, use_fidelity_state_vector_
     ):
 
         # For simulation:
+        print(feature_map.num_qubits)
         if feature_map.num_qubits <= 9:
             # With a small number of qubits, let's use qiskit-symb
             # See:
             # https://medium.com/qiskit/qiskit-symb-a-qiskit-ecosystem-package-for-symbolic-quantum-computation-b6b4407fa705
             circuit = feature_map.compose(feature_map.inverse()).decompose()
             from qiskit.circuit.library import ZZFeatureMap
-            fm1 = ZZFeatureMap(feature_dimension=feature_map.num_qubits, parameter_prefix="a")
-            fm2 = ZZFeatureMap(feature_dimension=feature_map.num_qubits, parameter_prefix="b")
-            circuit = fm1.compose(fm2.inverse()).decompose()
+            # fm1 = ZZFeatureMap(feature_dimension=feature_map.num_qubits, parameter_prefix="a")
+            # fm2 = ZZFeatureMap(feature_dimension=feature_map.num_qubits, parameter_prefix="b")
+
+            original_parameters = feature_map.ordered_parameters
+            num_param = len(original_parameters)
+            parameters_2 = [Parameter(f"b{i}") for i in range(num_param)]
+            feature_map.ordered_parameters = parameters_2
+            fm2 = feature_map.inverse()
+            feature_map.ordered_parameters = original_parameters
+            circuit = feature_map.compose(fm2.inverse()).decompose()
+            print(circuit.num_qubits)
             kernel = SymbFidelityStatevectorKernel(circuit=circuit)
             logging.log(
             logging.WARN,
