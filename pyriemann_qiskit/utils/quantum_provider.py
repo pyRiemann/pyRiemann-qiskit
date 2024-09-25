@@ -18,11 +18,25 @@ from qiskit_symb.quantum_info import Statevector
 
 import numpy as np
 import joblib
+import asyncio
+import pickle
 
 class SymbFidelityStatevectorKernel:
+
     def __init__(self, circuit):
         self.circuit = circuit
-        self.function = Statevector(circuit).to_lambda()
+        print(self.circuit)
+        if isinstance(self.circuit, str):
+            file = open(self.circuit,'rb')
+            sv = pickle.load(file)
+        else:
+            sv = Statevector(self.circuit)
+        print("Statevector created")
+        # file = open("binary.dat",'wb')
+        # pickle.dump(sv, file)
+        self.function = sv.to_lambda()
+        print("lambdify ok")
+        self.n = 0
 
     def evaluate(self, x_vec, y_vec=None):
         if y_vec is None:
@@ -31,12 +45,16 @@ class SymbFidelityStatevectorKernel:
         x_vec_len = len(x_vec)
         y_vec_len = len(y_vec)
 
+        
+
         is_sim = x_vec_len == y_vec_len and (x_vec == y_vec).all()
         
+        print(x_vec_len, y_vec_len, is_sim, self.n)
+        self.n = self.n+1
         
         kernel_matrix = np.zeros((x_vec_len, y_vec_len))
         
-        n_thread = 4
+        n_thread = 1
         chunck = x_vec_len // n_thread
 
         def compute_fidelity_partial_matrix(i_thread):
@@ -53,6 +71,7 @@ class SymbFidelityStatevectorKernel:
                         kernel_matrix[j, i] = fidelity
             return kernel_matrix
         
+        return compute_fidelity_partial_matrix(0)
         results = joblib.Parallel( n_jobs = n_thread )( joblib.delayed( compute_fidelity_partial_matrix )( i_thread )
                                                            for i_thread in range(n_thread)
                                )
@@ -208,6 +227,9 @@ def get_quantum_kernel(feature_map, quantum_instance, use_fidelity_state_vector_
             # feature_map.ordered_parameters = original_parameters
             circuit = fm1.compose(fm2.inverse()).decompose()
             print(circuit.num_qubits)
+            key = f"{feature_map.name}-{feature_map.reps}"
+            import os
+            circuit = key if os.path.isfile(key) else circuit
             kernel = SymbFidelityStatevectorKernel(circuit=circuit)
             logging.log(
             logging.WARN,
