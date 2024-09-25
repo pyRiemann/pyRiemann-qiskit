@@ -18,25 +18,31 @@ from qiskit_symb.quantum_info import Statevector
 
 import numpy as np
 import joblib
-import asyncio
+import os
 import pickle
 
 class SymbFidelityStatevectorKernel:
 
-    def __init__(self, circuit):
-        self.circuit = circuit
-        print(self.circuit)
-        if isinstance(self.circuit, str):
-            file = open(self.circuit,'rb')
+    def __init__(self, feature_map, gen_feature_map, n_jobs=1):
+
+        self.n_jobs = n_jobs if n_jobs >= 1 else 1
+        cached_file = os.path.join("symb_statevectors", f"{feature_map.name}-{feature_map.reps}")
+
+        if os.path.isfile(cached_file) :
+            print("Loading symbolic Statevector from cache")
+            file = open(cached_file,'rb')
             sv = pickle.load(file)
         else:
+            print("Computing symbolic Statevector")
+            fm2 = gen_feature_map(feature_map.num_qubits, "b")
+            self.circuit = feature_map.compose(fm2.inverse()).decompose()
             sv = Statevector(self.circuit)
-        print("Statevector created")
-        # file = open("binary.dat",'wb')
-        # pickle.dump(sv, file)
+            print(f"Dumping to {cached_file}")
+            file = open(cached_file, 'wb')
+            pickle.dump(sv, file)
+
         self.function = sv.to_lambda()
-        print("lambdify ok")
-        self.n = 0
+
 
     def evaluate(self, x_vec, y_vec=None):
         if y_vec is None:
@@ -45,39 +51,34 @@ class SymbFidelityStatevectorKernel:
         x_vec_len = len(x_vec)
         y_vec_len = len(y_vec)
 
-        
-
         is_sim = x_vec_len == y_vec_len and (x_vec == y_vec).all()
-        
-        print(x_vec_len, y_vec_len, is_sim, self.n)
-        self.n = self.n+1
         
         kernel_matrix = np.zeros((x_vec_len, y_vec_len))
         
-        n_thread = 1
-        chunck = x_vec_len // n_thread
+        chunck = x_vec_len // self.n_jobs
 
         def compute_fidelity_partial_matrix(i_thread):
-            
-            # for i, x in enumerate(x_vec[i_thread * chunck: (i_thread + 1) * chunck]):
             for i in range(i_thread * chunck, (i_thread + 1) * chunck):
                 x = x_vec[i]
                 for j in range(i if is_sim else y_vec_len):
                     y = y_vec[j]
-                # for j, y in enumerate(y_vec[:i+1] if is_sim else y_vec):
                     fidelity = abs(self.function(*x, *y)[0, 0]) ** 2
                     kernel_matrix[i, j] = fidelity
                     if is_sim:
                         kernel_matrix[j, i] = fidelity
             return kernel_matrix
         
-        return compute_fidelity_partial_matrix(0)
-        results = joblib.Parallel( n_jobs = n_thread )( joblib.delayed( compute_fidelity_partial_matrix )( i_thread )
-                                                           for i_thread in range(n_thread)
-                               )
-        for result in results:
-            kernel_matrix += result
-        return kernel_matrix
+        if self.n_jobs == 1:
+            return compute_fidelity_partial_matrix(0)
+        else:
+            print("n_jobs greater than 1, parallelizing")
+            results = joblib.Parallel(n_jobs = self.n_jobs)\
+                (joblib.delayed(compute_fidelity_partial_matrix)( i_thread )
+                                    for i_thread in range(self.n_jobs)
+                                )
+            for result in results:
+                kernel_matrix += result
+            return kernel_matrix
 
 
 
@@ -194,44 +195,11 @@ def get_quantum_kernel(feature_map, gen_feature_map, quantum_instance, use_fidel
     ):
 
         # For simulation:
-        print(feature_map.num_qubits)
         if feature_map.num_qubits <= 9:
             # With a small number of qubits, let's use qiskit-symb
             # See:
             # https://medium.com/qiskit/qiskit-symb-a-qiskit-ecosystem-package-for-symbolic-quantum-computation-b6b4407fa705
-            circuit = feature_map.compose(feature_map.inverse()).decompose()
-            from qiskit.circuit.library import PauliFeatureMap
-
-            # fm1 = PauliFeatureMap(
-            #     feature_dimension=feature_map.num_qubits,
-            #     paulis=["X"],
-            #     data_map_func=None,
-            #     parameter_prefix="a",
-            #     insert_barriers=False,
-            #     name="xfm",
-            # )
-
-            # fm2 = PauliFeatureMap(
-            #     feature_dimension=feature_map.num_qubits,
-            #     paulis=["X"],
-            #     data_map_func=None,
-            #     parameter_prefix="b",
-            #     insert_barriers=False,
-            #     name="xfm",
-            # )
-            # original_parameters = feature_map.ordered_parameters
-            # num_param = len(original_parameters)
-            # parameters_2 = ParameterVector("b")
-            # feature_map.ordered_parameters = parameters_2
-            # fm2 = feature_map.inverse()
-            # feature_map.ordered_parameters =ParameterVector("a")
-            fm2 = gen_feature_map(feature_map.num_qubits, "b")
-            circuit = feature_map.compose(fm2.inverse()).decompose()
-            print(circuit.num_qubits)
-            key = f"{feature_map.name}-{feature_map.reps}"
-            import os
-            # circuit = key if os.path.isfile(key) else circuit
-            kernel = SymbFidelityStatevectorKernel(circuit=circuit)
+            kernel = SymbFidelityStatevectorKernel(feature_map, gen_feature_map, n_jobs=1)
             logging.log(
             logging.WARN,
             """Using SymbFidelityStatevectorKernel""",
