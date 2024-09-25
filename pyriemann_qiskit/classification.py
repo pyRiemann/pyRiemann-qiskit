@@ -420,6 +420,7 @@ class QuanticSVM(QuanticClassifierBase):
         if self.quantum:
             quantum_kernel = get_quantum_kernel(
                 self._feature_map,
+                self.gen_feature_map,
                 self._quantum_instance,
                 self.use_fidelity_state_vector_kernel,
             )

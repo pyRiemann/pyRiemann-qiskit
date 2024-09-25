@@ -12,7 +12,7 @@ from qiskit_machine_learning.kernels import (
     FidelityStatevectorKernel,
     FidelityQuantumKernel,
 )
-from qiskit.circuit import Parameter
+from qiskit.circuit import Parameter, ParameterVector
 from qiskit_symb.quantum_info import Statevector
 
 
@@ -161,7 +161,7 @@ def get_device(provider, min_qubits):
     )
 
 
-def get_quantum_kernel(feature_map, quantum_instance, use_fidelity_state_vector_kernel):
+def get_quantum_kernel(feature_map, gen_feature_map, quantum_instance, use_fidelity_state_vector_kernel):
     """Get a quantum kernel
 
     Return an instance of FidelityQuantumKernel or
@@ -202,34 +202,35 @@ def get_quantum_kernel(feature_map, quantum_instance, use_fidelity_state_vector_
             circuit = feature_map.compose(feature_map.inverse()).decompose()
             from qiskit.circuit.library import PauliFeatureMap
 
-            fm1 = PauliFeatureMap(
-                feature_dimension=feature_map.num_qubits,
-                paulis=["X"],
-                data_map_func=None,
-                parameter_prefix="a",
-                insert_barriers=False,
-                name="xfm",
-            )
+            # fm1 = PauliFeatureMap(
+            #     feature_dimension=feature_map.num_qubits,
+            #     paulis=["X"],
+            #     data_map_func=None,
+            #     parameter_prefix="a",
+            #     insert_barriers=False,
+            #     name="xfm",
+            # )
 
-            fm2 = PauliFeatureMap(
-                feature_dimension=feature_map.num_qubits,
-                paulis=["X"],
-                data_map_func=None,
-                parameter_prefix="b",
-                insert_barriers=False,
-                name="xfm",
-            )
+            # fm2 = PauliFeatureMap(
+            #     feature_dimension=feature_map.num_qubits,
+            #     paulis=["X"],
+            #     data_map_func=None,
+            #     parameter_prefix="b",
+            #     insert_barriers=False,
+            #     name="xfm",
+            # )
             # original_parameters = feature_map.ordered_parameters
             # num_param = len(original_parameters)
-            # parameters_2 = [Parameter(f"b{i}") for i in range(num_param)]
+            # parameters_2 = ParameterVector("b")
             # feature_map.ordered_parameters = parameters_2
             # fm2 = feature_map.inverse()
-            # feature_map.ordered_parameters = original_parameters
-            circuit = fm1.compose(fm2.inverse()).decompose()
+            # feature_map.ordered_parameters =ParameterVector("a")
+            fm2 = gen_feature_map(feature_map.num_qubits, "b")
+            circuit = feature_map.compose(fm2.inverse()).decompose()
             print(circuit.num_qubits)
             key = f"{feature_map.name}-{feature_map.reps}"
             import os
-            circuit = key if os.path.isfile(key) else circuit
+            # circuit = key if os.path.isfile(key) else circuit
             kernel = SymbFidelityStatevectorKernel(circuit=circuit)
             logging.log(
             logging.WARN,

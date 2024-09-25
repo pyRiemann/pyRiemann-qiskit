@@ -45,12 +45,12 @@ def gen_x_feature_map(reps=2):
     if reps < 1:
         raise ValueError(f"Parameter reps must be superior or equal to 1 (Got {reps})")
 
-    return lambda n_features: PauliFeatureMap(
+    return lambda n_features, param_prefix="x": PauliFeatureMap(
         feature_dimension=n_features,
         paulis=["X"],
         reps=reps,
         data_map_func=None,
-        parameter_prefix="x",
+        parameter_prefix=param_prefix,
         insert_barriers=False,
         name="XFeatureMap",
     )
