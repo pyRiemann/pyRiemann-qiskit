@@ -16,6 +16,9 @@ from qiskit.circuit import Parameter
 from qiskit_symb.quantum_info import Statevector
 
 
+import numpy as np
+import joblib
+
 class SymbFidelityStatevectorKernel:
     def __init__(self, circuit):
         self.circuit = circuit
@@ -24,13 +27,39 @@ class SymbFidelityStatevectorKernel:
     def evaluate(self, x_vec, y_vec=None):
         if y_vec is None:
             y_vec = x_vec
-        shape = (len(x_vec), len(y_vec))
-        kernel_matrix = np.empty(shape=shape)
-        for i, x in enumerate(x_vec):
-            for j, y in enumerate(y_vec):
-                fidelity = abs(self.function(*x, *y)[0, 0]) ** 2
-                kernel_matrix[i, j] = fidelity
+
+        x_vec_len = len(x_vec)
+        y_vec_len = len(y_vec)
+
+        is_sim = x_vec_len == y_vec_len and (x_vec == y_vec).all()
+        
+        
+        kernel_matrix = np.zeros((x_vec_len, y_vec_len))
+        
+        n_thread = 4
+        chunck = x_vec_len // n_thread
+
+        def compute_fidelity_partial_matrix(i_thread):
+            
+            # for i, x in enumerate(x_vec[i_thread * chunck: (i_thread + 1) * chunck]):
+            for i in range(i_thread * chunck, (i_thread + 1) * chunck):
+                x = x_vec[i]
+                for j in range(i if is_sim else y_vec_len):
+                    y = y_vec[j]
+                # for j, y in enumerate(y_vec[:i+1] if is_sim else y_vec):
+                    fidelity = abs(self.function(*x, *y)[0, 0]) ** 2
+                    kernel_matrix[i, j] = fidelity
+                    if is_sim:
+                        kernel_matrix[j, i] = fidelity
+            return kernel_matrix
+        
+        results = joblib.Parallel( n_jobs = n_thread )( joblib.delayed( compute_fidelity_partial_matrix )( i_thread )
+                                                           for i_thread in range(n_thread)
+                               )
+        for result in results:
+            kernel_matrix += result
         return kernel_matrix
+
 
 
 def get_provider():
@@ -152,24 +181,37 @@ def get_quantum_kernel(feature_map, quantum_instance, use_fidelity_state_vector_
             # See:
             # https://medium.com/qiskit/qiskit-symb-a-qiskit-ecosystem-package-for-symbolic-quantum-computation-b6b4407fa705
             circuit = feature_map.compose(feature_map.inverse()).decompose()
-            from qiskit.circuit.library import ZZFeatureMap
-            # fm1 = ZZFeatureMap(feature_dimension=feature_map.num_qubits, parameter_prefix="a")
-            # fm2 = ZZFeatureMap(feature_dimension=feature_map.num_qubits, parameter_prefix="b")
+            from qiskit.circuit.library import PauliFeatureMap
 
-            original_parameters = feature_map.ordered_parameters
-            num_param = len(original_parameters)
-            parameters_2 = [Parameter(f"b{i}") for i in range(num_param)]
-            feature_map.ordered_parameters = parameters_2
-            fm2 = feature_map.inverse()
-            feature_map.ordered_parameters = original_parameters
-            circuit = feature_map.compose(fm2.inverse()).decompose()
+            fm1 = PauliFeatureMap(
+                feature_dimension=feature_map.num_qubits,
+                paulis=["X"],
+                data_map_func=None,
+                parameter_prefix="a",
+                insert_barriers=False,
+                name="xfm",
+            )
+
+            fm2 = PauliFeatureMap(
+                feature_dimension=feature_map.num_qubits,
+                paulis=["X"],
+                data_map_func=None,
+                parameter_prefix="b",
+                insert_barriers=False,
+                name="xfm",
+            )
+            # original_parameters = feature_map.ordered_parameters
+            # num_param = len(original_parameters)
+            # parameters_2 = [Parameter(f"b{i}") for i in range(num_param)]
+            # feature_map.ordered_parameters = parameters_2
+            # fm2 = feature_map.inverse()
+            # feature_map.ordered_parameters = original_parameters
+            circuit = fm1.compose(fm2.inverse()).decompose()
             print(circuit.num_qubits)
             kernel = SymbFidelityStatevectorKernel(circuit=circuit)
             logging.log(
             logging.WARN,
-            """FidelityQuantumKernel skipped because of time.
-                    As the number of qubits is low,
-                    we will use qiskit-symb.""",
+            """Using SymbFidelityStatevectorKernel""",
         )
         else:
             # For a larger number of qubits,
