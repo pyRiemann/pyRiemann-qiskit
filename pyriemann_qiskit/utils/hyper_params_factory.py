@@ -159,7 +159,7 @@ def gen_zz_feature_map(reps=2, entanglement="linear"):
         feature_dimension=n_features,
         reps=reps,
         entanglement=entanglement,
-        param_prefix=param_prefix
+        parameter_prefix=param_prefix
     )
 
 

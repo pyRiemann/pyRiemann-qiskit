@@ -26,10 +26,10 @@ class SymbFidelityStatevectorKernel:
     """Symbolic Statevector kernel
 
     An implementation of the quantum kernel for classically simulated
-    state vectors [2]_ using qiskit-symb for symbolic representation of statevectors [1]_.
+    state vectors [1]_ using qiskit-symb for symbolic representation of statevectors [2]_.
 
     Here, the kernel function is defined as the overlap of two simulated quantum statevectors produced
-    by a parametrized quantum circuit (called feature map) [2]_.
+    by a parametrized quantum circuit (called feature map) [1]_.
 
     Notes
     -----
@@ -49,10 +49,10 @@ class SymbFidelityStatevectorKernel:
 
     References
     ----------
-    .. [1] https://github.com/SimoneGasperini/qiskit-symb/issues/6
-    .. [2] \
+    .. [1] \
     https://github.com/qiskit-community/qiskit-machine-learning/blob/30dad803e9457f955464220eddc1e55a65452bbc/qiskit_machine_learning/kernels/fidelity_statevector_kernel.py#L31
-
+    .. [2] https://github.com/SimoneGasperini/qiskit-symb/issues/6
+    
     """
 
     def __init__(self, feature_map, gen_feature_map, n_jobs=1):
@@ -241,7 +241,7 @@ def get_quantum_kernel(feature_map, gen_feature_map, quantum_instance, use_fidel
             # With a small number of qubits, let's use qiskit-symb
             # See:
             # https://medium.com/qiskit/qiskit-symb-a-qiskit-ecosystem-package-for-symbolic-quantum-computation-b6b4407fa705
-            kernel = SymbFidelityStatevectorKernel(feature_map, gen_feature_map, n_jobs=1)
+            kernel = SymbFidelityStatevectorKernel(feature_map, gen_feature_map, n_jobs=4)
             logging.log(
             logging.WARN,
             """Using SymbFidelityStatevectorKernel""",
