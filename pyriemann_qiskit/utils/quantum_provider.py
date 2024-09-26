@@ -23,6 +23,38 @@ import pickle
 
 class SymbFidelityStatevectorKernel:
 
+    """Symbolic Statevector kernel
+
+    An implementation of the quantum kernel for classically simulated
+    state vectors [2]_ using qiskit-symb for symbolic representation of statevectors [1]_.
+
+    Here, the kernel function is defined as the overlap of two simulated quantum statevectors produced
+    by a parametrized quantum circuit (called feature map) [2]_.
+
+    Notes
+    -----
+    .. versionadded:: 0.4.0
+
+    Parameters
+    ----------
+    feature_map: QuantumCircuit | FeatureMap
+        An instance of a feature map.
+    gen_feature_map: Callable[[int, str], QuantumCircuit | FeatureMap], \
+                      default=Callable[int, ZZFeatureMap]
+        Function generating a feature map to encode data into a quantum state.
+    n_jobs: int
+        The number of job for fidelity evaluation.
+        If null or negative, the number of jobs is set to 1
+        If set to 1, evaluation will run on the main thread.
+
+    References
+    ----------
+    .. [1] https://github.com/SimoneGasperini/qiskit-symb/issues/6
+    .. [2] \
+    https://github.com/qiskit-community/qiskit-machine-learning/blob/30dad803e9457f955464220eddc1e55a65452bbc/qiskit_machine_learning/kernels/fidelity_statevector_kernel.py#L31
+
+    """
+
     def __init__(self, feature_map, gen_feature_map, n_jobs=1):
 
         self.n_jobs = n_jobs if n_jobs >= 1 else 1
@@ -43,7 +75,17 @@ class SymbFidelityStatevectorKernel:
 
         self.function = sv.to_lambda()
 
+    """Evaluate the quantum kernel.
 
+    Returns
+    -------
+    kernel : ndarray, shape (len(x_vec), len(y_vec))
+        The kernel matrix.
+
+    Notes
+    -----
+    .. versionadded:: 0.4.0
+    """
     def evaluate(self, x_vec, y_vec=None):
         if y_vec is None:
             y_vec = x_vec

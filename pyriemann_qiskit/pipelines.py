@@ -458,7 +458,7 @@ class QuantumMDMVotingClassifier(BasePipeline):
         If true, will output all intermediate results and logs.
     shots : int (default:1024)
         Number of repetitions of each circuit, for sampling.
-    gen_feature_map : Callable[int, QuantumCircuit | FeatureMap] \
+    gen_feature_map : Callable[[int, str], QuantumCircuit | FeatureMap] \
                       (default : Callable[int, ZZFeatureMap])
         Function generating a feature map to encode data into a quantum state.
 
