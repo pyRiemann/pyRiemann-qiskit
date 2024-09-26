@@ -21,6 +21,7 @@ import joblib
 import os
 import pickle
 
+
 class SymbFidelityStatevectorKernel:
 
     """Symbolic Statevector kernel
@@ -52,17 +53,18 @@ class SymbFidelityStatevectorKernel:
     .. [1] \
     https://github.com/qiskit-community/qiskit-machine-learning/blob/30dad803e9457f955464220eddc1e55a65452bbc/qiskit_machine_learning/kernels/fidelity_statevector_kernel.py#L31
     .. [2] https://github.com/SimoneGasperini/qiskit-symb/issues/6
-    
+
     """
 
     def __init__(self, feature_map, gen_feature_map, n_jobs=1):
-
         self.n_jobs = n_jobs if n_jobs >= 1 else 1
-        cached_file = os.path.join("symb_statevectors", f"{feature_map.name}-{feature_map.reps}")
+        cached_file = os.path.join(
+            "symb_statevectors", f"{feature_map.name}-{feature_map.reps}"
+        )
 
-        if os.path.isfile(cached_file) :
+        if os.path.isfile(cached_file):
             print("Loading symbolic Statevector from cache")
-            file = open(cached_file,'rb')
+            file = open(cached_file, "rb")
             sv = pickle.load(file)
         else:
             print("Computing symbolic Statevector")
@@ -70,7 +72,7 @@ class SymbFidelityStatevectorKernel:
             self.circuit = feature_map.compose(fm2.inverse()).decompose()
             sv = Statevector(self.circuit)
             print(f"Dumping to {cached_file}")
-            file = open(cached_file, 'wb')
+            file = open(cached_file, "wb")
             pickle.dump(sv, file)
 
         self.function = sv.to_lambda()
@@ -86,6 +88,7 @@ class SymbFidelityStatevectorKernel:
     -----
     .. versionadded:: 0.4.0
     """
+
     def evaluate(self, x_vec, y_vec=None):
         if y_vec is None:
             y_vec = x_vec
@@ -94,9 +97,9 @@ class SymbFidelityStatevectorKernel:
         y_vec_len = len(y_vec)
 
         is_sim = x_vec_len == y_vec_len and (x_vec == y_vec).all()
-        
+
         kernel_matrix = np.zeros((x_vec_len, y_vec_len))
-        
+
         chunck = x_vec_len // self.n_jobs
 
         def compute_fidelity_partial_matrix(i_thread):
@@ -109,19 +112,18 @@ class SymbFidelityStatevectorKernel:
                     if is_sim:
                         kernel_matrix[j, i] = fidelity
             return kernel_matrix
-        
+
         if self.n_jobs == 1:
             return compute_fidelity_partial_matrix(0)
         else:
             print("n_jobs greater than 1, parallelizing")
-            results = joblib.Parallel(n_jobs = self.n_jobs)\
-                (joblib.delayed(compute_fidelity_partial_matrix)( i_thread )
-                                    for i_thread in range(self.n_jobs)
-                                )
+            results = joblib.Parallel(n_jobs=self.n_jobs)(
+                joblib.delayed(compute_fidelity_partial_matrix)(i_thread)
+                for i_thread in range(self.n_jobs)
+            )
             for result in results:
                 kernel_matrix += result
             return kernel_matrix
-
 
 
 def get_provider():
@@ -204,7 +206,9 @@ def get_device(provider, min_qubits):
     )
 
 
-def get_quantum_kernel(feature_map, gen_feature_map, quantum_instance, use_fidelity_state_vector_kernel):
+def get_quantum_kernel(
+    feature_map, gen_feature_map, quantum_instance, use_fidelity_state_vector_kernel
+):
     """Get a quantum kernel
 
     Return an instance of FidelityQuantumKernel or
@@ -235,17 +239,18 @@ def get_quantum_kernel(feature_map, gen_feature_map, quantum_instance, use_fidel
     if use_fidelity_state_vector_kernel and isinstance(
         quantum_instance._backend, AerSimulator
     ):
-
         # For simulation:
         if feature_map.num_qubits <= 9:
             # With a small number of qubits, let's use qiskit-symb
             # See:
             # https://medium.com/qiskit/qiskit-symb-a-qiskit-ecosystem-package-for-symbolic-quantum-computation-b6b4407fa705
-            kernel = SymbFidelityStatevectorKernel(feature_map, gen_feature_map, n_jobs=4)
+            kernel = SymbFidelityStatevectorKernel(
+                feature_map, gen_feature_map, n_jobs=4
+            )
             logging.log(
-            logging.WARN,
-            """Using SymbFidelityStatevectorKernel""",
-        )
+                logging.WARN,
+                """Using SymbFidelityStatevectorKernel""",
+            )
         else:
             # For a larger number of qubits,
             # we will not use FidelityQuantumKernel as it is slow. See
@@ -256,12 +261,12 @@ def get_quantum_kernel(feature_map, gen_feature_map, quantum_instance, use_fidel
                 shots=quantum_instance.options["shots"],
             )
             logging.log(
-            logging.WARN,
-            """FidelityQuantumKernel skipped because of time.
+                logging.WARN,
+                """FidelityQuantumKernel skipped because of time.
                     Using FidelityStatevectorKernel with AerStatevector.
                     Seed cannot be set with FidelityStatevectorKernel.
                     Increase the number of shots to diminish the noise.""",
-        )
+            )
     else:
         kernel = FidelityQuantumKernel(
             feature_map=feature_map, fidelity=ComputeUncompute(quantum_instance)
