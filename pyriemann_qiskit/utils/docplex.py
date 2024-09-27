@@ -5,14 +5,12 @@ It is for example suitable for:
 - MDM optimization problem;
 - computation of matrices mean.
 """
+import numpy as np
 import math
 import time
 
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
-import numpy as np
 from pyriemann.utils.covariance import normalize
-from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_rotational_X_gates
-from pyriemann_qiskit.utils.math import is_pauli_identity
 from qiskit.circuit.library import QAOAAnsatz
 from qiskit.primitives import BackendSampler
 from qiskit.quantum_info import Statevector
@@ -24,6 +22,8 @@ from qiskit_optimization.translators import from_docplex_mp
 from qiskit_optimization.problems import VarType
 from sklearn.preprocessing import MinMaxScaler
 
+from .hyper_params_factory import create_mixer_rotational_X_gates
+from .math import is_pauli_identity
 from .quantum_provider import get_simulator
 
 
