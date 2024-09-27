@@ -710,7 +710,7 @@ class QuanticMDM(QuanticClassifierBase):
     qaoa_optimizer : SciPyOptimizer, default=SLSQP()
         An instance of a scipy optimizer to find the optimal weights for the
         parametric circuit (ansatz).
-    create_mixer : Callable[int, QuantumCircuit], default=None
+    create_mixer : None | Callable[int, QuantumCircuit], default=None
         A delegate that takes into input an angle and returns a QuantumCircuit.
         This circuit is the mixer operatior for the QAOA-CV algorithm.
         If None and quantum, the NaiveQAOAOptimizer will be used instead.
