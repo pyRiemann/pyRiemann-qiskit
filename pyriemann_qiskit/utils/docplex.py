@@ -203,114 +203,110 @@ class pyQiskitOptimizer:
     def __init__(self):
         pass
 
-    """Hook to apply some transformation on a covariance matrix.
-
-    Parameters
-    ----------
-    covmat : ndarray, shape (n_features, n_features)
-        The covariance matrix.
-
-    Returns
-    -------
-    transformed_covmat : ndarray, shape (n_features, n_features)
-        A transformation of the covariance matrix.
-
-    Notes
-    -----
-    .. versionadded:: 0.0.2
-    """
-
     def convert_covmat(self, covmat):
+        """Hook to apply some transformation on a covariance matrix.
+
+        Parameters
+        ----------
+        covmat : ndarray, shape (n_features, n_features)
+            The covariance matrix.
+
+        Returns
+        -------
+        transformed_covmat : ndarray, shape (n_features, n_features)
+            A transformation of the covariance matrix.
+
+        Notes
+        -----
+        .. versionadded:: 0.0.2
+        """
         return covmat
 
-    """Helper to create a docplex representation of a
-    covariance matrix variable.
-
-    Parameters
-    ----------
-    prob : Model
-        An instance of the docplex model [1]_
-    channels : list
-        The list of channels. A channel can be any Python object,
-        such as channels'name or number but None.
-    name : string
-        An custom name for the variable. The name is used internally by docplex
-        and may appear if your print the model to a file for example.
-
-    Returns
-    -------
-    docplex_covmat : dict
-        A square matrix of decision variables representing
-        our covariance matrix.
-
-    Notes
-    -----
-    .. versionadded:: 0.0.2
-
-    References
-    ----------
-    .. [1] \
-        http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
-
-    """
-
     def covmat_var(self, prob, channels, name):
+        """Helper to create a docplex representation of a
+        covariance matrix variable.
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model [1]_
+        channels : list
+            The list of channels. A channel can be any Python object,
+            such as channels'name or number but None.
+        name : string
+            An custom name for the variable. The name is used internally by docplex
+            and may appear if your print the model to a file for example.
+
+        Returns
+        -------
+        docplex_covmat : dict
+            A square matrix of decision variables representing
+            our covariance matrix.
+
+        Notes
+        -----
+        .. versionadded:: 0.0.2
+
+        References
+        ----------
+        .. [1] \
+            http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+
+        """
         raise NotImplementedError()
 
     def _solve_qp(self, qp, reshape=True):
         raise NotImplementedError()
 
-    """Solve the docplex problem.
-
-    Parameters
-    ----------
-    prob : Model
-        An instance of the docplex model [1]_
-
-    Returns
-    -------
-    result : OptimizationResult
-        The result of the optimization.
-
-    Notes
-    -----
-    .. versionadded:: 0.0.2
-    .. versionchanged:: 0.0.4
-
-    References
-    ----------
-    .. [1] \
-        http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
-
-    """
-
     def solve(self, prob, reshape=True):
+        """Solve the docplex problem.
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model [1]_
+
+        Returns
+        -------
+        result : OptimizationResult
+            The result of the optimization.
+
+        Notes
+        -----
+        .. versionadded:: 0.0.2
+        .. versionchanged:: 0.0.4
+
+        References
+        ----------
+        .. [1] \
+            http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+
+        """
         qp = from_docplex_mp(prob)
         return self._solve_qp(qp, reshape)
 
-    """Helper to create a docplex representation of a
-    weight vector.
-
-    Parameters
-    ----------
-    prob : Model
-        An instance of the docplex model [1]_
-    classes : list
-        The classes.
-
-    Returns
-    -------
-    docplex_weights : dict
-        A vector of decision variables representing
-        our weights.
-
-    Notes
-    -----
-    .. versionadded:: 0.0.4
-
-    """
-
     def get_weights(self, prob, classes):
+        """Helper to create a docplex representation of a
+        weight vector.
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model [1]_
+        classes : list
+            The classes.
+
+        Returns
+        -------
+        docplex_weights : dict
+            A vector of decision variables representing
+            our weights.
+
+        Notes
+        -----
+        .. versionadded:: 0.0.4
+
+        """
         raise NotImplementedError()
 
 
@@ -345,42 +341,41 @@ class ClassicalOptimizer(pyQiskitOptimizer):
         pyQiskitOptimizer.__init__(self)
         self.optimizer = optimizer
 
-    """Helper to create a docplex representation of a
-    covariance matrix variable.
-
-    Parameters
-    ----------
-    prob : Model
-        An instance of the docplex model [1]_
-    channels : list
-        The list of channels. A channel can be any Python object,
-        such as channels'name or number but None.
-    name : string
-        An custom name for the variable. The name is used internally by docplex
-        and may appear if your print the model to a file for example.
-
-    Returns
-    -------
-    docplex_covmat : dict
-        A square matrix of continuous decision variables representing
-        our covariance matrix.
-
-    See Also
-    -----
-    square_cont_mat_var
-
-    Notes
-    -----
-    .. versionadded:: 0.0.2
-
-    References
-    ----------
-    .. [1] \
-        http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
-
-    """
-
     def covmat_var(self, prob, channels, name):
+        """Helper to create a docplex representation of a
+        covariance matrix variable.
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model [1]_
+        channels : list
+            The list of channels. A channel can be any Python object,
+            such as channels'name or number but None.
+        name : string
+            An custom name for the variable. The name is used internally by docplex
+            and may appear if your print the model to a file for example.
+
+        Returns
+        -------
+        docplex_covmat : dict
+            A square matrix of continuous decision variables representing
+            our covariance matrix.
+
+        See Also
+        -----
+        square_cont_mat_var
+
+        Notes
+        -----
+        .. versionadded:: 0.0.2
+
+        References
+        ----------
+        .. [1] \
+            http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+
+        """
         return square_cont_mat_var(prob, channels, name)
 
     def _solve_qp(self, qp, reshape=True):
@@ -390,29 +385,28 @@ class ClassicalOptimizer(pyQiskitOptimizer):
             return np.reshape(result, (n_channels, n_channels))
         return result
 
-    """Helper to create a docplex representation of a
-    weight vector.
-
-    Parameters
-    ----------
-    prob : Model
-        An instance of the docplex model [1]_
-    classes : list
-        The classes.
-
-    Returns
-    -------
-    docplex_weights : dict
-        A vector of continuous decision variables representing
-        our weights.
-
-    Notes
-    -----
-    .. versionadded:: 0.0.4
-
-    """
-
     def get_weights(self, prob, classes):
+        """Helper to create a docplex representation of a
+        weight vector.
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model [1]_
+        classes : list
+            The classes.
+
+        Returns
+        -------
+        docplex_weights : dict
+            A vector of continuous decision variables representing
+            our weights.
+
+        Notes
+        -----
+        .. versionadded:: 0.0.4
+
+        """
         w = prob.continuous_var_matrix(
             keys1=[1], keys2=classes, name="weight", lb=0, ub=1
         )
@@ -474,68 +468,66 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         self.quantum_instance = quantum_instance
         self.optimizer = optimizer
 
-    """Transform all values in the covariance matrix
-    to integers.
-
-    Example:
-    0.123 -> 1230
-
-    Parameters
-    ----------
-    covmat : ndarray, shape (n_features, n_features)
-        The covariance matrix.
-
-    Returns
-    -------
-    transformed_covmat : ndarray, shape (n_features, n_features)
-        A transformation of the covariance matrix.
-
-    Notes
-    -----
-    .. versionadded:: 0.0.2
-
-    """
-
     def convert_covmat(self, covmat):
+        """Transform all values in the covariance matrix
+        to integers.
+
+        Example:
+        0.123 -> 1230
+
+        Parameters
+        ----------
+        covmat : ndarray, shape (n_features, n_features)
+            The covariance matrix.
+
+        Returns
+        -------
+        transformed_covmat : ndarray, shape (n_features, n_features)
+            A transformation of the covariance matrix.
+
+        Notes
+        -----
+        .. versionadded:: 0.0.2
+
+        """
         corr = normalize(covmat, "corr")
         return np.round(corr * self.upper_bound, 0)
 
-    """Helper to create a docplex representation of a
-    covariance matrix variable.
-
-    Parameters
-    ----------
-    prob : Model
-        An instance of the docplex model [1]_
-    channels : list
-        The list of channels. A channel can be any Python object,
-        such as channels'name or number but None.
-    name : string
-        An custom name for the variable. The name is used internally by docplex
-        and may appear if your print the model to a file for example.
-
-    Returns
-    -------
-    docplex_covmat : dict
-        A square matrix of integer decision variables representing
-        our covariance matrix.
-
-    See Also
-    -----
-    square_int_mat_var
-
-    Notes
-    -----
-    .. versionadded:: 0.0.2
-
-    References
-    ----------
-    .. [1] \
-        http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
-
-    """
-
     def covmat_var(self, prob, channels, name):
+        """Helper to create a docplex representation of a
+        covariance matrix variable.
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model [1]_
+        channels : list
+            The list of channels. A channel can be any Python object,
+            such as channels'name or number but None.
+        name : string
+            An custom name for the variable. The name is used internally by docplex
+            and may appear if your print the model to a file for example.
+
+        Returns
+        -------
+        docplex_covmat : dict
+            A square matrix of integer decision variables representing
+            our covariance matrix.
+
+        See Also
+        -----
+        square_int_mat_var
+
+        Notes
+        -----
+        .. versionadded:: 0.0.2
+
+        References
+        ----------
+        .. [1] \
+            http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+
+        """
         return square_int_mat_var(prob, channels, self.upper_bound, name)
 
     def _solve_qp(self, qp, reshape=True):
@@ -561,29 +553,28 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
             return np.reshape(result, (n_channels, n_channels))
         return result
 
-    """Helper to create a docplex representation of a
-    weight vector.
-
-    Parameters
-    ----------
-    prob : Model
-        An instance of the docplex model [1]_
-    classes : list
-        The classes.
-
-    Returns
-    -------
-    docplex_weights : dict
-        A vector of integer decision variables representing
-        our weights.
-
-    Notes
-    -----
-    .. versionadded:: 0.0.4
-
-    """
-
     def get_weights(self, prob, classes):
+        """Helper to create a docplex representation of a
+        weight vector.
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model [1]_
+        classes : list
+            The classes.
+
+        Returns
+        -------
+        docplex_weights : dict
+            A vector of integer decision variables representing
+            our weights.
+
+        Notes
+        -----
+        .. versionadded:: 0.0.4
+
+        """
         w = prob.integer_var_matrix(
             keys1=[1], keys2=classes, name="weight", lb=0, ub=self.upper_bound
         )
@@ -667,65 +658,63 @@ class QAOACVOptimizer(pyQiskitOptimizer):
 
         return qp, scalers
 
-    """
-    Parameters
-    ----------
-    prob : Model
-        An instance of the docplex model [1]_
-    channels : list
-        The list of channels. A channel can be any Python object,
-        such as channels'name or number but None.
-    name : string
-        An custom name for the variable. The name is used internally by docplex
-        and may appear if your print the model to a file for example.
-
-    Returns
-    -------
-    docplex_covmat : dict
-        A square matrix of continuous decision variables representing
-        our covariance matrix.
-
-    See Also
-    -----
-    square_cont_mat_var
-
-    Notes
-    -----
-    .. versionadded:: 0.4.0
-
-    References
-    ----------
-    .. [1] \
-        http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
-
-    """
-
     def covmat_var(self, prob, channels, name):
+        """
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model [1]_
+        channels : list
+            The list of channels. A channel can be any Python object,
+            such as channels'name or number but None.
+        name : string
+            An custom name for the variable. The name is used internally by docplex
+            and may appear if your print the model to a file for example.
+
+        Returns
+        -------
+        docplex_covmat : dict
+            A square matrix of continuous decision variables representing
+            our covariance matrix.
+
+        See Also
+        -----
+        square_cont_mat_var
+
+        Notes
+        -----
+        .. versionadded:: 0.4.0
+
+        References
+        ----------
+        .. [1] \
+            http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+
+        """
         return ClassicalOptimizer.covmat_var(self, prob, channels, name)
 
-    """Helper to create a docplex representation of a
-    weight vector.
-
-    Parameters
-    ----------
-    prob : Model
-        An instance of the docplex model [1]_
-    classes : list
-        The classes.
-
-    Returns
-    -------
-    docplex_weights : dict
-        A vector of integer decision variables representing
-        our weights.
-
-    Notes
-    -----
-    .. versionadded:: 0.4.0
-
-    """
-
     def get_weights(self, prob, classes):
+        """Helper to create a docplex representation of a
+        weight vector.
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model [1]_
+        classes : list
+            The classes.
+
+        Returns
+        -------
+        docplex_weights : dict
+            A vector of integer decision variables representing
+            our weights.
+
+        Notes
+        -----
+        .. versionadded:: 0.4.0
+
+        """
         return ClassicalOptimizer.get_weights(self, prob, classes)
 
     def _solve_qp(self, qp, reshape=True):
