@@ -5,11 +5,11 @@ It is for example suitable for:
 - MDM optimization problem;
 - computation of matrices mean.
 """
-import numpy as np
 import math
 import time
 
 from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
+import numpy as np
 from pyriemann.utils.covariance import normalize
 from qiskit.circuit.library import QAOAAnsatz
 from qiskit.primitives import BackendSampler
