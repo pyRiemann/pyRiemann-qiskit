@@ -104,7 +104,7 @@ class SymbFidelityStatevectorKernel:
                 x = x_vec[i]
                 for j in range(i if is_sim else y_vec_len):
                     y = y_vec[j]
-                    if isinstance(x, np.numpy.float64):
+                    if isinstance(x, np.float64):
                         # Pegagos implementation
                         fidelity = abs(self.function(x, y)[0, 0]) ** 2
                     else:
