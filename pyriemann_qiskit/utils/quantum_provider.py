@@ -1,8 +1,11 @@
 """Module containing helpers for IBM quantum backends
    providers and simulators."""
 
+import joblib
 import logging
 import numpy as np
+import os
+import pickle
 
 from qiskit_aer import AerSimulator
 from qiskit_aer.quantum_info import AerStatevector
@@ -12,14 +15,7 @@ from qiskit_machine_learning.kernels import (
     FidelityStatevectorKernel,
     FidelityQuantumKernel,
 )
-from qiskit.circuit import Parameter, ParameterVector
 from qiskit_symb.quantum_info import Statevector
-
-
-import numpy as np
-import joblib
-import os
-import pickle
 
 
 class SymbFidelityStatevectorKernel:
@@ -27,10 +23,11 @@ class SymbFidelityStatevectorKernel:
     """Symbolic Statevector kernel
 
     An implementation of the quantum kernel for classically simulated
-    state vectors [1]_ using qiskit-symb for symbolic representation of statevectors [2]_.
+    state vectors [1]_ using qiskit-symb for symbolic representation
+    of statevectors [2]_.
 
-    Here, the kernel function is defined as the overlap of two simulated quantum statevectors produced
-    by a parametrized quantum circuit (called feature map) [1]_.
+    Here, the kernel function is defined as the overlap of two simulated quantum
+    statevectors produced by a parametrized quantum circuit (called feature map) [1]_.
 
     Notes
     -----
