@@ -191,7 +191,7 @@ class pyQiskitOptimizer:
     """Wrapper for Qiskit optimizer.
 
     This class is an abstract class which provides an interface
-    for running our docplex model independently of the optimizer type
+    for running a docplex model independently of the optimizer type
     (such as classical or quantum optimizer).
 
     Notes
@@ -241,7 +241,7 @@ class pyQiskitOptimizer:
         -------
         docplex_covmat : dict
             A square matrix of decision variables representing
-            our covariance matrix.
+            a covariance matrix.
 
         Notes
         -----
@@ -300,7 +300,7 @@ class pyQiskitOptimizer:
         -------
         docplex_weights : dict
             A vector of decision variables representing
-            our weights.
+            weights.
 
         Notes
         -----
@@ -360,7 +360,7 @@ class ClassicalOptimizer(pyQiskitOptimizer):
         -------
         docplex_covmat : dict
             A square matrix of continuous decision variables representing
-            our covariance matrix.
+            a covariance matrix.
 
         See Also
         -----
@@ -399,7 +399,7 @@ class ClassicalOptimizer(pyQiskitOptimizer):
         -------
         docplex_weights : dict
             A vector of continuous decision variables representing
-            our weights.
+            weights.
 
         Notes
         -----
@@ -511,7 +511,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         -------
         docplex_covmat : dict
             A square matrix of integer decision variables representing
-            our covariance matrix.
+            a covariance matrix.
 
         See Also
         -----
@@ -567,7 +567,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         -------
         docplex_weights : dict
             A vector of integer decision variables representing
-            our weights.
+            weights.
 
         Notes
         -----
@@ -674,7 +674,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         -------
         docplex_covmat : dict
             A square matrix of continuous decision variables representing
-            our covariance matrix.
+            a covariance matrix.
 
         See Also
         -----
@@ -707,7 +707,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         -------
         docplex_weights : dict
             A vector of integer decision variables representing
-            our weights.
+            weights.
 
         Notes
         -----
@@ -739,7 +739,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         # or the cost operator has no parameters
         # the number of parameters in the QAOAAnsatz will be 0.
         # We will then create a mixer with parameters
-        # So we get some parameters in our circuit to optimize
+        # So we get some parameters in the circuit to optimize
         cost_op_has_no_parameter = is_pauli_identity(cost) or len(cost.parameters) == 0
 
         mixer = self.create_mixer(cost.num_qubits, use_params=cost_op_has_no_parameter)
@@ -768,7 +768,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
 
             # p is in the range [0, 1].
             # We now need to scale it in the definition
-            # range of our continuous variables
+            # range of the continuous variables
             p = scalers[i].inverse_transform([[p]])[0][0]
             return p
 
