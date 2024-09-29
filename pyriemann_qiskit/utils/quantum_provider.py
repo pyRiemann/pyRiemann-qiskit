@@ -18,7 +18,7 @@ from qiskit_machine_learning.kernels import (
 try:
     from qiskit_symb.quantum_info import Statevector
     QISKIT_SYMB=True
-except:
+except ImportError:
     QISKIT_SYMB=False
 
 
