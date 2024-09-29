@@ -68,7 +68,7 @@ def get_global_optimizer(default):
 
 def square_cont_mat_var(prob, channels, name="cont_spdmat"):
     """ Docplex square continous matrix
-    
+
     Creates a 2-dimensional dictionary of continuous decision variables,
     indexed by pairs of key objects.
     The dictionary represents a square matrix of size
@@ -154,7 +154,7 @@ def square_int_mat_var(prob, channels, upper_bound=7, name="int_spdmat"):
 
 def square_bin_mat_var(prob, channels, name="bin_spdmat"):
     """ Docplex square binary matrix
-    
+
     Creates a 2-dimensional dictionary of binary decision variables,
     indexed by pairs of key objects.
     The dictionary represents a square matrix of size
@@ -211,7 +211,7 @@ class pyQiskitOptimizer:
 
     def convert_spdmat(self, X):
         """Convert a SPD matrix
-        
+
         Hook to apply some transformation on a SPD matrix.
 
         Parameters
@@ -234,7 +234,7 @@ class pyQiskitOptimizer:
 
     def spdmat_var(self, prob, channels, name):
         """ Create docplex matrix variable
-        
+
         Helper to create a docplex representation of a
         SPD matrix variable.
 
@@ -301,7 +301,7 @@ class pyQiskitOptimizer:
 
     def get_weights(self, prob, classes):
         """Weights variable
-        
+
         Helper to create a docplex representation of a
         weight vector.
 
@@ -406,7 +406,7 @@ class ClassicalOptimizer(pyQiskitOptimizer):
 
     def get_weights(self, prob, classes):
         """Weights variabpe
-        
+
         Helper to create a docplex representation of a
         weight vector.
 
@@ -491,7 +491,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
 
     def convert_spdmat(self, X):
         """Convert a SPD matrix
-        
+
         Transform all values in the SPD matrix
         to integers.
 
@@ -520,7 +520,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
 
     def spdmat_var(self, prob, channels, name):
         """ Create docplex matrix variable
-        
+
         Helper to create a docplex representation of a
         SPD matrix variable.
 
@@ -584,7 +584,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
 
     def get_weights(self, prob, classes):
         """Get weights variable
-        
+
         Helper to create a docplex representation of a
         weight vector.
 
@@ -728,7 +728,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
 
     def get_weights(self, prob, classes):
         """Get weights variable
-        
+
         Helper to create a docplex representation of a
         weight vector.
 
