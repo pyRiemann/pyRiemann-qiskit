@@ -203,17 +203,17 @@ class pyQiskitOptimizer:
     def __init__(self):
         pass
 
-    def convert_spdmat(self, spdmat):
+    def convert_spdmat(self, X):
         """Hook to apply some transformation on a SPD matrix.
 
         Parameters
         ----------
-        spdmat : ndarray, shape (n_features, n_features)
+        X : ndarray, shape (n_features, n_features)
             A SPD matrix.
 
         Returns
         -------
-        transformed_spdmat : ndarray, shape (n_features, n_features)
+        transformed_X : ndarray, shape (n_features, n_features)
             A transformation of the SPD matrix.
 
         Notes
@@ -222,7 +222,7 @@ class pyQiskitOptimizer:
         .. versionchanged:: 0.4.0
             rename convert_covmat to convert_spdmat
         """
-        return spdmat
+        return X
 
     def spdmat_var(self, prob, channels, name):
         """Helper to create a docplex representation of a
@@ -473,7 +473,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         self.quantum_instance = quantum_instance
         self.optimizer = optimizer
 
-    def convert_spdmat(self, spdmat):
+    def convert_spdmat(self, X):
         """Transform all values in the SPD matrix
         to integers.
 
@@ -482,12 +482,12 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
 
         Parameters
         ----------
-        spdmat : ndarray, shape (n_features, n_features)
+        X : ndarray, shape (n_features, n_features)
             The SPD matrix.
 
         Returns
         -------
-        transformed_spdmat : ndarray, shape (n_features, n_features)
+        transformed_X : ndarray, shape (n_features, n_features)
             A transformation of the SPD matrix.
 
         Notes
@@ -497,7 +497,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
             rename convert_covmat to convert_spdmat
 
         """
-        corr = normalize(spdmat, "corr")
+        corr = normalize(X, "corr")
         return np.round(corr * self.upper_bound, 0)
 
     def spdmat_var(self, prob, channels, name):
