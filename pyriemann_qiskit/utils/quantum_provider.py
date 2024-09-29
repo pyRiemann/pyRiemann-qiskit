@@ -15,7 +15,12 @@ from qiskit_machine_learning.kernels import (
     FidelityStatevectorKernel,
     FidelityQuantumKernel,
 )
-from qiskit_symb.quantum_info import Statevector
+try:
+    from qiskit_symb.quantum_info import Statevector
+    QISKIT_SYMB=True
+except:
+    QISKIT_SYMB=False
+
 
 
 class SymbFidelityStatevectorKernel:
@@ -209,14 +214,19 @@ def get_device(provider, min_qubits):
 
 
 def get_quantum_kernel(
-    feature_map, gen_feature_map, quantum_instance, use_fidelity_state_vector_kernel
+    feature_map,
+    gen_feature_map,
+    quantum_instance,
+    use_fidelity_state_vector_kernel,
+    use_qiskit_symb
 ):
     """Get a quantum kernel
 
     Return an instance of FidelityQuantumKernel or
     FidelityStatevectorKernel (in the case of a simulation).
 
-    For simulation with a small number of qubits (< 9), qiskit-symb is used.
+    For simulation with a small number of qubits (< 9), and `use_qiskit_symb` is True, 
+    qiskit-symb is used.
 
     Parameters
     ----------
@@ -225,7 +235,10 @@ def get_quantum_kernel(
     quantum_instance: BaseSampler
         A instance of BaseSampler.
     use_fidelity_state_vector_kernel: boolean
-        if True, use a FidelitystatevectorKernel for simulation.
+        If True, use a FidelitystatevectorKernel for simulation.
+    use_qiskit_symb: boolean
+        This flag is used only if qiskit-symb is installed.
+        If True and the number of qubits < 9, then qiskit_symb is used.
 
     Returns
     -------
@@ -242,7 +255,7 @@ def get_quantum_kernel(
         quantum_instance._backend, AerSimulator
     ):
         # For simulation:
-        if feature_map.num_qubits <= 9:
+        if QISKIT_SYMB and feature_map.num_qubits <= 9 and use_qiskit_symb:
             # With a small number of qubits, let's use qiskit-symb
             # See:
             # https://medium.com/qiskit/qiskit-symb-a-qiskit-ecosystem-package-for-symbolic-quantum-computation-b6b4407fa705
