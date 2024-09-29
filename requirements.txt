@@ -14,4 +14,3 @@ docplex>=2.21.207
 firebase_admin==6.5.0
 tqdm
 pandas
-

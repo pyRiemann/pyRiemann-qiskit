@@ -135,7 +135,8 @@ To use symbolic quantum simulation, run:
 pip install .[optim]
 ```
 
-Which will enable [qiskit-symb](https://github.com/SimoneGasperini/qiskit-symb) integration.
+Which will enable [qiskit-symb](https://github.com/SimoneGasperini/qiskit-symb)
+integration.
 
 Note, Qiskit only provide binaries for Linux. For other platforms, or if you want to
 enable specific NVIDIA optimization for quantum, you need to build the binary

@@ -15,12 +15,13 @@ from qiskit_machine_learning.kernels import (
     FidelityStatevectorKernel,
     FidelityQuantumKernel,
 )
+
 try:
     from qiskit_symb.quantum_info import Statevector
-    QISKIT_SYMB=True
-except ImportError:
-    QISKIT_SYMB=False
 
+    QISKIT_SYMB = True
+except ImportError:
+    QISKIT_SYMB = False
 
 
 class SymbFidelityStatevectorKernel:
@@ -218,14 +219,14 @@ def get_quantum_kernel(
     gen_feature_map,
     quantum_instance,
     use_fidelity_state_vector_kernel,
-    use_qiskit_symb
+    use_qiskit_symb,
 ):
     """Get a quantum kernel
 
     Return an instance of FidelityQuantumKernel or
     FidelityStatevectorKernel (in the case of a simulation).
 
-    For simulation with a small number of qubits (< 9), and `use_qiskit_symb` is True, 
+    For simulation with a small number of qubits (< 9), and `use_qiskit_symb` is True,
     qiskit-symb is used.
 
     Parameters
