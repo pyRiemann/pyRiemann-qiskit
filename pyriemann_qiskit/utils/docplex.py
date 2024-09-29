@@ -374,7 +374,6 @@ class ClassicalOptimizer(pyQiskitOptimizer):
         ----------
         .. [1] \
             http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
-
         """
         return square_cont_mat_var(prob, channels, name)
 
