@@ -66,7 +66,7 @@ def get_global_optimizer(default):
     return _global_optimizer[0] if _global_optimizer[0] is not None else default
 
 
-def square_cont_mat_var(prob, channels, name="cont_covmat"):
+def square_cont_mat_var(prob, channels, name="cont_spdmat"):
     """Creates a 2-dimensional dictionary of continuous decision variables,
     indexed by pairs of key objects.
     The dictionary represents a square matrix of size
@@ -106,7 +106,7 @@ def square_cont_mat_var(prob, channels, name="cont_covmat"):
     )
 
 
-def square_int_mat_var(prob, channels, upper_bound=7, name="int_covmat"):
+def square_int_mat_var(prob, channels, upper_bound=7, name="int_spdmat"):
     """Creates a 2-dimensional dictionary of integer decision variables,
     indexed by pairs of key objects.
     The dictionary represents a square matrix of size
@@ -148,7 +148,7 @@ def square_int_mat_var(prob, channels, upper_bound=7, name="int_covmat"):
     )
 
 
-def square_bin_mat_var(prob, channels, name="bin_covmat"):
+def square_bin_mat_var(prob, channels, name="bin_spdmat"):
     """Creates a 2-dimensional dictionary of binary decision variables,
     indexed by pairs of key objects.
     The dictionary represents a square matrix of size
@@ -203,28 +203,30 @@ class pyQiskitOptimizer:
     def __init__(self):
         pass
 
-    def convert_covmat(self, covmat):
-        """Hook to apply some transformation on a covariance matrix.
+    def convert_spdmat(self, spdmat):
+        """Hook to apply some transformation on a SPD matrix.
 
         Parameters
         ----------
-        covmat : ndarray, shape (n_features, n_features)
-            The covariance matrix.
+        spdmat : ndarray, shape (n_features, n_features)
+            A SPD matrix.
 
         Returns
         -------
-        transformed_covmat : ndarray, shape (n_features, n_features)
-            A transformation of the covariance matrix.
+        transformed_spdmat : ndarray, shape (n_features, n_features)
+            A transformation of the SPD matrix.
 
         Notes
         -----
         .. versionadded:: 0.0.2
+        .. versionchanged:: 0.4.0
+            rename convert_covmat to convert_spdmat
         """
-        return covmat
+        return spdmat
 
-    def covmat_var(self, prob, channels, name):
+    def spdmat_var(self, prob, channels, name):
         """Helper to create a docplex representation of a
-        covariance matrix variable.
+        SPD matrix variable.
 
         Parameters
         ----------
@@ -239,13 +241,15 @@ class pyQiskitOptimizer:
 
         Returns
         -------
-        docplex_covmat : dict
+        docplex_spdmat : dict
             A square matrix of decision variables representing
-            a covariance matrix.
+            a SPD matrix.
 
         Notes
         -----
         .. versionadded:: 0.0.2
+        .. versionchanged:: 0.4.0
+            rename covmat_var to spdmat_var
 
         References
         ----------
@@ -341,9 +345,9 @@ class ClassicalOptimizer(pyQiskitOptimizer):
         pyQiskitOptimizer.__init__(self)
         self.optimizer = optimizer
 
-    def covmat_var(self, prob, channels, name):
+    def spdmat_var(self, prob, channels, name):
         """Helper to create a docplex representation of a
-        covariance matrix variable.
+        SPD matrix variable.
 
         Parameters
         ----------
@@ -358,9 +362,9 @@ class ClassicalOptimizer(pyQiskitOptimizer):
 
         Returns
         -------
-        docplex_covmat : dict
+        docplex_spdmat : dict
             A square matrix of continuous decision variables representing
-            a covariance matrix.
+            a SPD matrix.
 
         See Also
         -----
@@ -369,6 +373,8 @@ class ClassicalOptimizer(pyQiskitOptimizer):
         Notes
         -----
         .. versionadded:: 0.0.2
+        .. versionchanged:: 0.4.0
+            rename covmat_var to spdmat_var
 
         References
         ----------
@@ -467,8 +473,8 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         self.quantum_instance = quantum_instance
         self.optimizer = optimizer
 
-    def convert_covmat(self, covmat):
-        """Transform all values in the covariance matrix
+    def convert_spdmat(self, spdmat):
+        """Transform all values in the SPD matrix
         to integers.
 
         Example:
@@ -476,25 +482,27 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
 
         Parameters
         ----------
-        covmat : ndarray, shape (n_features, n_features)
-            The covariance matrix.
+        spdmat : ndarray, shape (n_features, n_features)
+            The SPD matrix.
 
         Returns
         -------
-        transformed_covmat : ndarray, shape (n_features, n_features)
-            A transformation of the covariance matrix.
+        transformed_spdmat : ndarray, shape (n_features, n_features)
+            A transformation of the SPD matrix.
 
         Notes
         -----
         .. versionadded:: 0.0.2
+        .. versionchanged:: 0.4.0
+            rename convert_covmat to convert_spdmat
 
         """
-        corr = normalize(covmat, "corr")
+        corr = normalize(spdmat, "corr")
         return np.round(corr * self.upper_bound, 0)
 
-    def covmat_var(self, prob, channels, name):
+    def spdmat_var(self, prob, channels, name):
         """Helper to create a docplex representation of a
-        covariance matrix variable.
+        SPD matrix variable.
 
         Parameters
         ----------
@@ -509,9 +517,9 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
 
         Returns
         -------
-        docplex_covmat : dict
+        docplex_spdmat : dict
             A square matrix of integer decision variables representing
-            a covariance matrix.
+            a SPD matrix.
 
         See Also
         -----
@@ -520,6 +528,8 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         Notes
         -----
         .. versionadded:: 0.0.2
+        .. versionchanged:: 0.4.0
+            rename covmat_var to spdmat_var
 
         References
         ----------
@@ -657,7 +667,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
 
         return qp, scalers
 
-    def covmat_var(self, prob, channels, name):
+    def spdmat_var(self, prob, channels, name):
         """
         Parameters
         ----------
@@ -672,9 +682,9 @@ class QAOACVOptimizer(pyQiskitOptimizer):
 
         Returns
         -------
-        docplex_covmat : dict
+        docplex_spdmat : dict
             A square matrix of continuous decision variables representing
-            a covariance matrix.
+            a SPD matrix.
 
         See Also
         -----
@@ -683,6 +693,8 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         Notes
         -----
         .. versionadded:: 0.4.0
+        .. versionchanged:: 0.4.0
+            rename covmat_var to spdmat_var
 
         References
         ----------
@@ -690,7 +702,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
             http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
 
         """
-        return ClassicalOptimizer.covmat_var(self, prob, channels, name)
+        return ClassicalOptimizer.spdmat_var(self, prob, channels, name)
 
     def get_weights(self, prob, classes):
         """Helper to create a docplex representation of a
