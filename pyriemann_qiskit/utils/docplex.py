@@ -229,7 +229,7 @@ class pyQiskitOptimizer:
         Parameters
         ----------
         prob : Model
-            An instance of the docplex model [1]_
+            An instance of the docplex model [1]_.
         channels : list
             The list of channels. A channel can be any Python object,
             such as channels'name or number but None.
