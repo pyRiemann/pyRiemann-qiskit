@@ -420,8 +420,7 @@ class ClassicalOptimizer(pyQiskitOptimizer):
         Returns
         -------
         docplex_weights : dict
-            A vector of continuous decision variables representing
-            weights.
+            A vector of continuous decision variables representing weights.
 
         Notes
         -----
