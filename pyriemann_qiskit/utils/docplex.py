@@ -491,8 +491,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     def convert_spdmat(self, X):
         """Convert a SPD matrix
 
-        Transform all values in the SPD matrix
-        to integers.
+        Transform all values in the SPD matrix to integers.
 
         Example:
         0.123 -> 1230
