@@ -22,9 +22,6 @@ jobs:
         with:
           path: ~/.cache/pip
           key: deploy_ghpages.yml
-      - name: Copy feature maps
-        run: |
-          cp -a ./symb_statevectors/. ./doc
       - name: Generate HTML docs
         env:
           FIREBASE_CERTIFICATE: ${{ secrets.FIREBASE_CERTIFICATE }}
@@ -36,6 +33,7 @@ jobs:
             python -m pip install --upgrade pip
             apt-get -y install --fix-missing git-core
             apt-get -y install build-essential
+            cp -a ./symb_statevectors/. ./doc/symb_statevectors
       - name:  Upload generated HTML as artifact
         uses: actions/upload-artifact@v4
         with:
