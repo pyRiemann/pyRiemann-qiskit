@@ -131,6 +131,7 @@ def gen_zz_feature_map(reps=2, entanglement="linear"):
     -------
     ret : Callable[[int, str], ZZFeatureMap]
         A callable that takes into arguments:
+
         - the number of features
         - the prefix string for the parameters
         And returns an instance of ZZFeatureMap.
