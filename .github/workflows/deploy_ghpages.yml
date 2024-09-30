@@ -25,6 +25,11 @@ jobs:
       - name: Copy feature maps
         run: |
           cp -a ./symb_statevectors/. ./doc/symb_statevectors
+          cp -a ./symb_statevectors/. ./examples/ERP/symb_statevectors
+          cp -a ./symb_statevectors/. ./examples/MI/symb_statevectors
+          cp -a ./symb_statevectors/. ./examples/other_datasets/symb_statevectors
+          cp -a ./symb_statevectors/. ./examples/toys_dataset/symb_statevectors
+          ls doc
       - name: Generate HTML docs
         env:
           FIREBASE_CERTIFICATE: ${{ secrets.FIREBASE_CERTIFICATE }}
