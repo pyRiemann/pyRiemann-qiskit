@@ -11,6 +11,9 @@ to run on Ci with each PRs.
 # Modified from plot_classify_P300_bi.py of pyRiemann
 # License: BSD (3-clause)
 
+import sys
+import warnings
+
 from moabb import set_log_level
 from moabb.datasets import bi2012
 from moabb.paradigms import P300
@@ -21,7 +24,6 @@ from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
     QuantumMDMWithRiemannianPipeline,
 )
-
 from pyriemann_qiskit.utils import distance, mean  # noqa
 from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_rotational_X_gates
 from qiskit_algorithms.optimizers import SPSA
@@ -31,8 +33,6 @@ from sklearn.metrics import balanced_accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import LabelEncoder
-import sys
-import warnings
 
 
 print(__doc__)
