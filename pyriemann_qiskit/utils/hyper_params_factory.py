@@ -492,6 +492,7 @@ def create_mixer_rotational_XZ_gates(angle):
         This method takes into parameters the number of qubits in the circuit,
         and a parameter `use_params`.
         if True, `use_params` create a Parameter in the circuit (same for all gates)
+
     Notes
     -----
     .. versionadded:: 0.4.0
