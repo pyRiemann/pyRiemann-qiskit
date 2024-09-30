@@ -93,6 +93,7 @@ Hyper-parameters generation
     create_mixer_rotational_X_gates
     create_mixer_rotational_XY_gates
     create_mixer_rotational_XZ_gates
+    create_mixer_qiskit_default
 
 Preprocessing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -169,6 +170,7 @@ Math
     cov_to_corr_matrix
     union_of_diff
     to_xyz
+    is_pauli_identity
 
 Firebase
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

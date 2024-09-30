@@ -18,12 +18,11 @@ import math
 
 from docplex.mp.model import Model
 import matplotlib.pyplot as plt
-from qiskit.primitives import BackendSampler
-from qiskit_aer import AerSimulator
 from qiskit_algorithms.optimizers import COBYLA, SPSA
 
 from pyriemann_qiskit.utils.docplex import QAOACVOptimizer
 from pyriemann_qiskit.utils.hyper_params_factory import (
+    create_mixer_qiskit_default,
     create_mixer_rotational_X_gates,
     create_mixer_rotational_XY_gates,
     create_mixer_rotational_XZ_gates,
@@ -46,16 +45,16 @@ def run_qaoa_cv(n_reps, optimizer, create_mixer):
     # objective function to minimize
     mdl.minimize((x - 0.83 + y + 2 * z) ** 2)
 
-    # Define the BackendSampler (previously QuantumInstance)
-    backend = AerSimulator(method="statevector", cuStateVec_enable=True)
-    quantum_instance = BackendSampler(
-        backend, options={"shots": 200, "seed_simulator": 42}
-    )
-    quantum_instance.transpile_options["seed_transpiler"] = 42
-
     # Instanciate the QAOA-CV
-    qaoa_cv = QAOACVOptimizer(create_mixer, n_reps, quantum_instance, optimizer)
-    solution = qaoa_cv.solve(mdl)
+    # Note: if quantum_instance is None, it will be created inside the optimizer.
+    qaoa_cv = QAOACVOptimizer(
+        create_mixer, n_reps, quantum_instance=None, optimizer=optimizer
+    )
+
+    # reshape is when working with covariance matrices
+    # So the vector of solution is reshaped into a matrix
+    # (this is not the case here)
+    solution = qaoa_cv.solve(mdl, reshape=False)
 
     # print the time, the solution (that it the value for our three variable)
     # and the minimum of the objective function
@@ -96,6 +95,7 @@ ret = {}
 for angle in range(n_angles):
     angle = math.pi * angle / n_angles
     mixers = [
+        create_mixer_qiskit_default(angle),
         create_mixer_rotational_X_gates(angle),
         create_mixer_rotational_XY_gates(angle),
         create_mixer_rotational_XZ_gates(angle),

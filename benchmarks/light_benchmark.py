@@ -11,25 +11,29 @@ to run on Ci with each PRs.
 # Modified from plot_classify_P300_bi.py of pyRiemann
 # License: BSD (3-clause)
 
-from pyriemann.estimation import XdawnCovariances, Shrinkage
-from pyriemann.tangentspace import TangentSpace
-from sklearn.pipeline import make_pipeline
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import balanced_accuracy_score
-from sklearn.preprocessing import LabelEncoder
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from sklearn.decomposition import PCA
+import sys
+import warnings
+
 from moabb import set_log_level
 from moabb.datasets import bi2012
 from moabb.paradigms import P300
-from pyriemann_qiskit.utils import distance, mean  # noqa
+from pyriemann.estimation import XdawnCovariances, Shrinkage
+from pyriemann.tangentspace import TangentSpace
+from pyriemann_qiskit.classification import QuanticNCH
 from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
     QuantumMDMWithRiemannianPipeline,
 )
-from pyriemann_qiskit.classification import QuanticNCH
-import warnings
-import sys
+from pyriemann_qiskit.utils import distance, mean  # noqa
+from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_rotational_X_gates
+from qiskit_algorithms.optimizers import SPSA
+from sklearn.decomposition import PCA
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.metrics import balanced_accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import LabelEncoder
+
 
 print(__doc__)
 
@@ -114,7 +118,6 @@ pipelines["RG_LDA"] = make_pipeline(
 pipelines["NCH_MIN_HULL"] = make_pipeline(
     XdawnCovariances(
         nfilter=3,
-        # classes=[labels_dict["Target"]],
         estimator="lwf",
         xdawn_estimator="scm",
     ),
@@ -125,6 +128,26 @@ pipelines["NCH_MIN_HULL"] = make_pipeline(
         subsampling="min",
         quantum=False,
         shots=100,
+    ),
+)
+
+
+pipelines["NCH_MIN_HULL_QAOACV"] = make_pipeline(
+    XdawnCovariances(
+        nfilter=3,
+        estimator="lwf",
+        xdawn_estimator="scm",
+    ),
+    QuanticNCH(
+        n_hulls_per_class=1,
+        n_samples_per_hull=3,
+        n_jobs=12,
+        subsampling="min",
+        quantum=True,
+        # Provide create_mixer to force QAOA-CV optimization
+        create_mixer=create_mixer_rotational_X_gates(0),
+        shots=100,
+        qaoa_optimizer=SPSA(maxiter=500),
     ),
 )
 

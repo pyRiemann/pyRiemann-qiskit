@@ -15,13 +15,15 @@ from qiskit.circuit.library import QAOAAnsatz
 from qiskit.primitives import BackendSampler
 from qiskit.quantum_info import Statevector
 from qiskit_algorithms import QAOA
-from qiskit_algorithms.optimizers import SLSQP
+from qiskit_algorithms.optimizers import SLSQP, SPSA
 from qiskit_optimization.algorithms import CobylaOptimizer, MinimumEigenOptimizer
-from qiskit_optimization.converters import IntegerToBinary
+from qiskit_optimization.converters import IntegerToBinary, LinearEqualityToPenalty
 from qiskit_optimization.translators import from_docplex_mp
 from qiskit_optimization.problems import VarType
 from sklearn.preprocessing import MinMaxScaler
 
+from .hyper_params_factory import create_mixer_rotational_X_gates
+from .math import is_pauli_identity
 from .quantum_provider import get_simulator
 
 
@@ -64,8 +66,10 @@ def get_global_optimizer(default):
     return _global_optimizer[0] if _global_optimizer[0] is not None else default
 
 
-def square_cont_mat_var(prob, channels, name="cont_covmat"):
-    """Creates a 2-dimensional dictionary of continuous decision variables,
+def square_cont_mat_var(prob, channels, name="cont_spdmat"):
+    """ Docplex square continous matrix
+
+    Creates a 2-dimensional dictionary of continuous decision variables,
     indexed by pairs of key objects.
     The dictionary represents a square matrix of size
     len(channels) x len(channels).
@@ -104,8 +108,10 @@ def square_cont_mat_var(prob, channels, name="cont_covmat"):
     )
 
 
-def square_int_mat_var(prob, channels, upper_bound=7, name="int_covmat"):
-    """Creates a 2-dimensional dictionary of integer decision variables,
+def square_int_mat_var(prob, channels, upper_bound=7, name="int_spdmat"):
+    """ Docplex square integer matrix
+
+    Creates a 2-dimensional dictionary of integer decision variables,
     indexed by pairs of key objects.
     The dictionary represents a square matrix of size
     len(channels) x len(channels).
@@ -146,8 +152,10 @@ def square_int_mat_var(prob, channels, upper_bound=7, name="int_covmat"):
     )
 
 
-def square_bin_mat_var(prob, channels, name="bin_covmat"):
-    """Creates a 2-dimensional dictionary of binary decision variables,
+def square_bin_mat_var(prob, channels, name="bin_spdmat"):
+    """ Docplex square binary matrix
+
+    Creates a 2-dimensional dictionary of binary decision variables,
     indexed by pairs of key objects.
     The dictionary represents a square matrix of size
     len(channels) x len(channels).
@@ -189,7 +197,7 @@ class pyQiskitOptimizer:
     """Wrapper for Qiskit optimizer.
 
     This class is an abstract class which provides an interface
-    for running our docplex model independently of the optimizer type
+    for running a docplex model independently of the optimizer type
     (such as classical or quantum optimizer).
 
     Notes
@@ -201,114 +209,119 @@ class pyQiskitOptimizer:
     def __init__(self):
         pass
 
-    """Hook to apply some transformation on a covariance matrix.
+    def convert_spdmat(self, X):
+        """Convert a SPD matrix
 
-    Parameters
-    ----------
-    covmat : ndarray, shape (n_features, n_features)
-        The covariance matrix.
+        Hook to apply some transformation on a SPD matrix.
 
-    Returns
-    -------
-    transformed_covmat : ndarray, shape (n_features, n_features)
-        A transformation of the covariance matrix.
+        Parameters
+        ----------
+        X : ndarray, shape (n_features, n_features)
+            A SPD matrix.
 
-    Notes
-    -----
-    .. versionadded:: 0.0.2
-    """
+        Returns
+        -------
+        X_new : ndarray, shape (n_features, n_features)
+            A transformation of the SPD matrix.
 
-    def convert_covmat(self, covmat):
-        return covmat
+        Notes
+        -----
+        .. versionadded:: 0.0.2
+        .. versionchanged:: 0.4.0
+            rename convert_covmat to convert_spdmat
+        """
+        return X
 
-    """Helper to create a docplex representation of a
-    covariance matrix variable.
+    def spdmat_var(self, prob, channels, name):
+        """ Create docplex matrix variable
 
-    Parameters
-    ----------
-    prob : Model
-        An instance of the docplex model [1]_
-    channels : list
-        The list of channels. A channel can be any Python object,
-        such as channels'name or number but None.
-    name : string
-        An custom name for the variable. The name is used internally by docplex
-        and may appear if your print the model to a file for example.
+        Helper to create a docplex representation of a
+        SPD matrix variable.
 
-    Returns
-    -------
-    docplex_covmat : dict
-        A square matrix of decision variables representing
-        our covariance matrix.
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model [1]_.
+        channels : list
+            The list of channels. A channel can be any Python object,
+            such as channels'name or number but None.
+        name : string
+            An custom name for the variable. The name is used internally by docplex
+            and may appear if your print the model to a file for example.
 
-    Notes
-    -----
-    .. versionadded:: 0.0.2
+        Returns
+        -------
+        docplex_spdmat : dict
+            A docplex representation of a SPD matrix.
 
-    References
-    ----------
-    .. [1] \
-        http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+        Notes
+        -----
+        .. versionadded:: 0.0.2
+        .. versionchanged:: 0.4.0
+            rename covmat_var to spdmat_var
 
-    """
+        References
+        ----------
+        .. [1] \
+            http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
 
-    def covmat_var(self, prob, channels, name):
+        """
         raise NotImplementedError()
 
     def _solve_qp(self, qp, reshape=True):
         raise NotImplementedError()
 
-    """Solve the docplex problem.
-
-    Parameters
-    ----------
-    prob : Model
-        An instance of the docplex model [1]_
-
-    Returns
-    -------
-    result : OptimizationResult
-        The result of the optimization.
-
-    Notes
-    -----
-    .. versionadded:: 0.0.2
-    .. versionchanged:: 0.0.4
-
-    References
-    ----------
-    .. [1] \
-        http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
-
-    """
-
     def solve(self, prob, reshape=True):
+        """Solve the docplex problem.
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model [1]_
+
+        Returns
+        -------
+        result : OptimizationResult
+            The result of the optimization.
+
+        Notes
+        -----
+        .. versionadded:: 0.0.2
+        .. versionchanged:: 0.0.4
+
+        References
+        ----------
+        .. [1] \
+            http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+
+        """
         qp = from_docplex_mp(prob)
         return self._solve_qp(qp, reshape)
 
-    """Helper to create a docplex representation of a
-    weight vector.
-
-    Parameters
-    ----------
-    prob : Model
-        An instance of the docplex model [1]_
-    classes : list
-        The classes.
-
-    Returns
-    -------
-    docplex_weights : dict
-        A vector of decision variables representing
-        our weights.
-
-    Notes
-    -----
-    .. versionadded:: 0.0.4
-
-    """
-
     def get_weights(self, prob, classes):
+        """Weights variable
+
+        Helper to create a docplex representation of a
+        weight vector.
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model [1]_
+        classes : list
+            The classes.
+
+        Returns
+        -------
+        docplex_weights : dict
+            A vector of decision variables representing
+            weights.
+
+        Notes
+        -----
+        .. versionadded:: 0.0.4
+
+        """
         raise NotImplementedError()
 
 
@@ -343,42 +356,43 @@ class ClassicalOptimizer(pyQiskitOptimizer):
         pyQiskitOptimizer.__init__(self)
         self.optimizer = optimizer
 
-    """Helper to create a docplex representation of a
-    covariance matrix variable.
+    def spdmat_var(self, prob, channels, name):
+        """ Create docplex matrix variable
 
-    Parameters
-    ----------
-    prob : Model
-        An instance of the docplex model [1]_
-    channels : list
-        The list of channels. A channel can be any Python object,
-        such as channels'name or number but None.
-    name : string
-        An custom name for the variable. The name is used internally by docplex
-        and may appear if your print the model to a file for example.
+        Helper to create a docplex representation of a
+        SPD matrix variable.
 
-    Returns
-    -------
-    docplex_covmat : dict
-        A square matrix of continuous decision variables representing
-        our covariance matrix.
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model [1]_
+        channels : list
+            The list of channels. A channel can be any Python object,
+            such as channels'name or number but None.
+        name : string
+            An custom name for the variable. The name is used internally by docplex
+            and may appear if your print the model to a file for example.
 
-    See Also
-    -----
-    square_cont_mat_var
+        Returns
+        -------
+        docplex_spdmat : dict
+            A docplex representation of a SPD matrix with continuous variables.
 
-    Notes
-    -----
-    .. versionadded:: 0.0.2
+        See Also
+        -----
+        square_cont_mat_var
 
-    References
-    ----------
-    .. [1] \
-        http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+        Notes
+        -----
+        .. versionadded:: 0.0.2
+        .. versionchanged:: 0.4.0
+            rename covmat_var to spdmat_var
 
-    """
-
-    def covmat_var(self, prob, channels, name):
+        References
+        ----------
+        .. [1] \
+            http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+        """
         return square_cont_mat_var(prob, channels, name)
 
     def _solve_qp(self, qp, reshape=True):
@@ -388,34 +402,48 @@ class ClassicalOptimizer(pyQiskitOptimizer):
             return np.reshape(result, (n_channels, n_channels))
         return result
 
-    """Helper to create a docplex representation of a
-    weight vector.
-
-    Parameters
-    ----------
-    prob : Model
-        An instance of the docplex model [1]_
-    classes : list
-        The classes.
-
-    Returns
-    -------
-    docplex_weights : dict
-        A vector of continuous decision variables representing
-        our weights.
-
-    Notes
-    -----
-    .. versionadded:: 0.0.4
-
-    """
-
     def get_weights(self, prob, classes):
+        """Weights variabpe
+
+        Helper to create a docplex representation of a
+        weight vector.
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model [1]_
+        classes : list
+            The classes.
+
+        Returns
+        -------
+        docplex_weights : dict
+            A vector of continuous decision variables representing weights.
+
+        Notes
+        -----
+        .. versionadded:: 0.0.4
+
+        """
         w = prob.continuous_var_matrix(
             keys1=[1], keys2=classes, name="weight", lb=0, ub=1
         )
         w = np.array([w[key] for key in w])
         return w
+
+
+def _get_quantum_instance(self):
+    if self.quantum_instance is None:
+        backend = get_simulator()
+        seed = 42
+        shots = 1024
+        quantum_instance = BackendSampler(
+            backend, options={"shots": shots, "seed_simulator": seed}
+        )
+        quantum_instance.transpile_options["seed_transpiler"] = seed
+    else:
+        quantum_instance = self.quantum_instance
+    return quantum_instance
 
 
 class NaiveQAOAOptimizer(pyQiskitOptimizer):
@@ -458,83 +486,78 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         self.quantum_instance = quantum_instance
         self.optimizer = optimizer
 
-    """Transform all values in the covariance matrix
-    to integers.
+    def convert_spdmat(self, X):
+        """Convert a SPD matrix
 
-    Example:
-    0.123 -> 1230
+        Transform all values in the SPD matrix to integers.
 
-    Parameters
-    ----------
-    covmat : ndarray, shape (n_features, n_features)
-        The covariance matrix.
+        Example:
+        0.123 -> 1230
 
-    Returns
-    -------
-    transformed_covmat : ndarray, shape (n_features, n_features)
-        A transformation of the covariance matrix.
+        Parameters
+        ----------
+        X : ndarray, shape (n_features, n_features)
+            The SPD matrix.
 
-    Notes
-    -----
-    .. versionadded:: 0.0.2
+        Returns
+        -------
+        transformed_X : ndarray, shape (n_features, n_features)
+            A transformation of the SPD matrix.
 
-    """
+        Notes
+        -----
+        .. versionadded:: 0.0.2
+        .. versionchanged:: 0.4.0
+            rename convert_covmat to convert_spdmat
 
-    def convert_covmat(self, covmat):
-        corr = normalize(covmat, "corr")
+        """
+        corr = normalize(X, "corr")
         return np.round(corr * self.upper_bound, 0)
 
-    """Helper to create a docplex representation of a
-    covariance matrix variable.
+    def spdmat_var(self, prob, channels, name):
+        """ Create docplex matrix variable
 
-    Parameters
-    ----------
-    prob : Model
-        An instance of the docplex model [1]_
-    channels : list
-        The list of channels. A channel can be any Python object,
-        such as channels'name or number but None.
-    name : string
-        An custom name for the variable. The name is used internally by docplex
-        and may appear if your print the model to a file for example.
+        Helper to create a docplex representation of a
+        SPD matrix variable.
 
-    Returns
-    -------
-    docplex_covmat : dict
-        A square matrix of integer decision variables representing
-        our covariance matrix.
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model [1]_
+        channels : list
+            The list of channels. A channel can be any Python object,
+            such as channels'name or number but None.
+        name : string
+            An custom name for the variable. The name is used internally by docplex
+            and may appear if your print the model to a file for example.
 
-    See Also
-    -----
-    square_int_mat_var
+        Returns
+        -------
+        docplex_spdmat : dict
+            A docplex representation of a SPD matrix with integer variables.
 
-    Notes
-    -----
-    .. versionadded:: 0.0.2
+        See Also
+        -----
+        square_int_mat_var
 
-    References
-    ----------
-    .. [1] \
-        http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+        Notes
+        -----
+        .. versionadded:: 0.0.2
+        .. versionchanged:: 0.4.0
+            rename covmat_var to spdmat_var
 
-    """
+        References
+        ----------
+        .. [1] \
+            http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
 
-    def covmat_var(self, prob, channels, name):
+        """
         return square_int_mat_var(prob, channels, self.upper_bound, name)
 
     def _solve_qp(self, qp, reshape=True):
         conv = IntegerToBinary()
         qubo = conv.convert(qp)
-        if self.quantum_instance is None:
-            backend = get_simulator()
-            seed = 42
-            shots = 1024
-            quantum_instance = BackendSampler(
-                backend, options={"shots": shots, "seed_simulator": seed}
-            )
-            quantum_instance.transpile_options["seed_transpiler"] = seed
-        else:
-            quantum_instance = self.quantum_instance
+        quantum_instance = _get_quantum_instance(self)
 
         self.evaluated_values_ = []
 
@@ -554,29 +577,28 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
             return np.reshape(result, (n_channels, n_channels))
         return result
 
-    """Helper to create a docplex representation of a
-    weight vector.
-
-    Parameters
-    ----------
-    prob : Model
-        An instance of the docplex model [1]_
-    classes : list
-        The classes.
-
-    Returns
-    -------
-    docplex_weights : dict
-        A vector of integer decision variables representing
-        our weights.
-
-    Notes
-    -----
-    .. versionadded:: 0.0.4
-
-    """
-
     def get_weights(self, prob, classes):
+        """Get weights variable
+
+        Helper to create a docplex representation of a weight vector.
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model [1]_
+        classes : list
+            The classes.
+
+        Returns
+        -------
+        docplex_weights : dict
+            A vector of integer decision variables representing weights.
+
+        Notes
+        -----
+        .. versionadded:: 0.0.4
+
+        """
         w = prob.integer_var_matrix(
             keys1=[1], keys2=classes, name="weight", lb=0, ub=self.upper_bound
         )
@@ -590,16 +612,17 @@ class QAOACVOptimizer(pyQiskitOptimizer):
 
     Parameters
     ----------
-    create_mixer : Callable[int,QuantumCircuit]
-        A delegate that takes into input an angle and returns a QuantumCircuit
-    n_reps : int
+    create_mixer : Callable[int, QuantumCircuit], \
+            default=create_mixer_rotational_X_gates(0)
+        A delegate that takes into input an angle and returns a QuantumCircuit.
+    n_reps : int, default=3
         The number of repetitions for the QAOA ansatz.
         It defines how many time Mixer and Cost operators will be repeated
         in the circuit.
     quantum_instance : QuantumInstance, default=None
         A quantum backend instance.
         If None, AerSimulator will be used.
-    optimizer : SciPyOptimizer, default=SLSQP()
+    optimizer : SciPyOptimizer, default=SPSA()
         An instance of a scipy optimizer to find the optimal weights for the
         parametric circuit (ansatz).
 
@@ -626,9 +649,16 @@ class QAOACVOptimizer(pyQiskitOptimizer):
     See Also
     --------
     pyQiskitOptimizer
+    create_mixer_rotational_X_gates
     """
 
-    def __init__(self, create_mixer, n_reps, quantum_instance=None, optimizer=SLSQP()):
+    def __init__(
+        self,
+        create_mixer=create_mixer_rotational_X_gates(0),
+        n_reps=3,
+        quantum_instance=None,
+        optimizer=SPSA(),
+    ):
         self.n_reps = n_reps
         self.create_mixer = create_mixer
         self.quantum_instance = quantum_instance
@@ -645,9 +675,77 @@ class QAOACVOptimizer(pyQiskitOptimizer):
                 # print(scaler.data_min_, scaler.data_max_)
                 scalers.append(scaler)
                 v.vartype = VarType.BINARY
-        return scalers
+                v.lowerbound = 0
+                v.upperbound = 1
+        conv = LinearEqualityToPenalty()
+        qp = conv.convert(qp)
+
+        return qp, scalers
+
+    def spdmat_var(self, prob, channels, name):
+        """ Create docplex matrix variable
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model [1]_.
+        channels : list
+            The list of channels. A channel can be any Python object,
+            such as channels'name or number but None.
+        name : string
+            An custom name for the variable. The name is used internally by docplex
+            and may appear if your print the model to a file for example.
+
+        Returns
+        -------
+        docplex_spdmat : dict
+            A docplex representation of a SPD matrix with continuous variables.
+
+        See Also
+        -----
+        square_cont_mat_var
+
+        Notes
+        -----
+        .. versionadded:: 0.4.0
+        .. versionchanged:: 0.4.0
+            rename covmat_var to spdmat_var
+
+        References
+        ----------
+        .. [1] \
+            http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+
+        """
+        return ClassicalOptimizer.spdmat_var(self, prob, channels, name)
+
+    def get_weights(self, prob, classes):
+        """Get weights variable
+
+        Helper to create a docplex representation of a weight vector.
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model [1]_
+        classes : list
+            The classes.
+
+        Returns
+        -------
+        docplex_weights : dict
+            A vector of integer decision variables representing weights.
+
+        Notes
+        -----
+        .. versionadded:: 0.4.0
+
+        """
+        return ClassicalOptimizer.get_weights(self, prob, classes)
 
     def _solve_qp(self, qp, reshape=True):
+        quantum_instance = _get_quantum_instance(self)
+
         n_var = qp.get_num_vars()
         # Extract the objective function from the docplex model
         # We want the object expression with continuous variable
@@ -655,7 +753,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
 
         # Convert continous variable to binary ones
         # Get scalers corresponding to the definition range of each variables
-        scalers = QAOACVOptimizer.prepare_model(qp)
+        qp, scalers = QAOACVOptimizer.prepare_model(qp)
 
         # Check all variables are converted to binary, and scalers are registered
         # print(qp.prettyprint(), scalers)
@@ -664,7 +762,14 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         # Get operator associated with model
         cost, _offset = qp.to_ising()
 
-        mixer = self.create_mixer(cost.num_qubits)
+        # If the cost operator is a Pauli identity
+        # or the cost operator has no parameters
+        # the number of parameters in the QAOAAnsatz will be 0.
+        # We will then create a mixer with parameters
+        # So we get some parameters in the circuit to optimize
+        cost_op_has_no_parameter = is_pauli_identity(cost) or len(cost.parameters) == 0
+
+        mixer = self.create_mixer(cost.num_qubits, use_params=cost_op_has_no_parameter)
 
         # QAOA cirtcuit
         ansatz_0 = QAOAAnsatz(
@@ -690,7 +795,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
 
             # p is in the range [0, 1].
             # We now need to scale it in the definition
-            # range of our continuous variables
+            # range of the continuous variables
             p = scalers[i].inverse_transform([[p]])[0][0]
             return p
 
@@ -699,14 +804,14 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         self.y_ = []
 
         def loss(params):
-            job = self.quantum_instance.run(ansatz, params)
+            job = quantum_instance.run(ansatz, params)
             var_hat = [prob(job, i) for i in range(n_var)]
             cost = objective_expr.evaluate(var_hat)
             self.x_.append(len(self.x_))
             self.y_.append(cost)
             return cost
 
-        # Initial guess for the parameters
+        # Initial guess for the parameters.
         initial_guess = np.array([1, 1] * self.n_reps)
 
         # minimize function to search for the optimal parameters
@@ -718,11 +823,15 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         self.optim_params_ = result.x
 
         # running QAOA circuit with optimal parameters
-        job = self.quantum_instance.run(ansatz, self.optim_params_)
-        solution = [prob(job, i) for i in range(n_var)]
+        job = quantum_instance.run(ansatz, self.optim_params_)
+        solution = np.array([prob(job, i) for i in range(n_var)])
         self.minimum_ = objective_expr.evaluate(solution)
 
         optimized_circuit = ansatz_0.assign_parameters(self.optim_params_)
         self.state_vector_ = Statevector(optimized_circuit)
+
+        if reshape:
+            n_channels = int(math.sqrt(solution.shape[0]))
+            return np.reshape(solution, (n_channels, n_channels))
 
         return solution

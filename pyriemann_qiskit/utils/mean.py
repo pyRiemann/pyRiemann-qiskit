@@ -60,10 +60,10 @@ def qmean_euclid(X, sample_weight=None, optimizer=ClassicalOptimizer()):
 
     prob = Model()
 
-    X_mean = optimizer.covmat_var(prob, channels, "fro_mean")
+    X_mean = optimizer.spdmat_var(prob, channels, "fro_mean")
 
     def _dist_euclid(A, B):
-        A = optimizer.convert_covmat(A)
+        A = optimizer.convert_spdmat(A)
         return prob.sum_squares(A[r, c] - B[r, c] for r in channels for c in channels)
 
     objectives = prob.sum(_dist_euclid(X[i], X_mean) for i in matrices)
