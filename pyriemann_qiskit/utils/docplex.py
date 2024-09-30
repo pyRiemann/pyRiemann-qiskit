@@ -690,7 +690,8 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         return qp, scalers
 
     def spdmat_var(self, prob, channels, name):
-        """
+        """ Create docplex matrix variable
+ 
         Parameters
         ----------
         prob : Model
