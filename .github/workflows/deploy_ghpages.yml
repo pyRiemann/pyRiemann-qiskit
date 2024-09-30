@@ -34,10 +34,7 @@ jobs:
             apt-get -y install --fix-missing git-core
             apt-get -y install build-essential
             pip install -r doc/requirements.txt
-            cp -a /symb_statevectors/. /examples/ERP
-            cp -a /symb_statevectors/. /examples/MI
-            cp -a /symb_statevectors/. /examples/other_datasets
-            cp -a /symb_statevectors/. /examples/toys_dataset
+            cp -a /symb_statevectors/. /doc
       - name:  Upload generated HTML as artifact
         uses: actions/upload-artifact@v4
         with:
