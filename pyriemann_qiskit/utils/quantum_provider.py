@@ -80,20 +80,20 @@ class SymbFidelityStatevectorKernel:
 
         self.function = sv.to_lambda()
 
-    """Evaluate the quantum kernel.
-
-    Returns
-    -------
-    kernel : ndarray, shape (len(x_vec), len(y_vec))
-        The kernel matrix.
-
-    Notes
-    -----
-    .. versionadded:: 0.4.0
-    """
-
     def evaluate(self, x_vec, y_vec=None):
+        """Evaluate the quantum kernel.
+
+        Returns
+        -------
+        kernel : ndarray, shape (len(x_vec), len(y_vec))
+            The kernel matrix.
+
+        Notes
+        -----
+        .. versionadded:: 0.4.0
+        """
         if y_vec is None:
+
             y_vec = x_vec
 
         x_vec_len = len(x_vec)
