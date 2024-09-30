@@ -730,8 +730,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
     def get_weights(self, prob, classes):
         """Get weights variable
 
-        Helper to create a docplex representation of a
-        weight vector.
+        Helper to create a docplex representation of a weight vector.
 
         Parameters
         ----------
