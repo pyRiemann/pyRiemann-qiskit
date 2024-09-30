@@ -24,7 +24,7 @@ jobs:
           key: deploy_ghpages.yml
       - name: Copy feature maps
         run: |
-          cp -a /symb_statevectors/ /doc
+          cp -a ./symb_statevectors/ ./doc
       - name: Generate HTML docs
         env:
           FIREBASE_CERTIFICATE: ${{ secrets.FIREBASE_CERTIFICATE }}
