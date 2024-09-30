@@ -592,8 +592,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         Returns
         -------
         docplex_weights : dict
-            A vector of integer decision variables representing
-            weights.
+            A vector of integer decision variables representing weights.
 
         Notes
         -----
