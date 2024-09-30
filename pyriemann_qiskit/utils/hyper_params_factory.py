@@ -78,6 +78,7 @@ def gen_z_feature_map(reps=2):
     -------
     ret : Callable[[int, str], ZFeatureMap]
         A callable that takes into arguments:
+
         - the number of features
         - the prefix string for the parameters
         And returns an instance of ZFeatureMap.
