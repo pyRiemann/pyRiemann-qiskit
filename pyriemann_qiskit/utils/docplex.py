@@ -221,7 +221,7 @@ class pyQiskitOptimizer:
 
         Returns
         -------
-        transformed_X : ndarray, shape (n_features, n_features)
+        X_new : ndarray, shape (n_features, n_features)
             A transformation of the SPD matrix.
 
         Notes
