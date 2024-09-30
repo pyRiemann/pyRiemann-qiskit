@@ -93,7 +93,6 @@ class SymbFidelityStatevectorKernel:
         .. versionadded:: 0.4.0
         """
         if y_vec is None:
-
             y_vec = x_vec
 
         x_vec_len = len(x_vec)
