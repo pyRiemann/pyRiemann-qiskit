@@ -252,8 +252,7 @@ class pyQiskitOptimizer:
         Returns
         -------
         docplex_spdmat : dict
-            A square matrix of decision variables representing
-            a SPD matrix.
+            A docplex representation of a SPD matrix.
 
         Notes
         -----
@@ -377,8 +376,7 @@ class ClassicalOptimizer(pyQiskitOptimizer):
         Returns
         -------
         docplex_spdmat : dict
-            A square matrix of continuous decision variables representing
-            a SPD matrix.
+            A docplex representation of a SPD matrix with continuous variables.
 
         See Also
         -----
@@ -536,8 +534,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         Returns
         -------
         docplex_spdmat : dict
-            A square matrix of integer decision variables representing
-            a SPD matrix.
+            A docplex representation of a SPD matrix with integer variables.
 
         See Also
         -----
@@ -703,8 +700,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         Returns
         -------
         docplex_spdmat : dict
-            A square matrix of continuous decision variables representing
-            a SPD matrix.
+            A docplex representation of a SPD matrix with continuous variables.
 
         See Also
         -----
