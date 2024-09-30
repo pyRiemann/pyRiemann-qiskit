@@ -27,6 +27,7 @@ def gen_x_feature_map(reps=2):
     -------
     ret : Callable[[int, str], XFeatureMap]
         A callable that takes into arguments:
+ 
         - the number of features
         - the prefix string for the parameters
         And returns an instance of XFeatureMap.
