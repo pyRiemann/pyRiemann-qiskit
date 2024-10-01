@@ -1,0 +1,44 @@
+name: Light Benchmark
+
+on:
+  pull_request:
+    paths:
+    - 'pyriemann_qiskit/**'
+    - 'examples/**'
+    - '.github/workflows/light_benchmark_nch_qaoacv.yml'
+    - 'benchmarks/light_benchmark_qaoacv.py'
+    - 'setup.py'
+
+jobs:
+  light_benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: light_benchmark.yml
+      - name: Install dependencies
+        run: |
+          pip install .[docs]
+      - name: Run benchmark script (PR)
+        id: run-benchmark-pr
+        run: |
+          python benchmarks/light_benchmark.py pr
+      - uses: actions/checkout@v4
+        with:
+          ref: 'main'
+      - name: Install dependencies
+        run: |
+          pip install .[docs]
+      - name: Run benchmark script (main)
+        id: run-benchmark-main
+        run: |
+          python benchmarks/light_benchmark.py ${{steps.run-benchmark-pr.outputs.NCH_MIN_HULL_QAOACV}}
+      - name: Compare performance
+        run: |
+          echo ${{steps.run-benchmark-main.outputs.success}}
+          if [[ "${{steps.run-benchmark-main.outputs.success}}" == "0" ]]; then
+            exit 1
+          fi
