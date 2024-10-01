@@ -24,7 +24,7 @@ from pyriemann_qiskit.utils import distance, mean  # noqa
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
-from .lb_base import run
+from lb_base import run
 
 print(__doc__)
 

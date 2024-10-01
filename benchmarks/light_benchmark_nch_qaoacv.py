@@ -21,7 +21,7 @@ from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_rotational_
 from qiskit_algorithms.optimizers import SPSA
 from sklearn.pipeline import make_pipeline
 
-from .lb_base import run
+from lb_base import run
 
 print(__doc__)
 
