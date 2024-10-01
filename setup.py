@@ -64,7 +64,7 @@ setup(name='pyriemann-qiskit',
                       'tests': ['pytest', 'seaborn', 'flake8', 'mne', 'pooch'],
                       # GPU optimization not available on all platform.
                       # See https://github.com/Qiskit/qiskit-aer/issues/929#issuecomment-691716936
-                      'optim': ['qiskit-symb'],
+                      'optim': ['qiskit-symb', 'symengine==0.11.0'],
                       'optim_linux': ['qiskit-aer-gpu==0.15.0']},
       zip_safe=False,
 )
