@@ -1,4 +1,4 @@
-name: Light Benchmark
+name: Light Benchmark NCH-QAOACV
 
 on:
   pull_request:

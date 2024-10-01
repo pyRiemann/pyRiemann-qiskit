@@ -19,11 +19,14 @@ from moabb.datasets import bi2012
 from moabb.paradigms import P300
 from pyriemann.estimation import XdawnCovariances, Shrinkage
 from pyriemann.tangentspace import TangentSpace
+from pyriemann_qiskit.classification import QuanticNCH
 from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
     QuantumMDMWithRiemannianPipeline,
 )
 from pyriemann_qiskit.utils import distance, mean  # noqa
+from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_rotational_X_gates
+from qiskit_algorithms.optimizers import SPSA
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.metrics import balanced_accuracy_score
@@ -75,41 +78,20 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 pipelines = {}
 
-pipelines["RG_QSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=100,
-    nfilter=2,
-    dim_red=PCA(n_components=5),
-    params={"seed": 42, "use_fidelity_state_vector_kernel": True},
-)
-
-pipelines["RG_VQC"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=100, spsa_trials=1, two_local_reps=2, params={"seed": 42}
-)
-
-pipelines["QMDM_mean"] = QuantumMDMWithRiemannianPipeline(
-    metric={"mean": "qeuclid", "distance": "euclid"},
-    quantum=True,
-    regularization=Shrinkage(shrinkage=0.9),
-    shots=1024,
-    seed=696288,
-)
-
-pipelines["QMDM_dist"] = QuantumMDMWithRiemannianPipeline(
-    metric={"mean": "logeuclid", "distance": "qlogeuclid_hull"},
-    quantum=True,
-    seed=42,
-    shots=100,
-)
-
-pipelines["RG_LDA"] = make_pipeline(
+pipelines["NCH_MIN_HULL"] = make_pipeline(
     XdawnCovariances(
-        nfilter=2,
+        nfilter=3,
         estimator="lwf",
         xdawn_estimator="scm",
     ),
-    TangentSpace(),
-    PCA(n_components=5),
-    LDA(solver="lsqr", shrinkage="auto"),
+    QuanticNCH(
+        n_hulls_per_class=1,
+        n_samples_per_hull=3,
+        n_jobs=12,
+        subsampling="min",
+        quantum=False,
+        shots=100,
+    ),
 )
 
 ##############################################################################
