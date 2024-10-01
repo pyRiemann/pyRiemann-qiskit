@@ -327,7 +327,8 @@ class QuanticSVM(QuanticClassifierBase):
     .. versionchanged:: 0.3.0
         Add use_fidelity_state_vector_kernel parameter
     .. versionchanged:: 0.4.0
-        Add n_jobs parameter for the SymbFidelityStatevectorKernel
+        Add n_jobs and use_qiskit_symb parameter
+        for SymbFidelityStatevectorKernel
 
     Parameters
     ----------
@@ -364,8 +365,11 @@ class QuanticSVM(QuanticClassifierBase):
         Function generating a feature map to encode data into a quantum state.
     seed : int | None, default=None
         Random seed for the simulation
-    use_fidelity_state_vector_kernel: boolean (default=True)
+    use_fidelity_state_vector_kernel: boolean, default=True
         if True, use a FidelitystatevectorKernel for simulation.
+    use_qiskit_symb: boolean, default=True
+        This flag is used only if qiskit-symb is installed, and pegasos is False.
+        If True and the number of qubits < 9, then qiskit_symb is used.
     n_jobs: boolean
         The number of jobs for the qiskit-symb fidelity state vector
         (if applicable)
@@ -411,6 +415,7 @@ class QuanticSVM(QuanticClassifierBase):
         gen_feature_map=gen_zz_feature_map(),
         seed=None,
         use_fidelity_state_vector_kernel=True,
+        use_qiskit_symb=True,
         n_jobs=4,
     ):
         QuanticClassifierBase.__init__(
@@ -422,6 +427,7 @@ class QuanticSVM(QuanticClassifierBase):
         self.pegasos = pegasos
         self.use_fidelity_state_vector_kernel = use_fidelity_state_vector_kernel
         self.n_jobs = n_jobs
+        self.use_qiskit_symb = use_qiskit_symb
 
     def _init_algo(self, n_features):
         self._log("SVM initiating algorithm")
@@ -431,7 +437,7 @@ class QuanticSVM(QuanticClassifierBase):
                 self.gen_feature_map,
                 self._quantum_instance,
                 self.use_fidelity_state_vector_kernel,
-                not self.pegasos,
+                self.use_qiskit_symb and not self.pegasos,
                 self.n_jobs,
             )
             if self.pegasos:

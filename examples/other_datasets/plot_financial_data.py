@@ -50,7 +50,7 @@ from sklearn.svm import SVC
 from sklearn.metrics import balanced_accuracy_score
 
 from pyriemann_qiskit.classification import QuanticSVM
-from pyriemann_qiskit.utils.hyper_params_factory import gen_x_feature_map
+from pyriemann_qiskit.utils.hyper_params_factory import gen_zz_feature_map
 from pyriemann_qiskit.utils.preprocessing import NdRobustScaler
 
 print(__doc__)
@@ -375,9 +375,11 @@ gs.best_estimator_.steps[-1] = (
         quantum=True,
         C=best_C,
         gamma=best_gamma,
-        gen_feature_map=gen_x_feature_map(),
+        gen_feature_map=gen_zz_feature_map(),
         seed=42,
-        n_jobs=1),
+        n_jobs=1,
+        use_qiskit_symb=False
+    ),
 )
 train_pred_qsvm = gs.best_estimator_.fit(X_train, y_train).predict(X_train)
 train_score_qsvm = balanced_accuracy_score(y_train, train_pred_qsvm)
