@@ -39,8 +39,10 @@ set_log_level("info")
 #
 ##############################################################################
 
+
 def _set_output(key: str, value: str):
-        print(f"::set-output name={key}::{value}")  # noqa: E231
+    print(f"::set-output name={key}::{value}")  # noqa: E231
+
 
 def run(pipelines):
     paradigm = P300(resample=128)
@@ -86,5 +88,7 @@ def run(pipelines):
             score_trun = int(score * 100)
             better_pr_score = pr_score_trun >= score_trun
             success = success and better_pr_score
-            print(f"{key}: {pr_score_trun} (PR) >= {score_trun} (main): {better_pr_score}")
+            print(
+                f"{key}: {pr_score_trun} (PR) >= {score_trun} (main): {better_pr_score}"
+            )
         _set_output("success", "1" if success else "0")
