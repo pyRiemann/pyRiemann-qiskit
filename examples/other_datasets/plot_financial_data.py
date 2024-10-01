@@ -378,7 +378,7 @@ gs.best_estimator_.steps[-1] = (
         gen_feature_map=gen_zz_feature_map(),
         seed=42,
         n_jobs=1,
-        use_qiskit_symb=False
+        use_qiskit_symb=False,
     ),
 )
 train_pred_qsvm = gs.best_estimator_.fit(X_train, y_train).predict(X_train)
