@@ -14,16 +14,13 @@ to run on Ci with each PRs.
 import warnings
 
 from moabb import set_log_level
-from pyriemann.estimation import XdawnCovariances, Shrinkage
-from pyriemann.tangentspace import TangentSpace
-from pyriemann_qiskit.pipelines import (
-    QuantumClassifierWithDefaultRiemannianPipeline,
-    QuantumMDMWithRiemannianPipeline,
-)
+from pyriemann.estimation import XdawnCovariances
+from pyriemann_qiskit.classification import QuanticNCH
 from pyriemann_qiskit.utils import distance, mean  # noqa
-from sklearn.decomposition import PCA
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_rotational_X_gates
+from qiskit_algorithms.optimizers import SPSA
 from sklearn.pipeline import make_pipeline
+
 from lb_base import run
 
 print(__doc__)
@@ -47,41 +44,23 @@ set_log_level("info")
 
 pipelines = {}
 
-pipelines["RG_QSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=100,
-    nfilter=2,
-    dim_red=PCA(n_components=5),
-    params={"seed": 42, "use_fidelity_state_vector_kernel": True},
-)
-
-pipelines["RG_VQC"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=100, spsa_trials=1, two_local_reps=2, params={"seed": 42}
-)
-
-pipelines["QMDM_mean"] = QuantumMDMWithRiemannianPipeline(
-    metric={"mean": "qeuclid", "distance": "euclid"},
-    quantum=True,
-    regularization=Shrinkage(shrinkage=0.9),
-    shots=1024,
-    seed=696288,
-)
-
-pipelines["QMDM_dist"] = QuantumMDMWithRiemannianPipeline(
-    metric={"mean": "logeuclid", "distance": "qlogeuclid_hull"},
-    quantum=True,
-    seed=42,
-    shots=100,
-)
-
-pipelines["RG_LDA"] = make_pipeline(
+pipelines["NCH_MIN_HULL_QAOACV"] = make_pipeline(
     XdawnCovariances(
-        nfilter=2,
+        nfilter=3,
         estimator="lwf",
         xdawn_estimator="scm",
     ),
-    TangentSpace(),
-    PCA(n_components=5),
-    LDA(solver="lsqr", shrinkage="auto"),
+    QuanticNCH(
+        n_hulls_per_class=1,
+        n_samples_per_hull=3,
+        n_jobs=12,
+        subsampling="min",
+        quantum=True,
+        # Provide create_mixer to force QAOA-CV optimization
+        create_mixer=create_mixer_rotational_X_gates(0),
+        shots=100,
+        qaoa_optimizer=SPSA(maxiter=100),
+    ),
 )
 
 ##############################################################################
