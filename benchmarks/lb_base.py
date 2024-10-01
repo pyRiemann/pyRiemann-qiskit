@@ -16,7 +16,6 @@ import warnings
 from moabb import set_log_level
 from moabb.datasets import bi2012
 from moabb.paradigms import P300
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
