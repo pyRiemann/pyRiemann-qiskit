@@ -1,4 +1,4 @@
-name: Light Benchmark NCH-MIN-HULL
+name: Light Benchmark
 
 on:
   pull_request:
@@ -10,7 +10,7 @@ on:
     - 'setup.py'
 
 jobs:
-  light_benchmark:
+  light_benchmark_nch_min_hull:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,7 +18,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: light_benchmark.yml
+          key: light_benchmark_nch_min_hull.yml
       - name: Install dependencies
         run: |
           pip install .[docs]
