@@ -326,6 +326,8 @@ class QuanticSVM(QuanticClassifierBase):
         Predict is now using predict_proba with a softmax, when using QSVC.
     .. versionchanged:: 0.3.0
         Add use_fidelity_state_vector_kernel parameter
+    .. versionchanged:: 0.4.0
+        Add n_jobs parameter for the SymbFidelityStatevectorKernel
 
     Parameters
     ----------
@@ -364,10 +366,14 @@ class QuanticSVM(QuanticClassifierBase):
         Random seed for the simulation
     use_fidelity_state_vector_kernel: boolean (default=True)
         if True, use a FidelitystatevectorKernel for simulation.
+    n_jobs: boolean
+        The number of jobs for the qiskit-symb fidelity state vector
+        (if applicable)
 
     See Also
     --------
     QuanticClassifierBase
+    SymbFidelityStatevectorKernel
 
     References
     ----------
@@ -405,6 +411,7 @@ class QuanticSVM(QuanticClassifierBase):
         gen_feature_map=gen_zz_feature_map(),
         seed=None,
         use_fidelity_state_vector_kernel=True,
+        n_jobs=4
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, gen_feature_map, seed
@@ -414,6 +421,7 @@ class QuanticSVM(QuanticClassifierBase):
         self.max_iter = max_iter
         self.pegasos = pegasos
         self.use_fidelity_state_vector_kernel = use_fidelity_state_vector_kernel
+        self.n_jobs = n_jobs
 
     def _init_algo(self, n_features):
         self._log("SVM initiating algorithm")
@@ -424,6 +432,7 @@ class QuanticSVM(QuanticClassifierBase):
                 self._quantum_instance,
                 self.use_fidelity_state_vector_kernel,
                 not self.pegasos,
+                self.n_jobs
             )
             if self.pegasos:
                 self._log("[Warning] `gamma` is not supported by PegasosQSVC")

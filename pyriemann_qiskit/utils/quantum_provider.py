@@ -219,6 +219,7 @@ def get_quantum_kernel(
     quantum_instance,
     use_fidelity_state_vector_kernel,
     use_qiskit_symb,
+    n_jobs=4
 ):
     """Get a quantum kernel
 
@@ -239,11 +240,18 @@ def get_quantum_kernel(
     use_qiskit_symb: boolean
         This flag is used only if qiskit-symb is installed.
         If True and the number of qubits < 9, then qiskit_symb is used.
+    n_jobs: boolean
+        The number of jobs for the qiskit-symb fidelity state vector
+        (if applicable)
 
     Returns
     -------
     kernel: QuantumKernel
         The quantum kernel.
+
+    See also
+    --------
+    SymbFidelityStatevectorKernel
 
     Notes
     -----
@@ -260,7 +268,7 @@ def get_quantum_kernel(
             # See:
             # https://medium.com/qiskit/qiskit-symb-a-qiskit-ecosystem-package-for-symbolic-quantum-computation-b6b4407fa705
             kernel = SymbFidelityStatevectorKernel(
-                feature_map, gen_feature_map, n_jobs=4
+                feature_map, gen_feature_map, n_jobs=n_jobs
             )
             logging.log(
                 logging.WARN,
