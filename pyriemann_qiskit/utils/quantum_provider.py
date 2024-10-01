@@ -219,7 +219,7 @@ def get_quantum_kernel(
     quantum_instance,
     use_fidelity_state_vector_kernel,
     use_qiskit_symb,
-    n_jobs=4
+    n_jobs=4,
 ):
     """Get a quantum kernel
 

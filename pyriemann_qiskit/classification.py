@@ -411,7 +411,7 @@ class QuanticSVM(QuanticClassifierBase):
         gen_feature_map=gen_zz_feature_map(),
         seed=None,
         use_fidelity_state_vector_kernel=True,
-        n_jobs=4
+        n_jobs=4,
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, gen_feature_map, seed
@@ -432,7 +432,7 @@ class QuanticSVM(QuanticClassifierBase):
                 self._quantum_instance,
                 self.use_fidelity_state_vector_kernel,
                 not self.pegasos,
-                self.n_jobs
+                self.n_jobs,
             )
             if self.pegasos:
                 self._log("[Warning] `gamma` is not supported by PegasosQSVC")
