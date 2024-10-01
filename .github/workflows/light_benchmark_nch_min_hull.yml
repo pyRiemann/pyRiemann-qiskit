@@ -25,7 +25,7 @@ jobs:
       - name: Run benchmark script (PR)
         id: run-benchmark-pr
         run: |
-          python benchmarks/light_benchmark.py pr
+          python benchmarks/light_benchmark_nch_min_hull.py pr
       - uses: actions/checkout@v4
         with:
           ref: 'main'
@@ -35,7 +35,7 @@ jobs:
       - name: Run benchmark script (main)
         id: run-benchmark-main
         run: |
-          python benchmarks/light_benchmark.py ${{steps.run-benchmark-pr.outputs.NCH_MIN_HULL}}
+          python benchmarks/light_benchmark_nch_min_hull.py ${{steps.run-benchmark-pr.outputs.NCH_MIN_HULL}}
       - name: Compare performance
         run: |
           echo ${{steps.run-benchmark-main.outputs.success}}
