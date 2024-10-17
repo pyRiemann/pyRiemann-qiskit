@@ -5,6 +5,19 @@
 What's new in the package
 =========================
 
+v0.4.0
+------
+
+- Bump mne and numpy, qiskit-ibm-runtime, cvxpy and docplex, qiskit-aer, scikit-learn and imbalanced-learn
+- Add implementation and support for QAOA-CV
+- Improve doc rendering
+- Separate import from docplex and quantum_provider
+- Integrate with qiskit-symb
+
+Details:
+
+https://github.com/pyRiemann/pyRiemann-qiskit/releases/tag/v0.4.0
+
 v0.3.0
 ------
 
