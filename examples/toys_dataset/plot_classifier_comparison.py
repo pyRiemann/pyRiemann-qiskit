@@ -20,16 +20,15 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
-from pyriemann_qiskit.classification import (  # uncomment to run comparison with QuanticVQC (disabled for CI/CD); QuanticVQC
+from pyriemann_qiskit.classification import (
     QuanticSVM,
 )
+# uncomment to run comparison with QuanticVQC (disabled for CI/CD)
+# from pyriemann_qiskit.classification import QuanticVQC
 from pyriemann_qiskit.datasets import (
     generate_linearly_separable_dataset,
     generate_qiskit_dataset,
 )
-
-# uncomment to run comparison with QuanticVQC (disabled for CI/CD)
-# from pyriemann_qiskit.classification import QuanticVQC
 
 
 print(__doc__)
