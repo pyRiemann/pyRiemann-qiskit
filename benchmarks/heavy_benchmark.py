@@ -27,7 +27,6 @@ from moabb.analysis.meta_analysis import (
     compute_dataset_statistics,
     find_significant_differences,
 )
-
 from moabb.datasets import (
     BNCI2014_001,
     BNCI2014_004,
@@ -41,12 +40,12 @@ from moabb.datasets import (
     BI2015b,
     Cho2017,
     GrosseWentrup2009,
+    Lee2019_MI,
     PhysionetMI,
+    Schirrmeister2017,
     Shin2017A,
     Weibo2014,
     Zhou2016,
-    Lee2019_MI,
-    Schirrmeister2017
 )
 from moabb.evaluations import CrossSubjectEvaluation, WithinSessionEvaluation
 from moabb.paradigms import P300, LeftRightImagery, MotorImagery
