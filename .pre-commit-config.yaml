@@ -39,3 +39,8 @@ repos:
       - id: prettier
         args: [--print-width=90, --prose-wrap=always]
         exclude: ^(.github/|.devcontainer/|doc/_static/|doc/conf.py|pyriemann_qiskit/_version.py|setup.py)
+
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
