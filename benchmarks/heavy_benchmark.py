@@ -29,10 +29,11 @@ from moabb.analysis.meta_analysis import (compute_dataset_statistics,
 # P300 databases
 from moabb.datasets import Lee2019_MI  # new
 from moabb.datasets import Schirrmeister2017  # new
-from moabb.datasets import (
-    BNCI2014_001, BNCI2014_004, BNCI2014_008, BNCI2014_009, BNCI2015_003,
-    BI2013a, BI2014a, BI2014b, BI2015a, BI2015b, Cho2017, GrosseWentrup2009,
-    PhysionetMI, Shin2017A, Weibo2014, Zhou2016)
+from moabb.datasets import (BNCI2014_001, BNCI2014_004, BNCI2014_008,
+                            BNCI2014_009, BNCI2015_003, BI2013a, BI2014a,
+                            BI2014b, BI2015a, BI2015b, Cho2017,
+                            GrosseWentrup2009, PhysionetMI, Shin2017A,
+                            Weibo2014, Zhou2016)
 from moabb.evaluations import CrossSubjectEvaluation, WithinSessionEvaluation
 from moabb.paradigms import P300, LeftRightImagery, MotorImagery
 from pyriemann.estimation import Covariances
