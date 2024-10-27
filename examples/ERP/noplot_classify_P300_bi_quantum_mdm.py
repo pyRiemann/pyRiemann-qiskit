@@ -28,7 +28,7 @@ import warnings
 import seaborn as sns
 from matplotlib import pyplot as plt
 from moabb import set_log_level
-from moabb.datasets import BNCI2014009 
+from moabb.datasets import BNCI2014009
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
 
