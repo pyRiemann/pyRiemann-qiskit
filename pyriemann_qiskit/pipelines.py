@@ -14,7 +14,7 @@ from sklearn.pipeline import FeatureUnion, make_pipeline
 
 from .classification import QuanticMDM, QuanticNCH, QuanticSVM, QuanticVQC
 from .utils.filtering import NoDimRed
-from .utils.hyper_params_factory import gen_two_local  # gen_zz_feature_map,
+from .utils.hyper_params_factory import gen_two_local
 from .utils.hyper_params_factory import gen_x_feature_map, get_spsa
 from .utils.utils import is_qfunction
 
