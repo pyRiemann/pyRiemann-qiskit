@@ -25,31 +25,18 @@ pip install moabb==0.5.0
 
 import warnings
 
+import seaborn as sns
 from matplotlib import pyplot as plt
 from moabb import set_log_level
-from moabb.datasets import (
-    # bi2012,
-    # bi2013a,
-    # bi2014a,
-    # bi2014b,
-    # bi2015a,
-    # bi2015b,
-    # BNCI2014008,
-    BNCI2014009,
-    # BNCI2015003,
-    # EPFLP300,
-    # Lee2019_ERP,
-)
+from moabb.datasets import \
+    BNCI2014009  # bi2012,; bi2013a,; bi2014a,; bi2014b,; bi2015a,; bi2015b,; BNCI2014008,; BNCI2015003,; EPFLP300,; Lee2019_ERP,
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
-import seaborn as sns
 
+from pyriemann_qiskit.pipelines import (QuantumMDMVotingClassifier,
+                                        QuantumMDMWithRiemannianPipeline)
 # inject cpm distance and mean to pyriemann (if not done already)
 from pyriemann_qiskit.utils import distance, mean  # noqa
-from pyriemann_qiskit.pipelines import (
-    QuantumMDMVotingClassifier,
-    QuantumMDMWithRiemannianPipeline,
-)
 
 print(__doc__)
 

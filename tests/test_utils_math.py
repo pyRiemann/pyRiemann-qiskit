@@ -1,5 +1,6 @@
-from pyriemann_qiskit.utils import union_of_diff
 import numpy as np
+
+from pyriemann_qiskit.utils import union_of_diff
 
 
 def test_union_of_diff():

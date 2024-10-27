@@ -17,6 +17,7 @@ This is experimental and should be used for research purpose only.
 import logging
 import warnings
 
+import seaborn as sns
 from matplotlib import pyplot as plt
 from moabb import set_log_level
 from moabb.datasets import Hinss2021
@@ -25,13 +26,12 @@ from moabb.paradigms import RestingStateToP300Adapter
 from pyriemann.estimation import Covariances
 from pyriemann.tangentspace import TangentSpace
 from qiskit_algorithms.optimizers import COBYLA
-import seaborn as sns
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.autoencoders import BasicQnnAutoencoder
 from pyriemann_qiskit.utils.filtering import ChannelSelection
-from pyriemann_qiskit.utils.preprocessing import Vectorizer, Devectorizer
+from pyriemann_qiskit.utils.preprocessing import Devectorizer, Vectorizer
 
 print(__doc__)
 

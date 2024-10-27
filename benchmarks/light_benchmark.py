@@ -13,18 +13,18 @@ to run on Ci with each PRs.
 
 import warnings
 
+from lb_base import run
 from moabb import set_log_level
-from pyriemann.estimation import XdawnCovariances, Shrinkage
+from pyriemann.estimation import Shrinkage, XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
-from pyriemann_qiskit.pipelines import (
-    QuantumClassifierWithDefaultRiemannianPipeline,
-    QuantumMDMWithRiemannianPipeline,
-)
-from pyriemann_qiskit.utils import distance, mean  # noqa
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
-from lb_base import run
+
+from pyriemann_qiskit.pipelines import (
+    QuantumClassifierWithDefaultRiemannianPipeline,
+    QuantumMDMWithRiemannianPipeline)
+from pyriemann_qiskit.utils import distance, mean  # noqa
 
 print(__doc__)
 

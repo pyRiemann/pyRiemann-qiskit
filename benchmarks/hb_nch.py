@@ -7,13 +7,14 @@ Performs a benchmark of several variations of the NCH algorithm.
 @author: anton andreev
 """
 
-from pyriemann.estimation import XdawnCovariances
-from sklearn.pipeline import make_pipeline
-from pyriemann.classification import MDM
 import os
 
-from pyriemann_qiskit.classification import QuanticNCH
 from heavy_benchmark import benchmark_alpha, plot_stat
+from pyriemann.classification import MDM
+from pyriemann.estimation import XdawnCovariances
+from sklearn.pipeline import make_pipeline
+
+from pyriemann_qiskit.classification import QuanticNCH
 
 # start configuration
 hb_max_n_subjects = 3

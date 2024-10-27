@@ -1,18 +1,15 @@
-import pytest
-from conftest import BinaryTest, BinaryFVT, MultiClassFVT, MultiClassTest
 import numpy as np
+import pytest
+from conftest import BinaryFVT, BinaryTest, MultiClassFVT, MultiClassTest
 from pyriemann.classification import TangentSpace
 from pyriemann.estimation import XdawnCovariances
-from pyriemann_qiskit.classification import (
-    QuanticSVM,
-    QuanticVQC,
-    QuanticMDM,
-    QuanticNCH,
-)
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.pipeline import make_pipeline
+
+from pyriemann_qiskit.classification import (QuanticMDM, QuanticNCH,
+                                             QuanticSVM, QuanticVQC)
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
-from sklearn.pipeline import make_pipeline
-from sklearn.model_selection import StratifiedKFold, cross_val_score
 
 
 @pytest.mark.parametrize(

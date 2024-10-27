@@ -16,17 +16,14 @@ classifier. It is compared to the classical SVM on binary classification.
 from matplotlib import pyplot as plt
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
-from sklearn.pipeline import make_pipeline
+from sklearn.metrics import (ConfusionMatrixDisplay, balanced_accuracy_score,
+                             confusion_matrix)
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import (
-    confusion_matrix,
-    ConfusionMatrixDisplay,
-    balanced_accuracy_score,
-)
+from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import QuanticSVM
-from pyriemann_qiskit.utils.filtering import NaiveDimRed
 from pyriemann_qiskit.datasets import get_mne_sample
+from pyriemann_qiskit.utils.filtering import NaiveDimRed
 
 print(__doc__)
 

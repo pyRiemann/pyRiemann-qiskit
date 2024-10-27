@@ -16,55 +16,26 @@ when switching from P300 to MI.
 """
 # Author: Anton Andreev
 
-from pyriemann.estimation import Covariances
-from matplotlib import pyplot as plt
 import warnings
-import seaborn as sns
-import pandas as pd
-from moabb import set_log_level
-
-# P300 databases
-from moabb.datasets import (
-    BI2013a,
-    BNCI2014_008,
-    BNCI2014_009,
-    BNCI2015_003,
-    # EPFLP300,
-    # Lee2019_ERP,
-    BI2014a,
-    BI2014b,
-    BI2015a,
-    BI2015b,
-)
-
-# Motor imagery databases
-from moabb.datasets import (
-    BNCI2014_001,
-    Zhou2016,
-    # BNCI2015_001,
-    # BNCI2014_002,
-    BNCI2014_004,
-    # BNCI2015_004, #not tested
-    # AlexMI,
-    Weibo2014,
-    Cho2017,
-    GrosseWentrup2009,
-    PhysionetMI,
-    Shin2017A,
-    Lee2019_MI,  # new
-    Schirrmeister2017,  # new
-)
-from moabb.evaluations import (
-    WithinSessionEvaluation,
-    CrossSubjectEvaluation,
-)
-from moabb.paradigms import P300, MotorImagery, LeftRightImagery
 
 import moabb.analysis.plotting as moabb_plt
-from moabb.analysis.meta_analysis import (
-    compute_dataset_statistics,
-    find_significant_differences,
-)
+import pandas as pd
+import seaborn as sns
+from matplotlib import pyplot as plt
+from moabb import set_log_level
+from moabb.analysis.meta_analysis import (compute_dataset_statistics,
+                                          find_significant_differences)
+# Motor imagery databases
+# P300 databases
+from moabb.datasets import Lee2019_MI  # new
+from moabb.datasets import Schirrmeister2017  # new
+from moabb.datasets import (  # EPFLP300,; Lee2019_ERP,; BNCI2015_001,; BNCI2014_002,; BNCI2015_004, #not tested; AlexMI,
+    BNCI2014_001, BNCI2014_004, BNCI2014_008, BNCI2014_009, BNCI2015_003,
+    BI2013a, BI2014a, BI2014b, BI2015a, BI2015b, Cho2017, GrosseWentrup2009,
+    PhysionetMI, Shin2017A, Weibo2014, Zhou2016)
+from moabb.evaluations import CrossSubjectEvaluation, WithinSessionEvaluation
+from moabb.paradigms import P300, LeftRightImagery, MotorImagery
+from pyriemann.estimation import Covariances
 
 print(__doc__)
 print("Version 1.0 24/06/2024")

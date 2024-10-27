@@ -1,7 +1,6 @@
 import os.path as op
 
-from setuptools import setup, find_packages
-
+from setuptools import find_packages, setup
 
 # get the version (don't import mne here, so dependencies are not needed)
 version = None

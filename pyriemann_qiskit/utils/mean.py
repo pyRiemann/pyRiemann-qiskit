@@ -1,9 +1,8 @@
-from typing_extensions import deprecated
-
 from docplex.mp.model import Model
-from pyriemann.utils.base import logm, expm
+from pyriemann.utils.base import expm, logm
 from pyriemann.utils.mean import mean_functions
 from qiskit_optimization.algorithms import ADMMOptimizer
+from typing_extensions import deprecated
 
 from .docplex import ClassicalOptimizer, get_global_optimizer
 

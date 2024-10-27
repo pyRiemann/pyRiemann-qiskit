@@ -1,18 +1,17 @@
-import pytest
 import numpy as np
+import pytest
+from pyriemann.estimation import Shrinkage, XdawnCovariances
 from pyriemann.utils.mean import mean_euclid, mean_logeuclid
-from pyriemann.estimation import XdawnCovariances, Shrinkage
-from sklearn.pipeline import make_pipeline
+from qiskit_optimization.algorithms import ADMMOptimizer
 from sklearn.model_selection import StratifiedKFold, cross_val_score
-from pyriemann_qiskit.utils.mean import qmean_euclid, qmean_logeuclid
-from pyriemann_qiskit.utils.docplex import (
-    ClassicalOptimizer,
-    NaiveQAOAOptimizer,
-    QAOACVOptimizer,
-)
+from sklearn.pipeline import make_pipeline
+
 from pyriemann_qiskit.classification import QuanticMDM
 from pyriemann_qiskit.datasets import get_mne_sample
-from qiskit_optimization.algorithms import ADMMOptimizer
+from pyriemann_qiskit.utils.docplex import (ClassicalOptimizer,
+                                            NaiveQAOAOptimizer,
+                                            QAOACVOptimizer)
+from pyriemann_qiskit.utils.mean import qmean_euclid, qmean_logeuclid
 
 
 @pytest.mark.parametrize(

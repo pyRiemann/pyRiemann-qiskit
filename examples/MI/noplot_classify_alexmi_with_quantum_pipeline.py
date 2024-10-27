@@ -14,19 +14,17 @@ pip install moabb==0.5.0
 
 import warnings
 
+import seaborn as sns
+# inject cpm distance and mean to pyriemann (if not done already)
+from helpers.alias import ERPCov_MDM
 from matplotlib import pyplot as plt
 from moabb import set_log_level
 from moabb.datasets import AlexMI
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import MotorImagery
-import seaborn as sns
 
-# inject cpm distance and mean to pyriemann (if not done already)
-from helpers.alias import ERPCov_MDM
+from pyriemann_qiskit.pipelines import QuantumMDMWithRiemannianPipeline
 from pyriemann_qiskit.utils import distance, mean  # noqa
-from pyriemann_qiskit.pipelines import (
-    QuantumMDMWithRiemannianPipeline,
-)
 
 print(__doc__)
 

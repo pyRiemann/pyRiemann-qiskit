@@ -1,10 +1,12 @@
-from pyriemann_qiskit.datasets import MockDataset
-from pyriemann_qiskit.utils import FirebaseConnector, Cache
+import warnings
+
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
-import warnings
+
+from pyriemann_qiskit.datasets import MockDataset
+from pyriemann_qiskit.utils import Cache, FirebaseConnector
 
 
 def test_firebase_connection():

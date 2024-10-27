@@ -13,21 +13,17 @@ Execution takes approximately 1h.
 # Modified from plot_classify_EEG_quantum_svm
 # License: BSD (3-clause)
 
-from matplotlib import pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import (
-    confusion_matrix,
-    ConfusionMatrixDisplay,
-    balanced_accuracy_score,
-)
-from sklearn.decomposition import PCA
-
 from helpers.alias import ERPCov_MDM
+from matplotlib import pyplot as plt
+from sklearn.decomposition import PCA
+from sklearn.metrics import (ConfusionMatrixDisplay, balanced_accuracy_score,
+                             confusion_matrix)
+from sklearn.model_selection import train_test_split
+
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
-    QuantumMDMWithRiemannianPipeline,
-)
+    QuantumMDMWithRiemannianPipeline)
 
 print(__doc__)
 

@@ -25,6 +25,7 @@ A list of real quantum  computers is available in your IBM quantum account.
 
 import warnings
 
+import seaborn as sns
 from matplotlib import pyplot as plt
 from moabb import set_log_level
 from moabb.datasets import bi2012
@@ -32,20 +33,16 @@ from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
-import seaborn as sns
+from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
-from sklearn.decomposition import PCA
 
-from pyriemann_qiskit.utils import (
-    generate_caches,
-    filter_subjects_by_incomplete_results,
-    add_moabb_dataframe_results_to_caches,
-    convert_caches_to_dataframes,
-)
-from pyriemann_qiskit.pipelines import (
-    QuantumClassifierWithDefaultRiemannianPipeline,
-)
+from pyriemann_qiskit.pipelines import \
+    QuantumClassifierWithDefaultRiemannianPipeline
+from pyriemann_qiskit.utils import (add_moabb_dataframe_results_to_caches,
+                                    convert_caches_to_dataframes,
+                                    filter_subjects_by_incomplete_results,
+                                    generate_caches)
 
 print(__doc__)
 

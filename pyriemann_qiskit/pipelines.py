@@ -1,7 +1,7 @@
 """Module for pipelines."""
 import numpy as np
 from pyriemann.classification import MDM
-from pyriemann.estimation import XdawnCovariances, ERPCovariances
+from pyriemann.estimation import ERPCovariances, XdawnCovariances
 from pyriemann.preprocessing import Whitening
 from pyriemann.tangentspace import TangentSpace
 from qiskit_algorithms.optimizers import SLSQP
@@ -9,22 +9,13 @@ from qiskit_optimization.algorithms import SlsqpOptimizer
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from sklearn.pipeline import make_pipeline, FeatureUnion
 from sklearn.ensemble import VotingClassifier
+from sklearn.pipeline import FeatureUnion, make_pipeline
 
-from .classification import (
-    QuanticNCH,
-    QuanticVQC,
-    QuanticSVM,
-    QuanticMDM,
-)
+from .classification import QuanticMDM, QuanticNCH, QuanticSVM, QuanticVQC
 from .utils.filtering import NoDimRed
-from .utils.hyper_params_factory import (
-    # gen_zz_feature_map,
-    gen_x_feature_map,
-    gen_two_local,
-    get_spsa,
-)
+from .utils.hyper_params_factory import (gen_two_local,  # gen_zz_feature_map,
+                                         gen_x_feature_map, get_spsa)
 from .utils.utils import is_qfunction
 
 

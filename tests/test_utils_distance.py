@@ -1,20 +1,17 @@
-import pytest
 import numpy as np
-from pyriemann_qiskit.utils.docplex import (
-    ClassicalOptimizer,
-    NaiveQAOAOptimizer,
-    QAOACVOptimizer,
-)
-from pyriemann_qiskit.utils.distance import (
-    qdistance_logeuclid_to_convex_hull,
-    weights_logeuclid_to_convex_hull,
-)
-from pyriemann_qiskit.classification import QuanticMDM
-from pyriemann_qiskit.datasets import get_mne_sample
+import pytest
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.utils.mean import mean_logeuclid
-from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.pipeline import make_pipeline
+
+from pyriemann_qiskit.classification import QuanticMDM
+from pyriemann_qiskit.datasets import get_mne_sample
+from pyriemann_qiskit.utils.distance import (
+    qdistance_logeuclid_to_convex_hull, weights_logeuclid_to_convex_hull)
+from pyriemann_qiskit.utils.docplex import (ClassicalOptimizer,
+                                            NaiveQAOAOptimizer,
+                                            QAOACVOptimizer)
 
 
 @pytest.mark.parametrize(

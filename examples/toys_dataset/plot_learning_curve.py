@@ -14,12 +14,11 @@ of quantum neural network VQC and MDM, using an SPSA optimizer.
 import matplotlib.pyplot as plt
 from pyriemann.estimation import Shrinkage
 
+from pyriemann_qiskit.classification import QuanticVQC
+from pyriemann_qiskit.datasets import generate_linearly_separable_dataset
 from pyriemann_qiskit.datasets.utils import get_mne_sample
 from pyriemann_qiskit.pipelines import QuantumMDMWithRiemannianPipeline
 from pyriemann_qiskit.utils.hyper_params_factory import get_spsa
-from pyriemann_qiskit.datasets import generate_linearly_separable_dataset
-from pyriemann_qiskit.classification import QuanticVQC
-
 
 print(__doc__)
 
