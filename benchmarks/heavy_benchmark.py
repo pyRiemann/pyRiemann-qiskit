@@ -28,10 +28,6 @@ from moabb.analysis.meta_analysis import (
     find_significant_differences,
 )
 
-# Motor imagery databases
-# P300 databases
-from moabb.datasets import Lee2019_MI  # new
-from moabb.datasets import Schirrmeister2017  # new
 from moabb.datasets import (
     BNCI2014_001,
     BNCI2014_004,
@@ -49,6 +45,8 @@ from moabb.datasets import (
     Shin2017A,
     Weibo2014,
     Zhou2016,
+    Lee2019_MI,
+    Schirrmeister2017
 )
 from moabb.evaluations import CrossSubjectEvaluation, WithinSessionEvaluation
 from moabb.paradigms import P300, LeftRightImagery, MotorImagery
