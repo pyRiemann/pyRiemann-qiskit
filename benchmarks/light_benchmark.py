@@ -23,7 +23,8 @@ from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
-    QuantumMDMWithRiemannianPipeline)
+    QuantumMDMWithRiemannianPipeline,
+)
 from pyriemann_qiskit.utils import distance, mean  # noqa
 
 print(__doc__)

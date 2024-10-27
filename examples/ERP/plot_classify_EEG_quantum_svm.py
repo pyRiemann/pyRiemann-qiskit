@@ -16,8 +16,11 @@ classifier. It is compared to the classical SVM on binary classification.
 from matplotlib import pyplot as plt
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
-from sklearn.metrics import (ConfusionMatrixDisplay, balanced_accuracy_score,
-                             confusion_matrix)
+from sklearn.metrics import (
+    ConfusionMatrixDisplay,
+    balanced_accuracy_score,
+    confusion_matrix,
+)
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 

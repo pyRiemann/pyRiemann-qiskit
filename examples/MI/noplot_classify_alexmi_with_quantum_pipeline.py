@@ -15,6 +15,7 @@ pip install moabb==0.5.0
 import warnings
 
 import seaborn as sns
+
 # inject cpm distance and mean to pyriemann (if not done already)
 from helpers.alias import ERPCov_MDM
 from matplotlib import pyplot as plt

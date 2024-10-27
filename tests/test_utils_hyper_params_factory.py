@@ -1,12 +1,15 @@
 import pytest
 from qiskit.circuit.parametertable import ParameterView
 
-from pyriemann_qiskit.utils.hyper_params_factory import (gates, gen_two_local,
-                                                         gen_x_feature_map,
-                                                         gen_z_feature_map,
-                                                         gen_zz_feature_map,
-                                                         get_spsa,
-                                                         get_spsa_parameters)
+from pyriemann_qiskit.utils.hyper_params_factory import (
+    gates,
+    gen_two_local,
+    gen_x_feature_map,
+    gen_z_feature_map,
+    gen_zz_feature_map,
+    get_spsa,
+    get_spsa_parameters,
+)
 
 
 class TestGenXFeatureMapParams:

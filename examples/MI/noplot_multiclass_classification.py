@@ -16,14 +16,18 @@ Execution takes approximately 1h.
 from helpers.alias import ERPCov_MDM
 from matplotlib import pyplot as plt
 from sklearn.decomposition import PCA
-from sklearn.metrics import (ConfusionMatrixDisplay, balanced_accuracy_score,
-                             confusion_matrix)
+from sklearn.metrics import (
+    ConfusionMatrixDisplay,
+    balanced_accuracy_score,
+    confusion_matrix,
+)
 from sklearn.model_selection import train_test_split
 
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
-    QuantumMDMWithRiemannianPipeline)
+    QuantumMDMWithRiemannianPipeline,
+)
 
 print(__doc__)
 

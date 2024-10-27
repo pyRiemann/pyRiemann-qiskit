@@ -1,8 +1,11 @@
 import numpy as np
 from docplex.mp.model import Model
 from pyriemann.utils.base import logm
-from pyriemann.utils.distance import (distance_euclid, distance_functions,
-                                      distance_logeuclid)
+from pyriemann.utils.distance import (
+    distance_euclid,
+    distance_functions,
+    distance_logeuclid,
+)
 from pyriemann.utils.mean import mean_logeuclid
 from typing_extensions import deprecated
 

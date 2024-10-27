@@ -36,8 +36,7 @@ from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
 
-from pyriemann_qiskit.pipelines import \
-    QuantumClassifierWithDefaultRiemannianPipeline
+from pyriemann_qiskit.pipelines import QuantumClassifierWithDefaultRiemannianPipeline
 
 print(__doc__)
 

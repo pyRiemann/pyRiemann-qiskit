@@ -16,10 +16,8 @@ from qiskit.primitives import BackendSampler
 from qiskit.quantum_info import Statevector
 from qiskit_algorithms import QAOA
 from qiskit_algorithms.optimizers import SLSQP, SPSA
-from qiskit_optimization.algorithms import (CobylaOptimizer,
-                                            MinimumEigenOptimizer)
-from qiskit_optimization.converters import (IntegerToBinary,
-                                            LinearEqualityToPenalty)
+from qiskit_optimization.algorithms import CobylaOptimizer, MinimumEigenOptimizer
+from qiskit_optimization.converters import IntegerToBinary, LinearEqualityToPenalty
 from qiskit_optimization.problems import VarType
 from qiskit_optimization.translators import from_docplex_mp
 from sklearn.preprocessing import MinMaxScaler

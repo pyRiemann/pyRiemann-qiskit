@@ -32,8 +32,11 @@ from moabb.datasets import BNCI2014009
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
 
-from pyriemann_qiskit.pipelines import (QuantumMDMVotingClassifier,
-                                        QuantumMDMWithRiemannianPipeline)
+from pyriemann_qiskit.pipelines import (
+    QuantumMDMVotingClassifier,
+    QuantumMDMWithRiemannianPipeline,
+)
+
 # inject cpm distance and mean to pyriemann (if not done already)
 from pyriemann_qiskit.utils import distance, mean  # noqa
 

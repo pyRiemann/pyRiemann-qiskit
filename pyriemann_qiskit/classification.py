@@ -23,15 +23,21 @@ from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.svm import SVC
 
 from .datasets import get_feature_dimension
-from .utils.distance import (distance_functions,
-                             qdistance_logeuclid_to_convex_hull)
-from .utils.docplex import (ClassicalOptimizer, NaiveQAOAOptimizer,
-                            QAOACVOptimizer, get_global_optimizer,
-                            set_global_optimizer)
-from .utils.hyper_params_factory import (gen_two_local, gen_zz_feature_map,
-                                         get_spsa)
-from .utils.quantum_provider import (get_device, get_provider,
-                                     get_quantum_kernel, get_simulator)
+from .utils.distance import distance_functions, qdistance_logeuclid_to_convex_hull
+from .utils.docplex import (
+    ClassicalOptimizer,
+    NaiveQAOAOptimizer,
+    QAOACVOptimizer,
+    get_global_optimizer,
+    set_global_optimizer,
+)
+from .utils.hyper_params_factory import gen_two_local, gen_zz_feature_map, get_spsa
+from .utils.quantum_provider import (
+    get_device,
+    get_provider,
+    get_quantum_kernel,
+    get_simulator,
+)
 from .utils.utils import is_qfunction
 
 logging.basicConfig(level=logging.WARNING)

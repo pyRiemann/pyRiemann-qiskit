@@ -16,6 +16,7 @@ import os
 import sys
 
 import matplotlib
+
 # mne update path
 import mne
 

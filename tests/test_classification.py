@@ -6,8 +6,12 @@ from pyriemann.estimation import XdawnCovariances
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.pipeline import make_pipeline
 
-from pyriemann_qiskit.classification import (QuanticMDM, QuanticNCH,
-                                             QuanticSVM, QuanticVQC)
+from pyriemann_qiskit.classification import (
+    QuanticMDM,
+    QuanticNCH,
+    QuanticSVM,
+    QuanticVQC,
+)
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
 

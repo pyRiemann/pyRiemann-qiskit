@@ -37,12 +37,13 @@ from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
 
-from pyriemann_qiskit.pipelines import \
-    QuantumClassifierWithDefaultRiemannianPipeline
-from pyriemann_qiskit.utils import (add_moabb_dataframe_results_to_caches,
-                                    convert_caches_to_dataframes,
-                                    filter_subjects_by_incomplete_results,
-                                    generate_caches)
+from pyriemann_qiskit.pipelines import QuantumClassifierWithDefaultRiemannianPipeline
+from pyriemann_qiskit.utils import (
+    add_moabb_dataframe_results_to_caches,
+    convert_caches_to_dataframes,
+    filter_subjects_by_incomplete_results,
+    generate_caches,
+)
 
 print(__doc__)
 

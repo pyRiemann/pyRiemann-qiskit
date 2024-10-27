@@ -21,8 +21,7 @@ from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import QuanticNCH
 from pyriemann_qiskit.utils import distance, mean  # noqa
-from pyriemann_qiskit.utils.hyper_params_factory import \
-    create_mixer_rotational_X_gates
+from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_rotational_X_gates
 
 print(__doc__)
 

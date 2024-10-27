@@ -11,8 +11,10 @@ from qiskit_aer import AerSimulator
 from qiskit_aer.quantum_info import AerStatevector
 from qiskit_algorithms.state_fidelities import ComputeUncompute
 from qiskit_ibm_runtime import QiskitRuntimeService
-from qiskit_machine_learning.kernels import (FidelityQuantumKernel,
-                                             FidelityStatevectorKernel)
+from qiskit_machine_learning.kernels import (
+    FidelityQuantumKernel,
+    FidelityStatevectorKernel,
+)
 
 try:
     from qiskit_symb.quantum_info import Statevector

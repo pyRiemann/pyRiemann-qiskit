@@ -33,8 +33,11 @@ from sklearn.svm import SVC
 
 from pyriemann_qiskit.ensemble import JudgeClassifier
 from pyriemann_qiskit.pipelines import (
-    QuantumClassifierWithDefaultRiemannianPipeline, QuantumMDMVotingClassifier,
-    QuantumMDMWithRiemannianPipeline)
+    QuantumClassifierWithDefaultRiemannianPipeline,
+    QuantumMDMVotingClassifier,
+    QuantumMDMWithRiemannianPipeline,
+)
+
 # inject convex distance and mean to pyriemann (if not done already)
 from pyriemann_qiskit.utils import distance, mean  # noqa
 
