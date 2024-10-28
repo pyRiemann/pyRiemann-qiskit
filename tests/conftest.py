@@ -1,12 +1,14 @@
 """
 Contains helper methods and classes to manage the tests.
 """
-import pytest
-import numpy as np
 from functools import partial
-from pyriemann.datasets import make_matrices
-from pyriemann_qiskit.datasets import get_mne_sample
 from operator import itemgetter
+
+import numpy as np
+import pytest
+from pyriemann.datasets import make_matrices
+
+from pyriemann_qiskit.datasets import get_mne_sample
 
 
 def requires_module(function, name, call=None):

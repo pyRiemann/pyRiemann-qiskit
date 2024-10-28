@@ -13,26 +13,20 @@ classifiers on toys datasets.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
 import numpy as np
+from matplotlib.colors import ListedColormap
+from sklearn.datasets import make_circles, make_moons
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.datasets import make_moons, make_circles
 from sklearn.svm import SVC
 
+# uncomment to run comparison with QuanticVQC (disabled for CI/CD)
+# from pyriemann_qiskit.classification import QuanticVQC
+from pyriemann_qiskit.classification import QuanticSVM
 from pyriemann_qiskit.datasets import (
     generate_linearly_separable_dataset,
     generate_qiskit_dataset,
 )
-from pyriemann_qiskit.classification import (
-    QuanticSVM,
-    # uncomment to run comparison with QuanticVQC (disabled for CI/CD)
-    # QuanticVQC
-)
-
-# uncomment to run comparison with QuanticVQC (disabled for CI/CD)
-# from pyriemann_qiskit.classification import QuanticVQC
-
 
 print(__doc__)
 

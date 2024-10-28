@@ -2,7 +2,7 @@
 Ensemble classifiers.
 """
 import numpy as np
-from sklearn.base import ClassifierMixin, BaseEstimator
+from sklearn.base import BaseEstimator, ClassifierMixin
 
 from .utils import union_of_diff
 

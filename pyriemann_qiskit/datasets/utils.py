@@ -4,7 +4,7 @@ Contains helper methods and classes to manage datasets.
 from warnings import warn
 
 try:
-    from mne import io, read_events, pick_types, Epochs
+    from mne import Epochs, io, pick_types, read_events
     from mne.datasets import sample
 except Exception:
     warn("mne not available. get_mne_sample will fail.")

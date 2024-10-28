@@ -11,35 +11,35 @@ Different pipelines (quantum and classical) are benchmarked.
 # Author: Gregoire Cattan
 # License: BSD (3-clause)
 
-from enum import Enum
 import warnings
+from enum import Enum
 
+import numpy as np
+import seaborn as sns
 from matplotlib import pyplot as plt
 from mne.decoding import Vectorizer
 from moabb import set_log_level
 from moabb.datasets.compound_dataset import BI_Il
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
-import numpy as np
-from pyriemann.estimation import XdawnCovariances
-from pyriemann.tangentspace import TangentSpace
 from pyriemann.classification import MDM
+from pyriemann.estimation import XdawnCovariances
 from pyriemann.spatialfilters import Xdawn
-import seaborn as sns
-from sklearn.ensemble import VotingClassifier
-from sklearn.pipeline import make_pipeline, Pipeline
+from pyriemann.tangentspace import TangentSpace
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.ensemble import VotingClassifier
+from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.svm import SVC
 
 from pyriemann_qiskit.ensemble import JudgeClassifier
+from pyriemann_qiskit.pipelines import (
+    QuantumClassifierWithDefaultRiemannianPipeline,
+    QuantumMDMVotingClassifier,
+    QuantumMDMWithRiemannianPipeline,
+)
 
 # inject convex distance and mean to pyriemann (if not done already)
 from pyriemann_qiskit.utils import distance, mean  # noqa
-from pyriemann_qiskit.pipelines import (
-    QuantumMDMVotingClassifier,
-    QuantumMDMWithRiemannianPipeline,
-    QuantumClassifierWithDefaultRiemannianPipeline,
-)
 
 print(__doc__)
 

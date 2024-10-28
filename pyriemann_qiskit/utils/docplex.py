@@ -8,8 +8,8 @@ It is for example suitable for:
 import math
 import time
 
-from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
 import numpy as np
+from docplex.mp.vartype import BinaryVarType, ContinuousVarType, IntegerVarType
 from pyriemann.utils.covariance import normalize
 from qiskit.circuit.library import QAOAAnsatz
 from qiskit.primitives import BackendSampler
@@ -18,14 +18,13 @@ from qiskit_algorithms import QAOA
 from qiskit_algorithms.optimizers import SLSQP, SPSA
 from qiskit_optimization.algorithms import CobylaOptimizer, MinimumEigenOptimizer
 from qiskit_optimization.converters import IntegerToBinary, LinearEqualityToPenalty
-from qiskit_optimization.translators import from_docplex_mp
 from qiskit_optimization.problems import VarType
+from qiskit_optimization.translators import from_docplex_mp
 from sklearn.preprocessing import MinMaxScaler
 
 from .hyper_params_factory import create_mixer_rotational_X_gates
 from .math import is_pauli_identity
 from .quantum_provider import get_simulator
-
 
 _global_optimizer = [None]
 

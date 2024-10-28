@@ -1,6 +1,7 @@
-import firebase_admin
 import os
 from warnings import warn
+
+import firebase_admin
 
 try:
     from firebase_admin import credentials, firestore

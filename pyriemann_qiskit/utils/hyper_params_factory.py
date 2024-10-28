@@ -1,12 +1,7 @@
 import inspect
 
-from qiskit.circuit import QuantumCircuit, QuantumRegister, Parameter
-from qiskit.circuit.library import (
-    ZZFeatureMap,
-    ZFeatureMap,
-    PauliFeatureMap,
-    TwoLocal,
-)
+from qiskit.circuit import Parameter, QuantumCircuit, QuantumRegister
+from qiskit.circuit.library import PauliFeatureMap, TwoLocal, ZFeatureMap, ZZFeatureMap
 from qiskit_algorithms.optimizers import SPSA
 
 

@@ -1,5 +1,5 @@
-from .mean import mean_functions
 from .distance import distance_functions
+from .mean import mean_functions
 
 
 def is_qfunction(string):

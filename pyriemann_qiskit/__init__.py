@@ -1,5 +1,5 @@
+from . import autoencoders, classification, ensemble, pipelines
 from ._version import __version__
-from . import classification, pipelines, ensemble, autoencoders
 
 __all__ = [
     "__version__",

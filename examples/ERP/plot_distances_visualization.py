@@ -19,13 +19,12 @@ from moabb.paradigms import P300
 from pyriemann.classification import MDM
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.preprocessing import Whitening
-from pyriemann.utils.viz import plot_biscatter, plot_bihist
-from sklearn.pipeline import make_pipeline
+from pyriemann.utils.viz import plot_bihist, plot_biscatter
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import QuanticNCH
 from pyriemann_qiskit.visualization.manifold import plot_manifold
-
 
 print(__doc__)
 

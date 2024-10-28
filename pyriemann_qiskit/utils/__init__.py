@@ -1,18 +1,22 @@
-from . import hyper_params_factory, filtering, preprocessing
-from . import quantum_provider
-from .math import cov_to_corr_matrix, union_of_diff
-from . import docplex
+from . import (
+    distance,
+    docplex,
+    filtering,
+    hyper_params_factory,
+    mean,
+    preprocessing,
+    quantum_provider,
+    utils,
+)
 from .firebase_connector import (
-    FirebaseConnector,
     Cache,
-    generate_caches,
-    filter_subjects_by_incomplete_results,
+    FirebaseConnector,
     add_moabb_dataframe_results_to_caches,
     convert_caches_to_dataframes,
+    filter_subjects_by_incomplete_results,
+    generate_caches,
 )
-from . import distance
-from . import mean
-from . import utils
+from .math import cov_to_corr_matrix, union_of_diff
 
 __all__ = [
     "hyper_params_factory",

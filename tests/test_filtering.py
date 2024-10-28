@@ -1,6 +1,7 @@
-import pytest
 import numpy as np
-from pyriemann_qiskit.utils.filtering import NoDimRed, NaiveDimRed
+import pytest
+
+from pyriemann_qiskit.utils.filtering import NaiveDimRed, NoDimRed
 
 
 class TestCommon:
