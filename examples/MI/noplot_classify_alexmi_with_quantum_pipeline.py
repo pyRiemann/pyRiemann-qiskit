@@ -15,7 +15,6 @@ pip install moabb==0.5.0
 import warnings
 
 import seaborn as sns
-from helpers.alias import ERPCov_MDM
 from matplotlib import pyplot as plt
 from moabb import set_log_level
 from moabb.datasets import AlexMI
@@ -26,6 +25,8 @@ from pyriemann_qiskit.pipelines import QuantumMDMWithRiemannianPipeline
 
 # inject cpm distance and mean to pyriemann (if not done already)
 from pyriemann_qiskit.utils import distance, mean  # noqa
+
+from helpers.alias import ERPCov_MDM
 
 print(__doc__)
 

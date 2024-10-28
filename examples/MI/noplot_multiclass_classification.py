@@ -13,7 +13,6 @@ Execution takes approximately 1h.
 # Modified from plot_classify_EEG_quantum_svm
 # License: BSD (3-clause)
 
-from helpers.alias import ERPCov_MDM
 from matplotlib import pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.metrics import (
@@ -28,6 +27,8 @@ from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
     QuantumMDMWithRiemannianPipeline,
 )
+
+from helpers.alias import ERPCov_MDM
 
 print(__doc__)
 
