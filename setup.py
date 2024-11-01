@@ -58,7 +58,7 @@ setup(name='pyriemann-qiskit',
                                 'mne-bids==0.14',
                                 'seaborn>=0.12.1',
                                 'moabb==1.1.0',
-                                'imbalanced-learn==0.12.3'
+                                'imbalanced-learn==0.12.4'
                             ],
                       'tests': ['pytest', 'seaborn', 'flake8', 'mne', 'pooch'],
                       # GPU optimization not available on all platform.
