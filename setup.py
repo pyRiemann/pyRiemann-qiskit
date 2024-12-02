@@ -45,7 +45,7 @@ setup(name='pyriemann-qiskit',
                         'cvxpy==1.5.3',
                         'scipy==1.13.1',
                         'docplex==2.28.240',
-                        'firebase_admin==6.5.0',
+                        'firebase_admin==6.6.0',
                         'scikit-learn==1.5.2',
                         'tqdm',
                         'pandas',
@@ -63,7 +63,7 @@ setup(name='pyriemann-qiskit',
                       'tests': ['pytest', 'seaborn', 'flake8', 'mne', 'pooch'],
                       # GPU optimization not available on all platform.
                       # See https://github.com/Qiskit/qiskit-aer/issues/929#issuecomment-691716936
-                      'optim': ['qiskit-symb', 'symengine==0.11.0'],
+                      'optim': ['qiskit-symb==0.2.0', 'symengine==0.11.0'],
                       'optim_linux': ['qiskit-aer-gpu==0.15.1']},
       zip_safe=False,
 )
