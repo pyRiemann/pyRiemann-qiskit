@@ -4,39 +4,49 @@ as well as several quantum classifiers than can run
 in several modes quantum/classical and simulated/real
 quantum computer.
 """
+from datetime import datetime
 import logging
 import random
-from datetime import datetime
 from warnings import warn
 
-import numpy as np
 from joblib import Parallel, delayed
+import numpy as np
 from pyriemann.classification import MDM
 from pyriemann.utils.distance import distance
 from qiskit.primitives import BackendSampler
 from qiskit_algorithms.optimizers import SLSQP
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
-from qiskit_optimization.algorithms import CobylaOptimizer, SlsqpOptimizer
+from qiskit_optimization.algorithms import (
+    CobylaOptimizer,
+    SlsqpOptimizer,
+)
 from scipy.special import softmax
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.svm import SVC
 
 from .datasets import get_feature_dimension
-from .utils.distance import distance_functions, qdistance_logeuclid_to_convex_hull
 from .utils.docplex import (
+    set_global_optimizer,
+    get_global_optimizer,
     ClassicalOptimizer,
     NaiveQAOAOptimizer,
     QAOACVOptimizer,
-    get_global_optimizer,
-    set_global_optimizer,
 )
-from .utils.hyper_params_factory import gen_two_local, gen_zz_feature_map, get_spsa
+from .utils.distance import (
+    distance_functions,
+    qdistance_logeuclid_to_convex_hull,
+)
+from .utils.hyper_params_factory import (
+    gen_zz_feature_map,
+    gen_two_local,
+    get_spsa,
+)
 from .utils.quantum_provider import (
-    get_device,
-    get_provider,
     get_quantum_kernel,
     get_simulator,
+    get_provider,
+    get_device,
 )
 from .utils.utils import is_qfunction
 
@@ -872,6 +882,8 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         Subsampling strategy of training set to estimate distance to hulls.
         "min" estimates hull using the n_samples_per_hull closest matrices.
         "random" estimates hull using n_samples_per_hull random matrices.
+    seed : float, default=None
+        Optional random seed to use when subsampling is set to `random`.
 
     References
     ----------
@@ -887,6 +899,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         n_hulls_per_class=3,
         n_samples_per_hull=10,
         subsampling="min",
+        seed=None
     ):
         """Init."""
         self.n_jobs = n_jobs
@@ -895,6 +908,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         self.matrices_per_class_ = {}
         self.debug = False
         self.subsampling = subsampling
+        self.seed = seed
 
         if subsampling not in ["min", "random"]:
             raise ValueError(f"Unknown subsampling type {subsampling}.")
@@ -916,6 +930,8 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         self : NearestConvexHull instance
             The NearestConvexHull instance.
         """
+
+        self.random_generator = random.Random(self.seed)
 
         if self.debug:
             print("Start NCH Train")
@@ -970,7 +986,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
                 if self.n_samples_per_hull == -1:  # use all data per class
                     hull_data = self.matrices_per_class_[c]
                 else:  # use a subset of the data per class
-                    random_samples = random.sample(
+                    random_samples = self.random_generator.sample(
                         range(self.matrices_per_class_[c].shape[0]),
                         k=self.n_samples_per_hull,
                     )
@@ -1174,6 +1190,7 @@ class QuanticNCH(QuanticClassifierBase):
             n_samples_per_hull=self.n_samples_per_hull,
             n_jobs=self.n_jobs,
             subsampling=self.subsampling,
+            seed=self.seed,
         )
 
         self._optimizer = _get_docplex_optimizer_from_params_bag(
