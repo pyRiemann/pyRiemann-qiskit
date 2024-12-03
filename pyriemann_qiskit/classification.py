@@ -4,49 +4,39 @@ as well as several quantum classifiers than can run
 in several modes quantum/classical and simulated/real
 quantum computer.
 """
-from datetime import datetime
 import logging
 import random
+from datetime import datetime
 from warnings import warn
 
-from joblib import Parallel, delayed
 import numpy as np
+from joblib import Parallel, delayed
 from pyriemann.classification import MDM
 from pyriemann.utils.distance import distance
 from qiskit.primitives import BackendSampler
 from qiskit_algorithms.optimizers import SLSQP
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
-from qiskit_optimization.algorithms import (
-    CobylaOptimizer,
-    SlsqpOptimizer,
-)
+from qiskit_optimization.algorithms import CobylaOptimizer, SlsqpOptimizer
 from scipy.special import softmax
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.svm import SVC
 
 from .datasets import get_feature_dimension
+from .utils.distance import distance_functions, qdistance_logeuclid_to_convex_hull
 from .utils.docplex import (
-    set_global_optimizer,
-    get_global_optimizer,
     ClassicalOptimizer,
     NaiveQAOAOptimizer,
     QAOACVOptimizer,
+    get_global_optimizer,
+    set_global_optimizer,
 )
-from .utils.distance import (
-    distance_functions,
-    qdistance_logeuclid_to_convex_hull,
-)
-from .utils.hyper_params_factory import (
-    gen_zz_feature_map,
-    gen_two_local,
-    get_spsa,
-)
+from .utils.hyper_params_factory import gen_two_local, gen_zz_feature_map, get_spsa
 from .utils.quantum_provider import (
+    get_device,
+    get_provider,
     get_quantum_kernel,
     get_simulator,
-    get_provider,
-    get_device,
 )
 from .utils.utils import is_qfunction
 
@@ -899,7 +889,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         n_hulls_per_class=3,
         n_samples_per_hull=10,
         subsampling="min",
-        seed=None
+        seed=None,
     ):
         """Init."""
         self.n_jobs = n_jobs
