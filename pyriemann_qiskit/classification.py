@@ -872,6 +872,8 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         Subsampling strategy of training set to estimate distance to hulls.
         "min" estimates hull using the n_samples_per_hull closest matrices.
         "random" estimates hull using n_samples_per_hull random matrices.
+    seed : float, default=None
+        Optional random seed to use when subsampling is set to `random`.
 
     References
     ----------
@@ -887,6 +889,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         n_hulls_per_class=3,
         n_samples_per_hull=10,
         subsampling="min",
+        seed=None,
     ):
         """Init."""
         self.n_jobs = n_jobs
@@ -895,6 +898,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         self.matrices_per_class_ = {}
         self.debug = False
         self.subsampling = subsampling
+        self.seed = seed
 
         if subsampling not in ["min", "random"]:
             raise ValueError(f"Unknown subsampling type {subsampling}.")
@@ -916,6 +920,8 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         self : NearestConvexHull instance
             The NearestConvexHull instance.
         """
+
+        self.random_generator = random.Random(self.seed)
 
         if self.debug:
             print("Start NCH Train")
@@ -970,7 +976,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
                 if self.n_samples_per_hull == -1:  # use all data per class
                     hull_data = self.matrices_per_class_[c]
                 else:  # use a subset of the data per class
-                    random_samples = random.sample(
+                    random_samples = self.random_generator.sample(
                         range(self.matrices_per_class_[c].shape[0]),
                         k=self.n_samples_per_hull,
                     )
@@ -1174,6 +1180,7 @@ class QuanticNCH(QuanticClassifierBase):
             n_samples_per_hull=self.n_samples_per_hull,
             n_jobs=self.n_jobs,
             subsampling=self.subsampling,
+            seed=self.seed,
         )
 
         self._optimizer = _get_docplex_optimizer_from_params_bag(
