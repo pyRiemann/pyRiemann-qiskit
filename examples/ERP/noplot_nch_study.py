@@ -11,11 +11,12 @@ in a "hard" dataset (classical methods don't provide results)
 # Modified from noplot_classify_P300_nch.py
 # License: BSD (3-clause)
 
-import warnings
-import numpy as np
 import random
-import qiskit_algorithms
+import warnings
 
+import numpy as np
+import qiskit_algorithms
+import seaborn as sns
 from matplotlib import pyplot as plt
 from moabb import set_log_level
 from moabb.datasets import Cattan2019_PHMD
@@ -23,11 +24,11 @@ from moabb.evaluations import CrossSubjectEvaluation
 from moabb.paradigms import RestingStateToP300Adapter
 from pyriemann.classification import MDM
 from pyriemann.estimation import Covariances
-import seaborn as sns
-from sklearn.pipeline import make_pipeline
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from qiskit_algorithms.optimizers import SPSA
 from pyriemann.tangentspace import TangentSpace
+from qiskit_algorithms.optimizers import SPSA
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.pipeline import make_pipeline
+
 from pyriemann_qiskit.classification import QuanticNCH
 from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_rotational_X_gates
 
