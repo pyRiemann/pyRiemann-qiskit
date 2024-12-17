@@ -11,29 +11,41 @@ in a "hard" dataset (classical methods don't provide results)
 # Modified from noplot_classify_P300_nch.py
 # License: BSD (3-clause)
 
-import warnings
-import numpy as np
 import random
-import qiskit_algorithms
+import warnings
 
+import numpy as np
+import qiskit_algorithms
+import seaborn as sns
 from matplotlib import pyplot as plt
 from moabb import set_log_level
-from moabb.datasets import bi2013a, bi2012, Cattan2019_VR, Cattan2019_PHMD
+from moabb.datasets import Cattan2019_PHMD, Cattan2019_VR, bi2012, bi2013a
 from moabb.datasets.compound_dataset import Cattan2019_VR_Il
-from moabb.evaluations import WithinSessionEvaluation, CrossSessionEvaluation, CrossSubjectEvaluation
+from moabb.evaluations import (
+    CrossSessionEvaluation,
+    CrossSubjectEvaluation,
+    WithinSessionEvaluation,
+)
 from moabb.paradigms import P300, RestingStateToP300Adapter
 from pyriemann.classification import MDM
-from pyriemann.estimation import XdawnCovariances, Covariances, Shrinkage, ERPCovariances
-import seaborn as sns
-from sklearn.pipeline import make_pipeline
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from pyriemann_qiskit.pipelines import QuantumMDMWithRiemannianPipeline
-from qiskit_algorithms.optimizers import SPSA, COBYLA, SLSQP
-from pyriemann.estimation import XdawnCovariances
-from pyriemann.tangentspace import TangentSpace
-from pyriemann_qiskit.classification import QuanticNCH
-from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_rotational_X_gates, create_mixer_rotational_XY_gates
+from pyriemann.estimation import (
+    Covariances,
+    ERPCovariances,
+    Shrinkage,
+    XdawnCovariances,
+)
 from pyriemann.spatialfilters import CSP
+from pyriemann.tangentspace import TangentSpace
+from qiskit_algorithms.optimizers import COBYLA, SLSQP, SPSA
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.pipeline import make_pipeline
+
+from pyriemann_qiskit.classification import QuanticNCH
+from pyriemann_qiskit.pipelines import QuantumMDMWithRiemannianPipeline
+from pyriemann_qiskit.utils.hyper_params_factory import (
+    create_mixer_rotational_X_gates,
+    create_mixer_rotational_XY_gates,
+)
 
 print(__doc__)
 
@@ -122,7 +134,7 @@ pipelines["NCH+RANDOM_HULL_QAOACV"] = make_pipeline(
         create_mixer=create_mixer_rotational_X_gates(0),
         shots=100,
         qaoa_optimizer=SPSA(maxiter=100, blocking=False),
-        n_reps=2
+        n_reps=2,
     ),
 )
 
@@ -149,7 +161,7 @@ pipelines["NCH+MIN_HULL_QAOACV"] = make_pipeline(
         create_mixer=create_mixer_rotational_X_gates(0),
         shots=100,
         qaoa_optimizer=SPSA(maxiter=100, blocking=False),
-        n_reps=2
+        n_reps=2,
     ),
 )
 
@@ -172,15 +184,18 @@ pipelines["MDM"] = make_pipeline(
 )
 
 pipelines["TS+LDA"] = make_pipeline(
-      sf,
-      TangentSpace(metric="riemann"),
-      LDA(),
-  )
+    sf,
+    TangentSpace(metric="riemann"),
+    LDA(),
+)
 
 print("Total pipelines to evaluate: ", len(pipelines))
 
 evaluation = CrossSubjectEvaluation(
-    paradigm=paradigm, datasets=datasets, suffix="examples", overwrite=overwrite,
+    paradigm=paradigm,
+    datasets=datasets,
+    suffix="examples",
+    overwrite=overwrite,
     n_splits=3,
     random_state=seed,
 )
@@ -199,14 +214,14 @@ print(results.groupby("pipeline").mean("score")[["score", "time"]])
 fig, ax = plt.subplots(facecolor="white", figsize=[8, 4])
 
 order = [
-    'NCH+RANDOM_HULL',
-    'NCH+RANDOM_HULL_NAIVEQAOA',
-    'NCH+RANDOM_HULL_QAOACV',
-    'NCH+MIN_HULL',
-    'NCH+MIN_HULL_NAIVEQAOA',
-    'NCH+MIN_HULL_QAOACV',
-    'TS+LDA',
-    'MDM'
+    "NCH+RANDOM_HULL",
+    "NCH+RANDOM_HULL_NAIVEQAOA",
+    "NCH+RANDOM_HULL_QAOACV",
+    "NCH+MIN_HULL",
+    "NCH+MIN_HULL_NAIVEQAOA",
+    "NCH+MIN_HULL_QAOACV",
+    "TS+LDA",
+    "MDM",
 ]
 
 sns.stripplot(
