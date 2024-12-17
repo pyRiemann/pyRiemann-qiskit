@@ -11,41 +11,25 @@ in a "hard" dataset (classical methods don't provide results)
 # Modified from noplot_classify_P300_nch.py
 # License: BSD (3-clause)
 
-import random
 import warnings
-
 import numpy as np
+import random
 import qiskit_algorithms
-import seaborn as sns
+
 from matplotlib import pyplot as plt
 from moabb import set_log_level
-from moabb.datasets import Cattan2019_PHMD, Cattan2019_VR, bi2012, bi2013a
-from moabb.datasets.compound_dataset import Cattan2019_VR_Il
-from moabb.evaluations import (
-    CrossSessionEvaluation,
-    CrossSubjectEvaluation,
-    WithinSessionEvaluation,
-)
-from moabb.paradigms import P300, RestingStateToP300Adapter
+from moabb.datasets import Cattan2019_PHMD
+from moabb.evaluations import CrossSubjectEvaluation
+from moabb.paradigms import RestingStateToP300Adapter
 from pyriemann.classification import MDM
-from pyriemann.estimation import (
-    Covariances,
-    ERPCovariances,
-    Shrinkage,
-    XdawnCovariances,
-)
-from pyriemann.spatialfilters import CSP
-from pyriemann.tangentspace import TangentSpace
-from qiskit_algorithms.optimizers import COBYLA, SLSQP, SPSA
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from pyriemann.estimation import Covariances
+import seaborn as sns
 from sklearn.pipeline import make_pipeline
-
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from qiskit_algorithms.optimizers import SPSA
+from pyriemann.tangentspace import TangentSpace
 from pyriemann_qiskit.classification import QuanticNCH
-from pyriemann_qiskit.pipelines import QuantumMDMWithRiemannianPipeline
-from pyriemann_qiskit.utils.hyper_params_factory import (
-    create_mixer_rotational_X_gates,
-    create_mixer_rotational_XY_gates,
-)
+from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_rotational_X_gates
 
 print(__doc__)
 
