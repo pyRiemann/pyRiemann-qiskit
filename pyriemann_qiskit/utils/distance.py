@@ -118,9 +118,9 @@ def weights_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
     w = optimizer.get_weights(prob, matrices)
 
     wtLogAtLogAw = prob.sum(
-        w[i] * w[j] * log_prod(A[i], A[j]) for i in matrices for j in matrices
+        w[i] * w[j] * trace_prod_log(A[i], A[j]) for i in matrices for j in matrices
     )
-    wLogBLogA = prob.sum(w[i] * log_prod(B, A[i]) for i in matrices)
+    wLogBLogA = prob.sum(w[i] * trace_prod_log(B, A[i]) for i in matrices)
     objective = wtLogAtLogAw - 2 * wLogBLogA
 
     prob.set_objective("min", objective)
