@@ -110,7 +110,7 @@ def weights_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
     n_matrices, _, _ = A.shape
     matrices = range(n_matrices)
 
-    def log_prod(m1, m2):
+    def trace_prod_log(m1, m2):
         return np.trace(logm(m1) @ logm(m2))
 
     prob = Model()
