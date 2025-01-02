@@ -11,7 +11,7 @@ scikit-learn==1.5.2
 imbalanced-learn==0.12.4
 joblib
 pandas
-cvxpy==1.5.3
+cvxpy==1.6.0
 qiskit==1.*
 qiskit_algorithms==0.3.1
 qiskit_machine_learning==0.7.2
