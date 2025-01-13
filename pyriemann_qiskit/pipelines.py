@@ -296,7 +296,7 @@ class QuantumClassifierWithDefaultRiemannianPipeline(BasePipeline):
                 C=self.C,
                 max_iter=self.max_iter,
                 gen_feature_map=feature_map,
-                shots=None,
+                shots=self.shots,
                 **self.params,
             )
 
