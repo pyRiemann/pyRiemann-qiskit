@@ -16,8 +16,8 @@ on a simple objective function.
 
 import math
 
-from docplex.mp.model import Model
 import matplotlib.pyplot as plt
+from docplex.mp.model import Model
 from qiskit_algorithms.optimizers import COBYLA, SPSA
 
 from pyriemann_qiskit.utils.docplex import QAOACVOptimizer
@@ -27,7 +27,6 @@ from pyriemann_qiskit.utils.hyper_params_factory import (
     create_mixer_rotational_XY_gates,
     create_mixer_rotational_XZ_gates,
 )
-
 
 ###############################################################################
 # Run QAOA-CV

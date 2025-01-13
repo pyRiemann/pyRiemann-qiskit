@@ -1,13 +1,14 @@
 import pytest
 from docplex.mp.model import Model
-from docplex.mp.vartype import ContinuousVarType, IntegerVarType, BinaryVarType
+from docplex.mp.vartype import BinaryVarType, ContinuousVarType, IntegerVarType
+
 from pyriemann_qiskit.utils.docplex import (
-    square_cont_mat_var,
-    square_int_mat_var,
-    square_bin_mat_var,
     ClassicalOptimizer,
     NaiveQAOAOptimizer,
     QAOACVOptimizer,
+    square_bin_mat_var,
+    square_cont_mat_var,
+    square_int_mat_var,
 )
 
 

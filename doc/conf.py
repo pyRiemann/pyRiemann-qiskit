@@ -12,18 +12,21 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
 import os
+import sys
+
 import matplotlib
 
 # mne update path
 import mne
+
 print(mne.datasets.sample.data_path(update_path=True, download=False))
 
 matplotlib.use('Agg')
 import shlex
-import sphinx_gallery
+
 import sphinx_bootstrap_theme
+import sphinx_gallery
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -95,6 +98,7 @@ author = u'Gregoire Cattan \\and Anton Andreev \\and Sylvain Chevallier \\and Qu
 # The short X.Y version.
 sys.path.insert(0, os.path.abspath(os.path.pardir))
 import pyriemann_qiskit
+
 version = pyriemann_qiskit.__version__
 # The full version, including alpha/beta/rc tags.
 release = pyriemann_qiskit.__version__

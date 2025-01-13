@@ -1,14 +1,13 @@
-from typing_extensions import deprecated
-
-from docplex.mp.model import Model
 import numpy as np
+from docplex.mp.model import Model
+from pyriemann.utils.base import logm
 from pyriemann.utils.distance import (
+    distance_euclid,
     distance_functions,
     distance_logeuclid,
-    distance_euclid,
 )
-from pyriemann.utils.base import logm
 from pyriemann.utils.mean import mean_logeuclid
+from typing_extensions import deprecated
 
 from .docplex import ClassicalOptimizer, get_global_optimizer
 

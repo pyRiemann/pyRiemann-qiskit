@@ -1,7 +1,7 @@
 import logging
 
 import numpy as np
-from qiskit import ClassicalRegister, QuantumRegister, QuantumCircuit
+from qiskit import ClassicalRegister, QuantumCircuit, QuantumRegister
 from qiskit.circuit.library import RealAmplitudes
 from qiskit.quantum_info import Statevector
 from qiskit_algorithms.optimizers import SPSA

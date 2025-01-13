@@ -1,6 +1,7 @@
 import numpy as np
-from pyriemann_qiskit.utils.preprocessing import NdRobustScaler
 from sklearn.preprocessing import RobustScaler
+
+from pyriemann_qiskit.utils.preprocessing import NdRobustScaler
 
 
 def test_ndrobustscaler(get_covmats):

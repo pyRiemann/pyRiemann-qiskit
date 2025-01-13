@@ -1,19 +1,19 @@
 """Module containing helpers for IBM quantum backends
    providers and simulators."""
 
-import joblib
 import logging
 import os
 import pickle
 
+import joblib
 import numpy as np
 from qiskit_aer import AerSimulator
 from qiskit_aer.quantum_info import AerStatevector
 from qiskit_algorithms.state_fidelities import ComputeUncompute
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit_machine_learning.kernels import (
-    FidelityStatevectorKernel,
     FidelityQuantumKernel,
+    FidelityStatevectorKernel,
 )
 
 try:
@@ -61,9 +61,12 @@ class SymbFidelityStatevectorKernel:
 
     def __init__(self, feature_map, gen_feature_map, n_jobs=1):
         self.n_jobs = n_jobs if n_jobs >= 1 else 1
-        cached_file = os.path.join(
-            "symb_statevectors", f"{feature_map.name}-{feature_map.reps}"
-        )
+
+        dir_name = "symb_statevectors"
+        if not os.path.isdir(dir_name):
+            os.mkdir(dir_name)
+
+        cached_file = os.path.join(dir_name, f"{feature_map.name}-{feature_map.reps}")
 
         if os.path.isfile(cached_file):
             print("Loading symbolic Statevector from cache")

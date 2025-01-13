@@ -33,21 +33,21 @@ with quantum computing.
 import os
 import warnings
 
-from imblearn.under_sampling import NearMiss
-from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
-from pyriemann.preprocessing import Whitening
+from imblearn.under_sampling import NearMiss
+from matplotlib import pyplot as plt
 from pyriemann.estimation import XdawnCovariances
+from pyriemann.preprocessing import Whitening
 from pyriemann.utils.viz import plot_waveforms
-from sklearn.base import TransformerMixin, BaseEstimator, ClassifierMixin
+from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.experimental import enable_halving_search_cv  # noqa
+from sklearn.metrics import balanced_accuracy_score
 from sklearn.model_selection import HalvingGridSearchCV, train_test_split
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import LabelEncoder
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
-from sklearn.metrics import balanced_accuracy_score
 
 from pyriemann_qiskit.classification import QuanticSVM
 from pyriemann_qiskit.utils.hyper_params_factory import gen_zz_feature_map

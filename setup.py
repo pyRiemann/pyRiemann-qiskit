@@ -1,7 +1,6 @@
 import os.path as op
 
-from setuptools import setup, find_packages
-
+from setuptools import find_packages, setup
 
 # get the version (don't import mne here, so dependencies are not needed)
 version = None
@@ -38,15 +37,15 @@ setup(name='pyriemann-qiskit',
                         'cython',
                         'pyriemann==0.6',
                         'qiskit==1.*',
-                        'qiskit_algorithms==0.3.0',
+                        'qiskit_algorithms==0.3.1',
                         'qiskit_machine_learning==0.7.2',
-                        'qiskit_ibm_runtime==0.30.0',
+                        'qiskit_ibm_runtime==0.33.2',
                         'qiskit-optimization==0.6.1',
                         'qiskit-aer==0.15.1',
-                        'cvxpy==1.5.2',
+                        'cvxpy==1.5.3',
                         'scipy==1.13.1',
                         'docplex==2.28.240',
-                        'firebase_admin==6.5.0',
+                        'firebase_admin==6.6.0',
                         'scikit-learn==1.5.2',
                         'tqdm',
                         'pandas',
@@ -58,13 +57,13 @@ setup(name='pyriemann-qiskit',
                                 'mne==1.8.0',
                                 'mne-bids==0.14',
                                 'seaborn>=0.12.1',
-                                'moabb==1.1.0',
-                                'imbalanced-learn==0.12.3'
+                                'moabb==1.1.1',
+                                'imbalanced-learn==0.12.4'
                             ],
                       'tests': ['pytest', 'seaborn', 'flake8', 'mne', 'pooch'],
                       # GPU optimization not available on all platform.
                       # See https://github.com/Qiskit/qiskit-aer/issues/929#issuecomment-691716936
-                      'optim': ['qiskit-symb', 'symengine==0.11.0'],
+                      'optim': ['qiskit-symb==0.2.0', 'symengine==0.11.0'],
                       'optim_linux': ['qiskit-aer-gpu==0.15.1']},
       zip_safe=False,
 )

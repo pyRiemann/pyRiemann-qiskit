@@ -1,10 +1,9 @@
-from pyriemann_qiskit.ensemble import (
-    JudgeClassifier,
-)
-from sklearn.svm import SVC
-from sklearn.base import ClassifierMixin
-from sklearn.model_selection import cross_val_score, StratifiedKFold
 import numpy as np
+from sklearn.base import ClassifierMixin
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.svm import SVC
+
+from pyriemann_qiskit.ensemble import JudgeClassifier
 
 
 def test_canary():
