@@ -25,8 +25,17 @@ from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
 from lb_base import run
+import random
+import qiskit_algorithms
 
 print(__doc__)
+
+##############################################################################
+# Set random seeds
+
+random.seed(seed)
+np.random.seed(seed)
+qiskit_algorithms.utils.algorithm_globals.random_seed
 
 ##############################################################################
 # getting rid of the warnings about the future
