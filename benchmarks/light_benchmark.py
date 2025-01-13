@@ -13,8 +13,8 @@ to run on Ci with each PRs.
 
 import random
 import warnings
-import numpy as np
 
+import numpy as np
 import qiskit_algorithms
 from lb_base import run
 from moabb import set_log_level
