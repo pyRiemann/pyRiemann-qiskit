@@ -11,8 +11,10 @@ to run on Ci with each PRs.
 # Modified from plot_classify_P300_bi.py of pyRiemann
 # License: BSD (3-clause)
 
+import random
 import warnings
 
+import qiskit_algorithms
 from lb_base import run
 from moabb import set_log_level
 from pyriemann.estimation import Shrinkage, XdawnCovariances
@@ -26,13 +28,6 @@ from pyriemann_qiskit.pipelines import (
     QuantumMDMWithRiemannianPipeline,
 )
 from pyriemann_qiskit.utils import distance, mean  # noqa
-from sklearn.decomposition import PCA
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from sklearn.pipeline import make_pipeline
-from lb_base import run
-import random
-import qiskit_algorithms
-
 
 print(__doc__)
 
