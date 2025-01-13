@@ -13,6 +13,7 @@ to run on Ci with each PRs.
 
 import random
 import warnings
+import numpy as np
 
 import qiskit_algorithms
 from lb_base import run
@@ -34,6 +35,7 @@ print(__doc__)
 ##############################################################################
 # Set random seeds
 
+seed = 42
 random.seed(seed)
 np.random.seed(seed)
 qiskit_algorithms.utils.algorithm_globals.random_seed
