@@ -60,14 +60,14 @@ set_log_level("info")
 pipelines = {}
 
 pipelines["RG_QSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=100,
+    shots=1024,
     nfilter=2,
     dim_red=PCA(n_components=5),
-    params={"seed": 42, "use_fidelity_state_vector_kernel": True},
+    params={"seed": seed, "use_fidelity_state_vector_kernel": True},
 )
 
 pipelines["RG_VQC"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=100, spsa_trials=1, two_local_reps=2, params={"seed": 42}
+    shots=100, spsa_trials=1, two_local_reps=2, params={"seed": seed}
 )
 
 pipelines["QMDM_mean"] = QuantumMDMWithRiemannianPipeline(
@@ -81,7 +81,7 @@ pipelines["QMDM_mean"] = QuantumMDMWithRiemannianPipeline(
 pipelines["QMDM_dist"] = QuantumMDMWithRiemannianPipeline(
     metric={"mean": "logeuclid", "distance": "qlogeuclid_hull"},
     quantum=True,
-    seed=42,
+    seed=seed,
     shots=100,
 )
 
