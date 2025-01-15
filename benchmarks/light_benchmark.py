@@ -11,8 +11,11 @@ to run on Ci with each PRs.
 # Modified from plot_classify_P300_bi.py of pyRiemann
 # License: BSD (3-clause)
 
+import random
 import warnings
 
+import numpy as np
+import qiskit_algorithms
 from lb_base import run
 from moabb import set_log_level
 from pyriemann.estimation import Shrinkage, XdawnCovariances
@@ -28,6 +31,14 @@ from pyriemann_qiskit.pipelines import (
 from pyriemann_qiskit.utils import distance, mean  # noqa
 
 print(__doc__)
+
+##############################################################################
+# Set random seeds
+
+seed = 42
+random.seed(seed)
+np.random.seed(seed)
+qiskit_algorithms.utils.algorithm_globals.random_seed
 
 ##############################################################################
 # getting rid of the warnings about the future
@@ -49,14 +60,14 @@ set_log_level("info")
 pipelines = {}
 
 pipelines["RG_QSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=100,
+    shots=1024,
     nfilter=2,
     dim_red=PCA(n_components=5),
-    params={"seed": 42, "use_fidelity_state_vector_kernel": True},
+    params={"seed": seed, "use_fidelity_state_vector_kernel": True},
 )
 
 pipelines["RG_VQC"] = QuantumClassifierWithDefaultRiemannianPipeline(
-    shots=100, spsa_trials=1, two_local_reps=2, params={"seed": 42}
+    shots=100, spsa_trials=1, two_local_reps=2, params={"seed": seed}
 )
 
 pipelines["QMDM_mean"] = QuantumMDMWithRiemannianPipeline(
@@ -70,7 +81,7 @@ pipelines["QMDM_mean"] = QuantumMDMWithRiemannianPipeline(
 pipelines["QMDM_dist"] = QuantumMDMWithRiemannianPipeline(
     metric={"mean": "logeuclid", "distance": "qlogeuclid_hull"},
     quantum=True,
-    seed=42,
+    seed=seed,
     shots=100,
 )
 
