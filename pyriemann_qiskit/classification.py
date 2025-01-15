@@ -655,7 +655,7 @@ def _get_docplex_optimizer_from_params_bag(
                 optimizer=qaoa_optimizer,
             )
     else:
-        logger._log("Using ClassicalOptimizer (COBYLA)")
+        logger._log(f"Using ClassicalOptimizer ({type(classical_optimizer).__name__})")
         return ClassicalOptimizer(classical_optimizer)
 
 
