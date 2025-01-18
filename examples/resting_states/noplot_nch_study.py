@@ -4,10 +4,10 @@ Classification of P300 datasets from MOABB using NCH
 ====================================================================
 
 Comparison of NCH with different optimization methods,
-in a "hard" dataset (classical methods don't provide results)
+in a "hard" dataset (classical methods don't provide results).
 
 """
-# Author: Gregoire Cattan
+# Author: Gregoire Cattan, Quentin Barthelemy
 # Modified from noplot_classify_P300_nch.py
 # License: BSD (3-clause)
 
