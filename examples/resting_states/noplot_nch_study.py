@@ -57,12 +57,6 @@ qiskit_algorithms.utils.algorithm_globals.random_seed
 #
 # Pipelines must be a dict of sklearn pipeline transformer.
 
-##############################################################################
-# We have to do this because the classes are called 'Target' and 'NonTarget'
-# but the evaluation function uses a LabelEncoder, transforming them
-# to 0 and 1
-labels_dict = {"Target": 1, "NonTarget": 0}
-
 events = ["on", "off"]
 paradigm = RestingStateToP300Adapter(events=events)
 
