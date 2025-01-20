@@ -49,24 +49,6 @@ set_log_level("info")
 # Pipelines must be a dict of sklearn pipeline transformer.
 
 ##############################################################################
-# We have to do this because the classes are called 'Target' and 'NonTarget'
-# but the evaluation function uses a LabelEncoder, transforming them
-# to 0 and 1
-labels_dict = {"Target": 1, "NonTarget": 0}
-
-events = ["on", "off"]
-paradigm = P300()
-
-datasets = [bi2012()]
-
-for dataset in datasets:
-    dataset.subject_list = dataset.subject_list[0:-1]
-
-overwrite = True  # set to True if we want to overwrite cached results
-
-pipelines = {}
-
-##############################################################################
 # Set seed
 
 seed = 475751
@@ -74,7 +56,6 @@ seed = 475751
 random.seed(seed)
 np.random.seed(seed)
 qiskit_algorithms.utils.algorithm_globals.random_seed
-
 
 ##############################################################################
 # Set NCH strategy
@@ -85,6 +66,23 @@ pipe_name = strategy.upper()
 max_hull_per_class = 1 if strategy == "min" else 6
 max_samples_per_hull = 15 if strategy == "min" else 25
 samples_step = 1 if strategy == "min" else 5
+max_subjects = -1 if strategy == "min" else 5
+
+##############################################################################
+# Extract dataset data
+
+events = ["on", "off"]
+paradigm = P300()
+
+datasets = [bi2012()]
+
+for dataset in datasets:
+    dataset.subject_list = dataset.subject_list[0:max_subjects]
+
+overwrite = True  # set to True if we want to overwrite cached results
+
+pipelines = {}
+
 
 ##############################################################################
 # Define spatial filtering
@@ -96,7 +94,8 @@ sf = make_pipeline(XdawnCovariances())
 
 for n_hulls_per_class in range(1, max_hull_per_class + 1, 1):
     for n_samples_per_hull in range(1, max_samples_per_hull + 1, samples_step):
-        key = f"NCH+{pipe_name}_HULL_{n_hulls_per_class}h_{n_samples_per_hull}samples"
+        key = \
+            f"NCH+{pipe_name}_HULL_{n_hulls_per_class}h_{n_samples_per_hull}samples"
         print(key)
         pipelines[key] = make_pipeline(
             sf,
