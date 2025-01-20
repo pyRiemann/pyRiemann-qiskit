@@ -226,6 +226,6 @@ sns.pointplot(
 )
 
 ax.set_ylabel("ROC AUC")
-ax.set_ylim(0.3, 0.75)
+ax.set_ylim(0.35, 0.7)
 plt.xticks(rotation=45)
 plt.show()
