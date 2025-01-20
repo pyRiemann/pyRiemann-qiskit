@@ -94,7 +94,9 @@ sf = make_pipeline(XdawnCovariances())
 
 for n_hulls_per_class in range(1, max_hull_per_class + 1, 1):
     for n_samples_per_hull in range(1, max_samples_per_hull + 1, samples_step):
-        key = f"NCH+{strategy.upper()}_HULL_{n_hulls_per_class}h_{n_samples_per_hull}samples"
+        pipe_name = strategy.upper()
+        key = \
+            f"NCH+{pipe_name}_HULL_{n_hulls_per_class}h_{n_samples_per_hull}samples"
         print(key)
         pipelines[key] = make_pipeline(
             sf,
