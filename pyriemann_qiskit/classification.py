@@ -867,7 +867,8 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         The number of hulls used per class, when subsampling is "random".
     n_samples_per_hull : int, default=15
         Defines how many samples are used to build a hull. -1 will include
-        all samples per class.
+        all samples per class. If subsampling is "full", this
+        parameter is defaulted to -1.
     subsampling : {"min", "random", "full"}, default="min"
         Subsampling strategy of training set to estimate distance to hulls.
         "min" estimates hull using the n_samples_per_hull closest matrices.
@@ -903,7 +904,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
 
         if subsampling not in ["min", "random", "full"]:
             raise ValueError(f"Unknown subsampling type {subsampling}.")
-
+        
         if subsampling == "full":
             # From code perspective, "full" strategy is the same as min strategy
             # without sorting
