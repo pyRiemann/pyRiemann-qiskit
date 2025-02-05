@@ -14,7 +14,6 @@ We used the dataset bi2012 for this study.
 # License: BSD (3-clause)
 
 import random
-# import warnings
 
 import numpy as np
 import qiskit_algorithms
@@ -30,6 +29,10 @@ from pyriemann.estimation import XdawnCovariances
 from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import QuanticNCH
+
+# import warnings
+
+
 
 print(__doc__)
 

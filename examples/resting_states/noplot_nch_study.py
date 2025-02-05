@@ -12,7 +12,6 @@ in a "hard" dataset (classical methods don't provide results).
 # License: BSD (3-clause)
 
 import random
-# import warnings
 
 import numpy as np
 import qiskit_algorithms
@@ -31,6 +30,10 @@ from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import QuanticNCH
 from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_rotational_X_gates
+
+# import warnings
+
+
 
 print(__doc__)
 
