@@ -33,7 +33,6 @@ from pyriemann_qiskit.classification import QuanticNCH
 # import warnings
 
 
-
 print(__doc__)
 
 ##############################################################################

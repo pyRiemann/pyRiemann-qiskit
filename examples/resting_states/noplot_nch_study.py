@@ -34,7 +34,6 @@ from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_rotational_
 # import warnings
 
 
-
 print(__doc__)
 
 ##############################################################################

@@ -55,7 +55,6 @@ from pyriemann_qiskit.utils.preprocessing import NdRobustScaler
 # import warnings
 
 
-
 print(__doc__)
 
 

@@ -35,7 +35,6 @@ from pyriemann_qiskit.utils.preprocessing import Devectorizer, Vectorizer
 # import warnings
 
 
-
 print(__doc__)
 
 ##############################################################################
