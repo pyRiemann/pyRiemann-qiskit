@@ -868,10 +868,11 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
     n_samples_per_hull : int, default=15
         Defines how many samples are used to build a hull. -1 will include
         all samples per class.
-    subsampling : {"min", "random"}, default="min"
+    subsampling : {"min", "random", "full"}, default="min"
         Subsampling strategy of training set to estimate distance to hulls.
         "min" estimates hull using the n_samples_per_hull closest matrices.
         "random" estimates hull using n_samples_per_hull random matrices.
+        "full" computes the hull on the entire training points, as in [1]_.
     seed : float, default=None
         Optional random seed to use when subsampling is set to `random`.
 
@@ -900,8 +901,13 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         self.subsampling = subsampling
         self.seed = seed
 
-        if subsampling not in ["min", "random"]:
+        if subsampling not in ["min", "random", "full"]:
             raise ValueError(f"Unknown subsampling type {subsampling}.")
+        
+        if subsampling == "full":
+            # From code perspective, "full" strategy is the same as min strategy
+            # without sorting
+            self.n_samples_per_hull = -1
 
     def fit(self, X, y):
         """Fit (store the training data).
@@ -996,7 +1002,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         if self.debug:
             print("Total test samples:", X.shape[0])
 
-        if self.subsampling == "min":
+        if self.subsampling == "min" or self.subsampling == "full":
             self._process_sample = self._process_sample_min_hull
         elif self.subsampling == "random":
             self._process_sample = self._process_sample_random_hull
