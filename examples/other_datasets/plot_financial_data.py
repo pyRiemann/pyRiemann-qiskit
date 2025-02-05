@@ -31,7 +31,7 @@ with quantum computing.
 # License: BSD (3-clause)
 
 import os
-import warnings
+# import warnings
 
 import numpy as np
 import pandas as pd

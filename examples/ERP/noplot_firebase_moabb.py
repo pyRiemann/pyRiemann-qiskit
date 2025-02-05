@@ -23,7 +23,7 @@ A list of real quantum  computers is available in your IBM quantum account.
 # Modified from plot_classify_P300_bi.py
 # License: BSD (3-clause)
 
-import warnings
+# import warnings
 
 import seaborn as sns
 from matplotlib import pyplot as plt

@@ -11,7 +11,7 @@ Different pipelines (quantum and classical) are benchmarked.
 # Author: Gregoire Cattan
 # License: BSD (3-clause)
 
-import warnings
+# import warnings
 from enum import Enum
 
 import numpy as np

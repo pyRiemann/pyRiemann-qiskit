@@ -12,7 +12,7 @@ in a "hard" dataset (classical methods don't provide results).
 # License: BSD (3-clause)
 
 import random
-import warnings
+# import warnings
 
 import numpy as np
 import qiskit_algorithms

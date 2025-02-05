@@ -15,7 +15,7 @@ This is experimental and should be used for research purpose only.
 # License: BSD (3-clause)
 
 import logging
-import warnings
+# import warnings
 
 import seaborn as sns
 from matplotlib import pyplot as plt

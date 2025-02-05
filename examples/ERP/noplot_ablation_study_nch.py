@@ -14,7 +14,7 @@ We used the dataset bi2012 for this study.
 # License: BSD (3-clause)
 
 import random
-import warnings
+# import warnings
 
 import numpy as np
 import qiskit_algorithms

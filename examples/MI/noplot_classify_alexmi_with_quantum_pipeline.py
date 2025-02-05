@@ -12,7 +12,7 @@ pip install moabb==0.5.0
 # Modified from ERP/classify_P300_bi_quantum_mdm.py
 # License: BSD (3-clause)
 
-import warnings
+# import warnings
 
 import seaborn as sns
 from matplotlib import pyplot as plt

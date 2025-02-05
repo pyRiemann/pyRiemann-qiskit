@@ -10,7 +10,7 @@ to plot the distances between the classes.
 # Author: Gregoire Cattan
 # License: BSD (3-clause)
 
-import warnings
+# import warnings
 
 from matplotlib import pyplot as plt
 from moabb import set_log_level
