@@ -36,10 +36,10 @@ print(__doc__)
 
 ##############################################################################
 # getting rid of the warnings about the future
-warnings.simplefilter(action="ignore", category=FutureWarning)
-warnings.simplefilter(action="ignore", category=RuntimeWarning)
+# warnings.simplefilter(action="ignore", category=FutureWarning)
+# warnings.simplefilter(action="ignore", category=RuntimeWarning)
 
-warnings.filterwarnings("ignore")
+# warnings.filterwarnings("ignore")
 
 set_log_level("info")
 
