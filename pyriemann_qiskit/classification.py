@@ -903,7 +903,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
 
         if subsampling not in ["min", "random", "full"]:
             raise ValueError(f"Unknown subsampling type {subsampling}.")
-        
+
         if subsampling == "full":
             # From code perspective, "full" strategy is the same as min strategy
             # without sorting
