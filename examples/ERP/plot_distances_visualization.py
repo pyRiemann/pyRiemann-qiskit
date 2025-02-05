@@ -10,7 +10,7 @@ to plot the distances between the classes.
 # Author: Gregoire Cattan
 # License: BSD (3-clause)
 
-import warnings
+# import warnings
 
 from matplotlib import pyplot as plt
 from moabb import set_log_level
@@ -30,10 +30,10 @@ print(__doc__)
 
 ##############################################################################
 # getting rid of the warnings about the future
-warnings.simplefilter(action="ignore", category=FutureWarning)
-warnings.simplefilter(action="ignore", category=RuntimeWarning)
+# warnings.simplefilter(action="ignore", category=FutureWarning)
+# warnings.simplefilter(action="ignore", category=RuntimeWarning)
 
-warnings.filterwarnings("ignore")
+# warnings.filterwarnings("ignore")
 
 set_log_level("info")
 

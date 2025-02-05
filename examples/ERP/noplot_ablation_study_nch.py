@@ -14,7 +14,6 @@ We used the dataset bi2012 for this study.
 # License: BSD (3-clause)
 
 import random
-import warnings
 
 import numpy as np
 import qiskit_algorithms
@@ -31,14 +30,17 @@ from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import QuanticNCH
 
+# import warnings
+
+
 print(__doc__)
 
 ##############################################################################
 # getting rid of the warnings about the future
-warnings.simplefilter(action="ignore", category=FutureWarning)
-warnings.simplefilter(action="ignore", category=RuntimeWarning)
+# warnings.simplefilter(action="ignore", category=FutureWarning)
+# warnings.simplefilter(action="ignore", category=RuntimeWarning)
 
-warnings.filterwarnings("ignore")
+# warnings.filterwarnings("ignore")
 
 set_log_level("info")
 

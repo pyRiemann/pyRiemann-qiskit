@@ -15,7 +15,6 @@ This is experimental and should be used for research purpose only.
 # License: BSD (3-clause)
 
 import logging
-import warnings
 
 import seaborn as sns
 from matplotlib import pyplot as plt
@@ -33,15 +32,18 @@ from pyriemann_qiskit.autoencoders import BasicQnnAutoencoder
 from pyriemann_qiskit.utils.filtering import ChannelSelection
 from pyriemann_qiskit.utils.preprocessing import Devectorizer, Vectorizer
 
+# import warnings
+
+
 print(__doc__)
 
 ##############################################################################
 # getting rid of the warnings about the future
 
-warnings.simplefilter(action="ignore", category=FutureWarning)
-warnings.simplefilter(action="ignore", category=RuntimeWarning)
+# warnings.simplefilter(action="ignore", category=FutureWarning)
+# warnings.simplefilter(action="ignore", category=RuntimeWarning)
 
-warnings.filterwarnings("ignore")
+# warnings.filterwarnings("ignore")
 
 set_log_level("info")
 

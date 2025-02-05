@@ -23,7 +23,7 @@ A list of real quantum  computers is available in your IBM quantum account.
 # Modified from plot_classify_P300_bi.py
 # License: BSD (3-clause)
 
-import warnings
+# import warnings
 
 import seaborn as sns
 from matplotlib import pyplot as plt
@@ -49,10 +49,10 @@ print(__doc__)
 
 ##############################################################################
 # getting rid of the warnings about the future
-warnings.simplefilter(action="ignore", category=FutureWarning)
-warnings.simplefilter(action="ignore", category=RuntimeWarning)
+# warnings.simplefilter(action="ignore", category=FutureWarning)
+# warnings.simplefilter(action="ignore", category=RuntimeWarning)
 
-warnings.filterwarnings("ignore")
+# warnings.filterwarnings("ignore")
 
 set_log_level("info")
 

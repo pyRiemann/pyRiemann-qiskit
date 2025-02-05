@@ -31,7 +31,6 @@ with quantum computing.
 # License: BSD (3-clause)
 
 import os
-import warnings
 
 import numpy as np
 import pandas as pd
@@ -53,15 +52,18 @@ from pyriemann_qiskit.classification import QuanticSVM
 from pyriemann_qiskit.utils.hyper_params_factory import gen_zz_feature_map
 from pyriemann_qiskit.utils.preprocessing import NdRobustScaler
 
+# import warnings
+
+
 print(__doc__)
 
 
 ###############################################################################
 
 # getting rid of the warnings about the future
-warnings.simplefilter(action="ignore", category=FutureWarning)
-warnings.simplefilter(action="ignore", category=RuntimeWarning)
-warnings.filterwarnings("ignore")
+# warnings.simplefilter(action="ignore", category=FutureWarning)
+# warnings.simplefilter(action="ignore", category=RuntimeWarning)
+# warnings.filterwarnings("ignore")
 
 
 ###############################################################################
