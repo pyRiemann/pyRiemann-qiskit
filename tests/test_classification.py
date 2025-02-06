@@ -61,6 +61,27 @@ def test_qsvm_init(quantum):
     assert not hasattr(q, "_provider")
 
 
+def test_nch_init_full():
+    """Test init of NCH classifier with `full` subsampling"""
+
+    q = QuanticNCH(subsampling="full").fit(X=np.array([[0], [1]]), y=np.array([0, 1]))
+    clf = q._classifier
+
+    assert type(clf).__name__ == "NearestConvexHull"
+
+    # Check "full" subsampling takes all training samples.
+    assert clf.n_samples_per_hull == -1
+
+    # Check it calls the "min" strategy on prediction.
+    def mocked_process_sample_min_hull(*args):
+        raise ValueError("Min strategy called")
+
+    clf._process_sample_min_hull = mocked_process_sample_min_hull
+
+    with pytest.raises(ValueError):
+        clf._predict_distances(X=[0])
+
+
 class TestQSVMSplitClasses(BinaryTest):
     """Test _split_classes method of quantum classifiers"""
 
