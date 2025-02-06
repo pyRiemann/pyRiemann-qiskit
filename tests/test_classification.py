@@ -60,6 +60,7 @@ def test_qsvm_init(quantum):
     # A provider is only assigned when running on a real quantum backend
     assert not hasattr(q, "_provider")
 
+
 def test_nch_init_full():
     """Test init of NCH classifier with `full` subsampling"""
 
@@ -79,7 +80,6 @@ def test_nch_init_full():
 
     with pytest.raises(ValueError):
         clf._predict_distances(X=[0])
-
 
 
 class TestQSVMSplitClasses(BinaryTest):
