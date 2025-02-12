@@ -5,6 +5,16 @@
 What's new in the package
 =========================
 
+
+
+Develop branch
+----------------
+
+- Fix :class:`pyriemann_qiskit.utils.filtering.ChannelSelection` that caused incorrect channel selection
+
+
+
+
 v0.4.0
 ------
 
