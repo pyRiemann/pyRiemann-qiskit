@@ -139,13 +139,6 @@ class ChannelSelection(TransformerMixin):
         self.n_channels = n_channels
         self.cov_est = cov_est
 
-    @staticmethod
-    def _get_indices(maxes, mean_cov):
-        indices = []
-        for v in maxes:
-            indices.extend(np.argwhere(mean_cov == v).flatten())
-        return np.unique(indices)
-
     def fit(self, X, y=None, **kwargs):
         """Select channel based on covariances
 
@@ -166,19 +159,10 @@ class ChannelSelection(TransformerMixin):
         covs = Covariances(estimator=self.cov_est).fit_transform(X)
         # Get the average covariance between the channels.
         mean_cov = np.mean(covs, axis=0)
-        n_feats, _ = mean_cov.shape
         # Select the `n_channels` channels having the maximum covariances.
-        all_max = []
-        for i in range(n_feats):
-            for j in range(i, n_feats):
-                self._chs_idx = ChannelSelection._get_indices(all_max, mean_cov)
-
-                if len(self._chs_idx) < self.n_channels:
-                    all_max.append(mean_cov[i, j])
-                else:
-                    if mean_cov[i, j] > max(all_max):
-                        all_max[np.argmin(all_max)] = mean_cov[i, j]
-
+        self._chs_idx = np.argpartition(
+            np.max(mean_cov, axis=0), -self.n_channels, axis=None
+        )[-self.n_channels :]
         return self
 
     def transform(self, X, **kwargs):
