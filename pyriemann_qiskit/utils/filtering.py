@@ -167,7 +167,9 @@ class ChannelSelection(TransformerMixin):
         # Get the average covariance between the channels.
         mean_cov = np.mean(covs, axis=0)
         # Select the `n_channels` channels having the maximum covariances.
-        self._chs_idx = np.argpartition(np.max(mean_cov, axis = 0), -self.n_channels, axis=None)[-self.n_channels:]
+        self._chs_idx = np.argpartition(
+            np.max(mean_cov, axis=0), -self.n_channels, axis=None
+        )[-self.n_channels :]
         return self
 
     def transform(self, X, **kwargs):
