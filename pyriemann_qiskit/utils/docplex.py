@@ -480,11 +480,13 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     pyQiskitOptimizer
     """
 
-    def __init__(self,
-                 upper_bound=7,
-                 quantum_instance=None,
-                 optimizer=SLSQP(),
-                 initial_points=[0.0, 0.0]):
+    def __init__(
+        self,
+        upper_bound=7,
+        quantum_instance=None,
+        optimizer=SLSQP(),
+        initial_points=[0.0, 0.0],
+    ):
         pyQiskitOptimizer.__init__(self)
         self.upper_bound = upper_bound
         self.quantum_instance = quantum_instance
