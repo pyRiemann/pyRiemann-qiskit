@@ -762,7 +762,7 @@ class QuanticMDM(QuanticClassifierBase):
         qaoa_optimizer=SLSQP(),
         create_mixer=None,
         n_reps=3,
-        qaoa_initial_points=[0.0, 0.0]
+        qaoa_initial_points=[0.0, 0.0],
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -1170,7 +1170,7 @@ class QuanticNCH(QuanticClassifierBase):
         qaoa_optimizer=SLSQP(),
         create_mixer=None,
         n_reps=3,
-        qaoa_initial_points=[0.0, 0.0]
+        qaoa_initial_points=[0.0, 0.0],
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
