@@ -637,6 +637,7 @@ def _get_docplex_optimizer_from_params_bag(
     classical_optimizer,
     create_mixer,
     n_reps,
+    qaoa_initial_points,
 ):
     if quantum:
         if create_mixer:
@@ -653,6 +654,7 @@ def _get_docplex_optimizer_from_params_bag(
                 quantum_instance=quantum_instance,
                 upper_bound=upper_bound,
                 optimizer=qaoa_optimizer,
+                initial_points=qaoa_initial_points,
             )
     else:
         logger._log(f"Using ClassicalOptimizer ({type(classical_optimizer).__name__})")
@@ -815,6 +817,7 @@ class QuanticMDM(QuanticClassifierBase):
             self.classical_optimizer,
             self.create_mixer,
             self.n_reps,
+            self.qaoa_initial_points,
         )
         set_global_optimizer(self._optimizer)
         return classifier
@@ -1200,6 +1203,7 @@ class QuanticNCH(QuanticClassifierBase):
             self.classical_optimizer,
             self.create_mixer,
             self.n_reps,
+            self.qaoa_initial_points
         )
 
         # sets the optimizer for the distance functions
