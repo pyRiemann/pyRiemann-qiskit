@@ -1203,7 +1203,7 @@ class QuanticNCH(QuanticClassifierBase):
             self.classical_optimizer,
             self.create_mixer,
             self.n_reps,
-            self.qaoa_initial_points
+            self.qaoa_initial_points,
         )
 
         # sets the optimizer for the distance functions
