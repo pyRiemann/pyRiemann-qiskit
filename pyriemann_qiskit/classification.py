@@ -762,6 +762,7 @@ class QuanticMDM(QuanticClassifierBase):
         qaoa_optimizer=SLSQP(),
         create_mixer=None,
         n_reps=3,
+        qaoa_initial_points=[0.0, 0.0]
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -773,6 +774,7 @@ class QuanticMDM(QuanticClassifierBase):
         self.qaoa_optimizer = qaoa_optimizer
         self.create_mixer = create_mixer
         self.n_reps = n_reps
+        self.qaoa_initial_points = qaoa_initial_points
 
     @staticmethod
     def _override_predict_distance(mdm):
@@ -1168,6 +1170,7 @@ class QuanticNCH(QuanticClassifierBase):
         qaoa_optimizer=SLSQP(),
         create_mixer=None,
         n_reps=3,
+        qaoa_initial_points=[0.0, 0.0]
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -1182,6 +1185,7 @@ class QuanticNCH(QuanticClassifierBase):
         self.qaoa_optimizer = qaoa_optimizer
         self.create_mixer = create_mixer
         self.n_reps = n_reps
+        self.qaoa_initial_points = qaoa_initial_points
 
     def _init_algo(self, n_features):
         self._log("Nearest Convex Hull Classifier initiating algorithm")
