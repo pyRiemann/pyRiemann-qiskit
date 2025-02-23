@@ -683,6 +683,8 @@ class QuanticMDM(QuanticClassifierBase):
         Add qaoa_optimizer parameter.
     .. versionchanged:: 0.4.0
         Add QAOA-CV optimization.
+    .. versionchanged:: 0.4.1
+        Add qaoa_initial_points parameter.
 
     Parameters
     ----------
@@ -726,6 +728,8 @@ class QuanticMDM(QuanticClassifierBase):
     n_reps : int, default=3
         The number of time the mixer and cost operator are repeated in the QAOA-CV
         circuit.
+    qaoa_initial_points: Tuple[int, int], default [0.0, 0.0].
+        Starting parameters (beta and gamma) for the NaiveQAOAOptimizer.
 
     See Also
     --------
@@ -1098,6 +1102,8 @@ class QuanticNCH(QuanticClassifierBase):
         Add qaoa_optimizer parameter.
     .. versionchanged:: 0.4.0
         Add QAOA-CV optimization.
+    .. versionchanged:: 0.4.1
+        Add the qaoa_initial_points parameter.
 
     Parameters
     ----------
@@ -1146,6 +1152,8 @@ class QuanticNCH(QuanticClassifierBase):
     n_reps : int, default=3
         The number of time the mixer and cost operator are repeated in the QAOA-CV
         circuit.
+    qaoa_initial_points: Tuple[int, int], default [0.0, 0.0].
+        Starting parameters (beta and gamma) for the NaiveQAOAOptimizer.
 
     References
     ----------
