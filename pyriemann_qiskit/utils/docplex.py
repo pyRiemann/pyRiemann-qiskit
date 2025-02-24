@@ -459,8 +459,9 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     optimizer : SciPyOptimizer, default=SLSQP()
         An instance of a scipy optimizer to find the optimal weights for the
         parametric circuit (ansatz).
-    initial_points: Tuple[int, int], default [0.0, 0.0].
+    initial_points : Tuple[int, int], default=[0.0, 0.0].
         Starting parameters (beta and gamma) for the QAOA.
+
     Notes
     -----
     .. versionadded:: 0.0.2
