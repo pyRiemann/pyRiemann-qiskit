@@ -21,9 +21,7 @@ from sklearn.svm import SVC
 
 from ..datasets import get_feature_dimension
 from ..utils.distance import distance_functions
-from ..utils.docplex import (
-    set_global_optimizer,
-)
+from ..utils.docplex import set_global_optimizer
 from ..utils.hyper_params_factory import gen_two_local, gen_zz_feature_map, get_spsa
 from ..utils.quantum_provider import (
     get_device,

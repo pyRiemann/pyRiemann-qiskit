@@ -13,12 +13,10 @@ from pyriemann.utils.distance import distance
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 
 from ..utils.distance import qdistance_logeuclid_to_convex_hull
-from ..utils.docplex import (
-    get_global_optimizer,
-    set_global_optimizer,
-)
+from ..utils.docplex import get_global_optimizer, set_global_optimizer
 
 logging.basicConfig(level=logging.WARNING)
+
 
 class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
 
@@ -79,7 +77,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
 
         if subsampling not in ["min", "random", "full"]:
             raise ValueError(f"Unknown subsampling type {subsampling}.")
-        
+
         if subsampling == "full":
             # From code perspective, "full" strategy is the same as min strategy
             # without sorting

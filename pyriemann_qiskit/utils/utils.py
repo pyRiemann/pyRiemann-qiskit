@@ -1,4 +1,9 @@
-from pyriemann_qiskit.utils.docplex import ClassicalOptimizer, NaiveQAOAOptimizer, QAOACVOptimizer
+from pyriemann_qiskit.utils.docplex import (
+    ClassicalOptimizer,
+    NaiveQAOAOptimizer,
+    QAOACVOptimizer,
+)
+
 from .distance import distance_functions
 from .mean import mean_functions
 
@@ -28,6 +33,7 @@ def is_qfunction(string):
         (string in mean_functions) or (string in distance_functions)
     )
 
+
 def _get_docplex_optimizer_from_params_bag(
     logger,
     quantum,
@@ -53,7 +59,7 @@ def _get_docplex_optimizer_from_params_bag(
                 quantum_instance=quantum_instance,
                 upper_bound=upper_bound,
                 optimizer=qaoa_optimizer,
-                initial_points=initi
+                initial_points=initi,
             )
     else:
         logger._log(f"Using ClassicalOptimizer ({type(classical_optimizer).__name__})")
