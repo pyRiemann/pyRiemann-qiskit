@@ -10,6 +10,7 @@ from warnings import warn
 
 import numpy as np
 from pyriemann.classification import MDM
+from pyriemann_qiskit.classification.algorithms import NearestConvexHull
 from qiskit.primitives import BackendSampler
 from qiskit_algorithms.optimizers import SLSQP
 from qiskit_ibm_runtime import QiskitRuntimeService
