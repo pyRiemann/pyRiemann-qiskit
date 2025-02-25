@@ -34,7 +34,7 @@ def is_qfunction(string):
     )
 
 
-def _get_docplex_optimizer_from_params_bag(
+def get_docplex_optimizer_from_params_bag(
     logger,
     quantum,
     quantum_instance,
