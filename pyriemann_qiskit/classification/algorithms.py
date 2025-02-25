@@ -94,8 +94,6 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
             Set of SPD matrices.
         y : ndarray, shape (n_matrices,)
             Labels for each matrix.
-        sample_weight : None
-            Not used, here for compatibility with sklearn API.
 
         Returns
         -------
