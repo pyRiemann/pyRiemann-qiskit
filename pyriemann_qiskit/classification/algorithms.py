@@ -43,10 +43,11 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         Defines how many samples are used to build a hull. -1 will include
         all samples per class.
     subsampling : {"min", "random", "full"}, default="min"
-        Subsampling strategy of training set to estimate distance to hulls.
-        "min" estimates hull using the n_samples_per_hull closest matrices.
-        "random" estimates hull using n_samples_per_hull random matrices.
-        "full" computes the hull on the entire training points, as in [1]_.
+        Subsampling strategy of training set to estimate distance to hulls:
+
+        - "full" computes the hull on the entire training matrices, as in [1]_;
+        - "min" estimates hull using the n_samples_per_hull closest matrices;
+        - "random" estimates hull using n_samples_per_hull random matrices.
     seed : float, default=None
         Optional random seed to use when subsampling is set to `random`.
 
