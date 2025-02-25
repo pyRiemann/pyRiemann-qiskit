@@ -118,7 +118,7 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
             print("End NCH Train")
 
     def _process_sample_min_hull(self, x):
-        """Finds the closes N covmats and uses them to build a single hull per class"""
+        """Finds the closest matrices and uses them to build a single hull per class"""
         dists = []
 
         for c in self.classes_:
