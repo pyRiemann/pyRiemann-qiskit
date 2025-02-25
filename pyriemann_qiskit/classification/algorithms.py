@@ -50,7 +50,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
         - "min" estimates hull using the n_samples_per_hull closest matrices;
         - "random" estimates hull using n_samples_per_hull random matrices.
     seed : float, default=None
-        Optional random seed to use when subsampling is set to `random`.
+        Optional random seed to use when subsampling is set to "random".
 
     References
     ----------
