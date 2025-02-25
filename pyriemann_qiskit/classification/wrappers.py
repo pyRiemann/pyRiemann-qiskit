@@ -774,7 +774,7 @@ class QuanticMDM(QuanticClassifierBase):
         classifier._predict_distances = QuanticMDM._override_predict_distance(
             classifier
         )
-        self._optimizer = _get_docplex_optimizer_from_params_bag(
+        self._optimizer = get_docplex_optimizer_from_params_bag(
             self,
             self.quantum,
             self._quantum_instance if self.quantum else None,
@@ -930,7 +930,7 @@ class QuanticNCH(QuanticClassifierBase):
             seed=self.seed,
         )
 
-        self._optimizer = _get_docplex_optimizer_from_params_bag(
+        self._optimizer = get_docplex_optimizer_from_params_bag(
             self,
             self.quantum,
             self._quantum_instance if self.quantum else None,
