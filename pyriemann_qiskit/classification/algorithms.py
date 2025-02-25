@@ -54,9 +54,9 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
 
     References
     ----------
-    .. [1] \
+    .. [1] `Convex Class Model on Symmetric Positive Definite Manifolds
+        <https://arxiv.org/pdf/1806.05343>`_
         K. Zhao, A. Wiliem, S. Chen, and B. C. Lovell,
-        ‘Convex Class Model on Symmetric Positive Definite Manifolds’,
         Image and Vision Computing, 2019.
     """
 
