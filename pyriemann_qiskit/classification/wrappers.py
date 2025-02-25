@@ -10,7 +10,6 @@ from warnings import warn
 
 import numpy as np
 from pyriemann.classification import MDM
-from pyriemann_qiskit.classification.algorithms import NearestConvexHull
 from qiskit.primitives import BackendSampler
 from qiskit_algorithms.optimizers import SLSQP
 from qiskit_ibm_runtime import QiskitRuntimeService
@@ -19,6 +18,8 @@ from qiskit_optimization.algorithms import CobylaOptimizer, SlsqpOptimizer
 from scipy.special import softmax
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.svm import SVC
+
+from pyriemann_qiskit.classification.algorithms import NearestConvexHull
 
 from ..datasets import get_feature_dimension
 from ..utils.distance import distance_functions
