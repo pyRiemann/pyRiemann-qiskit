@@ -18,7 +18,7 @@ from ..utils.docplex import get_global_optimizer, set_global_optimizer
 logging.basicConfig(level=logging.WARNING)
 
 
-class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
+class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
 
     """Nearest Convex Hull Classifier (NCH)
 
