@@ -73,7 +73,6 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         self.n_samples_per_hull = n_samples_per_hull
         self.n_hulls_per_class = n_hulls_per_class
         self.matrices_per_class_ = {}
-        self.debug = False
         self.subsampling = subsampling
         self.seed = seed
 
@@ -103,19 +102,11 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
 
         self.random_generator = random.Random(self.seed)
 
-        if self.debug:
-            print("Start NCH Train")
         self.classes_ = np.unique(y)
 
         for c in self.classes_:
             self.matrices_per_class_[c] = X[y == c]
 
-        if self.debug:
-            print("Samples per class:")
-            for c in self.classes_:
-                print("Class: ", c, " Count: ", self.matrices_per_class_[c].shape[0])
-
-            print("End NCH Train")
 
     def _process_sample_min_hull(self, x):
         """Finds the closest matrices and uses them to build a single hull per class"""
@@ -126,19 +117,9 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
             # take the closest matrices
             indexes = np.argsort(dist)[0 : self.n_samples_per_hull]
 
-            if self.debug:
-                print("Distances to test sample: ", dist)
-                print("Smallest N distances indexes:", indexes)
-                print("Smallest N distances: ")
-                for pp in indexes:
-                    print(dist[pp])
-
             d = qdistance_logeuclid_to_convex_hull(
                 self.matrices_per_class_[c][indexes], x
             )
-
-            if self.debug:
-                print("Final hull distance:", d)
 
             dists.append(d)
 
@@ -173,8 +154,6 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         """Helper to predict the distance. Equivalent to transform."""
         dists = []
 
-        if self.debug:
-            print("Total test samples:", X.shape[0])
 
         if self.subsampling == "min" or self.subsampling == "full":
             self._process_sample = self._process_sample_min_hull
@@ -185,11 +164,6 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
 
         parallel = self.n_jobs > 1
 
-        if self.debug:
-            if parallel:
-                print("Running in parallel")
-            else:
-                print("Not running in parallel")
 
         if parallel:
             # Get global optimizer in this process
@@ -224,14 +198,9 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         pred : ndarray of int, shape (n_matrices,)
             Predictions for each matrix according to the closest convex hull.
         """
-        if self.debug:
-            print("Start NCH Predict")
         dist = self._predict_distances(X)
 
         predictions = self.classes_[dist.argmin(axis=1)]
-
-        if self.debug:
-            print("End NCH Predict")
 
         return predictions
 
@@ -249,6 +218,4 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
             The distance to each convex hull.
         """
 
-        if self.debug:
-            print("NCH Transform")
         return self._predict_distances(X)
