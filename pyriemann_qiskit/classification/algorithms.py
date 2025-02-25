@@ -215,6 +215,7 @@ class NearestConvexHull(BaseEstimator, ClassifierMixin, TransformerMixin):
 
     def predict(self, X):
         """Get the predictions.
+
         Parameters
         ----------
         X : ndarray, shape (n_matrices, n_channels, n_channels)
