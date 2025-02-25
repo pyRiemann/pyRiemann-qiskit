@@ -145,7 +145,7 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         return dists
 
     def _process_sample_random_hull(self, x):
-        """Uses random samples to build a hull, can be several hulls per class"""
+        """Uses random matrices to build a hull, can be several hulls per class"""
         dists = []
 
         for c in self.classes_:
