@@ -107,7 +107,6 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         for c in self.classes_:
             self.matrices_per_class_[c] = X[y == c]
 
-
     def _process_sample_min_hull(self, x):
         """Finds the closest matrices and uses them to build a single hull per class"""
         dists = []
@@ -154,7 +153,6 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         """Helper to predict the distance. Equivalent to transform."""
         dists = []
 
-
         if self.subsampling == "min" or self.subsampling == "full":
             self._process_sample = self._process_sample_min_hull
         elif self.subsampling == "random":
@@ -163,7 +161,6 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
             raise ValueError(f"Unknown subsampling type {self.subsampling}.")
 
         parallel = self.n_jobs > 1
-
 
         if parallel:
             # Get global optimizer in this process
