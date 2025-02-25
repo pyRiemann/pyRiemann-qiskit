@@ -459,6 +459,8 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     optimizer : SciPyOptimizer, default=SLSQP()
         An instance of a scipy optimizer to find the optimal weights for the
         parametric circuit (ansatz).
+    initial_points : Tuple[int, int], default=[0.0, 0.0].
+        Starting parameters (beta and gamma) for the QAOA.
 
     Notes
     -----
@@ -479,11 +481,18 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     pyQiskitOptimizer
     """
 
-    def __init__(self, upper_bound=7, quantum_instance=None, optimizer=SLSQP()):
+    def __init__(
+        self,
+        upper_bound=7,
+        quantum_instance=None,
+        optimizer=SLSQP(),
+        initial_points=[0.0, 0.0],
+    ):
         pyQiskitOptimizer.__init__(self)
         self.upper_bound = upper_bound
         self.quantum_instance = quantum_instance
         self.optimizer = optimizer
+        self.initial_points = initial_points
 
     def convert_spdmat(self, X):
         """Convert a SPD matrix
@@ -566,7 +575,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         qaoa_mes = QAOA(
             sampler=quantum_instance,
             optimizer=self.optimizer,
-            initial_point=[0.0, 0.0],
+            initial_point=self.initial_points,
             callback=_callback,
         )
         qaoa = MinimumEigenOptimizer(qaoa_mes)
