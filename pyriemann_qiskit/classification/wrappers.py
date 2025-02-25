@@ -19,8 +19,6 @@ from scipy.special import softmax
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.svm import SVC
 
-
-from .algorithms import NearestConvexHull
 from ..datasets import get_feature_dimension
 from ..utils.distance import distance_functions
 from ..utils.docplex import set_global_optimizer
@@ -32,6 +30,7 @@ from ..utils.quantum_provider import (
     get_simulator,
 )
 from ..utils.utils import get_docplex_optimizer_from_params_bag, is_qfunction
+from .algorithms import NearestConvexHull
 
 logging.basicConfig(level=logging.WARNING)
 
