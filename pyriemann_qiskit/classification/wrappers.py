@@ -643,6 +643,8 @@ class QuanticMDM(QuanticClassifierBase):
         Add qaoa_optimizer parameter.
     .. versionchanged:: 0.4.0
         Add QAOA-CV optimization.
+    .. versionchanged:: 0.4.1
+        Add qaoa_initial_points parameter.
 
     Parameters
     ----------
@@ -686,6 +688,8 @@ class QuanticMDM(QuanticClassifierBase):
     n_reps : int, default=3
         The number of time the mixer and cost operator are repeated in the QAOA-CV
         circuit.
+    qaoa_initial_points : Tuple[int, int], default=[0.0, 0.0].
+        Starting parameters (beta and gamma) for the NaiveQAOAOptimizer.
 
     See Also
     --------
@@ -722,6 +726,7 @@ class QuanticMDM(QuanticClassifierBase):
         qaoa_optimizer=SLSQP(),
         create_mixer=None,
         n_reps=3,
+        qaoa_initial_points=[0.0, 0.0],
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -733,6 +738,7 @@ class QuanticMDM(QuanticClassifierBase):
         self.qaoa_optimizer = qaoa_optimizer
         self.create_mixer = create_mixer
         self.n_reps = n_reps
+        self.qaoa_initial_points = qaoa_initial_points
 
     @staticmethod
     def _override_predict_distance(mdm):
@@ -768,7 +774,7 @@ class QuanticMDM(QuanticClassifierBase):
         classifier._predict_distances = QuanticMDM._override_predict_distance(
             classifier
         )
-        self._optimizer = get_docplex_optimizer_from_params_bag(
+        self._optimizer = _get_docplex_optimizer_from_params_bag(
             self,
             self.quantum,
             self._quantum_instance if self.quantum else None,
@@ -777,6 +783,7 @@ class QuanticMDM(QuanticClassifierBase):
             self.classical_optimizer,
             self.create_mixer,
             self.n_reps,
+            self.qaoa_initial_points,
         )
         set_global_optimizer(self._optimizer)
         return classifier
@@ -819,6 +826,8 @@ class QuanticNCH(QuanticClassifierBase):
         Add qaoa_optimizer parameter.
     .. versionchanged:: 0.4.0
         Add QAOA-CV optimization.
+    .. versionchanged:: 0.4.1
+        Add the qaoa_initial_points parameter.
 
     Parameters
     ----------
@@ -867,6 +876,8 @@ class QuanticNCH(QuanticClassifierBase):
     n_reps : int, default=3
         The number of time the mixer and cost operator are repeated in the QAOA-CV
         circuit.
+    qaoa_initial_points : Tuple[int, int], default=[0.0, 0.0].
+        Starting parameters (beta and gamma) for the NaiveQAOAOptimizer.
 
     References
     ----------
@@ -891,6 +902,7 @@ class QuanticNCH(QuanticClassifierBase):
         qaoa_optimizer=SLSQP(),
         create_mixer=None,
         n_reps=3,
+        qaoa_initial_points=[0.0, 0.0],
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -905,6 +917,7 @@ class QuanticNCH(QuanticClassifierBase):
         self.qaoa_optimizer = qaoa_optimizer
         self.create_mixer = create_mixer
         self.n_reps = n_reps
+        self.qaoa_initial_points = qaoa_initial_points
 
     def _init_algo(self, n_features):
         self._log("Nearest Convex Hull Classifier initiating algorithm")
@@ -917,7 +930,7 @@ class QuanticNCH(QuanticClassifierBase):
             seed=self.seed,
         )
 
-        self._optimizer = get_docplex_optimizer_from_params_bag(
+        self._optimizer = _get_docplex_optimizer_from_params_bag(
             self,
             self.quantum,
             self._quantum_instance if self.quantum else None,
@@ -926,6 +939,7 @@ class QuanticNCH(QuanticClassifierBase):
             self.classical_optimizer,
             self.create_mixer,
             self.n_reps,
+            self.qaoa_initial_points,
         )
 
         # sets the optimizer for the distance functions

@@ -43,6 +43,7 @@ def get_docplex_optimizer_from_params_bag(
     classical_optimizer,
     create_mixer,
     n_reps,
+    qaoa_initial_points,
 ):
     if quantum:
         if create_mixer:
@@ -59,7 +60,7 @@ def get_docplex_optimizer_from_params_bag(
                 quantum_instance=quantum_instance,
                 upper_bound=upper_bound,
                 optimizer=qaoa_optimizer,
-                initial_points=initi,
+                initial_points=qaoa_initial_points,
             )
     else:
         logger._log(f"Using ClassicalOptimizer ({type(classical_optimizer).__name__})")
