@@ -27,6 +27,8 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
     There is no training. Calculating a distance to a hull is an optimization
     problem and it is calculated for each testing SPD matrix and each hull.
     The minimal distance defines the predicted class.
+    
+    Current implementation is available only for log-Euclidean distance.
 
     Notes
     -----
@@ -35,16 +37,17 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
     Parameters
     ----------
     n_jobs : int, default=6
-        The number of jobs to use for the computation. This works by computing
+        Number of jobs to use for the computation. This works by computing
         each of the hulls in parallel.
     n_hulls_per_class : int, default=3
-        The number of hulls used per class, when subsampling is "random".
+        Number of hulls used per class, when subsampling is "random".
     n_samples_per_hull : int, default=15
-        Defines how many matrices are used to build a hull.
+        Number of matrices used to build a hull.
         -1 will include all matrices per class.
         If subsampling is "full", this parameter is defaulted to -1.
     subsampling : {"min", "random", "full"}, default="min"
-        Subsampling strategy of training set to estimate distance to hulls:
+        Strategy to subsample the training set to estimate the hull,
+        when computing the distance to hulls:
 
         - "full" computes the hull on the entire training matrices, as in [1]_;
         - "min" estimates hull using the n_samples_per_hull closest matrices;
