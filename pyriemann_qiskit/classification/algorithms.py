@@ -27,7 +27,7 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
     There is no training. Calculating a distance to a hull is an optimization
     problem and it is calculated for each testing SPD matrix and each hull.
     The minimal distance defines the predicted class.
-    
+
     Current implementation is available only for log-Euclidean distance.
 
     Notes
