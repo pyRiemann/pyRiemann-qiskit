@@ -162,17 +162,24 @@ class BinaryTest:
         self.type = type
         self.class_len = n_samples // self.n_classes
 
-    def test(self, get_dataset):
-        # there is no __init__ method with pytest
+    def run_single_test(self, params, get_dataset):
         n_samples, n_features, quantum_instance, type = itemgetter(
             "n_samples", "n_features", "quantum_instance", "type"
-        )(self.get_params())
+        )(params)
         self.prepare(n_samples, n_features, quantum_instance, type)
         self.samples, self.labels = get_dataset(
             self.n_samples, self.n_features, self.n_classes, self.type
         )
         self.additional_steps()
         self.check()
+        
+    def test(self, get_dataset):
+        # there is no __init__ method with pytest
+        params = self.get_params()
+        if not isinstance(params, list):
+            params = [params]
+        for p in params:
+            self.run_single_test(p, get_dataset)      
 
     def get_params(self):
         raise NotImplementedError
@@ -188,7 +195,7 @@ class BinaryFVT(BinaryTest):
     def additional_steps(self):
         self.quantum_instance.fit(self.samples, self.labels)
         self.prediction = self.quantum_instance.predict(self.samples)
-        self.predict_proab = self.quantum_instance.predict_proba(self.samples)
+        self.predict_proba = self.quantum_instance.predict_proba(self.samples)
         print(self.labels, self.prediction)
 
 

@@ -11,6 +11,7 @@ import numpy as np
 from joblib import Parallel, delayed
 from pyriemann.utils.distance import distance
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
+from sklearn.utils.extmath import softmax
 
 from ..utils.distance import qdistance_logeuclid_to_convex_hull
 from ..utils.docplex import get_global_optimizer, set_global_optimizer
@@ -184,6 +185,21 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         dists = np.asarray(dists)
 
         return dists
+    
+    def predict_proba(self, X):
+        """Predict proba using softmax of negative squared distances.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_matrices, n_channels, n_channels)
+            Set of SPD/HPD matrices.
+
+        Returns
+        -------
+        prob : ndarray, shape (n_matrices, n_classes)
+            Probabilities for each class.
+        """
+        return softmax(-self._predict_distances(X) ** 2)
 
     def predict(self, X):
         """Get the predictions.

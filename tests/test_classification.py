@@ -1,4 +1,5 @@
 import numpy as np
+from pyriemann_qiskit.classification.algorithms import NearestConvexHull
 import pytest
 from conftest import BinaryFVT, BinaryTest, MultiClassFVT, MultiClassTest
 from pyriemann.classification import TangentSpace
@@ -140,7 +141,7 @@ class TestClassicalSVM(BinaryFVT):
         # Check that all classes are predicted
         assert len(self.prediction) == len(self.labels)
         # Check if the proba for each classes are returned
-        assert self.predict_proab.shape[1] == len(np.unique(self.labels))
+        assert self.predict_proba.shape[1] == len(np.unique(self.labels))
 
 
 class TestQuanticSVM(TestClassicalSVM):
@@ -213,7 +214,7 @@ class TestQuanticVQC(BinaryFVT):
         # Check if the number of classes is consistent
         assert len(np.unique(self.prediction)) == len(np.unique(self.labels))
         # Check if the proba for each classes are returned
-        assert self.predict_proab.shape[1] == len(np.unique(self.labels))
+        assert self.predict_proba.shape[1] == len(np.unique(self.labels))
 
 
 class TestQuanticVQC_MultiClass(MultiClassFVT):
@@ -249,7 +250,7 @@ class TestClassicalMDM(BinaryFVT):
         # Check if the number of classes is consistent
         assert len(np.unique(self.prediction)) == len(np.unique(self.labels))
         # Check if the proba for each classes are returned
-        assert self.predict_proab.shape[1] == len(np.unique(self.labels))
+        assert self.predict_proba.shape[1] == len(np.unique(self.labels))
 
 
 class TestQuanticMDM_MultiClass(MultiClassFVT):
@@ -263,7 +264,7 @@ class TestQuanticMDM_MultiClass(MultiClassFVT):
         TestClassicalMDM.check(self)
 
 
-class TestClassicalNCH(BinaryFVT):
+class TestNCHWrapper(BinaryFVT):
     """Test the classical version of NCH using the QuanticNCH wrapper."""
 
     def get_params(self):
@@ -285,4 +286,34 @@ class TestClassicalNCH(BinaryFVT):
         # Check if the number of classes is consistent
         assert len(np.unique(self.prediction)) == len(np.unique(self.labels))
         # Check if the proba for each classes are returned
-        assert self.predict_proab.shape[1] == len(np.unique(self.labels))
+        assert self.predict_proba.shape[1] == len(np.unique(self.labels))
+
+
+class TestNCHClassical(BinaryFVT):
+    """Test the classical version of NearestConvexHull (without wrapper)"""
+
+    def get_params(self):
+        quantum_instances = [
+            NearestConvexHull(
+                n_hulls_per_class=1,
+                n_samples_per_hull=3,
+                subsampling="random"),
+            NearestConvexHull(
+                n_samples_per_hull=3,
+                subsampling="min"),
+            NearestConvexHull(
+                subsampling="full"),
+        ]
+        return [{
+            "n_samples": 50,
+            "n_features": 7,
+            "quantum_instance": quantum_instance,
+            "type": "bin_cov",
+        } for quantum_instance in quantum_instances]
+
+    def check(self):
+        assert len(self.prediction) == len(self.labels)
+        # Check if the number of classes is consistent
+        assert len(np.unique(self.prediction)) == len(np.unique(self.labels))
+        # Check if the proba for each classes are returned
+        assert self.predict_proba.shape[1] == len(np.unique(self.labels))
