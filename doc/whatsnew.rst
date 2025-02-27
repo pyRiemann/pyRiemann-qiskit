@@ -10,10 +10,21 @@ What's new in the package
 Develop branch
 ----------------
 
+v0.4.1
+------
+
+- Bump qiskit-algorithm, imbalanced-learn, cvxpy, qiskit-ibm-runtime, moabb
+- Add random seed generator to NCH
+- Fix log product formula for NCH
+- Add ablation studies for NCH
+- Add "full" strategy to NCH
+- Expose QAOA initial points
+- Break the classification module into algorithms and wrappers
 - Fix :class:`pyriemann_qiskit.utils.filtering.ChannelSelection` that caused incorrect channel selection
 
+Details:
 
-
+https://github.com/pyRiemann/pyRiemann-qiskit/releases/tag/v0.4.1
 
 v0.4.0
 ------
