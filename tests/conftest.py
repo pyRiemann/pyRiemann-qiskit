@@ -172,14 +172,14 @@ class BinaryTest:
         )
         self.additional_steps()
         self.check()
-        
+
     def test(self, get_dataset):
         # there is no __init__ method with pytest
         params = self.get_params()
         if not isinstance(params, list):
             params = [params]
         for p in params:
-            self.run_single_test(p, get_dataset)      
+            self.run_single_test(p, get_dataset)
 
     def get_params(self):
         raise NotImplementedError

@@ -1,5 +1,4 @@
 import numpy as np
-from pyriemann_qiskit.classification.algorithms import NearestConvexHull
 import pytest
 from conftest import BinaryFVT, BinaryTest, MultiClassFVT, MultiClassTest
 from pyriemann.classification import TangentSpace
@@ -13,6 +12,7 @@ from pyriemann_qiskit.classification import (
     QuanticSVM,
     QuanticVQC,
 )
+from pyriemann_qiskit.classification.algorithms import NearestConvexHull
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
 
@@ -295,21 +295,20 @@ class TestNCHClassical(BinaryFVT):
     def get_params(self):
         quantum_instances = [
             NearestConvexHull(
-                n_hulls_per_class=1,
-                n_samples_per_hull=3,
-                subsampling="random"),
-            NearestConvexHull(
-                n_samples_per_hull=3,
-                subsampling="min"),
-            NearestConvexHull(
-                subsampling="full"),
+                n_hulls_per_class=1, n_samples_per_hull=3, subsampling="random"
+            ),
+            NearestConvexHull(n_samples_per_hull=3, subsampling="min"),
+            NearestConvexHull(subsampling="full"),
         ]
-        return [{
-            "n_samples": 50,
-            "n_features": 7,
-            "quantum_instance": quantum_instance,
-            "type": "bin_cov",
-        } for quantum_instance in quantum_instances]
+        return [
+            {
+                "n_samples": 50,
+                "n_features": 7,
+                "quantum_instance": quantum_instance,
+                "type": "bin_cov",
+            }
+            for quantum_instance in quantum_instances
+        ]
 
     def check(self):
         assert len(self.prediction) == len(self.labels)

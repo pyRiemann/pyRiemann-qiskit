@@ -185,7 +185,7 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         dists = np.asarray(dists)
 
         return dists
-    
+
     def predict_proba(self, X):
         """Predict proba using softmax of negative squared distances.
 
