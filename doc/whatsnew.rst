@@ -20,7 +20,7 @@ v0.4.1
 - Add "full" strategy to NCH
 - Expose QAOA initial points
 - Break the classification module into algorithms and wrappers
-- Fix :class:`pyriemann_qiskit.utils.filtering.ChannelSelection` that caused incorrect channel selection
+- Fix incorrect number of channels and selection condition inside ChannelSelection
 
 Details:
 
