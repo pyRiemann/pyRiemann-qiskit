@@ -1,5 +1,5 @@
 from .algorithms import NearestConvexHull
-from .wrappers import QuanticMDM, QuanticNCH, QuanticSVM, QuanticVQC
+from .wrappers import QuanticClassifierBase, QuanticMDM, QuanticNCH, QuanticSVM, QuanticVQC
 
 __all__ = [
     "NearestConvexHull",
