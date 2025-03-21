@@ -167,7 +167,6 @@ Math
 .. autosummary::
     :toctree: generated/
 
-    cov_to_corr_matrix
     union_of_diff
     to_xyz
     is_pauli_identity
