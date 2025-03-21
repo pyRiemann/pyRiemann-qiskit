@@ -1,9 +1,8 @@
 import os
 from warnings import warn
-from typing_extensions import deprecated
 
 import firebase_admin
-
+from typing_extensions import deprecated
 
 try:
     from firebase_admin import credentials, firestore
@@ -17,9 +16,8 @@ import pandas as pd
 
 from .firebase_cert import certificate
 
-@deprecated(
-    "FirebaseConnector is deprecated and will be removed in 0.6.0; "
-)
+
+@deprecated("FirebaseConnector is deprecated and will be removed in 0.6.0; ")
 class FirebaseConnector:
     """A connector to Firebase.
 
