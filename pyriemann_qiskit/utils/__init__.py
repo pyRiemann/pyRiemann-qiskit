@@ -16,7 +16,7 @@ from .firebase_connector import (
     filter_subjects_by_incomplete_results,
     generate_caches,
 )
-from .math import cov_to_corr_matrix, union_of_diff
+from .math import union_of_diff
 
 __all__ = [
     "hyper_params_factory",
