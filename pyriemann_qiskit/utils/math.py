@@ -3,6 +3,7 @@ import numpy as np
 from pyriemann.utils.covariance import normalize
 from qiskit.quantum_info import Pauli, SparsePauliOp
 
+
 def union_of_diff(*arrays):
     """Return the positions for which at least one of the array
     as a different value than the others.
