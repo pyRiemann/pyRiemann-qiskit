@@ -23,7 +23,6 @@ __all__ = [
     "filtering",
     "preprocessing",
     "quantum_provider",
-    "cov_to_corr_matrix",
     "union_of_diff",
     "docplex",
     "distance",
