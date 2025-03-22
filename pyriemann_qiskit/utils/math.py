@@ -1,6 +1,5 @@
 """Module for mathematical helpers"""
 import numpy as np
-from pyriemann.utils.covariance import normalize
 from qiskit.quantum_info import Pauli, SparsePauliOp
 
 
