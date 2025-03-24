@@ -1,32 +1,6 @@
 """Module for mathematical helpers"""
 import numpy as np
-from pyriemann.utils.covariance import normalize
 from qiskit.quantum_info import Pauli, SparsePauliOp
-from typing_extensions import deprecated
-
-
-@deprecated(
-    "cov_to_corr_matrix is deprecated and will be removed in 0.4.0; "
-    "please use pyriemann.utils.covariance.normalize."
-)
-def cov_to_corr_matrix(covmat):
-    """Convert covariance matrices to correlation matrices.
-
-    Parameters
-    ----------
-    covmat: ndarray, shape (..., n_channels, n_channels)
-        Covariance matrices.
-
-    Returns
-    -------
-    corrmat : ndarray, shape (..., n_channels, n_channels)
-        Correlation matrices.
-
-    Notes
-    -----
-    .. versionadded:: 0.0.2
-    """
-    return normalize(covmat, "corr")
 
 
 def union_of_diff(*arrays):
