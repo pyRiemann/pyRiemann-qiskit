@@ -96,8 +96,8 @@ This library is part of the [Qiskit Ecosystem](https://qiskit.org/ecosystem)
 _We recommend the use of [Anaconda](https://www.anaconda.com/) to manage python
 environements._
 
-`pyRiemann-qiskit` currently supports Windows, Mac and Linux OS with **Python 3.9 -
-3.11**.
+`pyRiemann-qiskit` currently supports Windows, Mac and Linux OS with **Python 10 -
+3.12**.
 
 You can install `pyRiemann-qiskit` release from PyPI:
 

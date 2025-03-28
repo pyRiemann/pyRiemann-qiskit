@@ -6,7 +6,7 @@ Installing pyRiemann-qiskit
 _We recommend the use of [Anaconda](https://www.anaconda.com/) to manage python
 environements._
 
-`pyRiemann-qiskit` currently supports Windows, Mac and Linux OS with Python 3.9 - 3.11.
+`pyRiemann-qiskit` currently supports Windows, Mac and Linux OS with Python 3.10 - 3.12.
 
 You can install `pyRiemann-qiskit` release from PyPI:
 
@@ -40,7 +40,7 @@ import pyriemann_qiskit
 Dependencies
 ~~~~~~~~~~~~
 
--  Python (>= 3.9)
+-  Python (>= 3.10)
 
 Mandatory dependencies
 ^^^^^^^^^^^^^^^^^^^^^^
