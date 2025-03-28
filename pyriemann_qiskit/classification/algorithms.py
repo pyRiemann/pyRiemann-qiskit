@@ -6,19 +6,18 @@ quantum computer.
 """
 import logging
 import random
+from warnings import warn
 
 import numpy as np
 from joblib import Parallel, delayed
-from pyriemann.utils.distance import distance
 from pyriemann.classification import MDM
-from ..utils.utils import is_qfunction
+from pyriemann.utils.distance import distance
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.utils.extmath import softmax
 
-from ..utils.distance import qdistance_logeuclid_to_convex_hull
+from ..utils.distance import distance_functions, qdistance_logeuclid_to_convex_hull
 from ..utils.docplex import get_global_optimizer, set_global_optimizer
-from ..utils.distance import distance_functions
-from warnings import warn
+from ..utils.utils import is_qfunction
 
 logging.basicConfig(level=logging.WARNING)
 
