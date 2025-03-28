@@ -244,8 +244,8 @@ class CpMDM(MDM):
 
     """Quantum-enhanced MDM classifier
 
-    This class is a constraint programming (CP) implementation of the Minimum Distance to Mean
-    (MDM) [1]_, which can run with quantum optimization.
+    This class is a constraint programming (CP) implementation of the
+    Minimum Distance to Mean (MDM) [1]_, which can run with quantum optimization.
     Only log-Euclidean distance between trial and class prototypes is supported
     at the moment, but any type of metric can be used for centroid estimation.
 

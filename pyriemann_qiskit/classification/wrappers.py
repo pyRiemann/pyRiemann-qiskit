@@ -6,10 +6,8 @@ quantum computer.
 """
 import logging
 from datetime import datetime
-from warnings import warn
 
 import numpy as np
-from pyriemann.classification import MDM
 from qiskit.primitives import BackendSampler
 from qiskit_algorithms.optimizers import SLSQP
 from qiskit_ibm_runtime import QiskitRuntimeService
@@ -20,7 +18,6 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.svm import SVC
 
 from ..datasets import get_feature_dimension
-from ..utils.distance import distance_functions
 from ..utils.docplex import set_global_optimizer
 from ..utils.hyper_params_factory import gen_two_local, gen_zz_feature_map, get_spsa
 from ..utils.quantum_provider import (
@@ -29,7 +26,7 @@ from ..utils.quantum_provider import (
     get_quantum_kernel,
     get_simulator,
 )
-from ..utils.utils import get_docplex_optimizer_from_params_bag, is_qfunction
+from ..utils.utils import get_docplex_optimizer_from_params_bag
 from .algorithms import CpMDM, NearestConvexHull
 
 logging.basicConfig(level=logging.WARNING)
