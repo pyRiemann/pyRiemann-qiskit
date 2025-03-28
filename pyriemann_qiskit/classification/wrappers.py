@@ -641,6 +641,8 @@ class QuanticMDM(QuanticClassifierBase):
         Add QAOA-CV optimization.
     .. versionchanged:: 0.4.1
         Add qaoa_initial_points parameter.
+    .. versionchanged:: 0.4.2
+        Separate wrapper from algorithm (CpMDM)
 
     Parameters
     ----------
@@ -690,6 +692,7 @@ class QuanticMDM(QuanticClassifierBase):
     See Also
     --------
     QuanticClassifierBase
+    classification.algorithms.CpMDM
     pyriemann.classification.MDM
 
     References
