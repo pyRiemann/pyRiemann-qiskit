@@ -10,11 +10,15 @@ import random
 import numpy as np
 from joblib import Parallel, delayed
 from pyriemann.utils.distance import distance
+from pyriemann.classification import MDM
+from ..utils.utils import is_qfunction
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.utils.extmath import softmax
 
 from ..utils.distance import qdistance_logeuclid_to_convex_hull
 from ..utils.docplex import get_global_optimizer, set_global_optimizer
+from ..utils.distance import distance_functions
+from warnings import warn
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -235,3 +239,47 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         """
 
         return self._predict_distances(X)
+
+
+class CpMDM(MDM):
+
+    """Quantum-enhanced MDM classifier
+
+    This class is a constraint programming (CP) implementation of the Minimum Distance to Mean
+    (MDM) [1]_, which can run with quantum optimization.
+    Only log-Euclidean distance between trial and class prototypes is supported
+    at the moment, but any type of metric can be used for centroid estimation.
+
+    Notes
+    -----
+    .. versionadded:: 0.4.2
+
+    See Also
+    --------
+    pyriemann.classification.MDM
+
+    References
+    ----------
+    .. [1] `Multiclass Brain-Computer Interface Classification by Riemannian
+        Geometry
+        <https://hal.archives-ouvertes.fr/hal-00681328>`_
+        A. Barachant, S. Bonnet, M. Congedo, and C. Jutten. IEEE Transactions
+        on Biomedical Engineering, vol. 59, no. 4, p. 920-928, 2012.
+
+    """
+
+    def _predict_distances(self, X):
+        if is_qfunction(self.metric_dist):
+            if "hull" in self.metric_dist:
+                warn("qdistances to hull should not be use inside MDM")
+            else:
+                warn(
+                    "q-distances for MDM are toy functions.\
+                        Use pyRiemann distances instead."
+                )
+            distance = distance_functions[self.metric_dist]
+            centroids = np.array(self.covmeans_)
+            weights = [distance(centroids, x) for x in X]
+            return 1 - np.array(weights)
+        else:
+            return MDM._predict_distances(self, X)

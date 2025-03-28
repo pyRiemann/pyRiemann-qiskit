@@ -30,7 +30,7 @@ from ..utils.quantum_provider import (
     get_simulator,
 )
 from ..utils.utils import get_docplex_optimizer_from_params_bag, is_qfunction
-from .algorithms import NearestConvexHull
+from .algorithms import CpMDM, NearestConvexHull
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -739,40 +739,9 @@ class QuanticMDM(QuanticClassifierBase):
         self.n_reps = n_reps
         self.qaoa_initial_points = qaoa_initial_points
 
-    @staticmethod
-    def _override_predict_distance(mdm):
-        """Override _predict_distances method of MDM.
-
-        We override the _predict_distances method inside MDM to allow the use
-        of qdistance.
-        This is due to the fact the the signature of qdistances is different
-        from the usual distance functions.
-        """
-
-        def _predict_distances(X):
-            if is_qfunction(mdm.metric_dist):
-                if "hull" in mdm.metric_dist:
-                    warn("qdistances to hull should not be use inside MDM")
-                else:
-                    warn(
-                        "q-distances for MDM are toy functions.\
-                            Use pyRiemann distances instead."
-                    )
-                distance = distance_functions[mdm.metric_dist]
-                centroids = np.array(mdm.covmeans_)
-                weights = [distance(centroids, x) for x in X]
-                return 1 - np.array(weights)
-            else:
-                return MDM._predict_distances(mdm, X)
-
-        return _predict_distances
-
     def _init_algo(self, n_features):
         self._log("Quantic MDM initiating algorithm")
-        classifier = MDM(metric=self.metric)
-        classifier._predict_distances = QuanticMDM._override_predict_distance(
-            classifier
-        )
+        classifier = CpMDM(metric=self.metric)
         self._optimizer = get_docplex_optimizer_from_params_bag(
             self,
             self.quantum,
