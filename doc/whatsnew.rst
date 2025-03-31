@@ -121,7 +121,7 @@ https://github.com/pyRiemann/pyRiemann-qiskit/releases/tag/v0.0.4
 v0.0.3
 ------
 
-- Enable python 3.9
+- Enable python 3.10
 - Bump cvxpy and qiskit-ibmq-provider
 - Expose C and max_iter parameters for QSVC, SVC and Pegasos QSVC
 - Add support for Firebase
