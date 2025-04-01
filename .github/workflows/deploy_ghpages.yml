@@ -25,7 +25,7 @@ jobs:
       - name: Generate HTML docs
         env:
           FIREBASE_CERTIFICATE: ${{ secrets.FIREBASE_CERTIFICATE }}
-        uses: josh146/sphinx-action@8.0.2
+        uses: ammaraskar/sphinx-action@8.0.2
         with:
           docs-folder: "doc/"
           pre-build-command: |
