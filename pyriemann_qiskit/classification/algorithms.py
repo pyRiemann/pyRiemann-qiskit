@@ -277,8 +277,7 @@ class CpMDM(MDM):
                         Use pyRiemann distances instead."
                 )
             distance = distance_functions[self.metric_dist]
-            centroids = np.array(self.covmeans_)
-            weights = [distance(centroids, x) for x in X]
+            weights = [distance(self.covmeans_, x) for x in X]
             return 1 - np.array(weights)
         else:
             return MDM._predict_distances(self, X)
