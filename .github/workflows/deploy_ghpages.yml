@@ -16,9 +16,6 @@ jobs:
   build_docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
       - uses: actions/checkout@v4
       - name: Cache dependencies
         uses: actions/cache@v4
@@ -28,7 +25,7 @@ jobs:
       - name: Generate HTML docs
         env:
           FIREBASE_CERTIFICATE: ${{ secrets.FIREBASE_CERTIFICATE }}
-        uses: josh146/sphinx-action@master
+        uses: josh146/sphinx-action@8.0.2
         with:
           docs-folder: "doc/"
           pre-build-command: |
