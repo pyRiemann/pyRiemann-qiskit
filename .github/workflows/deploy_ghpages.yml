@@ -30,7 +30,7 @@ jobs:
           docs-folder: "doc/"
           pre-build-command: |
             apt-get --allow-releaseinfo-change update
-            apt-get install python-3.10
+            apt-get install python3.10
             python -m pip install --upgrade pip
             apt-get -y install --fix-missing git-core
             apt-get -y install build-essential
