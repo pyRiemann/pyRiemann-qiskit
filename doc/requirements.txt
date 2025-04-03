@@ -4,7 +4,7 @@ sphinx-bootstrap_theme
 numpydoc
 cython
 mne==1.9.0
-mne-bids==0.14
+mne-bids==0.16.0
 mne[data]>=0.24
 seaborn>=0.12.1
 scikit-learn==1.5.2
