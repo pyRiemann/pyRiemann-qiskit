@@ -16,7 +16,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.utils.extmath import softmax
 
 from ..utils.distance import distance_functions, qdistance_logeuclid_to_convex_hull
-from ..utils.docplex import get_global_optimizer, set_global_optimizer
+from ..utils.docplex import ClassicalOptimizer, get_global_optimizer, set_global_optimizer
 from ..utils.utils import is_qfunction
 
 logging.basicConfig(level=logging.WARNING)
@@ -58,6 +58,8 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         - "random" estimates hull using n_samples_per_hull random matrices.
     seed : float, default=None
         Optional random seed to use when subsampling is set to "random".
+    optimizer: pyQiskitOptimizer, default: ClassicalOptimizer()
+      An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
 
     References
     ----------
@@ -74,6 +76,7 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         n_samples_per_hull=10,
         subsampling="min",
         seed=None,
+        optimizer=ClassicalOptimizer()
     ):
         """Init."""
         self.n_jobs = n_jobs
@@ -82,6 +85,7 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         self.matrices_per_class_ = {}
         self.subsampling = subsampling
         self.seed = seed
+        self.optimizer = optimizer
 
         if subsampling not in ["min", "random", "full"]:
             raise ValueError(f"Unknown subsampling type {subsampling}.")
@@ -124,7 +128,7 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
             indexes = np.argsort(dist)[0 : self.n_samples_per_hull]
 
             d = qdistance_logeuclid_to_convex_hull(
-                self.matrices_per_class_[c][indexes], x
+                self.matrices_per_class_[c][indexes], x, self.optimizer
             )
 
             dists.append(d)
@@ -149,7 +153,7 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
                     )
                     hull_data = self.matrices_per_class_[c][random_samples]
 
-                dist = qdistance_logeuclid_to_convex_hull(hull_data, x)
+                dist = qdistance_logeuclid_to_convex_hull(hull_data, x, self.optimizer)
                 dist_total = dist_total + dist
 
             dists.append(dist_total)
