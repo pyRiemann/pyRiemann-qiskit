@@ -5,7 +5,7 @@ from pyriemann.utils.mean import mean_logeuclid
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.pipeline import make_pipeline
 
-from pyriemann_qiskit.classification.algorithms import QuanticMDM
+from pyriemann_qiskit.classification import QuanticMDM
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.utils.distance import (
     qdistance_logeuclid_to_convex_hull,
