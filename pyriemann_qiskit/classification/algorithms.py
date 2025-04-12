@@ -78,7 +78,7 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         n_samples_per_hull=10,
         subsampling="min",
         seed=None,
-        optimizer=ClassicalOptimizer()
+        optimizer=ClassicalOptimizer(),
     ):
         """Init."""
         self.n_jobs = n_jobs

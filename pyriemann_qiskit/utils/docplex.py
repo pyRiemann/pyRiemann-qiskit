@@ -26,6 +26,7 @@ from .hyper_params_factory import create_mixer_rotational_X_gates
 from .math import is_pauli_identity
 from .quantum_provider import get_simulator
 
+
 def square_cont_mat_var(prob, channels, name="cont_spdmat"):
     """ Docplex square continous matrix
 

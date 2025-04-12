@@ -740,7 +740,7 @@ class QuanticMDM(QuanticClassifierBase):
 
     def _init_algo(self, n_features):
         self._log("Quantic MDM initiating algorithm")
-        
+
         self._optimizer = get_docplex_optimizer_from_params_bag(
             self,
             self.quantum,
@@ -909,7 +909,7 @@ class QuanticNCH(QuanticClassifierBase):
             n_jobs=self.n_jobs,
             subsampling=self.subsampling,
             seed=self.seed,
-            optimizer=self._optimizer
+            optimizer=self._optimizer,
         )
 
         return classifier
