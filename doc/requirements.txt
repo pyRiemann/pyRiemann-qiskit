@@ -4,7 +4,7 @@ sphinx-bootstrap_theme
 numpydoc
 cython
 mne==1.9.0
-mne-bids==0.14
+mne-bids==0.16.0
 mne[data]>=0.24
 seaborn>=0.12.1
 scikit-learn==1.5.2
@@ -19,8 +19,8 @@ qiskit_ibm_runtime==0.34.0
 qiskit-optimization==0.6.1
 qiskit-aer==0.15.1
 scipy==1.13.1
-moabb==1.1.1
-pyriemann==0.6
+moabb==1.2.0
+pyriemann==0.7
 docplex>=2.21.207
 firebase_admin==6.6.0
 qiskit-symb==0.2.0
