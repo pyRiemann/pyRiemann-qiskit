@@ -26,45 +26,6 @@ from .hyper_params_factory import create_mixer_rotational_X_gates
 from .math import is_pauli_identity
 from .quantum_provider import get_simulator
 
-_global_optimizer = [None]
-
-
-def set_global_optimizer(optimizer):
-    """Set the value of the global optimizer
-
-    Parameters
-    ----------
-    optimizer: pyQiskitOptimizer
-      An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
-
-    Notes
-    -----
-    .. versionadded:: 0.0.4
-    """
-    _global_optimizer[0] = optimizer
-
-
-def get_global_optimizer(default):
-    """Get the value of the global optimizer
-
-    Parameters
-    ----------
-    default: pyQiskitOptimizer
-      An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
-      It will be returned by default if the global optimizer is None.
-
-    Returns
-    -------
-    optimizer : pyQiskitOptimizer
-        The global optimizer.
-
-    Notes
-    -----
-    .. versionadded:: 0.0.4
-    """
-    return _global_optimizer[0] if _global_optimizer[0] is not None else default
-
-
 def square_cont_mat_var(prob, channels, name="cont_spdmat"):
     """ Docplex square continous matrix
 

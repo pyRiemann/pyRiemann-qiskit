@@ -4,7 +4,7 @@ from pyriemann.utils.mean import mean_functions
 from qiskit_optimization.algorithms import ADMMOptimizer
 from typing_extensions import deprecated
 
-from .docplex import ClassicalOptimizer, get_global_optimizer
+from .docplex import ClassicalOptimizer
 
 
 @deprecated(
@@ -50,8 +50,6 @@ def qmean_euclid(X, sample_weight=None, optimizer=ClassicalOptimizer()):
     .. [1] \
         http://ibmdecisionoptimization.github.io/docplex-doc/cp/creating_model.html
     """
-
-    optimizer = get_global_optimizer(optimizer)
 
     n_matrices, n_channels, _ = X.shape
     channels = range(n_channels)

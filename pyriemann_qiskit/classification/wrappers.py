@@ -18,7 +18,6 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.svm import SVC
 
 from ..datasets import get_feature_dimension
-from ..utils.docplex import set_global_optimizer
 from ..utils.hyper_params_factory import gen_two_local, gen_zz_feature_map, get_spsa
 from ..utils.quantum_provider import (
     get_device,
@@ -756,7 +755,6 @@ class QuanticMDM(QuanticClassifierBase):
 
         classifier = CpMDM(optimizer=self._optimizer, metric=self.metric)
 
-        set_global_optimizer(self._optimizer)
         return classifier
 
     def _train(self, X, y):
@@ -913,10 +911,6 @@ class QuanticNCH(QuanticClassifierBase):
             seed=self.seed,
             optimizer=self._optimizer
         )
-
-        # sets the optimizer for the distance functions
-        # used in NearestConvexHull class
-        set_global_optimizer(self._optimizer)
 
         return classifier
 

@@ -16,7 +16,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.utils.extmath import softmax
 
 from ..utils.distance import distance_functions, qdistance_logeuclid_to_convex_hull
-from ..utils.docplex import ClassicalOptimizer, get_global_optimizer, set_global_optimizer
+from ..utils.docplex import ClassicalOptimizer
 from ..utils.utils import is_qfunction
 
 logging.basicConfig(level=logging.WARNING)
@@ -176,12 +176,8 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         parallel = self.n_jobs > 1
 
         if parallel:
-            # Get global optimizer in this process
-            optimizer = get_global_optimizer(default=None)
 
             def job(x):
-                # Set the global optimizer inside the new process
-                set_global_optimizer(optimizer)
                 return self._process_sample(x)
 
             dists = Parallel(n_jobs=self.n_jobs)(delayed(job)(x) for x in X)
@@ -278,7 +274,7 @@ class CpMDM(MDM):
 
     """
 
-    def __init__(self, optimizer, **params):
+    def __init__(self, optimizer=ClassicalOptimizer(), **params):
         self.optimizer = optimizer
         MDM.__init__(self, **params)
 
