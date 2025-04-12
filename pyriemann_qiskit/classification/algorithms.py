@@ -37,8 +37,10 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
     Notes
     -----
     .. versionadded:: 0.2.0
+    .. versionchanged:: 0.4.2
+        Added optimizer attribute
 
-    Parameters
+    Attributes
     ----------
     n_jobs : int, default=6
         Number of jobs to use for the computation. This works by computing
@@ -253,6 +255,11 @@ class CpMDM(MDM):
     Only log-Euclidean distance between trial and class prototypes is supported
     at the moment, but any type of metric can be used for centroid estimation.
 
+    Attributes
+    ----------
+    optimizer: pyQiskitOptimizer, default: ClassicalOptimizer()
+      An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
+
     Notes
     -----
     .. versionadded:: 0.4.2
@@ -271,17 +278,23 @@ class CpMDM(MDM):
 
     """
 
+    def __init__(self, optimizer, **params):
+        self.optimizer = optimizer
+        MDM.__init__(self, **params)
+
     def _predict_distances(self, X):
         if is_qfunction(self.metric_dist):
+            distance = distance_functions[self.metric_dist]
+
             if "hull" in self.metric_dist:
                 warn("qdistances to hull should not be use inside MDM")
+                weights = [distance(self.covmeans_, x, self.optimizer) for x in X]
             else:
                 warn(
                     "q-distances for MDM are toy functions.\
                         Use pyRiemann distances instead."
                 )
-            distance = distance_functions[self.metric_dist]
-            weights = [distance(self.covmeans_, x) for x in X]
+                weights = [distance(self.covmeans_, x) for x in X]
             return 1 - np.array(weights)
         else:
             return MDM._predict_distances(self, X)

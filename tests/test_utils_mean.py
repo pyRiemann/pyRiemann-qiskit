@@ -6,7 +6,7 @@ from qiskit_optimization.algorithms import ADMMOptimizer
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.pipeline import make_pipeline
 
-from pyriemann_qiskit.classification import QuanticMDM
+from pyriemann_qiskit.classification.algorithms import QuanticMDM
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.utils.docplex import (
     ClassicalOptimizer,

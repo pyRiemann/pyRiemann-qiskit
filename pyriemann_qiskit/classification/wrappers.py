@@ -741,7 +741,7 @@ class QuanticMDM(QuanticClassifierBase):
 
     def _init_algo(self, n_features):
         self._log("Quantic MDM initiating algorithm")
-        classifier = CpMDM(metric=self.metric)
+        
         self._optimizer = get_docplex_optimizer_from_params_bag(
             self,
             self.quantum,
@@ -753,6 +753,9 @@ class QuanticMDM(QuanticClassifierBase):
             self.n_reps,
             self.qaoa_initial_points,
         )
+
+        classifier = CpMDM(optimizer=self._optimizer, metric=self.metric)
+
         set_global_optimizer(self._optimizer)
         return classifier
 
@@ -890,14 +893,6 @@ class QuanticNCH(QuanticClassifierBase):
     def _init_algo(self, n_features):
         self._log("Nearest Convex Hull Classifier initiating algorithm")
 
-        classifier = NearestConvexHull(
-            n_hulls_per_class=self.n_hulls_per_class,
-            n_samples_per_hull=self.n_samples_per_hull,
-            n_jobs=self.n_jobs,
-            subsampling=self.subsampling,
-            seed=self.seed,
-        )
-
         self._optimizer = get_docplex_optimizer_from_params_bag(
             self,
             self.quantum,
@@ -908,6 +903,15 @@ class QuanticNCH(QuanticClassifierBase):
             self.create_mixer,
             self.n_reps,
             self.qaoa_initial_points,
+        )
+
+        classifier = NearestConvexHull(
+            n_hulls_per_class=self.n_hulls_per_class,
+            n_samples_per_hull=self.n_samples_per_hull,
+            n_jobs=self.n_jobs,
+            subsampling=self.subsampling,
+            seed=self.seed,
+            optimizer=self._optimizer
         )
 
         # sets the optimizer for the distance functions
