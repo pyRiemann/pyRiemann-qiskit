@@ -47,4 +47,3 @@ jobs:
               repo: context.repo.repo,
               body: ${{steps.run-benchmark-main.outputs.success}}
             })
-
