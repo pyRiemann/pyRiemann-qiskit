@@ -86,8 +86,5 @@ def run(pipelines):
             score_trun = int(score * 100)
             better_pr_score = pr_score_trun >= score_trun
             report_line = f"{key}: {pr_score_trun} (PR) >= {score_trun} (main): {better_pr_score} \n"
-            report = (
-                report
-                + report_line
-            )
+            report = report + report_line
         _set_output("report", report)
