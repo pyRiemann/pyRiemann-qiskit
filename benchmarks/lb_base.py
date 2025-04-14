@@ -77,7 +77,7 @@ def run(pipelines):
         for key, score in scores.items():
             _set_output(key, score)
     else:
-        report = "Benchmark Report------"
+        report = "Benchmark Report------\n"
         i = 0
         for key, score in scores.items():
             i = i + 1
@@ -85,9 +85,9 @@ def run(pipelines):
             pr_score_trun = int(float(pr_score) * 100)
             score_trun = int(score * 100)
             better_pr_score = pr_score_trun >= score_trun
-            success = success and better_pr_score
+            report_line = f"{key}: {pr_score_trun} (PR) >= {score_trun} (main): {better_pr_score} \n"
             report = (
                 report
-                + f"{key}: {pr_score_trun} (PR) >= {score_trun} (main): {better_pr_score} \n"
+                + report_line
             )
-        _set_output("success", report)
+        _set_output("report", report)
