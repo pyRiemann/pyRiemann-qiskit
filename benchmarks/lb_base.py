@@ -82,4 +82,4 @@ def run(pipelines):
         for key, score in scores.items():
             i = i + 1
             pr_score = sys.argv[i]
-            _set_output(key, int(float(pr_score - score)) * 100)
+            _set_output(key, int(float(pr_score) - score) * 100)
