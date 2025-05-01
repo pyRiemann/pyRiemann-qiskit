@@ -22,6 +22,6 @@ scipy==1.13.1
 moabb==1.2.0
 pyriemann==0.7
 docplex>=2.21.207
-firebase_admin==6.6.0
+firebase_admin==6.8.0
 qiskit-symb==0.2.0
 symengine==0.11.0
