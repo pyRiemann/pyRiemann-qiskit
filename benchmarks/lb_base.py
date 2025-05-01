@@ -82,9 +82,4 @@ def run(pipelines):
         for key, score in scores.items():
             i = i + 1
             pr_score = sys.argv[i]
-            pr_score_trun = int(float(pr_score) * 100)
-            score_trun = int(score * 100)
-            better_pr_score = pr_score_trun >= score_trun
-            report_line = f"{key}: {pr_score_trun} (PR) >= {score_trun} (main): {better_pr_score} \n"
-            report = report + report_line
-        _set_output("report", report)
+            _set_output(key, int(float(pr_score - score) * 100)
