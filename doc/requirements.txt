@@ -17,7 +17,7 @@ qiskit_algorithms==0.3.1
 qiskit_machine_learning==0.7.2
 qiskit_ibm_runtime==0.34.0
 qiskit-optimization==0.6.1
-qiskit-aer==0.15.1
+qiskit-aer==0.17.0
 scipy==1.13.1
 moabb==1.2.0
 pyriemann==0.7
