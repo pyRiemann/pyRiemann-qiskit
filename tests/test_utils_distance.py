@@ -53,7 +53,7 @@ def test_qdistance_logeuclid_to_convex_hull(optimizer, get_covmats):
 #     "optimizer", [ClassicalOptimizer(), NaiveQAOAOptimizer(), QAOACVOptimizer()]
 # )
 @pytest.mark.parametrize(
-    "optimizer", [ClassicalOptimizer())]
+    "optimizer", [ClassicalOptimizer()]
 )
 def test_weight_logeuclid_to_convex_hull(optimizer):
     X_0 = np.array([[0.9, 1.1], [0.9, 1.1]])
