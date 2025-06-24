@@ -84,9 +84,9 @@ def run(pipelines):
             pr_score = sys.argv[i]
             pr_score_trun = int(float(pr_score) * 100)
             score_trun = int(score * 100)
-            better_pr_score = pr_score_trun >= score_trun
+            is_pr_best = pr_score_trun >= score_trun
             report = (
                 report
-                + f"{key}: {pr_score_trun} (PR) >= {score_trun} (main): {better_pr_score} \n"
+                + f"{key}: {pr_score_trun} (PR) >= {score_trun} (main): {is_pr_best} \n"
             )
         _set_output("report", report)
