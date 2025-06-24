@@ -1,6 +1,6 @@
 [<img src=https://github.com/Qiskit/ecosystem/blob/main/badges/pyRiemann-qiskit.svg>](https://qiskit.org/ecosystem)
 
-# pyRiemann-qiskit 
+# pyRiemann-qiskit
 
 Literature on quantum computing suggests it may offer an advantage compared with classical
 computing in terms of computational time and outcomes, such as for pattern recognition or
