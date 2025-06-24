@@ -1,6 +1,6 @@
 name: Light Benchmark
 
-on:
+on: 
   pull_request:
     paths:
     - 'pyriemann_qiskit/**'
