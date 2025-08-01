@@ -1,6 +1,6 @@
 numpy<2.3
 cython
-scikit-learn==1.5.2
+scikit-learn==1.7.1
 git+https://github.com/pyRiemann/pyRiemann#egg=pyriemann
 qiskit==1.*
 qiskit_algorithms==0.3.1
