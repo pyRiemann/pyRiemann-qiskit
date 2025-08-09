@@ -3,7 +3,7 @@
 Introduction to pyRiemann-qiskit
 ================================
 
-Litterature on quantum computing suggests it may offer an advantage as compared
+Literature on quantum computing suggests it may offer an advantage as compared
 with classical computing in terms of computational time and outcomes, such as
 for pattern recognition or when using limited training sets [1]_ [2]_.
 
@@ -16,13 +16,13 @@ quantum algorithm seamless.
 
 Qiskit implements a quantum version of support vector
 -like classifiers, known as quantum-enhanced support vector classifier (QSVC)
-and varitional quantum classifier (VQC) [4]_. These classifiers likely offer
+and variational quantum classifier (VQC) [4]_. These classifiers likely offer
 an advantage over classical SVM in situations where the classification task
 is complex. Task complexity is raised by the encoding of the data into a
 quantum state, the number of available data and the quality of the data. An initial
 study is available in [5]_, and it can be downloaded from `here
 <https://github.com/pyRiemann/pyRiemann-qiskit/blob/main/doc/Presentations/QuantumERPClassification.pdf>`_.
-Although there is no study on this topic at the time of writting,
+Although there is no study on this topic at the time of writing,
 this could be an interesting research direction to investigate BCI illiteracy.
 
 pyRiemann-qiskit implements a wrapper around QSVC and VQC, to use quantum
