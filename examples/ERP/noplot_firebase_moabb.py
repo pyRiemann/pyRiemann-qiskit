@@ -115,7 +115,7 @@ pipelines["RG+LDA"] = make_pipeline(
 )
 
 # We cache the results on Firebase.
-# But you can skip all cache functions bellow if you want.
+# But you can skip all cache functions below if you want.
 caches = generate_caches(datasets, pipelines)
 
 # This method remove a subject in a dataset if we already have evaluated

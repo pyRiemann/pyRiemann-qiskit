@@ -262,7 +262,7 @@ def get_spsa(max_trials=40, c=(None, None, None, None, 4.0)):
         Maximum number of iterations to perform.
     c : tuple[float | None] (default:(None, None, None, None, 4.0))
         The 5 control parameters for SPSA algorithms, namely:
-        the initial point, the intial perturbation, alpha, gamma
+        the initial point, the initial perturbation, alpha, gamma
         and the stability constant.
         See [3]_ for implementation details. This function set the
         default value of the control parameters for the `calibrate` method of

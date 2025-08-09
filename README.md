@@ -94,7 +94,7 @@ This library is part of the [Qiskit Ecosystem](https://qiskit.org/ecosystem)
 ## Installation
 
 _We recommend the use of [Anaconda](https://www.anaconda.com/) to manage python
-environements._
+environments._
 
 `pyRiemann-qiskit` currently supports Windows, Mac and Linux OS with **Python 10 - 3.12**.
 
@@ -105,7 +105,7 @@ pip install pyriemann-qiskit
 ```
 
 The development version can be installed by cloning this repository and installing the
-package on your local machine using the `setup.py` script. We recommand to do it using
+package on your local machine using the `setup.py` script. We recommend to do it using
 `pip`:
 
 ```
@@ -157,7 +157,7 @@ python examples\ERP\classify_P300_bi.py
 ### Installation with docker
 
 We also offer the possibility to set up the dev environment within docker. To this end, we
-recommand to use `vscode` with the `Remote Containers` extension from Microsoft.
+recommend to use `vscode` with the `Remote Containers` extension from Microsoft.
 
 Once the installation is successful, just open the project in `vscode` and enter `F1`. In
 the search bar that opens, type `Rebuild and Reopen Container`.

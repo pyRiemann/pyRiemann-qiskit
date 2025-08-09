@@ -6,7 +6,7 @@ Benchmark Alpha
 A benchmark on a predefined list of databases for P300 and Motor Imagery (MI).
 
 Currently it requires the latest version of MOABB (from Github) where:
-    - cache_config is availabe for WithinSessionEvaluation|()
+    - cache_config is available for WithinSessionEvaluation|()
     - bug 514 is fixed: https://github.com/NeuroTechX/moabb/issues/514
 
 Adapts both the pipeline and the paradigms depending on the evaluated database.
@@ -86,7 +86,7 @@ def benchmark_alpha(
     evaluation_type: Default = "withinsession"
         Two options are available: "withinsession" and "crosssubject".
     max_n_subjects : int, default = -1
-        The maxmium number of subjects to be used per database.
+        The maximum number of subjects to be used per database.
     overwrite : bool, optional
         Set to True if we want to overwrite cached results.
     n_jobs : int, default=12

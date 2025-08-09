@@ -4,7 +4,7 @@ Installing pyRiemann-qiskit
 ===========================
 
 _We recommend the use of [Anaconda](https://www.anaconda.com/) to manage python
-environements._
+environments._
 
 `pyRiemann-qiskit` currently supports Windows, Mac and Linux OS with Python 3.10 - 3.12.
 

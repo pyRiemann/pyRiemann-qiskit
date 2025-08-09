@@ -148,7 +148,7 @@ def get_provider():
     -----
     .. versionadded:: 0.0.4
     .. versionchanged:: 0.1.0
-        IBMProvider is not a static API anymore but need to be instanciated.
+        IBMProvider is not a static API anymore but need to be instantiated.
     .. versionchanged:: 0.3.0
         Switch from IBMProvider to QiskitRuntimeService.
     """
@@ -191,7 +191,7 @@ def get_device(provider, min_qubits):
     provider: IBMProvider
         An instance of IBMProvider.
     min_qubits: int
-        The minimun of qubits.
+        The minimum of qubits.
 
     Returns
     -------

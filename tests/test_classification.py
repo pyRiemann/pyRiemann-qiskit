@@ -198,7 +198,7 @@ class TestQuanticVQC(BinaryFVT):
 
     def get_params(self):
         quantum_instance = QuanticVQC(verbose=False)
-        # To achieve testing in a reasonnable amount of time,
+        # To achieve testing in a reasonable amount of time,
         # you need to reduce the number of features and the number of samples
         return {
             "n_samples": 6,
