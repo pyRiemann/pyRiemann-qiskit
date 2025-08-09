@@ -6,7 +6,7 @@ Suspicious financial activity detection using quantum computer
 In this example, we will illustrate the use of Riemannian geometry and quantum
 computing for the detection of suspicious activity on financial data [1]_.
 
-The dataset contains synthethic data generated from a real dataset
+The dataset contains synthetic data generated from a real dataset
 of CaixaBank’s express loans [2]_.
 Each entry contains, for example, the date and amount of the loan request,
 the client identification number and the creation date of the account.
@@ -14,7 +14,7 @@ A loan is tagged with either tentative or confirmation of fraud, when a
 fraudster has impersonates the client to claim the loan and steal the client
 funds.
 
-Once the fraud is caracterized, a complex task is to identify whether or not a
+Once the fraud is characterized, a complex task is to identify whether or not a
 collusion is taking place. One fraudster can for example corrupt a client
 having already a good history with the bank.
 The fraud can also involves a bank agent who is mandated by the client.
@@ -169,7 +169,7 @@ print(features.head())
 print(f"number of fraudulent loans: {target[target == 1].size}")
 print(f"number of genuine loans: {target[target == 0].size}")
 
-# Simple treatement for NaN value
+# Simple treatment for NaN value
 features.fillna(method="ffill", inplace=True)
 
 # Convert date value to linux time
@@ -185,7 +185,7 @@ le.fit(features["IP_TERMINAL"].astype("category"))
 features["IP_TERMINAL"] = le.transform(features["IP_TERMINAL"].astype("category"))
 
 # ... and create an 'index' column in the dataset
-# Note: this is done only for progamming reasons, due to our implementation
+# Note: this is done only for programming reasons, due to our implementation
 # of the `ToEpochs` transformer (see below)
 features["index"] = features.index
 
@@ -425,7 +425,7 @@ print(
 #
 # 1) We have the no-aware ERP method (namely RandomForest)
 #    to predict whether or not the transaction is a fraud;
-# 2) If the fraud is caracterized, we use the QSVC pipeline to
+# 2) If the fraud is characterized, we use the QSVC pipeline to
 #    predict whether or not it is a collusion.
 
 

@@ -278,7 +278,7 @@ def generate_caches(datasets: list, pipelines: list, mock_data=None):
     Returns
     -------
     caches: Dict
-        A dictionnary containing all the generated caches, e.g.:
+        A dictionary containing all the generated caches, e.g.:
         ``caches[datasetA][pipeline1]``
         contains the cache for the ``datasetA`` and the ``pipeline1``.
 
@@ -309,7 +309,7 @@ def filter_subjects_by_incomplete_results(caches, datasets: list, pipelines: lis
     Parameters
     ----------
     caches: Dict
-        A dictionnary containing all the caches, e.g.:
+        A dictionary containing all the caches, e.g.:
         caches[datasetA][pipeline1]
         contains the cache for the datasetA and the pipeline1.
     datasets: List
@@ -320,7 +320,7 @@ def filter_subjects_by_incomplete_results(caches, datasets: list, pipelines: lis
     Returns
     -------
     results: Dict
-        A dictionnary of existing results, e.g.:
+        A dictionary of existing results, e.g.:
         results[datasetA][subjectA]
 
     Notes
@@ -367,7 +367,7 @@ def add_moabb_dataframe_results_to_caches(
     pipelines: List
         The sklearn Pipelines.
     caches: Dict
-        A dictionnary containing all the caches, e.g.:
+        A dictionary containing all the caches, e.g.:
         caches[datasetA][pipeline1]
         contains the cache for the datasetA and the pipeline1.
 
@@ -401,7 +401,7 @@ def convert_caches_to_dataframes(caches, datasets, pipelines):
     Parameters
     ----------
     caches: Dict
-        A dictionnary containing all the caches, e.g.:
+        A dictionary containing all the caches, e.g.:
         caches[datasetA][pipeline1]
         contains the cache for the datasetA and the pipeline1.
     datasets: List
