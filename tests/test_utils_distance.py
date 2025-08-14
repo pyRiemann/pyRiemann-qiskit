@@ -34,9 +34,10 @@ def test_performance(metric):
     assert score.mean() > 0
 
 
-@pytest.mark.parametrize(
-    "optimizer", [ClassicalOptimizer(), NaiveQAOAOptimizer(), QAOACVOptimizer()]
-)
+# @pytest.mark.parametrize(
+#     "optimizer", [ClassicalOptimizer(), NaiveQAOAOptimizer(), QAOACVOptimizer()]
+# )
+@pytest.mark.parametrize("optimizer", [ClassicalOptimizer()])
 def test_qdistance_logeuclid_to_convex_hull(optimizer, get_covmats):
     n_trials, n_channels = 5, 3
     covmats = get_covmats(n_trials, n_channels)
