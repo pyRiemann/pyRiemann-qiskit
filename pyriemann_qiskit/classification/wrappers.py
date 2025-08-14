@@ -291,7 +291,7 @@ class QuanticSVM(QuanticClassifierBase):
     This class implements a support-vector machine (SVM) classifier [1]_,
     called SVC, on a quantum machine [2]_.
     Note that if `quantum` parameter is set to `False`
-    then a classical SVC will be perfomed instead.
+    then a classical SVC will be performed instead.
 
     Notes
     -----
@@ -680,7 +680,7 @@ class QuanticMDM(QuanticClassifierBase):
         parametric circuit (ansatz).
     create_mixer : None | Callable[int, QuantumCircuit], default=None
         A delegate that takes into input an angle and returns a QuantumCircuit.
-        This circuit is the mixer operatior for the QAOA-CV algorithm.
+        This circuit is the mixer operator for the QAOA-CV algorithm.
         If None and quantum, the NaiveQAOAOptimizer will be used instead.
     n_reps : int, default=3
         The number of time the mixer and cost operator are repeated in the QAOA-CV
@@ -840,7 +840,7 @@ class QuanticNCH(QuanticClassifierBase):
         parametric circuit (ansatz).
     create_mixer : None | Callable[int, QuantumCircuit], default=None
         A delegate that takes into input an angle and returns a QuantumCircuit.
-        This circuit is the mixer operatior for the QAOA-CV algorithm.
+        This circuit is the mixer operator for the QAOA-CV algorithm.
         If None and quantum, the NaiveQAOAOptimizer will be used instead.
     n_reps : int, default=3
         The number of time the mixer and cost operator are repeated in the QAOA-CV

@@ -28,7 +28,7 @@ from .quantum_provider import get_simulator
 
 
 def square_cont_mat_var(prob, channels, name="cont_spdmat"):
-    """ Docplex square continous matrix
+    """ Docplex square continuous matrix
 
     Creates a 2-dimensional dictionary of continuous decision variables,
     indexed by pairs of key objects.
@@ -44,7 +44,7 @@ def square_cont_mat_var(prob, channels, name="cont_spdmat"):
         The list of channels. A channel can be any Python object,
         such as channels'name or number but None.
     name : string
-        An custom name for the variable. The name is used internally by docplex
+        A custom name for the variable. The name is used internally by docplex
         and may appear if your print the model to a file for example.
 
     Returns
@@ -88,7 +88,7 @@ def square_int_mat_var(prob, channels, upper_bound=7, name="int_spdmat"):
     upper_bound : int (default: 7)
         The upper bound of the integer docplex variables.
     name : string
-        An custom name for the variable. The name is used internally by docplex
+        A custom name for the variable. The name is used internally by docplex
         and may appear if your print the model to a file for example.
 
     Returns
@@ -130,7 +130,7 @@ def square_bin_mat_var(prob, channels, name="bin_spdmat"):
         The list of channels. A channel can be any Python object,
         such as channels'name or number but None.
     name : string
-        An custom name for the variable. The name is used internally by docplex
+        A custom name for the variable. The name is used internally by docplex
         and may appear if your print the model to a file for example.
 
     Returns
@@ -207,7 +207,7 @@ class pyQiskitOptimizer:
             The list of channels. A channel can be any Python object,
             such as channels'name or number but None.
         name : string
-            An custom name for the variable. The name is used internally by docplex
+            A custom name for the variable. The name is used internally by docplex
             and may appear if your print the model to a file for example.
 
         Returns
@@ -331,7 +331,7 @@ class ClassicalOptimizer(pyQiskitOptimizer):
             The list of channels. A channel can be any Python object,
             such as channels'name or number but None.
         name : string
-            An custom name for the variable. The name is used internally by docplex
+            A custom name for the variable. The name is used internally by docplex
             and may appear if your print the model to a file for example.
 
         Returns
@@ -498,7 +498,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
             The list of channels. A channel can be any Python object,
             such as channels'name or number but None.
         name : string
-            An custom name for the variable. The name is used internally by docplex
+            A custom name for the variable. The name is used internally by docplex
             and may appear if your print the model to a file for example.
 
         Returns
@@ -663,7 +663,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
             The list of channels. A channel can be any Python object,
             such as channels'name or number but None.
         name : string
-            An custom name for the variable. The name is used internally by docplex
+            A custom name for the variable. The name is used internally by docplex
             and may appear if your print the model to a file for example.
 
         Returns
@@ -721,7 +721,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         # We want the object expression with continuous variable
         objective_expr = qp._objective
 
-        # Convert continous variable to binary ones
+        # Convert continuous variable to binary ones
         # Get scalers corresponding to the definition range of each variables
         qp, scalers = QAOACVOptimizer.prepare_model(qp)
 

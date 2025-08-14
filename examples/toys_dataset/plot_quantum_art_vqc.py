@@ -36,7 +36,7 @@ fig.suptitle("VQC weights variability")
 
 # We will compute weight variability for different number of samples
 for i, n_samples in enumerate([2, 20]):
-    # ... and for differente number of parameters.
+    # ... and for different number of parameters.
     # (n_reps controls the number of parameters inside the circuit)
     for j, n_reps in enumerate([1, 3]):
         # instanciate VQC.
