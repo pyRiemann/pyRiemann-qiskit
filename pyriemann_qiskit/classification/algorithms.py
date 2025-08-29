@@ -60,8 +60,8 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         - "random" estimates hull using n_samples_per_hull random matrices.
     seed : float, default=None
         Optional random seed to use when subsampling is set to "random".
-    optimizer: pyQiskitOptimizer, default: ClassicalOptimizer()
-      An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
+    optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
+        An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
 
     References
     ----------
