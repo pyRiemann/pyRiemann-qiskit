@@ -27,17 +27,16 @@ from .hyper_params_factory import create_mixer_rotational_X_gates
 from .math import is_pauli_identity
 from .quantum_provider import get_simulator
 
-@deprecated(
-    "set_global_optimizer is deprecated and will be removed in 0.6.0; "
-)
+
+@deprecated("set_global_optimizer is deprecated and will be removed in 0.6.0; ")
 def set_global_optimizer():
     pass
 
-@deprecated(
-    "get_global_optimizer is deprecated and will be removed in 0.6.0; "
-)
+
+@deprecated("get_global_optimizer is deprecated and will be removed in 0.6.0; ")
 def get_global_optimizer():
     pass
+
 
 def square_cont_mat_var(prob, channels, name="cont_spdmat"):
     """ Docplex square continuous matrix
