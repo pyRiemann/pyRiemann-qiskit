@@ -38,7 +38,7 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
     -----
     .. versionadded:: 0.2.0
     .. versionchanged:: 0.4.2
-        Added optimizer attribute
+        Added optimizer parameter
 
     Attributes
     ----------
