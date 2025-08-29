@@ -251,7 +251,7 @@ class CpMDM(MDM):
     Only log-Euclidean distance between trial and class prototypes is supported
     at the moment, but any type of metric can be used for centroid estimation.
 
-    Attributes
+    Parameters
     ----------
     optimizer: pyQiskitOptimizer, default: ClassicalOptimizer()
       An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
