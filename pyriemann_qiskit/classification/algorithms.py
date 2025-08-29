@@ -276,7 +276,7 @@ class CpMDM(MDM):
 
     def __init__(self, optimizer=ClassicalOptimizer(), **params):
         self.optimizer = optimizer
-        MDM.__init__(self, **params)
+        super().__init__(**params)
 
     def _predict_distances(self, X):
         if is_qfunction(self.metric_dist):
