@@ -40,7 +40,7 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
     .. versionchanged:: 0.4.2
         Added optimizer parameter
 
-    Attributes
+    Parameters
     ----------
     n_jobs : int, default=6
         Number of jobs to use for the computation. This works by computing
