@@ -293,4 +293,4 @@ class CpMDM(MDM):
                 weights = [distance(self.covmeans_, x) for x in X]
             return 1 - np.array(weights)
         else:
-            return MDM._predict_distances(self, X)
+            return super()._predict_distances(X)
