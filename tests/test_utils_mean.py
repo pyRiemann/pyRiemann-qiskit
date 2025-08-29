@@ -10,8 +10,8 @@ from pyriemann_qiskit.classification import QuanticMDM
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.utils.docplex import (
     ClassicalOptimizer,
-    NaiveQAOAOptimizer,
-    QAOACVOptimizer,
+    # NaiveQAOAOptimizer,
+    # QAOACVOptimizer,
 )
 from pyriemann_qiskit.utils.mean import qmean_euclid, qmean_logeuclid
 
