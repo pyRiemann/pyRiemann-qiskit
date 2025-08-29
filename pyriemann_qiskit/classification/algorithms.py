@@ -253,8 +253,8 @@ class CpMDM(MDM):
 
     Parameters
     ----------
-    optimizer: pyQiskitOptimizer, default: ClassicalOptimizer()
-      An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
+    optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
+        An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
 
     Notes
     -----
