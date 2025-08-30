@@ -2,17 +2,8 @@ from docplex.mp.model import Model
 from pyriemann.utils.base import expm, logm
 from pyriemann.utils.mean import mean_functions
 from qiskit_optimization.algorithms import ADMMOptimizer
-from typing_extensions import deprecated
 
 from .docplex import ClassicalOptimizer
-
-
-@deprecated(
-    "fro_mean_convex is deprecated and will be removed in 0.3.0; "
-    "please use qmean_euclid."
-)
-def fro_mean_convex():
-    pass
 
 
 def qmean_euclid(X, sample_weight=None, optimizer=ClassicalOptimizer()):

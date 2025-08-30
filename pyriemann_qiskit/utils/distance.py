@@ -7,17 +7,8 @@ from pyriemann.utils.distance import (
     distance_logeuclid,
 )
 from pyriemann.utils.mean import mean_logeuclid
-from typing_extensions import deprecated
 
 from .docplex import ClassicalOptimizer
-
-
-@deprecated(
-    "logeucl_dist_convex is deprecated and will be removed in 0.3.0; "
-    "please use weights_logeuclid_to_convex_hull."
-)
-def logeucl_dist_convex():
-    pass
 
 
 def qdistance_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
