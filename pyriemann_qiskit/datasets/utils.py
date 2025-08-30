@@ -238,7 +238,7 @@ class MockDataset:
         The code of the dataset, which is also the string representation
         of the dataset.
     data_ : dict
-        A dictionnary representing the dataset, e.g.:
+        A dictionary representing the dataset, e.g.:
         ``{subject1: (samples1, labels1), subject2: (samples2, labels2), ...}``
     subjects_ : list[int]
         The subjects of the dataset.

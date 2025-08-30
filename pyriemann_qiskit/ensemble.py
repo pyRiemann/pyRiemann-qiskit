@@ -113,7 +113,7 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         When classifiers clfs have the same prediction, the
         returned probability is the average of the probability of classifiers.
         When classifiers don't have the same predictions,
-        the returned probability is the the one of the judge classifier.
+        the returned probability is the one of the judge classifier.
 
         Parameters
         ----------

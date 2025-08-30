@@ -18,7 +18,6 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.svm import SVC
 
 from ..datasets import get_feature_dimension
-from ..utils.docplex import set_global_optimizer
 from ..utils.hyper_params_factory import gen_two_local, gen_zz_feature_map, get_spsa
 from ..utils.quantum_provider import (
     get_device,
@@ -292,7 +291,7 @@ class QuanticSVM(QuanticClassifierBase):
     This class implements a support-vector machine (SVM) classifier [1]_,
     called SVC, on a quantum machine [2]_.
     Note that if `quantum` parameter is set to `False`
-    then a classical SVC will be perfomed instead.
+    then a classical SVC will be performed instead.
 
     Notes
     -----
@@ -681,7 +680,7 @@ class QuanticMDM(QuanticClassifierBase):
         parametric circuit (ansatz).
     create_mixer : None | Callable[int, QuantumCircuit], default=None
         A delegate that takes into input an angle and returns a QuantumCircuit.
-        This circuit is the mixer operatior for the QAOA-CV algorithm.
+        This circuit is the mixer operator for the QAOA-CV algorithm.
         If None and quantum, the NaiveQAOAOptimizer will be used instead.
     n_reps : int, default=3
         The number of time the mixer and cost operator are repeated in the QAOA-CV
@@ -741,7 +740,7 @@ class QuanticMDM(QuanticClassifierBase):
 
     def _init_algo(self, n_features):
         self._log("Quantic MDM initiating algorithm")
-        classifier = CpMDM(metric=self.metric)
+
         self._optimizer = get_docplex_optimizer_from_params_bag(
             self,
             self.quantum,
@@ -753,7 +752,9 @@ class QuanticMDM(QuanticClassifierBase):
             self.n_reps,
             self.qaoa_initial_points,
         )
-        set_global_optimizer(self._optimizer)
+
+        classifier = CpMDM(optimizer=self._optimizer, metric=self.metric)
+
         return classifier
 
     def _train(self, X, y):
@@ -839,7 +840,7 @@ class QuanticNCH(QuanticClassifierBase):
         parametric circuit (ansatz).
     create_mixer : None | Callable[int, QuantumCircuit], default=None
         A delegate that takes into input an angle and returns a QuantumCircuit.
-        This circuit is the mixer operatior for the QAOA-CV algorithm.
+        This circuit is the mixer operator for the QAOA-CV algorithm.
         If None and quantum, the NaiveQAOAOptimizer will be used instead.
     n_reps : int, default=3
         The number of time the mixer and cost operator are repeated in the QAOA-CV
@@ -890,14 +891,6 @@ class QuanticNCH(QuanticClassifierBase):
     def _init_algo(self, n_features):
         self._log("Nearest Convex Hull Classifier initiating algorithm")
 
-        classifier = NearestConvexHull(
-            n_hulls_per_class=self.n_hulls_per_class,
-            n_samples_per_hull=self.n_samples_per_hull,
-            n_jobs=self.n_jobs,
-            subsampling=self.subsampling,
-            seed=self.seed,
-        )
-
         self._optimizer = get_docplex_optimizer_from_params_bag(
             self,
             self.quantum,
@@ -910,9 +903,14 @@ class QuanticNCH(QuanticClassifierBase):
             self.qaoa_initial_points,
         )
 
-        # sets the optimizer for the distance functions
-        # used in NearestConvexHull class
-        set_global_optimizer(self._optimizer)
+        classifier = NearestConvexHull(
+            n_hulls_per_class=self.n_hulls_per_class,
+            n_samples_per_hull=self.n_samples_per_hull,
+            n_jobs=self.n_jobs,
+            subsampling=self.subsampling,
+            seed=self.seed,
+            optimizer=self._optimizer,
+        )
 
         return classifier
 

@@ -9,7 +9,7 @@ from pyriemann.utils.distance import (
 from pyriemann.utils.mean import mean_logeuclid
 from typing_extensions import deprecated
 
-from .docplex import ClassicalOptimizer, get_global_optimizer
+from .docplex import ClassicalOptimizer
 
 
 @deprecated(
@@ -114,7 +114,6 @@ def weights_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
         return np.trace(logm(m1) @ logm(m2))
 
     prob = Model()
-    optimizer = get_global_optimizer(optimizer)
     w = optimizer.get_weights(prob, matrices)
 
     wtLogAtLogAw = prob.sum(
@@ -173,7 +172,6 @@ def _weights_distance(
     matrices = range(n_matrices)
 
     prob = Model()
-    optimizer = get_global_optimizer(optimizer)
 
     w = optimizer.get_weights(prob, matrices)
 
