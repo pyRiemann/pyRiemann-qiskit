@@ -16,7 +16,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.utils.extmath import softmax
 
 from ..utils.distance import distance_functions, qdistance_logeuclid_to_convex_hull
-from ..utils.docplex import get_global_optimizer, set_global_optimizer
+from ..utils.docplex import ClassicalOptimizer
 from ..utils.utils import is_qfunction
 
 logging.basicConfig(level=logging.WARNING)
@@ -37,6 +37,8 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
     Notes
     -----
     .. versionadded:: 0.2.0
+    .. versionchanged:: 0.4.2
+        Added optimizer parameter
 
     Parameters
     ----------
@@ -58,6 +60,8 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         - "random" estimates hull using n_samples_per_hull random matrices.
     seed : float, default=None
         Optional random seed to use when subsampling is set to "random".
+    optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
+        An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
 
     References
     ----------
@@ -74,6 +78,7 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         n_samples_per_hull=10,
         subsampling="min",
         seed=None,
+        optimizer=ClassicalOptimizer(),
     ):
         """Init."""
         self.n_jobs = n_jobs
@@ -82,6 +87,7 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         self.matrices_per_class_ = {}
         self.subsampling = subsampling
         self.seed = seed
+        self.optimizer = optimizer
 
         if subsampling not in ["min", "random", "full"]:
             raise ValueError(f"Unknown subsampling type {subsampling}.")
@@ -124,7 +130,7 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
             indexes = np.argsort(dist)[0 : self.n_samples_per_hull]
 
             d = qdistance_logeuclid_to_convex_hull(
-                self.matrices_per_class_[c][indexes], x
+                self.matrices_per_class_[c][indexes], x, self.optimizer
             )
 
             dists.append(d)
@@ -149,7 +155,7 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
                     )
                     hull_data = self.matrices_per_class_[c][random_samples]
 
-                dist = qdistance_logeuclid_to_convex_hull(hull_data, x)
+                dist = qdistance_logeuclid_to_convex_hull(hull_data, x, self.optimizer)
                 dist_total = dist_total + dist
 
             dists.append(dist_total)
@@ -170,12 +176,8 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         parallel = self.n_jobs > 1
 
         if parallel:
-            # Get global optimizer in this process
-            optimizer = get_global_optimizer(default=None)
 
             def job(x):
-                # Set the global optimizer inside the new process
-                set_global_optimizer(optimizer)
                 return self._process_sample(x)
 
             dists = Parallel(n_jobs=self.n_jobs)(delayed(job)(x) for x in X)
@@ -249,6 +251,11 @@ class CpMDM(MDM):
     Only log-Euclidean distance between trial and class prototypes is supported
     at the moment, but any type of metric can be used for centroid estimation.
 
+    Parameters
+    ----------
+    optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
+        An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
+
     Notes
     -----
     .. versionadded:: 0.4.2
@@ -267,17 +274,23 @@ class CpMDM(MDM):
 
     """
 
+    def __init__(self, optimizer=ClassicalOptimizer(), **params):
+        self.optimizer = optimizer
+        super().__init__(**params)
+
     def _predict_distances(self, X):
         if is_qfunction(self.metric_dist):
+            distance = distance_functions[self.metric_dist]
+
             if "hull" in self.metric_dist:
                 warn("qdistances to hull should not be use inside MDM")
+                weights = [distance(self.covmeans_, x, self.optimizer) for x in X]
             else:
                 warn(
                     "q-distances for MDM are toy functions.\
                         Use pyRiemann distances instead."
                 )
-            distance = distance_functions[self.metric_dist]
-            weights = [distance(self.covmeans_, x) for x in X]
+                weights = [distance(self.covmeans_, x) for x in X]
             return 1 - np.array(weights)
         else:
-            return MDM._predict_distances(self, X)
+            return super()._predict_distances(X)
