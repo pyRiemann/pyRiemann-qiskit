@@ -12,7 +12,7 @@ imbalanced-learn==0.12.4
 joblib
 pandas
 cvxpy==1.6.5
-qiskit==1.*
+qiskit>=1.1.0
 qiskit_algorithms==0.3.1
 qiskit_machine_learning==0.8.3
 qiskit_ibm_runtime==0.34.0
