@@ -7,17 +7,8 @@ from pyriemann.utils.distance import (
     distance_logeuclid,
 )
 from pyriemann.utils.mean import mean_logeuclid
-from typing_extensions import deprecated
 
-from .docplex import ClassicalOptimizer, get_global_optimizer
-
-
-@deprecated(
-    "logeucl_dist_convex is deprecated and will be removed in 0.3.0; "
-    "please use weights_logeuclid_to_convex_hull."
-)
-def logeucl_dist_convex():
-    pass
+from .docplex import ClassicalOptimizer
 
 
 def qdistance_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
@@ -114,7 +105,6 @@ def weights_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
         return np.trace(logm(m1) @ logm(m2))
 
     prob = Model()
-    optimizer = get_global_optimizer(optimizer)
     w = optimizer.get_weights(prob, matrices)
 
     wtLogAtLogAw = prob.sum(
@@ -173,7 +163,6 @@ def _weights_distance(
     matrices = range(n_matrices)
 
     prob = Model()
-    optimizer = get_global_optimizer(optimizer)
 
     w = optimizer.get_weights(prob, matrices)
 

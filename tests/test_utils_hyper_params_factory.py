@@ -56,7 +56,7 @@ class TestGenZZFeatureMapParams:
         assert isinstance(feature_map.parameters, ParameterView)
 
     def test_entangl_invalid_value(self):
-        """Test gen_zz_feature_map with uncorrect value"""
+        """Test gen_zz_feature_map with incorrect value"""
         n_features = 2
         feature_map = gen_zz_feature_map(entanglement="invalid")(n_features)
         with pytest.raises(ValueError):

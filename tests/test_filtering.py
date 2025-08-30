@@ -9,7 +9,7 @@ class TestCommon:
         "dim_red", [NoDimRed(), NaiveDimRed(), NaiveDimRed(is_even=False)]
     )
     def test_fit(self, dim_red):
-        """Ensure all filtering can be instanciated,
+        """Ensure all filtering can be instantiated,
         and fitted.
         """
         X = np.array([[]])
@@ -32,8 +32,8 @@ class TestNaiveDimRed:
         "dim_red", [(NaiveDimRed(), True), (NaiveDimRed(is_even=False), False)]
     )
     def test_reduction(self, dim_red):
-        """Ensure the dimension of the feature is divied by two
-        and the the adequate indices are kept depending on wether the
+        """Ensure the dimension of the feature is divided by two
+        and the adequate indices are kept depending on whether the
         transform is Even or Odd.
         """
         X = np.array([[True, False], [True, False]])
