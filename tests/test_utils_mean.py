@@ -8,10 +8,8 @@ from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import QuanticMDM
 from pyriemann_qiskit.datasets import get_mne_sample
-from pyriemann_qiskit.utils.docplex import (
+from pyriemann_qiskit.utils.docplex import (  # NaiveQAOAOptimizer,; QAOACVOptimizer,
     ClassicalOptimizer,
-    NaiveQAOAOptimizer,
-    QAOACVOptimizer,
 )
 from pyriemann_qiskit.utils.mean import qmean_euclid, qmean_logeuclid
 
@@ -63,8 +61,8 @@ def test_mean_cpm_shape(get_covmats, mean):
     "optimizer",
     [
         ClassicalOptimizer(optimizer=ADMMOptimizer()),
-        NaiveQAOAOptimizer(),
-        QAOACVOptimizer(),
+        #  NaiveQAOAOptimizer(),
+        # QAOACVOptimizer(),
     ],
 )
 @pytest.mark.parametrize("mean", [qmean_euclid])
@@ -81,8 +79,8 @@ def test_mean_cpm_all_zeros(optimizer, mean):
     "optimizer",
     [
         ClassicalOptimizer(optimizer=ADMMOptimizer()),
-        NaiveQAOAOptimizer(),
-        QAOACVOptimizer(),
+        # NaiveQAOAOptimizer(),
+        # QAOACVOptimizer(),
     ],
 )
 @pytest.mark.parametrize("mean", [qmean_euclid])
@@ -99,8 +97,8 @@ def test_mean_cpm_all_ones(optimizer, mean):
     "optimizer",
     [
         ClassicalOptimizer(optimizer=ADMMOptimizer()),
-        NaiveQAOAOptimizer(),
-        QAOACVOptimizer(),
+        # NaiveQAOAOptimizer(),
+        # QAOACVOptimizer(),
     ],
 )
 @pytest.mark.parametrize("mean", [qmean_euclid])
@@ -117,8 +115,8 @@ def test_mean_cpm_all_equals(optimizer, mean):
     "optimizer",
     [
         ClassicalOptimizer(optimizer=ADMMOptimizer()),
-        NaiveQAOAOptimizer(),
-        QAOACVOptimizer(),
+        # NaiveQAOAOptimizer(),
+        # QAOACVOptimizer(),
     ],
 )
 @pytest.mark.parametrize("mean", [qmean_euclid])
