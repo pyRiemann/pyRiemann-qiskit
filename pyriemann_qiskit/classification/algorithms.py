@@ -16,8 +16,8 @@ from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.utils.extmath import softmax
 
 from ..utils.distance import distance_functions, qdistance_logeuclid_to_convex_hull
-from ..utils.mean import mean_functions  # noqa
 from ..utils.docplex import ClassicalOptimizer
+from ..utils.mean import mean_functions  # noqa
 from ..utils.utils import is_qfunction
 
 logging.basicConfig(level=logging.WARNING)
