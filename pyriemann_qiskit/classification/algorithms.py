@@ -17,8 +17,10 @@ from sklearn.utils.extmath import softmax
 
 from ..utils.distance import distance_functions, qdistance_logeuclid_to_convex_hull
 from ..utils.docplex import ClassicalOptimizer
-from ..utils.mean import mean_functions  # noqa
 from ..utils.utils import is_qfunction
+from ..utils.mean import mean_functions
+from joblib import Parallel, delayed
+from pyriemann.utils.utils import check_metric
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -279,6 +281,48 @@ class CpMDM(MDM):
         self.optimizer = optimizer
         super().__init__(**params)
 
+    def fit(self, X, y, sample_weight=None):
+        """Fit (estimates) the centroids.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_trials, n_channels, n_channels)
+            ndarray of SPD matrices.
+        y : ndarray, shape (n_trials,)
+            labels corresponding to each trial.
+        sample_weight : None | ndarray shape (n_trials,), default=None
+            weights for each trial, not used.
+
+        Returns
+        -------
+        self : CpMDM instance
+            The CpMDM instance.
+        """
+        
+        self.metric_mean, self.metric_dist = check_metric(self.metric)
+        if is_qfunction(self.metric_mean):
+            
+            self.classes_ = np.unique(y)
+
+            if sample_weight is None:
+                sample_weight = np.ones(X.shape[0])
+
+            mean_func = mean_functions[self.metric_mean]
+            
+            self.covmeans_ = Parallel(n_jobs=self.n_jobs)(
+                delayed(mean_func)(
+                    X[y == c],
+                    sample_weight=sample_weight[y == c],
+                    optimizer=self.optimizer
+                ) for c in self.classes_
+            )
+
+            self.covmeans_ = np.stack(self.covmeans_, axis=0)
+            
+            return self
+        else:
+            return super().fit(X, y, sample_weight)
+
     def _predict_distances(self, X):
         if is_qfunction(self.metric_dist):
             distance = distance_functions[self.metric_dist]
@@ -291,7 +335,7 @@ class CpMDM(MDM):
                     "q-distances for MDM are toy functions.\
                         Use pyRiemann distances instead."
                 )
-                weights = [distance(self.covmeans_, x) for x in X]
+                weights = [distance(self.covmeans_, x, self.optimizer) for x in X]
             return 1 - np.array(weights)
         else:
             return super()._predict_distances(X)
