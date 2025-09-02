@@ -12,15 +12,14 @@ import numpy as np
 from joblib import Parallel, delayed
 from pyriemann.classification import MDM
 from pyriemann.utils.distance import distance
+from pyriemann.utils.utils import check_metric
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.utils.extmath import softmax
 
 from ..utils.distance import distance_functions, qdistance_logeuclid_to_convex_hull
 from ..utils.docplex import ClassicalOptimizer
-from ..utils.utils import is_qfunction
 from ..utils.mean import mean_functions
-from joblib import Parallel, delayed
-from pyriemann.utils.utils import check_metric
+from ..utils.utils import is_qfunction
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -298,27 +297,27 @@ class CpMDM(MDM):
         self : CpMDM instance
             The CpMDM instance.
         """
-        
+
         self.metric_mean, self.metric_dist = check_metric(self.metric)
         if is_qfunction(self.metric_mean):
-            
             self.classes_ = np.unique(y)
 
             if sample_weight is None:
                 sample_weight = np.ones(X.shape[0])
 
             mean_func = mean_functions[self.metric_mean]
-            
+
             self.covmeans_ = Parallel(n_jobs=self.n_jobs)(
                 delayed(mean_func)(
                     X[y == c],
                     sample_weight=sample_weight[y == c],
-                    optimizer=self.optimizer
-                ) for c in self.classes_
+                    optimizer=self.optimizer,
+                )
+                for c in self.classes_
             )
 
             self.covmeans_ = np.stack(self.covmeans_, axis=0)
-            
+
             return self
         else:
             return super().fit(X, y, sample_weight)
