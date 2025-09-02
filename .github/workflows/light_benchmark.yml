@@ -15,7 +15,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Cache dependencies
         uses: actions/cache@v4
         with:
@@ -28,7 +28,7 @@ jobs:
         id: run-benchmark-pr
         run: |
           python benchmarks/light_benchmark.py pr
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: 'main'
       - name: Install dependencies
