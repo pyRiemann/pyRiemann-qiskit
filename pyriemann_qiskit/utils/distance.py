@@ -176,7 +176,9 @@ def _weights_distance(
 
 
 distance_functions["qlogeuclid_hull"] = weights_logeuclid_to_convex_hull
-distance_functions["qeuclid"] = lambda A, B, optimizer: _weights_distance(A, B, distance_euclid, optimizer)
+distance_functions["qeuclid"] = lambda A, B, optimizer: _weights_distance(
+    A, B, distance_euclid, optimizer
+)
 distance_functions["qlogeuclid"] = lambda A, B, optimizer: _weights_distance(
     A, B, distance_logeuclid, optimizer
 )
