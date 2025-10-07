@@ -39,7 +39,7 @@ jobs:
         run: |
           python benchmarks/light_benchmark.py ${{steps.run-benchmark-pr.outputs.RG_QSVM}} ${{steps.run-benchmark-pr.outputs.RG_VQC}} ${{steps.run-benchmark-pr.outputs.QMDM_mean}} ${{steps.run-benchmark-pr.outputs.QMDM_dist}} ${{steps.run-benchmark-pr.outputs.RG_LDA}}
       - name: Compare performance
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
