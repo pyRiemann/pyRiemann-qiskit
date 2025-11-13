@@ -57,7 +57,7 @@ setup(name='pyriemann-qiskit',
                                 'mne==1.9.0',
                                 'mne-bids==0.16.0',
                                 'seaborn>=0.12.1',
-                                'moabb==1.2.0',
+                                'moabb==1.4.0',
                                 'imbalanced-learn==0.12.4'
                             ],
                       'tests': ['pytest', 'seaborn', 'flake8', 'mne', 'pooch'],
