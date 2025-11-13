@@ -20,7 +20,7 @@ qiskit-optimization==0.6.1
 qiskit-aer==0.17.0
 scipy==1.13.1
 moabb==1.4.0
-pyriemann==0.7
+pyriemann==0.9
 docplex>=2.21.207
 firebase_admin==6.8.0
 qiskit-symb==0.2.0
