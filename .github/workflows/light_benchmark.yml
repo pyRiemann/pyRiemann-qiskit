@@ -1,7 +1,7 @@
 name: Light Benchmark
 
 on:
-  pull_request:
+  pull_request_target:
     paths:
     - 'pyriemann_qiskit/**'
     - 'examples/**'
@@ -12,8 +12,10 @@ on:
 jobs:
   light_benchmark:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Cache dependencies
         uses: actions/cache@v4
         with:
@@ -26,7 +28,7 @@ jobs:
         id: run-benchmark-pr
         run: |
           python benchmarks/light_benchmark.py pr
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: 'main'
       - name: Install dependencies
@@ -37,7 +39,7 @@ jobs:
         run: |
           python benchmarks/light_benchmark.py ${{steps.run-benchmark-pr.outputs.RG_QSVM}} ${{steps.run-benchmark-pr.outputs.RG_VQC}} ${{steps.run-benchmark-pr.outputs.QMDM_mean}} ${{steps.run-benchmark-pr.outputs.QMDM_dist}} ${{steps.run-benchmark-pr.outputs.RG_LDA}}
       - name: Compare performance
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |

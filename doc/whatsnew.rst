@@ -6,9 +6,22 @@ What's new in the package
 =========================
 
 
-
 Develop branch
 ----------------
+
+v0.4.2
+------
+
+- Deprecate FirebaseConnector
+- Remove deprecated function cov_to_corr_matrix
+- Drop support for Python 3.9 and add support for Python 3.12
+- QuanticMDM: Separate wrapper from algorithm
+- Remove global optimizer: this change is transparent for MDM and NCH
+- Bump mne, cvxpy, docplex and qiskit-aer to latest version
+
+Details:
+
+https://github.com/pyRiemann/pyRiemann-qiskit/releases/tag/v0.4.2
 
 v0.4.1
 ------
