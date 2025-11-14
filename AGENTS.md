@@ -187,6 +187,15 @@ benchmarks/              # Performance benchmarks
 
 ## Documentation Standards
 
+### General Documentation Principles
+
+1. **Skip `__init__.py` files**: Do not add or modify docstrings in `__init__.py` files
+2. **Skip private methods**: Do not document private methods (those starting with `_`) or constructors (`__init__`)
+3. **Document public methods only**: Focus on public methods and class docstrings
+4. **Keep original style**: Follow the original spirit of the writing - be direct and technical
+5. **Avoid marketing language**: Do not use words like "enhanced", "improved", "powerful", etc.
+6. **Be concise and technical**: Get straight to the point without unnecessary elaboration
+
 ### Docstring Format (NumPy Style)
 
 ```python
@@ -210,6 +219,67 @@ def function_name(param1, param2):
     References
     ----------
     .. [1] Citation if applicable
+    """
+```
+
+### What to Document
+
+**DO document:**
+- Module-level docstrings (at the top of `.py` files, not `__init__.py`)
+- Public class docstrings
+- Public method docstrings (`fit`, `predict`, `transform`, `score`, etc.)
+- Public function docstrings
+- Property docstrings
+
+**DO NOT document:**
+- `__init__.py` files
+- Private methods (starting with `_`)
+- Constructor methods (`__init__`)
+- Internal helper functions
+
+### Writing Style Guidelines
+
+**Good examples:**
+```python
+"""Quantum classifier wrappers.
+
+Contains the base class for all quantum classifiers and several quantum
+classifiers that can run in quantum/classical modes and on simulated/real
+quantum computers.
+"""
+```
+
+```python
+def predict(self, X):
+    """Predict class labels for samples in X.
+
+    Parameters
+    ----------
+    X : ndarray, shape (n_samples, n_features)
+        Test samples.
+
+    Returns
+    -------
+    y_pred : ndarray, shape (n_samples,)
+        Predicted class labels.
+    """
+```
+
+**Bad examples (avoid):**
+```python
+"""Enhanced quantum classifier wrappers with improved performance.
+
+This module provides powerful quantum classifiers that leverage
+state-of-the-art quantum computing to deliver superior results...
+"""
+```
+
+```python
+def predict(self, X):
+    """Calculates the predictions using our advanced algorithm.
+
+    This method uses cutting-edge quantum technology to provide
+    highly accurate predictions...
     """
 ```
 

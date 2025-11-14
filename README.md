@@ -205,6 +205,7 @@ Here's a minimal example to get you started:
 from pyriemann_qiskit.classification import QuantumClassifierWithDefaultRiemannianPipeline
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import balanced_accuracy_score
 
 # Create sample data
 X, y = make_classification(n_samples=100, n_features=4, n_classes=2, random_state=42)
@@ -215,7 +216,8 @@ qc = QuantumClassifierWithDefaultRiemannianPipeline()
 qc.fit(X_train, y_train)
 
 # Evaluate
-score = qc.score(X_test, y_test)
+y_pred = qc.predict(X_test, y_test)
+score = balanced_accuracy_score(y_test, y_pred)
 print(f"Accuracy: {score:.2f}")
 ```
 

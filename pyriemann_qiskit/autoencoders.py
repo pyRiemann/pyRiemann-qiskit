@@ -1,3 +1,9 @@
+"""Quantum autoencoder implementations.
+
+This module provides quantum autoencoder classes for dimensionality reduction
+and denoising of quantum states, compatible with scikit-learn transformers.
+"""
+
 import logging
 
 import numpy as np
@@ -130,19 +136,25 @@ class BasicQnnAutoencoder(TransformerMixin):
         return self.num_latent + self.num_trash
 
     def fit(self, X, _y=None, **kwargs):
-        """Fit the autoencoder.
+        """Fit the quantum autoencoder to the data.
+
+        Trains the autoencoder circuit parameters by minimizing the cost function
+        that measures reconstruction fidelity. The number of features must match
+        2^n_qubits where n_qubits = num_trash + num_latent.
 
         Parameters
         ----------
         X : ndarray, shape (n_samples, n_features)
-            Set of time epochs.
-            n_features must equal 2 ** n_qubits,
-            where n_qubits = num_trash + num_latent.
+            Training data. n_features must equal 2^n_qubits.
+        _y : None
+            Ignored. Present for scikit-learn compatibility.
+        **kwargs : dict
+            Additional keyword arguments (ignored).
 
         Returns
         -------
         self : BasicQnnAutoencoder
-            The BasicQnnAutoencoder instance.
+            The fitted autoencoder instance.
         """
 
         _, n_features = X.shape
@@ -200,19 +212,22 @@ class BasicQnnAutoencoder(TransformerMixin):
         return self
 
     def transform(self, X, **kwargs):
-        """Apply the transformer circuit.
+        """Transform data using the fitted autoencoder.
+
+        Applies the encoder-decoder circuit to reconstruct the input data
+        through the latent space representation.
 
         Parameters
         ----------
         X : ndarray, shape (n_samples, n_features)
-            Set of time epochs.
-            n_features must equal 2 ** n_qubits,
-            where n_qubits = num_trash + num_latent.
+            Data to transform. n_features must equal 2^n_qubits.
+        **kwargs : dict
+            Additional keyword arguments (ignored).
 
         Returns
         -------
-        outputs : ndarray, shape (n_samples, 2 ** n_qubits)
-            The autocoded sample. n_qubits = num_trash + num_latent.
+        X_transformed : ndarray, shape (n_samples, n_features)
+            Reconstructed data after encoding and decoding.
         """
 
         _, n_features = X.shape

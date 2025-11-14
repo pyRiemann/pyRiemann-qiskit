@@ -1,8 +1,8 @@
-"""
-Contains the base class for all quantum classifiers
-as well as several quantum classifiers than can run
-in several modes quantum/classical and simulated/real
-quantum computer.
+"""Quantum classifier wrappers.
+
+Contains the base class for all quantum classifiers and several quantum
+classifiers that can run in quantum/classical modes and on simulated/real
+quantum computers.
 """
 import logging
 from datetime import datetime
@@ -160,20 +160,24 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         return np.array(y_copy)
 
     def fit(self, X, y):
-        """Uses a quantum backend and fits the training data.
+        """Fit the quantum classifier using training data.
+
+        Initializes the quantum backend (simulator or real hardware) and trains
+        the classifier on the provided data. The feature map is generated based
+        on the number of features in X.
 
         Parameters
         ----------
         X : ndarray, shape (n_samples, n_features)
-            Training vector, where `n_samples` is the number of samples and
+            Training vectors, where `n_samples` is the number of samples and
             `n_features` is the number of features.
         y : ndarray, shape (n_samples,)
-            Target vector relative to X.
+            Target labels corresponding to X.
 
         Returns
         -------
         self : QuanticClassifierBase instance
-            The QuanticClassifierBase instance.
+            The fitted classifier instance.
         """
         self._init_quantum()
 
@@ -213,22 +217,24 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         self._classifier.fit(X, y)
 
     def score(self, X, y):
-        """Returns the testing accuracy.
-           You might want to use a different metric by using sklearn
-           cross_val_score
+        """Return the mean accuracy on the given test data and labels.
 
         Parameters
         ----------
         X : ndarray, shape (n_samples, n_features)
-            Input vector, where `n_samples` is the number of samples and
-            `n_features` is the number of features.
+            Test samples.
         y : ndarray, shape (n_samples,)
-            Predicted target vector relative to X.
+            True labels for X.
 
         Returns
         -------
-        accuracy : double
-            Accuracy of predictions from X with respect y.
+        score : float
+            Mean accuracy of self.predict(X) with respect to y.
+
+        Notes
+        -----
+        For alternative metrics, use sklearn.model_selection.cross_val_score
+        with a custom scoring parameter.
         """
         y = self._map_classes_to_indices(y)
         self._log("Testing...")
@@ -241,23 +247,22 @@ class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
         return result
 
     def predict_proba(self, X):
-        """Return the probabilities associated with predictions.
+        """Predict class probabilities for X.
 
-        The default behavior is to return the nested classifier probabilities.
-        In case where no `predict_proba` method is available inside the classifier,
-        the method predicts the label number (0 or 1 for examples) and applies a
-        softmax in top of it.
+        Returns the probability of each class for each sample. If the underlying
+        classifier does not implement predict_proba, predictions are converted
+        to one-hot encoding and softmax is applied.
 
         Parameters
         ----------
         X : ndarray, shape (n_samples, n_features)
-            Input vector, where `n_samples` is the number of samples and
-            `n_features` is the number of features.
+            Test samples.
 
         Returns
         -------
         prob : ndarray, shape (n_samples, n_classes)
-            prob[n, i] == 1 if the nth sample is assigned to class `i`.
+            Class probabilities for each sample. prob[i, j] is the probability
+            that sample i belongs to class j.
         """
 
         if not hasattr(self._classifier, "predict_proba"):
@@ -443,18 +448,17 @@ class QuanticSVM(QuanticClassifierBase):
         return classifier
 
     def predict(self, X):
-        """Calculates the predictions.
+        """Predict class labels for samples in X.
 
         Parameters
         ----------
         X : ndarray, shape (n_samples, n_features)
-            Input vector, where `n_samples` is the number of samples and
-            `n_features` is the number of features.
+            Test samples.
 
         Returns
         -------
-        pred : array, shape (n_samples,)
-            Class labels for samples in X.
+        y_pred : ndarray, shape (n_samples,)
+            Predicted class labels.
         """
         if isinstance(self._classifier, QSVC):
             probs = softmax(self.predict_proba(X))
@@ -581,18 +585,17 @@ class QuanticVQC(QuanticClassifierBase):
         return vqc
 
     def predict(self, X):
-        """Calculates the predictions.
+        """Predict class labels for samples in X.
 
         Parameters
         ----------
         X : ndarray, shape (n_samples, n_features)
-            Input vector, where `n_samples` is the number of samples and
-            `n_features` is the number of features.
+            Test samples.
 
         Returns
         -------
-        pred : array, shape (n_samples,)
-            Class labels for samples in X.
+        y_pred : ndarray, shape (n_samples,)
+            Predicted class labels.
         """
         labels = self._predict(X)
         return self._map_indices_to_classes(labels)
@@ -765,18 +768,17 @@ class QuanticMDM(QuanticClassifierBase):
             )
 
     def predict(self, X):
-        """Calculates the predictions.
+        """Predict class labels for samples in X.
 
         Parameters
         ----------
         X : ndarray, shape (n_samples, n_features)
-            Input vector, where `n_samples` is the number of samples and
-            `n_features` is the number of features.
+            Test samples.
 
         Returns
         -------
-        pred : array, shape (n_samples,)
-            Class labels for samples in X.
+        y_pred : ndarray, shape (n_samples,)
+            Predicted class labels.
         """
         labels = self._predict(X)
         return self._map_indices_to_classes(labels)

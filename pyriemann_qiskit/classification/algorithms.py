@@ -1,8 +1,15 @@
-"""
-Contains the base class for all quantum classifiers
-as well as several quantum classifiers than can run
-in several modes quantum/classical and simulated/real
-quantum computer.
+"""Quantum classification algorithms.
+
+This module contains quantum-enhanced classification algorithms that can run
+in both quantum and classical modes, on simulated or real quantum computers.
+
+The main algorithms include:
+- NearestConvexHull (NCH): Classification by nearest convex hull
+- CpMDM: Constraint programming implementation of Minimum Distance to Mean
+
+These algorithms leverage quantum optimization for improved performance on
+specific classification tasks, particularly for Brain-Computer Interface (BCI)
+and EEG data analysis.
 """
 import logging
 import random
@@ -82,7 +89,6 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         seed=None,
         optimizer=ClassicalOptimizer(),
     ):
-        """Init."""
         self.n_jobs = n_jobs
         self.n_samples_per_hull = n_samples_per_hull
         self.n_hulls_per_class = n_hulls_per_class
