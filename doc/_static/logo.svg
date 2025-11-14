@@ -11,24 +11,24 @@
       <stop offset="100%" style="stop-color:#7eb0d5;stop-opacity:1" />
     </linearGradient>
   </defs>
-  
+
   <!-- Quantum circuit representation -->
   <g transform="translate(10, 15)">
     <!-- Qubit lines -->
     <line x1="0" y1="10" x2="40" y2="10" stroke="url(#grad1)" stroke-width="2"/>
     <line x1="0" y1="20" x2="40" y2="20" stroke="url(#grad1)" stroke-width="2"/>
     <line x1="0" y1="30" x2="40" y2="30" stroke="url(#grad1)" stroke-width="2"/>
-    
+
     <!-- Quantum gates -->
     <circle cx="15" cy="10" r="4" fill="url(#grad2)" stroke="#2c3e50" stroke-width="1.5"/>
     <circle cx="25" cy="20" r="4" fill="url(#grad2)" stroke="#2c3e50" stroke-width="1.5"/>
     <circle cx="35" cy="30" r="4" fill="url(#grad2)" stroke="#2c3e50" stroke-width="1.5"/>
-    
+
     <!-- Entanglement lines -->
     <line x1="15" y1="10" x2="25" y2="20" stroke="#8e44ad" stroke-width="1.5" stroke-dasharray="2,2"/>
     <line x1="25" y1="20" x2="35" y2="30" stroke="#8e44ad" stroke-width="1.5" stroke-dasharray="2,2"/>
   </g>
-  
+
   <!-- Text -->
   <text x="55" y="25" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="url(#grad1)">
     pyRiemann

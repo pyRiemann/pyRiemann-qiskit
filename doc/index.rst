@@ -8,7 +8,7 @@ pyRiemann-qiskit: Quantum Machine Learning for BCI
 
    <div class="hero-section" style="text-align: center; padding: 2em 0; margin-bottom: 2em;">
       <p style="font-size: 1.3em; color: #4c72b0; max-width: 800px; margin: 0 auto; line-height: 1.6;">
-         A powerful Qiskit wrapper for pyRiemann that brings quantum computing 
+         A powerful Qiskit wrapper for pyRiemann that brings quantum computing
          to Riemannian geometry-based brain-computer interfaces.
       </p>
    </div>
@@ -45,7 +45,7 @@ Overview
 ========
 
 **pyRiemann-qiskit** is a `Qiskit <https://github.com/Qiskit>`_ wrapper around
-`pyRiemann <https://github.com/pyRiemann/pyRiemann>`_ that enables quantum 
+`pyRiemann <https://github.com/pyRiemann/pyRiemann>`_ that enables quantum
 classification with Riemannian geometry for brain-computer interface applications.
 
 Key Features
@@ -92,7 +92,7 @@ A typical workflow involves:
        TangentSpace(),
        QuanticSVM()
    )
-   
+
    # Train and predict
    clf.fit(X_train, y_train)
    y_pred = clf.predict(X_test)
@@ -152,7 +152,7 @@ Important Considerations
       - Real quantum hardware: up to 156 qubits
 
    **Time Complexity**
-      Quantum algorithms may take longer on local machines. Use remote backends 
+      Quantum algorithms may take longer on local machines. Use remote backends
       for better performance. Suitable for offline analysis only.
 
 .. admonition:: Getting Help
@@ -171,9 +171,9 @@ If you use pyRiemann-qiskit in your research, please cite:
 .. code-block:: bibtex
 
    @article{andreev2023pyriemann,
-     title={pyRiemann-qiskit: A Sandbox for Quantum Classification 
+     title={pyRiemann-qiskit: A Sandbox for Quantum Classification
             Experiments with Riemannian Geometry},
-     author={Andreev, Anton and Cattan, Gr{\'e}goire and 
+     author={Andreev, Anton and Cattan, Gr{\'e}goire and
              Chevallier, Sylvain and Barth{\'e}lemy, Quentin},
      journal={Research Ideas and Outcomes},
      volume={9},
