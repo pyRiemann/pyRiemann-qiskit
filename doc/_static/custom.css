@@ -22,7 +22,7 @@
    Typography Enhancements
    ============================================================================ */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
                  "Helvetica Neue", Arial, sans-serif;
     line-height: 1.7;
     color: #2c3e50;
@@ -343,15 +343,15 @@ footer {
     h1 {
         font-size: 2rem !important;
     }
-    
+
     h2 {
         font-size: 1.5rem !important;
     }
-    
+
     pre {
         padding: 1em;
     }
-    
+
     table {
         font-size: 0.9em;
     }
@@ -364,11 +364,11 @@ footer {
     .sidebar, .related, .footer {
         display: none;
     }
-    
+
     body {
         color: black;
     }
-    
+
     a {
         color: black;
         text-decoration: underline;
