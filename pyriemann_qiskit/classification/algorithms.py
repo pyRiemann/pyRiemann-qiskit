@@ -2,14 +2,6 @@
 
 This module contains quantum-enhanced classification algorithms that can run
 in both quantum and classical modes, on simulated or real quantum computers.
-
-The main algorithms include:
-- NearestConvexHull (NCH): Classification by nearest convex hull
-- CpMDM: Constraint programming implementation of Minimum Distance to Mean
-
-These algorithms leverage quantum optimization for improved performance on
-specific classification tasks, particularly for Brain-Computer Interface (BCI)
-and EEG data analysis.
 """
 import logging
 import random
