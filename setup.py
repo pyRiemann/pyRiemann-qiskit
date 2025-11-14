@@ -35,6 +35,7 @@ setup(name='pyriemann-qiskit',
       install_requires=[
                         'numpy<2.3',
                         'cython',
+                        'filelock',
                         'pyriemann==0.9',
                         'qiskit==1.*',
                         'qiskit_algorithms==0.3.1',
