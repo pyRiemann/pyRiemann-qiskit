@@ -1,10 +1,13 @@
 # AI Agent Guidelines for pyRiemann-qiskit
 
-This document provides guidance for AI coding agents working on the pyRiemann-qiskit repository.
+This document provides guidance for AI coding agents working on the pyRiemann-qiskit
+repository.
 
 ## Project Overview
 
-**pyRiemann-qiskit** is a Python library that bridges Riemannian geometry (via pyRiemann) with quantum computing (via Qiskit) for machine learning applications. The library focuses on:
+**pyRiemann-qiskit** is a Python library that bridges Riemannian geometry (via pyRiemann)
+with quantum computing (via Qiskit) for machine learning applications. The library focuses
+on:
 
 - Quantum-enhanced classification for Brain-Computer Interface (BCI) and EEG data
 - Quantum Support Vector Classifiers (QSVC) and Variational Quantum Classifiers (VQC)
@@ -14,7 +17,8 @@ This document provides guidance for AI coding agents working on the pyRiemann-qi
 ## Technology Stack
 
 - **Core**: Python 3.10-3.12
-- **Quantum Computing**: Qiskit 1.x, Qiskit Machine Learning 0.7.2, Qiskit Algorithms 0.3.1
+- **Quantum Computing**: Qiskit 1.x, Qiskit Machine Learning 0.7.2, Qiskit Algorithms
+  0.3.1
 - **Riemannian Geometry**: pyRiemann 0.9
 - **Machine Learning**: scikit-learn 1.5.2
 - **Optimization**: CVXPY 1.6.5, DOcplex 2.29.245
@@ -52,14 +56,17 @@ benchmarks/              # Performance benchmarks
 ### Quantum Computing Limitations
 
 1. **Qubit Limitations**:
+
    - Local simulator: ~36 qubits (memory-dependent)
    - Remote simulator: up to 5000 qubits
    - Free quantum hardware: 7 qubits
    - Exploratory hardware: 127 qubits (not public)
 
-2. **Time Complexity**: Quantum algorithms are computationally expensive, especially locally. Use limited trials in examples but note this limitation.
+2. **Time Complexity**: Quantum algorithms are computationally expensive, especially
+   locally. Use limited trials in examples but note this limitation.
 
-3. **Offline Only**: Due to time constraints and queuing on remote backends, this library is designed for offline analysis only.
+3. **Offline Only**: Due to time constraints and queuing on remote backends, this library
+   is designed for offline analysis only.
 
 ### Python Version Support
 
@@ -77,23 +84,28 @@ benchmarks/              # Performance benchmarks
 ### Code Style
 
 1. **Formatting**: Use `flake8` for code formatting
+
    ```bash
    flake8
    ```
 
-2. **Follow scikit-learn conventions**: The library follows scikit-learn best practices for estimators and transformers
+2. **Follow scikit-learn conventions**: The library follows scikit-learn best practices
+   for estimators and transformers
 
-3. **Documentation**: Always provide full documentation for public methods using NumPy docstring format
+3. **Documentation**: Always provide full documentation for public methods using NumPy
+   docstring format
 
 ### Testing
 
 1. **Run tests locally**:
+
    ```bash
    pip install .[tests]
    pytest
    ```
 
 2. **Test specific files**:
+
    ```bash
    pytest tests/test_classification.py
    ```
@@ -102,9 +114,11 @@ benchmarks/              # Performance benchmarks
 
 ### Git Workflow
 
-1. **Avoid merge commits**: Use `git rebase` instead of merging master into feature branches
+1. **Avoid merge commits**: Use `git rebase` instead of merging master into feature
+   branches
 2. **Pull Requests**: Always create PRs against the master branch
-3. **CI/CD**: GitHub Actions run automatically on push (examples only run when modified due to execution time)
+3. **CI/CD**: GitHub Actions run automatically on push (examples only run when modified
+   due to execution time)
 
 ### Documentation
 
@@ -175,7 +189,8 @@ benchmarks/              # Performance benchmarks
 
 ### Hyperparameter Management
 
-- `pyriemann_qiskit/utils/hyper_params_factory.py`: Factory for quantum algorithm hyperparameters
+- `pyriemann_qiskit/utils/hyper_params_factory.py`: Factory for quantum algorithm
+  hyperparameters
 - Centralizes configuration for different quantum circuits and algorithms
 
 ## Testing Strategy
@@ -190,10 +205,13 @@ benchmarks/              # Performance benchmarks
 ### General Documentation Principles
 
 1. **Skip `__init__.py` files**: Do not add or modify docstrings in `__init__.py` files
-2. **Skip private methods**: Do not document private methods (those starting with `_`) or constructors (`__init__`)
+2. **Skip private methods**: Do not document private methods (those starting with `_`) or
+   constructors (`__init__`)
 3. **Document public methods only**: Focus on public methods and class docstrings
-4. **Keep original style**: Follow the original spirit of the writing - be direct and technical
-5. **Avoid marketing language**: Do not use words like "enhanced", "improved", "powerful", etc.
+4. **Keep original style**: Follow the original spirit of the writing - be direct and
+   technical
+5. **Avoid marketing language**: Do not use words like "enhanced", "improved", "powerful",
+   etc.
 6. **Be concise and technical**: Get straight to the point without unnecessary elaboration
 
 ### Docstring Format (NumPy Style)
@@ -225,6 +243,7 @@ def function_name(param1, param2):
 ### What to Document
 
 **DO document:**
+
 - Module-level docstrings (at the top of `.py` files, not `__init__.py`)
 - Public class docstrings
 - Public method docstrings (`fit`, `predict`, `transform`, `score`, etc.)
@@ -232,6 +251,7 @@ def function_name(param1, param2):
 - Property docstrings
 
 **DO NOT document:**
+
 - `__init__.py` files
 - Private methods (starting with `_`)
 - Constructor methods (`__init__`)
@@ -240,6 +260,7 @@ def function_name(param1, param2):
 ### Writing Style Guidelines
 
 **Good examples:**
+
 ```python
 """Quantum classifier wrappers.
 
@@ -266,6 +287,7 @@ def predict(self, X):
 ```
 
 **Bad examples (avoid):**
+
 ```python
 """Enhanced quantum classifier wrappers with improved performance.
 
@@ -316,7 +338,10 @@ Description of what the example demonstrates.
 
 When referencing this library:
 
-> Anton Andreev, Grégoire Cattan, Sylvain Chevallier, and Quentin Barthélemy. 'pyRiemann-qiskit: A Sandbox for Quantum Classification Experiments with Riemannian Geometry'. Research Ideas and Outcomes 9 (20 March 2023). https://doi.org/10.3897/rio.9.e101006.
+> Anton Andreev, Grégoire Cattan, Sylvain Chevallier, and Quentin Barthélemy.
+> 'pyRiemann-qiskit: A Sandbox for Quantum Classification Experiments with Riemannian
+> Geometry'. Research Ideas and Outcomes 9 (20 March 2023).
+> https://doi.org/10.3897/rio.9.e101006.
 
 ## Contact & Contribution
 
@@ -326,18 +351,26 @@ When referencing this library:
 
 ## Agent-Specific Notes
 
-1. **Quantum Simulation**: Be aware that quantum simulations can be slow. When creating examples, use small datasets and limited iterations.
+1. **Quantum Simulation**: Be aware that quantum simulations can be slow. When creating
+   examples, use small datasets and limited iterations.
 
-2. **Version Compatibility**: Always check compatibility with pinned versions, especially Qiskit components.
+2. **Version Compatibility**: Always check compatibility with pinned versions, especially
+   Qiskit components.
 
-3. **Platform Differences**: GPU optimization is Linux-only. Don't assume GPU availability.
+3. **Platform Differences**: GPU optimization is Linux-only. Don't assume GPU
+   availability.
 
-4. **Documentation First**: This is a research-oriented library. Good documentation is critical.
+4. **Documentation First**: This is a research-oriented library. Good documentation is
+   critical.
 
-5. **Test Coverage**: Maintain high test coverage, but use mocked quantum backends to keep tests fast.
+5. **Test Coverage**: Maintain high test coverage, but use mocked quantum backends to keep
+   tests fast.
 
-6. **Breaking Changes**: Be cautious with changes to public APIs. This library is used in research.
+6. **Breaking Changes**: Be cautious with changes to public APIs. This library is used in
+   research.
 
-7. **Performance**: Quantum algorithms are inherently slow. Focus on correctness over optimization unless specifically addressing performance.
+7. **Performance**: Quantum algorithms are inherently slow. Focus on correctness over
+   optimization unless specifically addressing performance.
 
-8. **Examples as Documentation**: Examples serve as both tutorials and integration tests. Keep them clear and well-commented.
+8. **Examples as Documentation**: Examples serve as both tutorials and integration tests.
+   Keep them clear and well-commented.
