@@ -199,27 +199,53 @@ Docker images are available at [GitHub Container Registry](https://github.com/py
 
 ## Quick Start
 
-Here's a minimal example to get you started:
+Here's a sketch example using P300 EEG data from MOABB:
 
 ```python
-from pyriemann_qiskit.classification import QuantumClassifierWithDefaultRiemannianPipeline
-from sklearn.datasets import make_classification
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import balanced_accuracy_score
+from moabb.datasets import bi2012
+from moabb.evaluations import WithinSessionEvaluation
+from moabb.paradigms import P300
+from sklearn.pipeline import make_pipeline
+from pyriemann.estimation import XdawnCovariances
+from pyriemann.tangentspace import TangentSpace
+from sklearn.decomposition import PCA
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 
-# Create sample data
-X, y = make_classification(n_samples=100, n_features=4, n_classes=2, random_state=42)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+from pyriemann_qiskit.pipelines import QuantumClassifierWithDefaultRiemannianPipeline
 
-# Initialize and train quantum classifier
-qc = QuantumClassifierWithDefaultRiemannianPipeline()
-qc.fit(X_train, y_train)
+# Load P300 dataset
+paradigm = P300(resample=128)
+dataset = bi2012()
+dataset.subject_list = dataset.subject_list[0:2]  # Use 2 subjects for demo
+
+# Create pipelines
+pipelines = {}
+
+# Quantum pipeline with Riemannian geometry
+pipelines["RG+QuantumSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
+    shots=512,  # Use None for classical SVM
+    nfilter=2,
+    dim_red=PCA(n_components=5),
+    params={"n_jobs": 1}
+)
+
+# Classical pipeline for comparison
+labels_dict = {"Target": 1, "NonTarget": 0}
+pipelines["RG+LDA"] = make_pipeline(
+    XdawnCovariances(nfilter=2, classes=[labels_dict["Target"]],
+                     estimator="lwf", xdawn_estimator="scm"),
+    TangentSpace(),
+    PCA(n_components=10),
+    LDA(solver="lsqr", shrinkage="auto")
+)
 
 # Evaluate
-y_pred = qc.predict(X_test, y_test)
-score = balanced_accuracy_score(y_test, y_pred)
-print(f"Accuracy: {score:.2f}")
+evaluation = WithinSessionEvaluation(paradigm=paradigm, datasets=[dataset])
+results = evaluation.process(pipelines)
+print(results.groupby("pipeline").mean("score")[["score", "time"]])
 ```
+
+For a complete working example, see [examples/ERP/plot_classify_P300_bi.py](examples/ERP/plot_classify_P300_bi.py).
 
 For more examples, see the [examples](examples/) directory.
 
