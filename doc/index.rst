@@ -182,10 +182,8 @@ If you use pyRiemann-qiskit in your research, please cite:
      doi={10.3897/rio.9.e101006}
    }
 
-Documentation Contents
-======================
-
 .. toctree::
+   :hidden:
    :maxdepth: 2
    :caption: Getting Started
 
@@ -194,12 +192,14 @@ Documentation Contents
    whatsnew
 
 .. toctree::
+   :hidden:
    :maxdepth: 2
    :caption: User Guide
 
    auto_examples/index
 
 .. toctree::
+   :hidden:
    :maxdepth: 2
    :caption: API Documentation
 
