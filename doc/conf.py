@@ -14,6 +14,7 @@
 
 import os
 import sys
+from datetime import datetime
 
 import matplotlib
 
@@ -25,7 +26,6 @@ print(mne.datasets.sample.data_path(update_path=True, download=False))
 matplotlib.use('Agg')
 import shlex
 
-import sphinx_bootstrap_theme
 import sphinx_gallery
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -48,14 +48,15 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
-    # 'sphinx.ext.linkcode',
-    # 'sphinx.ext.mathjax',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.napoleon',
     'sphinx.ext.imgmath',
     'sphinx.ext.todo',
+    'sphinx.ext.githubpages',
     'numpydoc',
-    # 'sphinx.ext.ifconfig',
-    # 'sphinx.ext.viewcode',
     'sphinx_gallery.gen_gallery',
+    'sphinx_copybutton',
+    'sphinx_design',
 ]
 plot_include_source = True
 plot_formats = [("png", 90)]
@@ -89,8 +90,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pyRiemann-qiskit'
-copyright = u'2021-2024, pyRiemann-qiskit Contributors'
-author = u'Gregoire Cattan \\and Anton Andreev \\and Sylvain Chevallier \\and Quentin Barthelemy'
+copyright = f'2021-{datetime.now().year}, pyRiemann-qiskit Contributors'
+author = u'Gregoire Cattan, Anton Andreev, Sylvain Chevallier, Quentin Barthelemy'
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
@@ -151,41 +152,50 @@ todo_include_todos = True
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'bootstrap'
+html_theme = 'furo'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = {
-    'source_link_position':
-    "footer",
-    'bootswatch_theme':
-    "flatly",
-    'navbar_sidebarrel':
-    False,
-    'bootstrap_version':
-    "3",
-    'navbar_links': [("API", "api"), ("Gallery", "auto_examples/index")],
+    "light_css_variables": {
+        "color-brand-primary": "#4c72b0",
+        "color-brand-content": "#4c72b0",
+        "color-admonition-background": "rgba(76, 114, 176, 0.1)",
+        "font-stack": "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif",
+        "font-stack--monospace": "Consolas, Monaco, Courier New, monospace",
+    },
+    "dark_css_variables": {
+        "color-brand-primary": "#7eb0d5",
+        "color-brand-content": "#7eb0d5",
+        "color-admonition-background": "rgba(126, 176, 213, 0.1)",
+    },
+    "sidebar_hide_name": False,
+    "navigation_with_keys": True,
+    "top_of_page_button": "edit",
+    "source_repository": "https://github.com/pyRiemann/pyRiemann-qiskit",
+    "source_branch": "main",
+    "source_directory": "doc/",
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
+# html_theme_path = []
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-#html_title = None
+html_title = f"{project} {version}"
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = None
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-#html_logo = None
+html_logo = "_static/logo.svg"
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-#html_favicon = None
+# html_favicon = "_static/favicon.ico"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -336,5 +346,4 @@ intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
 
 
 def setup(app):
-    app.add_js_file('copybutton.js')
-    app.add_css_file('style.css')
+    app.add_css_file('custom.css')
