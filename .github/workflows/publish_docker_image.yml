@@ -19,7 +19,7 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ github.token }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Build the Docker image
       run: |
         export tag=$(git rev-parse --short "$GITHUB_SHA")

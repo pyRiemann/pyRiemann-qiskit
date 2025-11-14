@@ -16,7 +16,7 @@ jobs:
   build_docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Cache dependencies
         uses: actions/cache@v4
         with:
@@ -38,7 +38,7 @@ jobs:
             cp -a ./symb_statevectors/. ./examples/other_datasets/symb_statevectors
             cp -a ./symb_statevectors/. ./examples/toys_dataset/symb_statevectors
       - name:  Upload generated HTML as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: DocHTML
           path: doc/build/html/

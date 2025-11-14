@@ -1,4 +1,4 @@
-[<img src=https://github.com/Qiskit/ecosystem/blob/main/badges/pyRiemann-qiskit.svg>](https://qiskit.org/ecosystem)
+[![Qiskit Ecosystem](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fqiskit.github.io%2Fecosystem%2Fb%2Ffb1907a7)](https://qisk.it/e)
 
 # pyRiemann-qiskit
 
