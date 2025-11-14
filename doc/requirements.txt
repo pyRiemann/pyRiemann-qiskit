@@ -1,6 +1,8 @@
 numpy<2.3
 sphinx-gallery
-sphinx-bootstrap_theme
+furo
+sphinx-copybutton
+sphinx-design
 numpydoc
 cython
 filelock
