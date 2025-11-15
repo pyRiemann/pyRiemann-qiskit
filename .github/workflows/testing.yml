@@ -34,7 +34,7 @@ jobs:
       with:
         path: ${{ env.pythonLocation }}
         key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}
- 
+
     - name: Cache testmon data
       uses: actions/cache@v4
       with:
@@ -42,7 +42,7 @@ jobs:
         key: testmon-${{ runner.os }}-${{ matrix.python-version }}-${{ github.sha }}
         restore-keys: |
           testmon-${{ runner.os }}-${{ matrix.python-version }}-
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
