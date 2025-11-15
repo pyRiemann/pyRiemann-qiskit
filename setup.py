@@ -61,7 +61,7 @@ setup(name='pyriemann-qiskit',
                                 'moabb==1.4.0',
                                 'imbalanced-learn==0.12.4'
                             ],
-                      'tests': ['pytest', 'seaborn', 'flake8', 'mne', 'pooch'],
+                      'tests': ['pytest', 'pytest-testmon', 'seaborn', 'flake8', 'mne', 'pooch'],
                       # GPU optimization not available on all platform.
                       # See https://github.com/Qiskit/qiskit-aer/issues/929#issuecomment-691716936
                       'optim': ['qiskit-symb==0.2.0', 'symengine==0.11.0'],
