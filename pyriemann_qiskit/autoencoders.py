@@ -18,6 +18,7 @@ from sklearn.base import TransformerMixin
 
 
 def _ansatz(num_qubits):
+    print("test")
     return RealAmplitudes(num_qubits, reps=5)
 
 
