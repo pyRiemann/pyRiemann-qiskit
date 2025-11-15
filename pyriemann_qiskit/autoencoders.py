@@ -18,8 +18,7 @@ from sklearn.base import TransformerMixin
 
 
 def _ansatz(num_qubits):
-    print("test")
-    return RealAmplitudezs(num_qubits, reps=5)
+    return RealAmplitudes(num_qubits, reps=5)
 
 
 def _auto_encoder_circuit(num_latent, num_trash):
