@@ -1,0 +1,423 @@
+/* ============================================================================
+   pyRiemann-qiskit Custom Styles
+   Modern, beautiful styling for quantum computing documentation
+   ============================================================================ */
+
+/* ============================================================================
+   Color Palette - Quantum & Riemannian inspired
+   ============================================================================ */
+:root {
+    --quantum-blue: #4c72b0;
+    --quantum-light-blue: #7eb0d5;
+    --quantum-purple: #8e44ad;
+    --quantum-teal: #16a085;
+    --quantum-dark: #2c3e50;
+    --quantum-light: #ecf0f1;
+    --accent-gold: #f39c12;
+    --success-green: #27ae60;
+    --warning-orange: #e67e22;
+}
+
+/* ============================================================================
+   Typography Enhancements
+   ============================================================================ */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                 "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.7;
+    color: #2c3e50;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-top: 1.5em;
+    margin-bottom: 0.75em;
+}
+
+h1 {
+    font-size: 2.5rem !important;
+    background: linear-gradient(135deg, var(--quantum-blue), var(--quantum-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    padding-bottom: 0.3em;
+    border-bottom: 3px solid var(--quantum-light-blue);
+}
+
+h2 {
+    font-size: 2rem !important;
+    color: var(--quantum-blue);
+    border-bottom: 2px solid var(--quantum-light);
+    padding-bottom: 0.3em;
+}
+
+h3 {
+    font-size: 1.5rem !important;
+    color: var(--quantum-dark);
+}
+
+/* ============================================================================
+   Code Blocks - Beautiful Syntax Highlighting
+   ============================================================================ */
+code {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: var(--quantum-purple);
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-family: "Consolas", "Monaco", "Courier New", monospace;
+    font-size: 0.9em;
+    border: 1px solid rgba(76, 114, 176, 0.1);
+}
+
+pre {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border: 1px solid var(--quantum-light);
+    border-left: 4px solid var(--quantum-blue);
+    border-radius: 8px;
+    padding: 1.5em;
+    overflow-x: auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease;
+}
+
+pre:hover {
+    box-shadow: 0 4px 16px rgba(76, 114, 176, 0.15);
+}
+
+pre code {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: inherit;
+}
+
+/* ============================================================================
+   Links - Quantum-inspired styling
+   ============================================================================ */
+a {
+    color: var(--quantum-blue);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+a:hover {
+    color: var(--quantum-purple);
+}
+
+a.reference.external::after {
+    content: " ↗";
+    font-size: 0.8em;
+    opacity: 0.6;
+}
+
+/* ============================================================================
+   Admonitions - Beautiful callout boxes
+   ============================================================================ */
+.admonition {
+    border-radius: 8px;
+    padding: 1em 1.5em;
+    margin: 1.5em 0;
+    border-left: 4px solid;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admonition:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.admonition.note {
+    background: linear-gradient(135deg, #e3f2fd 0%, #f5f9ff 100%);
+    border-left-color: var(--quantum-blue);
+}
+
+.admonition.warning {
+    background: linear-gradient(135deg, #fff3e0 0%, #fffaf5 100%);
+    border-left-color: var(--warning-orange);
+}
+
+.admonition.tip {
+    background: linear-gradient(135deg, #e8f5e9 0%, #f5fdf5 100%);
+    border-left-color: var(--success-green);
+}
+
+.admonition-title {
+    font-weight: 600;
+    margin-bottom: 0.5em;
+    font-size: 1.1em;
+}
+
+/* ============================================================================
+   Tables - Modern, clean design
+   ============================================================================ */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1.5em 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+thead {
+    background: linear-gradient(135deg, var(--quantum-blue), var(--quantum-light-blue));
+    color: white;
+}
+
+thead th {
+    padding: 1em;
+    text-align: left;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85em;
+    letter-spacing: 0.05em;
+}
+
+tbody tr {
+    border-bottom: 1px solid var(--quantum-light);
+    transition: background-color 0.2s ease;
+}
+
+tbody tr:hover {
+    background-color: rgba(76, 114, 176, 0.05);
+}
+
+tbody td {
+    padding: 0.75em 1em;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+/* ============================================================================
+   API Documentation - Enhanced readability
+   ============================================================================ */
+dl.class, dl.function, dl.method {
+    border: 1px solid var(--quantum-light);
+    border-radius: 8px;
+    padding: 1.5em;
+    margin: 1.5em 0;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+dt {
+    font-weight: 600;
+    color: var(--quantum-dark);
+    padding: 0.5em 0;
+    border-bottom: 2px solid var(--quantum-light-blue);
+    margin-bottom: 1em;
+}
+
+dd {
+    margin-left: 0;
+    padding-left: 1.5em;
+}
+
+.sig-name {
+    color: var(--quantum-purple);
+    font-weight: 600;
+}
+
+.sig-param {
+    color: var(--quantum-teal);
+}
+
+/* ============================================================================
+   Gallery - Beautiful image grid
+   ============================================================================ */
+.sphx-glr-thumbcontainer {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.sphx-glr-thumbcontainer:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 24px rgba(76, 114, 176, 0.2);
+}
+
+.sphx-glr-thumbcontainer img {
+    transition: transform 0.3s ease;
+}
+
+.sphx-glr-thumbcontainer:hover img {
+    transform: scale(1.05);
+}
+
+/* ============================================================================
+   Navigation - Smooth and modern
+   ============================================================================ */
+.sidebar-brand {
+    font-weight: 700;
+    font-size: 1.3em;
+    background: linear-gradient(135deg, var(--quantum-blue), var(--quantum-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ============================================================================
+   Buttons and Interactive Elements
+   ============================================================================ */
+button, .btn {
+    background: linear-gradient(135deg, var(--quantum-blue), var(--quantum-light-blue));
+    color: white;
+    border: none;
+    padding: 0.6em 1.2em;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(76, 114, 176, 0.3);
+}
+
+button:hover, .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(76, 114, 176, 0.4);
+}
+
+/* ============================================================================
+   Copy Button Enhancement
+   ============================================================================ */
+.copybtn {
+    background: var(--quantum-blue);
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.copybtn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* ============================================================================
+   Search Box
+   ============================================================================ */
+input[type="search"], input[type="text"] {
+    border: 2px solid var(--quantum-light);
+    border-radius: 6px;
+    padding: 0.6em 1em;
+    transition: all 0.3s ease;
+}
+
+input[type="search"]:focus, input[type="text"]:focus {
+    border-color: var(--quantum-blue);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(76, 114, 176, 0.1);
+}
+
+/* ============================================================================
+   Blockquotes - Elegant styling
+   ============================================================================ */
+blockquote {
+    border-left: 4px solid var(--quantum-light-blue);
+    padding: 1em 1.5em;
+    margin: 1.5em 0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    color: var(--quantum-dark);
+}
+
+/* ============================================================================
+   Footer
+   ============================================================================ */
+footer {
+    border-top: 2px solid var(--quantum-light);
+    padding-top: 2em;
+    margin-top: 3em;
+    color: #6c757d;
+}
+
+/* ============================================================================
+   Responsive Design Enhancements
+   ============================================================================ */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem !important;
+    }
+
+    h2 {
+        font-size: 1.5rem !important;
+    }
+
+    pre {
+        padding: 1em;
+    }
+
+    table {
+        font-size: 0.9em;
+    }
+}
+
+/* ============================================================================
+   Print Styles
+   ============================================================================ */
+@media print {
+    .sidebar, .related, .footer {
+        display: none;
+    }
+
+    body {
+        color: black;
+    }
+
+    a {
+        color: black;
+        text-decoration: underline;
+    }
+}
+
+/* ============================================================================
+   Accessibility Enhancements
+   ============================================================================ */
+:focus {
+    outline: 3px solid var(--quantum-light-blue);
+    outline-offset: 2px;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ============================================================================
+   Smooth Scrolling
+   ============================================================================ */
+html {
+    scroll-behavior: smooth;
+}
+
+/* ============================================================================
+   Custom Animations
+   ============================================================================ */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.content {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* Made with Bob */
