@@ -81,7 +81,7 @@ pipelines["RG+QuantumSVM"] = QuantumClassifierWithDefaultRiemannianPipeline(
     shots=512,  # 'None' forces classic SVM
     nfilter=2,  # default 2
     # default n_components=10, a higher value renders better performance with
-    # the non-qunatum SVM version used in qiskit
+    # the non-quantum SVM version used in qiskit
     # On a real Quantum computer (n_components = qubits)
     dim_red=PCA(n_components=5),
     params={

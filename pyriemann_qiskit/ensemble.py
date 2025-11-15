@@ -1,5 +1,7 @@
-"""
-Ensemble classifiers.
+"""Ensemble methods for quantum classifiers.
+
+This module provides ensemble classification strategies that combine multiple
+classifiers to improve prediction accuracy and robustness.
 """
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
@@ -46,25 +48,23 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         self.judge = judge
 
     def fit(self, X, y):
-        """Train all classifiers in clfs.
+        """Fit all base classifiers and the judge classifier.
 
-        Then train the judge classifier on the samples for which
-        the classifiers have different predictions.
-
+        Trains all classifiers in `clfs` on the full dataset, then identifies
+        samples where classifiers disagree and trains the judge classifier on
+        those samples only.
 
         Parameters
         ----------
-        X : ndarray, shape (n_samples, n_features) | (n_samples, n_features, n_times)
-            The shape of X (vectors or matrices) should be the same for all classifiers
-            (clfs and judge).
-
+        X : ndarray, shape (n_samples, n_features) or (n_samples, n_features, n_times)
+            Training data. Shape must be consistent across all classifiers.
         y : ndarray, shape (n_samples,)
-            Target vector relative to X.
+            Target labels.
 
         Returns
         -------
-        self : JudgeClassifier instance
-            The JudgeClassifier instance.
+        self : JudgeClassifier
+            The fitted classifier instance.
         """
         self.classes_ = np.unique(y)
         ys = [clf.fit(X, y).predict(X) for clf in self.clfs]
@@ -75,29 +75,24 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
             self.judge.fit(X[mask], y[mask])
 
     def predict(self, X):
-        """Calculates the predictions.
+        """Predict class labels for samples in X.
 
-        When the classifiers don't agree on the prediction
-        the judge classifier is used.
-
-        The behavior is that if at least one of the classifiers
-        doesn't have the same prediction for a particular sample,
-        then this sample is passed over to the `judge`.
+        Uses base classifiers for prediction. When classifiers disagree on a
+        sample, the judge classifier makes the final decision for that sample.
 
         Parameters
         ----------
-        X : ndarray, shape (n_samples, n_features) | (n_samples, n_features, n_times)
-            Input vectors or matrices.
-            The shape of X should be the same for all classifiers.
+        X : ndarray, shape (n_samples, n_features) or (n_samples, n_features, n_times)
+            Test samples. Shape must be consistent across all classifiers.
 
         Returns
         -------
-        pred : array, shape (n_samples,)
-            Class labels for samples in X.
+        y_pred : ndarray, shape (n_samples,)
+            Predicted class labels.
 
-        See also
+        See Also
         --------
-        union_of_diff
+        union_of_diff : Function to identify samples with disagreement
         """
         ys = [clf.predict(X) for clf in self.clfs]
         y_pred = ys[0]
@@ -108,23 +103,20 @@ class JudgeClassifier(BaseEstimator, ClassifierMixin):
         return y_pred
 
     def predict_proba(self, X):
-        """Return the probabilities associated with predictions.
+        """Predict class probabilities for samples in X.
 
-        When classifiers clfs have the same prediction, the
-        returned probability is the average of the probability of classifiers.
-        When classifiers don't have the same predictions,
-        the returned probability is the one of the judge classifier.
+        Returns averaged probabilities from base classifiers when they agree.
+        When classifiers disagree, returns probabilities from the judge classifier.
 
         Parameters
         ----------
-        X : ndarray, shape (n_samples, n_features) | (n_samples, n_features, n_times)
-            Input vectors or matrices.
-            The shape of X should be the same for all classifiers.
+        X : ndarray, shape (n_samples, n_features) or (n_samples, n_features, n_times)
+            Test samples. Shape must be consistent across all classifiers.
 
         Returns
         -------
-        prob : ndarray, shape (n_samples, n_classes)
-            The probability of the samples for each class in the model
+        proba : ndarray, shape (n_samples, n_classes)
+            Class probabilities for each sample.
         """
         ys = [clf.predict_proba(X) for clf in self.clfs]
         predict_proba = sum(ys) / len(ys)

@@ -1,4 +1,10 @@
-"""Module for pipelines."""
+"""ML pipelines combining Riemannian geometry and quantum classifiers.
+
+This module provides pre-configured scikit-learn pipelines that integrate
+Riemannian geometry preprocessing with quantum classification algorithms.
+Pipelines handle covariance estimation, tangent space projection, dimensionality
+reduction, and quantum classification in a unified workflow.
+"""
 import numpy as np
 from pyriemann.classification import MDM
 from pyriemann.estimation import ERPCovariances, XdawnCovariances
@@ -51,19 +57,19 @@ class BasePipeline(BaseEstimator, ClassifierMixin, TransformerMixin):
             print("[" + self.code + "] ", trace)
 
     def fit(self, X, y):
-        """Train the Riemannian quantum classifier.
+        """Fit the pipeline to training data.
 
         Parameters
         ----------
         X : ndarray, shape (n_trials, n_channels, n_times)
-            ndarray of trials.
-        y : ndarray, shape (n_samples,)
-            Target vector relative to X.
+            Training trials.
+        y : ndarray, shape (n_trials,)
+            Target labels.
 
         Returns
         -------
-        self : BasePipeline instance
-            The BasePipeline instance
+        self : BasePipeline
+            The fitted pipeline instance.
         """
 
         self.classes_ = np.unique(y)
@@ -71,53 +77,53 @@ class BasePipeline(BaseEstimator, ClassifierMixin, TransformerMixin):
         return self
 
     def score(self, X, y):
-        """Return the accuracy.
-
-        You might want to use a different metric by using sklearn
-        cross_val_score
+        """Return the mean accuracy on test data.
 
         Parameters
         ----------
         X : ndarray, shape (n_trials, n_channels, n_times)
-            ndarray of trials.
+            Test trials.
         y : ndarray, shape (n_trials,)
-            Predicted target vector relative to X.
+            True labels.
 
         Returns
         -------
-        accuracy : double
-            Accuracy of predictions from X with respect y.
+        score : float
+            Mean accuracy of predictions.
+
+        Notes
+        -----
+        For alternative metrics, use sklearn.model_selection.cross_val_score.
         """
         return self._pipe.score(X, y)
 
     def predict(self, X):
-        """get the predictions.
+        """Predict class labels for trials in X.
 
         Parameters
         ----------
         X : ndarray, shape (n_trials, n_channels, n_times)
-            ndarray of trials.
+            Test trials.
 
         Returns
         -------
-        pred : ndarray of int, shape (n_trials, 1)
-            Class labels for samples in X.
+        y_pred : ndarray, shape (n_trials,)
+            Predicted class labels.
         """
         return self._pipe.predict(X)
 
     def predict_proba(self, X):
-        """Return the probabilities associated with predictions.
+        """Predict class probabilities for trials in X.
 
         Parameters
         ----------
         X : ndarray, shape (n_trials, n_channels, n_times)
-            ndarray of trials.
+            Test trials.
 
         Returns
         -------
-        prob : ndarray, shape (n_samples, n_classes)
-            prob[n, 0] == True if the nth sample is assigned to 1st class;
-            prob[n, 1] == True if the nth sample is assigned to 2nd class.
+        proba : ndarray, shape (n_trials, n_classes)
+            Class probabilities for each trial.
         """
 
         return self._pipe.predict_proba(X)
