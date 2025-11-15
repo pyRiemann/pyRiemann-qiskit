@@ -55,4 +55,4 @@ jobs:
       env:
         FIREBASE_CERTIFICATE: ${{ secrets.FIREBASE_CERTIFICATE }}
       run: |
-        pytest --picked -v || [ $? -eq 5 ]
+        pytest --picked --mode=branch -v || [ $? -eq 5 ]
