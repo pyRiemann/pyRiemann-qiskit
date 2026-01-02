@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Cache dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: deploy_ghpages.yml
@@ -38,7 +38,7 @@ jobs:
             cp -a ./symb_statevectors/. ./examples/other_datasets/symb_statevectors
             cp -a ./symb_statevectors/. ./examples/toys_dataset/symb_statevectors
       - name:  Upload generated HTML as artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: DocHTML
           path: doc/build/html/

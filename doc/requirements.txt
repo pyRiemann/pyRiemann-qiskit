@@ -11,7 +11,7 @@ mne-bids==0.16.0
 mne[data]>=0.24
 seaborn>=0.12.1
 scikit-learn==1.5.2
-imbalanced-learn==0.12.4
+imbalanced-learn==0.14.1
 joblib
 pandas
 cvxpy==1.6.5
@@ -19,7 +19,7 @@ qiskit==1.*
 qiskit_algorithms==0.4.0
 qiskit_machine_learning==0.8.4
 qiskit_ibm_runtime==0.34.0
-qiskit-optimization==0.6.1
+qiskit-optimization==0.7.0
 qiskit-aer==0.17.0
 scipy==1.13.1
 moabb==1.4.0
