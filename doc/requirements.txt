@@ -11,7 +11,7 @@ mne-bids==0.16.0
 mne[data]>=0.24
 seaborn>=0.12.1
 scikit-learn==1.5.2
-imbalanced-learn==0.12.4
+imbalanced-learn==0.14.1
 joblib
 pandas
 cvxpy==1.6.5
