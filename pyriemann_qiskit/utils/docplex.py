@@ -746,18 +746,18 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
         self.variable_bounds_ = variable_bounds
 
         # cost operator
-        # Get operator associated with model
-        cost, _offset = qp.to_ising()
+        # Create simple cost operator with Ry gates (one for each variable)
+        from qiskit.circuit import QuantumCircuit, Parameter
+        cost = QuantumCircuit(n_var)
+        for i in range(n_var):
+            param = Parameter(f'γ_{i}')
+            cost.ry(param, i)
 
-        # If the cost operator is a Pauli identity
-        # or the cost operator has no parameters
-        # the number of parameters in the QAOAAnsatz will be 0.
-        # We will then create a mixer with parameters
-        # So we get some parameters in the circuit to optimize
-        cost_op_has_no_parameter = is_pauli_identity(cost) or len(cost.parameters) == 0
+        # The cost operator always has parameters (one per Ry gate)
+        cost_op_has_no_parameter = False
 
         mixer = self.create_mixer(cost.num_qubits, use_params=cost_op_has_no_parameter)
-
+        
         # QAOA circuit without measurement for state vector
         ansatz_0 = QAOAAnsatz(
             cost_operator=cost,
@@ -767,10 +767,10 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
         ).decompose()
 
         def prob(state_vec, i):
-            """Extract variable value from state vector angle.
+            """Extract variable value from state vector using Bloch sphere.
 
-            Extracts the continuous variable value from the phase/angle
-            of the state vector amplitudes.
+            Extracts the continuous variable value from the Bloch sphere
+            Z-component of the reduced density matrix for the i-th qubit.
 
             Parameters
             ----------
@@ -782,43 +782,34 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
             Returns
             -------
             float
-                The variable value extracted from the state vector angle.
+                The variable value extracted from the Bloch sphere Z-component.
             """
-            # Get the complex amplitudes
-            data = state_vec.data
+            from qiskit.quantum_info import partial_trace
             
-            # Extract phase information for the i-th variable
-            # We look at the amplitude corresponding to the i-th qubit
-            # The phase encodes the continuous variable value
+            # Calculate reduced density matrix for the i-th qubit
+            # Trace out all other qubits
+            qubits_to_trace = [j for j in range(n_var) if j != i]
             
-            # For each variable, we compute the expected phase
-            # by looking at states where qubit i differs
-            phase_sum = 0.0
-            weight_sum = 0.0
-            
-            for state_idx in range(len(data)):
-                amplitude = data[state_idx]
-                if abs(amplitude) > 1e-10:  # Only consider non-zero amplitudes
-                    # Get the phase of this amplitude
-                    phase = np.angle(amplitude)
-                    # Weight by the probability (|amplitude|^2)
-                    prob_weight = abs(amplitude) ** 2
-                    
-                    # Check if the i-th qubit is set
-                    if state_idx & (2 ** (n_var - 1 - i)):
-                        phase_sum += phase * prob_weight
-                        weight_sum += prob_weight
-            
-            # Compute the average phase
-            if weight_sum > 0:
-                avg_phase = phase_sum / weight_sum
+            if qubits_to_trace:
+                reduced_dm = partial_trace(state_vec, qubits_to_trace)
             else:
-                avg_phase = 0.0
+                # If only one qubit, use the full density matrix
+                reduced_dm = state_vec.to_operator()
             
-            # Map phase from [-π, π] to variable bounds [lb, ub]
+            # Create Pauli Z matrix
+            pauli_z = np.array([[1, 0], [0, -1]], dtype=complex)
+            
+            # Calculate expectation value directly
+            dm_matrix = reduced_dm.data
+            bloch_z = np.real(np.trace(dm_matrix @ pauli_z))
+            
+            # Map from Bloch sphere Z component [-1, 1] to variable bounds [lb, ub]
+            # bloch_z = 1 corresponds to |0⟩, bloch_z = -1 corresponds to |1⟩
             lb, ub = variable_bounds[i]
-            # Normalize phase to [0, 1]
-            normalized = (avg_phase + np.pi) / (2 * np.pi)
+            
+            # Map -bloch_z from [-1, 1] to [0, 1]
+            normalized = (-bloch_z + 1.0) / 2.0
+            
             # Scale to variable bounds
             value = lb + normalized * (ub - lb)
             
@@ -841,7 +832,9 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
             return cost
 
         # Initial guess for the parameters.
-        initial_guess = np.array([1, 1] * self.n_reps)
+        num_params = ansatz_0.num_parameters
+        initial_guess = np.ones(num_params)
+        #initial_guess = np.array([1, 1] * self.n_reps)
 
         # minimize function to search for the optimal parameters
         start_time = time.time()
