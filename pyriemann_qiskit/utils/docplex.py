@@ -586,6 +586,284 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         w = np.array([w[key] for key in w])
         return w
 
+class QAOACVAngleOptimizer(pyQiskitOptimizer):
+
+    """QAOA with continuous variables encoded in state vector angles.
+
+    This optimizer encodes continuous variables directly in the angles/phases
+    of the quantum state vector, rather than converting them to binary variables
+    and using probability distributions.
+
+    Parameters
+    ----------
+    create_mixer : Callable[int, QuantumCircuit], \
+            default=create_mixer_rotational_X_gates(0)
+        A delegate that takes into input an angle and returns a QuantumCircuit.
+    n_reps : int, default=3
+        The number of repetitions for the QAOA ansatz.
+        It defines how many time Mixer and Cost operators will be repeated
+        in the circuit.
+    quantum_instance : QuantumInstance, default=None
+        A quantum backend instance.
+        If None, AerSimulator will be used.
+    optimizer : SciPyOptimizer, default=SPSA()
+        An instance of a scipy optimizer to find the optimal weights for the
+        parametric circuit (ansatz).
+
+    Notes
+    -----
+    .. versionadded:: 0.5.0
+
+    Attributes
+    ----------
+    x_: list[int]
+        Indices of the loss function.
+    y_: list[int]
+        Cost computed by the loss function.
+    run_time_: float
+        Time taken by the optimizer
+    optim_params_: list[float]
+        The optimal rotation for the gate in the circuit.
+    minimum_: float
+        The value of the objective function with the optimal parameters.
+    state_vector_: StateVector
+        State vector of the optimized quantum circuit
+        (optimal parameters assigned to the parametric gates).
+    variable_bounds_: list[tuple]
+        The bounds for each continuous variable.
+
+    See Also
+    --------
+    pyQiskitOptimizer
+    QAOACVOptimizer
+    create_mixer_rotational_X_gates
+    """
+
+    def __init__(
+        self,
+        create_mixer=create_mixer_rotational_X_gates(0),
+        n_reps=3,
+        quantum_instance=None,
+        optimizer=SPSA(),
+    ):
+        self.n_reps = n_reps
+        self.create_mixer = create_mixer
+        self.quantum_instance = quantum_instance
+        self.optimizer = optimizer
+
+    @staticmethod
+    def prepare_model(qp):
+        """Prepare model by storing variable bounds.
+        
+        Unlike QAOACVOptimizer, we don't convert to binary variables.
+        We keep continuous variables and store their bounds for angle mapping.
+        """
+        variable_bounds = []
+        for v in qp.variables:
+            if v.vartype == VarType.CONTINUOUS:
+                
+                variable_bounds.append((v.lowerbound, v.upperbound))
+                v.vartype = VarType.BINARY
+                v.lowerbound = 0
+                v.upperbound = 1
+            else:
+                # For non-continuous variables, we can still handle them
+                variable_bounds.append((v.lowerbound, v.upperbound))
+        
+        conv = LinearEqualityToPenalty()
+        qp = conv.convert(qp)
+
+        return qp, variable_bounds
+
+    def spdmat_var(self, prob, channels, name):
+        """ Create docplex matrix variable
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model [1]_.
+        channels : list
+            The list of channels. A channel can be any Python object,
+            such as channels'name or number but None.
+        name : string
+            A custom name for the variable. The name is used internally by docplex
+            and may appear if your print the model to a file for example.
+
+        Returns
+        -------
+        docplex_spdmat : dict
+            A docplex representation of a SPD matrix with continuous variables.
+
+        See Also
+        -----
+        square_cont_mat_var
+
+        Notes
+        -----
+        .. versionadded:: 0.5.0
+
+        References
+        ----------
+        .. [1] \
+            http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
+
+        """
+        return ClassicalOptimizer.spdmat_var(self, prob, channels, name)
+
+    def get_weights(self, prob, classes):
+        """Get weights variable
+
+        Helper to create a docplex representation of a weight vector.
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model [1]_
+        classes : list
+            The classes.
+
+        Returns
+        -------
+        docplex_weights : dict
+            A vector of continuous decision variables representing weights.
+
+        Notes
+        -----
+        .. versionadded:: 0.5.0
+
+        """
+        return ClassicalOptimizer.get_weights(self, prob, classes)
+
+    def _solve_qp(self, qp, reshape=True):
+        quantum_instance = _get_quantum_instance(self)
+
+        n_var = qp.get_num_vars()
+        # Extract the objective function from the docplex model
+        objective_expr = qp._objective
+
+        # Store variable bounds without converting to binary
+        qp, variable_bounds = QAOACVAngleOptimizer.prepare_model(qp)
+        self.variable_bounds_ = variable_bounds
+
+        # cost operator
+        # Get operator associated with model
+        cost, _offset = qp.to_ising()
+
+        # If the cost operator is a Pauli identity
+        # or the cost operator has no parameters
+        # the number of parameters in the QAOAAnsatz will be 0.
+        # We will then create a mixer with parameters
+        # So we get some parameters in the circuit to optimize
+        cost_op_has_no_parameter = is_pauli_identity(cost) or len(cost.parameters) == 0
+
+        mixer = self.create_mixer(cost.num_qubits, use_params=cost_op_has_no_parameter)
+
+        # QAOA circuit without measurement for state vector
+        ansatz_0 = QAOAAnsatz(
+            cost_operator=cost,
+            reps=self.n_reps,
+            initial_state=None,
+            mixer_operator=mixer,
+        ).decompose()
+
+        def prob(state_vec, i):
+            """Extract variable value from state vector angle.
+
+            Extracts the continuous variable value from the phase/angle
+            of the state vector amplitudes.
+
+            Parameters
+            ----------
+            state_vec : Statevector
+                The quantum state vector.
+            i : int
+                The index of the variable.
+
+            Returns
+            -------
+            float
+                The variable value extracted from the state vector angle.
+            """
+            # Get the complex amplitudes
+            data = state_vec.data
+            
+            # Extract phase information for the i-th variable
+            # We look at the amplitude corresponding to the i-th qubit
+            # The phase encodes the continuous variable value
+            
+            # For each variable, we compute the expected phase
+            # by looking at states where qubit i differs
+            phase_sum = 0.0
+            weight_sum = 0.0
+            
+            for state_idx in range(len(data)):
+                amplitude = data[state_idx]
+                if abs(amplitude) > 1e-10:  # Only consider non-zero amplitudes
+                    # Get the phase of this amplitude
+                    phase = np.angle(amplitude)
+                    # Weight by the probability (|amplitude|^2)
+                    prob_weight = abs(amplitude) ** 2
+                    
+                    # Check if the i-th qubit is set
+                    if state_idx & (2 ** (n_var - 1 - i)):
+                        phase_sum += phase * prob_weight
+                        weight_sum += prob_weight
+            
+            # Compute the average phase
+            if weight_sum > 0:
+                avg_phase = phase_sum / weight_sum
+            else:
+                avg_phase = 0.0
+            
+            # Map phase from [-π, π] to variable bounds [lb, ub]
+            lb, ub = variable_bounds[i]
+            # Normalize phase to [0, 1]
+            normalized = (avg_phase + np.pi) / (2 * np.pi)
+            # Scale to variable bounds
+            value = lb + normalized * (ub - lb)
+            
+            return value
+
+        # defining loss function
+        self.x_ = []
+        self.y_ = []
+
+        def loss(params):
+            # Create state vector with current parameters
+            circuit = ansatz_0.assign_parameters(params)
+            state_vec = Statevector(circuit)
+
+            # Extract variable values from state vector angles
+            var_hat = [prob(state_vec, i) for i in range(n_var)]
+            cost = objective_expr.evaluate(var_hat)
+            self.x_.append(len(self.x_))
+            self.y_.append(cost)
+            return cost
+
+        # Initial guess for the parameters.
+        initial_guess = np.array([1, 1] * self.n_reps)
+
+        # minimize function to search for the optimal parameters
+        start_time = time.time()
+        result = self.optimizer.minimize(loss, initial_guess)
+        stop_time = time.time()
+        self.run_time_ = stop_time - start_time
+
+        self.optim_params_ = result.x
+
+        # running QAOA circuit with optimal parameters
+        optimized_circuit = ansatz_0.assign_parameters(self.optim_params_)
+        self.state_vector_ = Statevector(optimized_circuit)
+
+        solution = np.array([prob(self.state_vector_, i) for i in range(n_var)])
+        self.minimum_ = objective_expr.evaluate(solution)
+
+        if reshape:
+            n_channels = int(math.sqrt(solution.shape[0]))
+            return np.reshape(solution, (n_channels, n_channels))
+
+        return solution
+
 
 class QAOACVOptimizer(pyQiskitOptimizer):
 
