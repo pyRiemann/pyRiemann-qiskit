@@ -751,7 +751,7 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
         cost = QuantumCircuit(n_var)
         for i in range(n_var):
             param = Parameter(f'γ_{i}')
-            cost.ry(param, i)
+            cost.rz(param, i)
 
         # The cost operator always has parameters (one per Ry gate)
         cost_op_has_no_parameter = False
@@ -1068,7 +1068,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
 
         # minimize function to search for the optimal parameters
         start_time = time.time()
-        result = self.optimizer.minimize(loss, initial_guess)
+        result = self.optimizer.minimize(loss, initial_guess, bounds=[])
         stop_time = time.time()
         self.run_time_ = stop_time - start_time
 
