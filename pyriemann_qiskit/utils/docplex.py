@@ -750,19 +750,37 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
         from qiskit.circuit import QuantumCircuit, Parameter
         cost = QuantumCircuit(n_var)
         for i in range(n_var):
-            param = Parameter(f'γ_{i}')
-            cost.rz(param, i)
+            # Rx gate
+            param_rx = Parameter(f'γ_rx_{i}')
+            cost.rx(param_rx, i)
+            
+            # Ry gate
+            param_ry = Parameter(f'γ_ry_{i}')
+            cost.ry(param_ry, i)
+            
+            # Rz gate
+            param_rz = Parameter(f'γ_rz_{i}')
+            cost.rz(param_rz, i)
 
         # The cost operator always has parameters (one per Ry gate)
         cost_op_has_no_parameter = False
 
         mixer = self.create_mixer(cost.num_qubits, use_params=cost_op_has_no_parameter)
         
+         # Create initial state: encode continuous features using Ry rotations
+        # This is applied once before the QAOA repetitions
+        initial_state = QuantumCircuit(n_var)
+        continuous_input_params = []
+        for i in range(n_var):
+            param_input = Parameter(f'θ_{i}')
+            continuous_input_params.append(param_input)
+            initial_state.ry(param_input, i)
+
         # QAOA circuit without measurement for state vector
         ansatz_0 = QAOAAnsatz(
             cost_operator=cost,
             reps=self.n_reps,
-            initial_state=None,
+            initial_state=initial_state,
             mixer_operator=mixer,
         ).decompose()
 
