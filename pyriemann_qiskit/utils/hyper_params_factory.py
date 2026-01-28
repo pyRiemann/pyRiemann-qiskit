@@ -585,3 +585,28 @@ def create_mixer_rotational_XZ_gates(angle):
         return mixer
 
     return mixer_XZ
+
+def create_mixer_identity():
+    r"""Return an identity mixer (no operation).
+
+    This mixer applies no gates, effectively returning an identity operation.
+    Useful for testing or when no mixing is desired.
+
+    Returns
+    -------
+    mixer : Callable[[int, boolean], QuantumCircuit]
+        A method that creates an empty mixer circuit.
+        This method takes into parameters the number of qubits in the circuit,
+        and a parameter `use_params` (ignored, kept for API compatibility).
+
+    Notes
+    -----
+    .. versionadded:: 0.4.0
+    """
+
+    def mixer_identity(n_qubits, use_params=False):
+        qr = QuantumRegister(n_qubits)
+        mixer = QuantumCircuit(qr)
+        return mixer
+
+    return mixer_identity

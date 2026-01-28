@@ -29,7 +29,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import QuanticNCH
-from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_with_circular_entanglement, create_mixer_rotational_XY_gates, create_mixer_rotational_X_gates
+from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_identity, create_mixer_with_circular_entanglement, create_mixer_rotational_XY_gates, create_mixer_rotational_X_gates
 
 # import warnings
 
@@ -113,10 +113,10 @@ pipelines["NCH+RANDOM_HULL_QAOACV"] = make_pipeline(
         n_jobs=12,
         subsampling="min",
         quantum=True,
-        create_mixer=create_mixer_with_circular_entanglement(0),
+        create_mixer=create_mixer_identity(),
         shots=100,
         #qaoa_optimizer=SPSA(maxiter=100, blocking=False), # Try with the other one from Ulvi
-        qaoa_optimizer=L_BFGS_B(),
+        qaoa_optimizer=L_BFGS_B(maxiter=100, maxfun=200),
         n_reps=2,
     ),
 )
