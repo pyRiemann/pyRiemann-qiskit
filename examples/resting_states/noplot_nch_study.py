@@ -24,12 +24,17 @@ from moabb.paradigms import RestingStateToP300Adapter
 from pyriemann.classification import MDM
 from pyriemann.estimation import Covariances
 from pyriemann.tangentspace import TangentSpace
-from qiskit_algorithms.optimizers import SPSA
+from qiskit_algorithms.optimizers import L_BFGS_B, SPSA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import QuanticNCH
-from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_rotational_X_gates
+from pyriemann_qiskit.utils.hyper_params_factory import (
+    create_mixer_identity,
+    create_mixer_rotational_X_gates,
+    create_mixer_rotational_XY_gates,
+    create_mixer_with_circular_entanglement,
+)
 
 # import warnings
 
@@ -77,29 +82,30 @@ sf = make_pipeline(
 
 ##############################################################################
 # NCH without quantum optimization
-pipelines["NCH+RANDOM_HULL"] = make_pipeline(
-    sf,
-    QuanticNCH(
-        seed=seed,
-        n_hulls_per_class=n_hulls_per_class,
-        n_samples_per_hull=n_samples_per_hull,
-        n_jobs=12,
-        subsampling="random",
-        quantum=False,
-    ),
-)
+# pipelines["NCH+RANDOM_HULL"] = make_pipeline(
+#     sf,
+#     QuanticNCH(
+#         seed=seed,
+#         n_hulls_per_class=n_hulls_per_class,
+#         n_samples_per_hull=n_samples_per_hull,
+#         n_jobs=12,
+#         subsampling="random",
+#         quantum=False,
+#     ),
+# )
 
-pipelines["NCH+MIN_HULL"] = make_pipeline(
-    sf,
-    QuanticNCH(
-        seed=seed,
-        n_samples_per_hull=n_samples_per_hull,
-        n_jobs=12,
-        subsampling="min",
-        quantum=False,
-    ),
-)
+# pipelines["NCH+MIN_HULL"] = make_pipeline(
+#     sf,
+#     QuanticNCH(
+#         seed=seed,
+#         n_samples_per_hull=n_samples_per_hull,
+#         n_jobs=12,
+#         subsampling="min",
+#         quantum=False,
+#     ),
+# )
 
+pipelines2 = {}
 
 ##############################################################################
 # NCH with quantum optimization
@@ -110,28 +116,29 @@ pipelines["NCH+RANDOM_HULL_QAOACV"] = make_pipeline(
         n_hulls_per_class=n_hulls_per_class,
         n_samples_per_hull=n_samples_per_hull,
         n_jobs=12,
-        subsampling="random",
+        subsampling="min",
         quantum=True,
-        create_mixer=create_mixer_rotational_X_gates(0),
+        create_mixer=create_mixer_identity(),
         shots=100,
-        qaoa_optimizer=SPSA(maxiter=100, blocking=False),
+        # qaoa_optimizer=SPSA(maxiter=100, blocking=False), # Try with the other one from Ulvi
+        qaoa_optimizer=L_BFGS_B(maxiter=100, maxfun=200),
         n_reps=2,
     ),
 )
 
-pipelines["NCH+RANDOM_HULL_NAIVEQAOA"] = make_pipeline(
-    sf,
-    QuanticNCH(
-        seed=seed,
-        n_hulls_per_class=n_hulls_per_class,
-        n_samples_per_hull=n_samples_per_hull,
-        n_jobs=12,
-        subsampling="random",
-        quantum=True,
-    ),
-)
+# pipelines["NCH+RANDOM_HULL_NAIVEQAOA"] = make_pipeline(
+#     sf,
+#     QuanticNCH(
+#         seed=seed,
+#         n_hulls_per_class=n_hulls_per_class,
+#         n_samples_per_hull=n_samples_per_hull,
+#         n_jobs=12,
+#         subsampling="random",
+#         quantum=True,
+#     ),
+# )
 
-pipelines["NCH+MIN_HULL_QAOACV"] = make_pipeline(
+pipelines2["NCH+MIN_HULL_QAOACV"] = make_pipeline(
     sf,
     QuanticNCH(
         seed=seed,
@@ -146,16 +153,16 @@ pipelines["NCH+MIN_HULL_QAOACV"] = make_pipeline(
     ),
 )
 
-pipelines["NCH+MIN_HULL_NAIVEQAOA"] = make_pipeline(
-    sf,
-    QuanticNCH(
-        seed=seed,
-        n_samples_per_hull=n_samples_per_hull,
-        n_jobs=12,
-        subsampling="min",
-        quantum=True,
-    ),
-)
+# pipelines["NCH+MIN_HULL_NAIVEQAOA"] = make_pipeline(
+#     sf,
+#     QuanticNCH(
+#         seed=seed,
+#         n_samples_per_hull=n_samples_per_hull,
+#         n_jobs=12,
+#         subsampling="min",
+#         quantum=True,
+#     ),
+# )
 
 ##############################################################################
 # SOTA classical methods for comparison
@@ -178,7 +185,8 @@ evaluation = CrossSubjectEvaluation(
     suffix="examples",
     overwrite=overwrite,
     n_splits=3,
-    random_state=seed,
+    # random_state=seed,
+    # shuffle=True,
 )
 
 results = evaluation.process(pipelines)
