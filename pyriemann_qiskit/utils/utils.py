@@ -1,8 +1,8 @@
 from pyriemann_qiskit.utils.docplex import (
     ClassicalOptimizer,
     NaiveQAOAOptimizer,
+    QAOACVAngleOptimizer,
     QAOACVOptimizer,
-    QAOACVAngleOptimizer
 )
 
 from .distance import distance_functions

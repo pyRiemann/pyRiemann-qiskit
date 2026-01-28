@@ -24,12 +24,17 @@ from moabb.paradigms import RestingStateToP300Adapter
 from pyriemann.classification import MDM
 from pyriemann.estimation import Covariances
 from pyriemann.tangentspace import TangentSpace
-from qiskit_algorithms.optimizers import SPSA, L_BFGS_B
+from qiskit_algorithms.optimizers import L_BFGS_B, SPSA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import QuanticNCH
-from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_identity, create_mixer_with_circular_entanglement, create_mixer_rotational_XY_gates, create_mixer_rotational_X_gates
+from pyriemann_qiskit.utils.hyper_params_factory import (
+    create_mixer_identity,
+    create_mixer_rotational_X_gates,
+    create_mixer_rotational_XY_gates,
+    create_mixer_with_circular_entanglement,
+)
 
 # import warnings
 
@@ -115,7 +120,7 @@ pipelines["NCH+RANDOM_HULL_QAOACV"] = make_pipeline(
         quantum=True,
         create_mixer=create_mixer_identity(),
         shots=100,
-        #qaoa_optimizer=SPSA(maxiter=100, blocking=False), # Try with the other one from Ulvi
+        # qaoa_optimizer=SPSA(maxiter=100, blocking=False), # Try with the other one from Ulvi
         qaoa_optimizer=L_BFGS_B(maxiter=100, maxfun=200),
         n_reps=2,
     ),
@@ -180,8 +185,8 @@ evaluation = CrossSubjectEvaluation(
     suffix="examples",
     overwrite=overwrite,
     n_splits=3,
-   # random_state=seed,
-   # shuffle=True,
+    # random_state=seed,
+    # shuffle=True,
 )
 
 results = evaluation.process(pipelines)
