@@ -852,11 +852,12 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
         # Initial guess for the parameters.
         num_params = ansatz_0.num_parameters
         initial_guess = np.ones(num_params)
+        bounds = [(0, np.pi / 2)] * num_params
         #initial_guess = np.array([1, 1] * self.n_reps)
 
         # minimize function to search for the optimal parameters
         start_time = time.time()
-        result = self.optimizer.minimize(loss, initial_guess)
+        result = self.optimizer.minimize(loss, initial_guess, bounds=bounds)
         stop_time = time.time()
         self.run_time_ = stop_time - start_time
 
