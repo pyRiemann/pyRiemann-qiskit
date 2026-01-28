@@ -69,7 +69,7 @@ overwrite = True  # set to True if we want to overwrite cached results
 pipelines = {}
 
 n_hulls_per_class = 3
-n_samples_per_hull = 6
+n_samples_per_hull = 9
 
 sf = make_pipeline(
     Covariances(estimator="lwf"),

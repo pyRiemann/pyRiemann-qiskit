@@ -827,6 +827,8 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
             
             # Map -bloch_z from [-1, 1] to [0, 1]
             normalized = (-bloch_z + 1.0) / 2.0
+            #print(f"Qubit {i}: bloch_z={bloch_z:.4f}, lb={lb}, ub={ub}")
+            #print(normalized, bloch_z)
             
             # Scale to variable bounds
             value = lb + normalized * (ub - lb)
@@ -845,9 +847,12 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
             # Extract variable values from state vector angles
             var_hat = [prob(state_vec, i) for i in range(n_var)]
             cost = objective_expr.evaluate(var_hat)
+            #print(var_hat)
+            penalty = 100 * (sum(var_hat) - 1)**2
+            cost_total = cost + penalty
             self.x_.append(len(self.x_))
-            self.y_.append(cost)
-            return cost
+            self.y_.append(cost_total)
+            return cost_total
 
         # Initial guess for the parameters.
         num_params = ansatz_0.num_parameters
