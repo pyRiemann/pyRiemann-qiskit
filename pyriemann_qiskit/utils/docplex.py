@@ -740,6 +740,8 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
         n_var = qp.get_num_vars()
         # Extract the objective function from the docplex model
         objective_expr = qp._objective
+        linear_constraints = qp.linear_constraints
+        #print(qp.linear_constraints)
 
         # Store variable bounds without converting to binary
         qp, variable_bounds = QAOACVAngleOptimizer.prepare_model(qp)
@@ -846,10 +848,22 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
 
             # Extract variable values from state vector angles
             var_hat = [prob(state_vec, i) for i in range(n_var)]
+            
+            #var_hat = [v / sum(var_hat) for v in var_hat]
+            
             cost = objective_expr.evaluate(var_hat)
-            #print(var_hat)
-            penalty = 100 * (sum(var_hat) - 1)**2
+
+            # Add penalty for constraint violations
+            penalty = 0
+            for constraint in linear_constraints:
+                value = constraint.linear.evaluate(var_hat)
+                violation = (value - constraint.rhs) ** 2  # For EQ constraint
+                penalty += 10.0 * violation
+            
+                #print(value, constraint.rhs, penalty)
+            #penalty = 10 * (sum(var_hat) - 1)**2
             cost_total = cost + penalty
+            
             self.x_.append(len(self.x_))
             self.y_.append(cost_total)
             return cost_total
@@ -857,8 +871,8 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
         # Initial guess for the parameters.
         num_params = ansatz_0.num_parameters
         initial_guess = np.ones(num_params)
+        #initial_guess = np.linspace(0.1, np.pi/2 - 0.1, num_params)
         bounds = [(0, np.pi / 2)] * num_params
-        #initial_guess = np.array([1, 1] * self.n_reps)
 
         # minimize function to search for the optimal parameters
         start_time = time.time()
