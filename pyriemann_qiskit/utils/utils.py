@@ -1,6 +1,7 @@
 from pyriemann_qiskit.utils.docplex import (
     ClassicalOptimizer,
     NaiveQAOAOptimizer,
+    QAOACVAngleOptimizer,
     QAOACVOptimizer,
 )
 
@@ -48,7 +49,7 @@ def get_docplex_optimizer_from_params_bag(
     if quantum:
         if create_mixer:
             logger._log("Using QAOACVOptimizer")
-            return QAOACVOptimizer(
+            return QAOACVAngleOptimizer(
                 create_mixer=create_mixer,
                 n_reps=n_reps,
                 quantum_instance=quantum_instance,
