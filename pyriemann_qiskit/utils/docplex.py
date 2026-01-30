@@ -586,6 +586,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         w = np.array([w[key] for key in w])
         return w
 
+
 class QAOACVAngleOptimizer(pyQiskitOptimizer):
 
     """QAOA with continuous variables encoded in state vector angles.
@@ -654,14 +655,13 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
     @staticmethod
     def prepare_model(qp):
         """Prepare model by storing variable bounds.
-        
+
         Unlike QAOACVOptimizer, we don't convert to binary variables.
         We keep continuous variables and store their bounds for angle mapping.
         """
         variable_bounds = []
         for v in qp.variables:
             if v.vartype == VarType.CONTINUOUS:
-                
                 variable_bounds.append((v.lowerbound, v.upperbound))
                 v.vartype = VarType.BINARY
                 v.lowerbound = 0
@@ -669,7 +669,7 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
             else:
                 # For non-continuous variables, we can still handle them
                 variable_bounds.append((v.lowerbound, v.upperbound))
-        
+
         conv = LinearEqualityToPenalty()
         qp = conv.convert(qp)
 
@@ -741,7 +741,7 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
         # Extract the objective function from the docplex model
         objective_expr = qp._objective
         linear_constraints = qp.linear_constraints
-        #print(qp.linear_constraints)
+        # print(qp.linear_constraints)
 
         # Store variable bounds without converting to binary
         qp, variable_bounds = QAOACVAngleOptimizer.prepare_model(qp)
@@ -749,32 +749,33 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
 
         # cost operator
         # Create simple cost operator with Ry gates (one for each variable)
-        from qiskit.circuit import QuantumCircuit, Parameter
+        from qiskit.circuit import Parameter, QuantumCircuit
+
         cost = QuantumCircuit(n_var)
         for i in range(n_var):
             # Rx gate
-            param_rx = Parameter(f'γ_rx_{i}')
+            param_rx = Parameter(f"γ_rx_{i}")
             cost.rx(param_rx, i)
-            
+
             # Ry gate
-            param_ry = Parameter(f'γ_ry_{i}')
+            param_ry = Parameter(f"γ_ry_{i}")
             cost.ry(param_ry, i)
-            
+
             # Rz gate
-            param_rz = Parameter(f'γ_rz_{i}')
+            param_rz = Parameter(f"γ_rz_{i}")
             cost.rz(param_rz, i)
 
         # The cost operator always has parameters (one per Ry gate)
         cost_op_has_no_parameter = False
 
         mixer = self.create_mixer(cost.num_qubits, use_params=cost_op_has_no_parameter)
-        
-         # Create initial state: encode continuous features using Ry rotations
+
+        # Create initial state: encode continuous features using Ry rotations
         # This is applied once before the QAOA repetitions
         initial_state = QuantumCircuit(n_var)
         continuous_input_params = []
         for i in range(n_var):
-            param_input = Parameter(f'θ_{i}')
+            param_input = Parameter(f"θ_{i}")
             continuous_input_params.append(param_input)
             initial_state.ry(param_input, i)
 
@@ -805,36 +806,36 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
                 The variable value extracted from the Bloch sphere Z-component.
             """
             from qiskit.quantum_info import partial_trace
-            
+
             # Calculate reduced density matrix for the i-th qubit
             # Trace out all other qubits
             qubits_to_trace = [j for j in range(n_var) if j != i]
-            
+
             if qubits_to_trace:
                 reduced_dm = partial_trace(state_vec, qubits_to_trace)
             else:
                 # If only one qubit, use the full density matrix
                 reduced_dm = state_vec.to_operator()
-            
+
             # Create Pauli Z matrix
             pauli_z = np.array([[1, 0], [0, -1]], dtype=complex)
-            
+
             # Calculate expectation value directly
             dm_matrix = reduced_dm.data
             bloch_z = np.real(np.trace(dm_matrix @ pauli_z))
-            
+
             # Map from Bloch sphere Z component [-1, 1] to variable bounds [lb, ub]
             # bloch_z = 1 corresponds to |0⟩, bloch_z = -1 corresponds to |1⟩
             lb, ub = variable_bounds[i]
-            
+
             # Map -bloch_z from [-1, 1] to [0, 1]
             normalized = (-bloch_z + 1.0) / 2.0
-            #print(f"Qubit {i}: bloch_z={bloch_z:.4f}, lb={lb}, ub={ub}")
-            #print(normalized, bloch_z)
-            
+            # print(f"Qubit {i}: bloch_z={bloch_z:.4f}, lb={lb}, ub={ub}")
+            # print(normalized, bloch_z)
+
             # Scale to variable bounds
             value = lb + normalized * (ub - lb)
-            
+
             return value
 
         # defining loss function
@@ -848,9 +849,9 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
 
             # Extract variable values from state vector angles
             var_hat = [prob(state_vec, i) for i in range(n_var)]
-            
-            #var_hat = [v / sum(var_hat) for v in var_hat]
-            
+
+            # var_hat = [v / sum(var_hat) for v in var_hat]
+
             cost = objective_expr.evaluate(var_hat)
 
             # Add penalty for constraint violations
@@ -859,21 +860,21 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
                 value = constraint.linear.evaluate(var_hat)
                 violation = (value - constraint.rhs) ** 2  # For EQ constraint
                 penalty += 10.0 * violation
-            
-                #print(value, constraint.rhs, penalty)
-            #penalty = 10 * (sum(var_hat) - 1)**2
+
+                # print(value, constraint.rhs, penalty)
+            # penalty = 10 * (sum(var_hat) - 1)**2
             cost_total = cost + penalty
-            
+
             self.x_.append(len(self.x_))
             self.y_.append(cost_total)
             return cost_total
 
         # Initial guess for the parameters.
         num_params = ansatz_0.num_parameters
-        #initial_guess = np.ones(num_params)
-        initial_guess = np.linspace(0, np.pi/2, num_params)
-        #initial_guess = np.random.rand(num_params, 1).flatten() * np.pi/2
-        #print(initial_guess)
+        # initial_guess = np.ones(num_params)
+        initial_guess = np.linspace(0, np.pi / 2, num_params)
+        # initial_guess = np.random.rand(num_params, 1).flatten() * np.pi/2
+        # print(initial_guess)
 
         bounds = [(0, np.pi / 2)] * num_params
 
