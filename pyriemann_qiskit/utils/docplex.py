@@ -870,8 +870,11 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
 
         # Initial guess for the parameters.
         num_params = ansatz_0.num_parameters
-        initial_guess = np.ones(num_params)
-        #initial_guess = np.linspace(0.1, np.pi/2 - 0.1, num_params)
+        #initial_guess = np.ones(num_params)
+        initial_guess = np.linspace(0, np.pi/2, num_params)
+        #initial_guess = np.random.rand(num_params, 1).flatten() * np.pi/2
+        #print(initial_guess)
+
         bounds = [(0, np.pi / 2)] * num_params
 
         # minimize function to search for the optimal parameters
