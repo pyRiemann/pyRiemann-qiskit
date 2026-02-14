@@ -653,6 +653,7 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
         self.create_mixer = create_mixer
         self.quantum_instance = quantum_instance
         self.optimizer = optimizer
+        print("Warning! QAOACVAngleOptimizer only support simulation")
 
     @staticmethod
     def prepare_model(qp):
@@ -727,7 +728,6 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
         return ClassicalOptimizer.get_weights(self, prob, classes)
 
     def _solve_qp(self, qp, reshape=True):
-        print("Warning, QAOACVAngleOptimizer only support simulation")
 
         n_var = qp.get_num_vars()
 
