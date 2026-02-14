@@ -18,19 +18,29 @@ import qiskit_algorithms
 import seaborn as sns
 from matplotlib import pyplot as plt
 from moabb import set_log_level
-from moabb.datasets import Cattan2019_PHMD, Rodrigues2017, Hinss2021
-from moabb.evaluations import CrossSubjectEvaluation, WithinSessionEvaluation, CrossSessionEvaluation
+from moabb.datasets import Cattan2019_PHMD, Hinss2021, Rodrigues2017
+from moabb.evaluations import (
+    CrossSessionEvaluation,
+    CrossSubjectEvaluation,
+    WithinSessionEvaluation,
+)
 from moabb.paradigms import RestingStateToP300Adapter
 from pyriemann.classification import MDM
 from pyriemann.estimation import Covariances
+from pyriemann.spatialfilters import CSP
 from pyriemann.tangentspace import TangentSpace
-from qiskit_algorithms.optimizers import SPSA, L_BFGS_B
+from qiskit_algorithms.optimizers import L_BFGS_B, SPSA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
-from pyriemann.spatialfilters import CSP
+
 from pyriemann_qiskit.classification import QuanticNCH
-from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_identity, create_mixer_with_circular_entanglement, create_mixer_rotational_XY_gates, create_mixer_rotational_X_gates
 from pyriemann_qiskit.utils.anderson_optimizer import AndersonAccelerationOptimizer
+from pyriemann_qiskit.utils.hyper_params_factory import (
+    create_mixer_identity,
+    create_mixer_rotational_X_gates,
+    create_mixer_rotational_XY_gates,
+    create_mixer_with_circular_entanglement,
+)
 
 # import warnings
 
@@ -61,27 +71,27 @@ qiskit_algorithms.utils.algorithm_globals.random_seed = seed
 # Pipelines must be a dict of sklearn pipeline transformer.
 
 
-#events=["open", "closed"]
+# events=["open", "closed"]
 #
 
 # The paradigm is adapted to the P300 paradigm.
 
-#Rodrigues2017
-#events = dict(closed=1, open=2)
-#paradigm = RestingStateToP300Adapter(events=events)
+# Rodrigues2017
+# events = dict(closed=1, open=2)
+# paradigm = RestingStateToP300Adapter(events=events)
 
 # Hinss2021 CrossSubjectEvaluation CrossSessionEvaluation->in article
-#events = dict(easy=2, medium=3)
-#paradigm = RestingStateToP300Adapter(events=events, tmin=0, tmax=0.5)
+# events = dict(easy=2, medium=3)
+# paradigm = RestingStateToP300Adapter(events=events, tmin=0, tmax=0.5)
 
 # Cattan2019_PHMD()
 events = ["on", "off"]
 paradigm = RestingStateToP300Adapter(events=events)
 
 datasets = [
-    Cattan2019_PHMD(), # CrossSubjectEvaluation
-    #Rodrigues2017(), # WithinSessionEvaluation CrossSubjectEvaluation
-   # Hinss2021(), CrossSubjectEvaluation CrossSessionEvaluation
+    Cattan2019_PHMD(),  # CrossSubjectEvaluation
+    # Rodrigues2017(), # WithinSessionEvaluation CrossSubjectEvaluation
+    # Hinss2021(), CrossSubjectEvaluation CrossSessionEvaluation
 ]
 
 overwrite = True  # set to True if we want to overwrite cached results
@@ -94,7 +104,6 @@ n_samples_per_hull = 6
 
 sf = make_pipeline(
     Covariances(estimator="lwf"),
-    
 )
 
 ##############################################################################
@@ -105,17 +114,19 @@ pipelines["NCH+MIN_HULL_QAOACV(Ulvi)"] = make_pipeline(
     sf,
     QuanticNCH(
         seed=seed,
-        #n_hulls_per_class=n_hulls_per_class,
+        # n_hulls_per_class=n_hulls_per_class,
         n_samples_per_hull=n_samples_per_hull,
         n_jobs=12,
         subsampling="min",
         quantum=True,
-        create_mixer= create_mixer_with_circular_entanglement(0),#create_mixer_identity(),
+        create_mixer=create_mixer_with_circular_entanglement(
+            0
+        ),  # create_mixer_identity(),
         shots=100,
-        #qaoa_optimizer=L_BFGS_B(maxiter=100, maxfun=200),
+        # qaoa_optimizer=L_BFGS_B(maxiter=100, maxfun=200),
         qaoa_optimizer=AndersonAccelerationOptimizer(maxiter=100, m=5, alpha=1.0),
         n_reps=2,
-        qaoacv_implementation="ulvi"
+        qaoacv_implementation="ulvi",
     ),
 )
 
@@ -127,7 +138,9 @@ pipelines["NCH+MIN_HULL_NAIVEQAOA"] = make_pipeline(
         n_samples_per_hull=n_samples_per_hull,
         n_jobs=12,
         subsampling="min",
-        qaoa_optimizer=AndersonAccelerationOptimizer(maxiter=25, m=5, alpha=1.0, beta=0.01),
+        qaoa_optimizer=AndersonAccelerationOptimizer(
+            maxiter=25, m=5, alpha=1.0, beta=0.01
+        ),
         quantum=True,
     ),
 )
@@ -136,13 +149,13 @@ pipelines["NCH+MIN_HULL_NAIVEQAOA"] = make_pipeline(
 # SOTA classical methods for comparison
 pipelines["MDM"] = make_pipeline(
     sf,
-    #CSP(nfilter=4, log=False),
+    # CSP(nfilter=4, log=False),
     MDM(),
 )
 
 pipelines["TS+LDA"] = make_pipeline(
     sf,
-    #CSP(nfilter=4, log=False),
+    # CSP(nfilter=4, log=False),
     TangentSpace(metric="riemann"),
     LDA(),
 )
@@ -155,8 +168,8 @@ evaluation = CrossSubjectEvaluation(
     suffix="examples",
     overwrite=overwrite,
     n_splits=3,
-    #random_state=seed,
-    #shuffle=True,
+    # random_state=seed,
+    # shuffle=True,
 )
 
 results = evaluation.process(pipelines)
@@ -202,6 +215,6 @@ sns.pointplot(
 )
 
 ax.set_ylabel("ROC AUC")
-#ax.set_ylim(0.35, 0.7)
+# ax.set_ylim(0.35, 0.7)
 plt.xticks(rotation=45)
 plt.show()

@@ -141,14 +141,14 @@ class AndersonAccelerationOptimizer(Optimizer):
         # Evaluate initial point
         f_current = fun(x)
         nfev += 1
-        
+
         iteration = 0
         for iteration in range(self._maxiter):
             # Anderson acceleration for fixed-point iteration
             # Fixed-point formulation: G(w) = w - beta * grad_approx(w)
             # where grad_approx is estimated using coordinate-wise finite differences
             # Residual: r = G(w) - w = -beta * grad_approx(w)
-            
+
             # Estimate gradient using central differences (more stable than forward)
             grad_approx = np.zeros(n)
             for i in range(n):
@@ -156,55 +156,55 @@ class AndersonAccelerationOptimizer(Optimizer):
                 x_plus[i] += self._beta
                 f_plus = fun(x_plus)
                 nfev += 1
-                
+
                 x_minus = x.copy()
                 x_minus[i] -= self._beta
                 f_minus = fun(x_minus)
                 nfev += 1
-                
+
                 # Central difference
                 grad_approx[i] = (f_plus - f_minus) / (2 * self._beta)
-            
+
             # Fixed-point operator: G(w) = w - beta * grad
             # Residual: r = G(w) - w = -beta * grad
             r = -self._beta * grad_approx
-            
+
             # Check convergence
             r_norm = np.linalg.norm(r)
             if r_norm < self._tol:
                 break
-            
+
             # Store current iterate and residual
             W_history.append(x.copy())
             R_history.append(r.copy())
-            
+
             # Limit history depth
             if len(W_history) > self._m:
                 W_history.pop(0)
                 R_history.pop(0)
-            
+
             # Anderson acceleration step
             if len(W_history) > 1:
                 # Build difference matrices (Equations 41-42)
                 m_k = len(W_history) - 1
                 Delta_W = np.zeros((n, m_k))
                 Delta_R = np.zeros((n, m_k))
-                
+
                 for i in range(m_k):
-                    Delta_W[:, i] = W_history[i+1] - W_history[i]
-                    Delta_R[:, i] = R_history[i+1] - R_history[i]
-                
+                    Delta_W[:, i] = W_history[i + 1] - W_history[i]
+                    Delta_R[:, i] = R_history[i + 1] - R_history[i]
+
                 # Solve least-squares problem (Equation 43)
                 # min_gamma ||r_k - Delta_R * gamma||^2 + lambda * ||gamma||^2
                 A = Delta_R.T @ Delta_R + self._lambda_reg * np.eye(m_k)
                 b = Delta_R.T @ r
-                
+
                 try:
                     gamma = np.linalg.solve(A, b)
                 except np.linalg.LinAlgError:
                     # Fallback to lstsq if solve fails
                     gamma, _, _, _ = lstsq(A, b)
-                
+
                 # Update step (Equation 44)
                 # w_{k+1} = w_k + alpha * r_k - (Delta_W + alpha * Delta_R) * gamma
                 x_new = x + self._alpha * r - (Delta_W + self._alpha * Delta_R) @ gamma
@@ -212,7 +212,7 @@ class AndersonAccelerationOptimizer(Optimizer):
                 # First iteration or no history: simple fixed-point step
                 # w_{k+1} = w_k + alpha * r_k
                 x_new = x + self._alpha * r
-            
+
             # Apply bounds if provided
             if bounds is not None:
                 for i, (lower, upper) in enumerate(bounds):
@@ -220,12 +220,12 @@ class AndersonAccelerationOptimizer(Optimizer):
                         x_new[i] = max(x_new[i], lower)
                     if upper is not None:
                         x_new[i] = min(x_new[i], upper)
-            
+
             # Update
             x = x_new
             f_current = fun(x)
             nfev += 1
-        
+
         # Return result
         result = OptimizerResult()
         result.x = x
@@ -249,10 +249,12 @@ class AndersonAccelerationOptimizer(Optimizer):
     def get_support_level(self):
         """Return support level dictionary."""
         from qiskit_algorithms.optimizers import OptimizerSupportLevel
+
         return {
             "gradient": OptimizerSupportLevel.ignored,
             "bounds": OptimizerSupportLevel.supported,
             "initial_point": OptimizerSupportLevel.required,
         }
+
 
 # Made with Bob

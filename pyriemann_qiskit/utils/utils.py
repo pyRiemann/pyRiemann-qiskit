@@ -1,8 +1,8 @@
 from pyriemann_qiskit.utils.docplex import (
     ClassicalOptimizer,
     NaiveQAOAOptimizer,
+    QAOACVAngleOptimizer,
     QAOACVOptimizer,
-    QAOACVAngleOptimizer
 )
 
 from .distance import distance_functions
@@ -91,7 +91,7 @@ def get_docplex_optimizer_from_params_bag(
     - If quantum=True and create_mixer is provided:
         - If "ulvi" in qaoacv_implementation: returns QAOACVAngleOptimizer
         - Otherwise: returns QAOACVOptimizer
-    
+
     Notes
     -----
     .. versionadded:: 0.4.1
