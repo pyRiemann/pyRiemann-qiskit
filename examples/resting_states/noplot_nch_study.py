@@ -51,7 +51,7 @@ seed = 475751
 
 random.seed(seed)
 np.random.seed(seed)
-qiskit_algorithms.utils.algorithm_globals.random_seed
+qiskit_algorithms.utils.algorithm_globals.random_seed = seed
 
 ##############################################################################
 # Create Pipelines
@@ -59,26 +59,37 @@ qiskit_algorithms.utils.algorithm_globals.random_seed
 #
 # Pipelines must be a dict of sklearn pipeline transformer.
 
-#events = ["on", "off"]
-#events=["open", "closed"]
-events = dict(easy=2, diff=3)
-# The paradigm is adapted to the P300 paradigm.
-paradigm = RestingStateToP300Adapter(events=events, tmin=0, tmax=0.5)
 
+#events=["open", "closed"]
+#
+
+# The paradigm is adapted to the P300 paradigm.
+
+#Rodrigues2017
+#events = dict(closed=1, open=2)
 #paradigm = RestingStateToP300Adapter(events=events)
 
+# Hinss2021 CrossSubjectEvaluation CrossSessionEvaluation->in article
+#events = dict(easy=2, medium=3)
+#paradigm = RestingStateToP300Adapter(events=events, tmin=0, tmax=0.5)
+
+# Cattan2019_PHMD()
+events = ["on", "off"]
+paradigm = RestingStateToP300Adapter(events=events)
+
 datasets = [
-    #Cattan2019_PHMD(),
-    #Rodrigues2017(),
-    Hinss2021(),
+    Cattan2019_PHMD(), # CrossSubjectEvaluation
+    #Rodrigues2017(), # WithinSessionEvaluation CrossSubjectEvaluation
+   # Hinss2021(), CrossSubjectEvaluation CrossSessionEvaluation
 ]
 
-overwrite = False  # set to True if we want to overwrite cached results
+overwrite = True  # set to True if we want to overwrite cached results
 
 pipelines = {}
+pipelines2 = {}
 
 n_hulls_per_class = 3
-n_samples_per_hull = 6
+n_samples_per_hull = 8
 
 sf = make_pipeline(
     Covariances(estimator="lwf"),
@@ -86,64 +97,28 @@ sf = make_pipeline(
 )
 
 ##############################################################################
-# NCH without quantum optimization
-# pipelines["NCH+RANDOM_HULL"] = make_pipeline(
-#     sf,
-#     QuanticNCH(
-#         seed=seed,
-#         n_hulls_per_class=n_hulls_per_class,
-#         n_samples_per_hull=n_samples_per_hull,
-#         n_jobs=12,
-#         subsampling="random",
-#         quantum=False,
-#     ),
-# )
+# NCH
 
-# pipelines["NCH+MIN_HULL"] = make_pipeline(
-#     sf,
-#     QuanticNCH(
-#         seed=seed,
-#         n_samples_per_hull=n_samples_per_hull,
-#         n_jobs=12,
-#         subsampling="min",
-#         quantum=False,
-#     ),
-# )
 
-pipelines2 = {}
-
-##############################################################################
-# NCH with quantum optimization
-pipelines["NCH+RANDOM_HULL_QAOACV"] = make_pipeline(
+pipelines["NCH+MIN_HULL_QAOACV(Ulvi)"] = make_pipeline(
     sf,
     QuanticNCH(
         seed=seed,
-        n_hulls_per_class=n_hulls_per_class,
+        #n_hulls_per_class=n_hulls_per_class,
         n_samples_per_hull=n_samples_per_hull,
         n_jobs=12,
         subsampling="min",
         quantum=True,
         create_mixer= create_mixer_with_circular_entanglement(0),#create_mixer_identity(),
         shots=100,
-        #qaoa_optimizer=SPSA(maxiter=100, blocking=False), # Try with the other one from Ulvi
         qaoa_optimizer=L_BFGS_B(maxiter=100, maxfun=200),
         n_reps=2,
+        qaoacv_implementation="ulvi"
     ),
 )
 
-# pipelines["NCH+RANDOM_HULL_NAIVEQAOA"] = make_pipeline(
-#     sf,
-#     QuanticNCH(
-#         seed=seed,
-#         n_hulls_per_class=n_hulls_per_class,
-#         n_samples_per_hull=n_samples_per_hull,
-#         n_jobs=12,
-#         subsampling="random",
-#         quantum=True,
-#     ),
-# )
 
-pipelines2["NCH+MIN_HULL_QAOACV"] = make_pipeline(
+pipelines["NCH+MIN_HULL_NAIVEQAOA"] = make_pipeline(
     sf,
     QuanticNCH(
         seed=seed,
@@ -151,49 +126,34 @@ pipelines2["NCH+MIN_HULL_QAOACV"] = make_pipeline(
         n_jobs=12,
         subsampling="min",
         quantum=True,
-        create_mixer=create_mixer_rotational_X_gates(0),
-        shots=100,
-        qaoa_optimizer=SPSA(maxiter=100, blocking=False),
-        n_reps=2,
     ),
 )
-
-# pipelines["NCH+MIN_HULL_NAIVEQAOA"] = make_pipeline(
-#     sf,
-#     QuanticNCH(
-#         seed=seed,
-#         n_samples_per_hull=n_samples_per_hull,
-#         n_jobs=12,
-#         subsampling="min",
-#         quantum=True,
-#     ),
-# )
 
 ##############################################################################
 # SOTA classical methods for comparison
 pipelines["MDM"] = make_pipeline(
     sf,
-    CSP(nfilter=4, log=False),
+    #CSP(nfilter=4, log=False),
     MDM(),
 )
 
 pipelines["TS+LDA"] = make_pipeline(
     sf,
-    CSP(nfilter=4, log=False),
+    #CSP(nfilter=4, log=False),
     TangentSpace(metric="riemann"),
     LDA(),
 )
 
 print("Total pipelines to evaluate: ", len(pipelines))
 
-evaluation = CrossSessionEvaluation(
+evaluation = CrossSubjectEvaluation(
     paradigm=paradigm,
     datasets=datasets,
     suffix="examples",
     overwrite=overwrite,
     n_splits=3,
-   # random_state=seed,
-   # shuffle=True,
+    #random_state=seed,
+    #shuffle=True,
 )
 
 results = evaluation.process(pipelines)
@@ -210,12 +170,8 @@ print(results.groupby("pipeline").mean("score")[["score", "time"]])
 fig, ax = plt.subplots(facecolor="white", figsize=[8, 4])
 
 order = [
-    "NCH+RANDOM_HULL",
-    "NCH+RANDOM_HULL_NAIVEQAOA",
-    "NCH+RANDOM_HULL_QAOACV",
-    "NCH+MIN_HULL",
+    "NCH+MIN_HULL_QAOACV(Ulvi)",
     "NCH+MIN_HULL_NAIVEQAOA",
-    "NCH+MIN_HULL_QAOACV",
     "TS+LDA",
     "MDM",
 ]
