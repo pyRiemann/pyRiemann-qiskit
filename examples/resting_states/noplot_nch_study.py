@@ -30,6 +30,7 @@ from sklearn.pipeline import make_pipeline
 from pyriemann.spatialfilters import CSP
 from pyriemann_qiskit.classification import QuanticNCH
 from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_identity, create_mixer_with_circular_entanglement, create_mixer_rotational_XY_gates, create_mixer_rotational_X_gates
+from pyriemann_qiskit.utils.anderson_optimizer import AndersonAccelerationOptimizer
 
 # import warnings
 
@@ -89,7 +90,7 @@ pipelines = {}
 pipelines2 = {}
 
 n_hulls_per_class = 3
-n_samples_per_hull = 8
+n_samples_per_hull = 6
 
 sf = make_pipeline(
     Covariances(estimator="lwf"),
@@ -111,7 +112,8 @@ pipelines["NCH+MIN_HULL_QAOACV(Ulvi)"] = make_pipeline(
         quantum=True,
         create_mixer= create_mixer_with_circular_entanglement(0),#create_mixer_identity(),
         shots=100,
-        qaoa_optimizer=L_BFGS_B(maxiter=100, maxfun=200),
+        #qaoa_optimizer=L_BFGS_B(maxiter=100, maxfun=200),
+        qaoa_optimizer=AndersonAccelerationOptimizer(maxiter=100, m=5, alpha=1.0),
         n_reps=2,
         qaoacv_implementation="ulvi"
     ),
@@ -125,6 +127,7 @@ pipelines["NCH+MIN_HULL_NAIVEQAOA"] = make_pipeline(
         n_samples_per_hull=n_samples_per_hull,
         n_jobs=12,
         subsampling="min",
+        qaoa_optimizer=AndersonAccelerationOptimizer(maxiter=25, m=5, alpha=1.0, beta=0.01),
         quantum=True,
     ),
 )

@@ -1,4 +1,5 @@
 from . import (
+    anderson_optimizer,
     distance,
     docplex,
     filtering,
@@ -19,6 +20,7 @@ from .firebase_connector import (
 from .math import union_of_diff
 
 __all__ = [
+    "anderson_optimizer",
     "hyper_params_factory",
     "filtering",
     "preprocessing",
