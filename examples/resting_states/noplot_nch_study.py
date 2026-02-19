@@ -14,6 +14,7 @@ in a "hard" dataset (classical methods don't provide results).
 import random
 
 import numpy as np
+from pyriemann_qiskit.classification.qaoa_batch_classifier import QAOABatchClassifier
 import qiskit_algorithms
 import seaborn as sns
 from matplotlib import pyplot as plt
@@ -48,7 +49,10 @@ set_log_level("info")
 
 ##############################################################################
 # Set global seed for better reproducibility
-seed = 475751
+#seed = 475751
+import time
+seed = round(time.time())
+print(seed)
 
 random.seed(seed)
 np.random.seed(seed)
@@ -75,7 +79,8 @@ qiskit_algorithms.utils.algorithm_globals.random_seed = seed
 #paradigm = RestingStateToP300Adapter(events=events, tmin=0, tmax=0.5)
 
 # Cattan2019_PHMD()
-events = ["on", "off"]
+#events = ["on", "off"]
+events = dict(on=0, off=1)
 paradigm = RestingStateToP300Adapter(events=events)
 
 datasets = [
@@ -100,8 +105,14 @@ sf = make_pipeline(
 ##############################################################################
 # NCH
 
+optimizer = AndersonAccelerationOptimizer(
+    maxiter=15,      # Fewer iterations with Anderson
+    m=5,             # History depth
+    alpha=1.0,       # Undamped
+    beta=0.01        # Step size for smooth functions
+)
 
-pipelines["NCH+MIN_HULL_QAOACV(Ulvi)"] = make_pipeline(
+pipelines2["NCH+MIN_HULL_QAOACV(Ulvi)"] = make_pipeline(
     sf,
     QuanticNCH(
         seed=seed,
@@ -112,23 +123,24 @@ pipelines["NCH+MIN_HULL_QAOACV(Ulvi)"] = make_pipeline(
         quantum=True,
         create_mixer= create_mixer_with_circular_entanglement(0),#create_mixer_identity(),
         shots=100,
-        #qaoa_optimizer=L_BFGS_B(maxiter=100, maxfun=200),
-        qaoa_optimizer=AndersonAccelerationOptimizer(maxiter=100, m=5, alpha=1.0),
+        qaoa_optimizer=L_BFGS_B(maxiter=100, maxfun=200),
+        #qaoa_optimizer=optimizer,
         n_reps=2,
         qaoacv_implementation="ulvi"
     ),
 )
 
 
-pipelines["NCH+MIN_HULL_NAIVEQAOA"] = make_pipeline(
+pipelines2["NCH+MIN_HULL_NAIVEQAOA"] = make_pipeline(
     sf,
     QuanticNCH(
         seed=seed,
         n_samples_per_hull=n_samples_per_hull,
         n_jobs=12,
         subsampling="min",
-        qaoa_optimizer=AndersonAccelerationOptimizer(maxiter=25, m=5, alpha=1.0, beta=0.01),
+       # qaoa_optimizer=SLSQP(),
         quantum=True,
+        n_reps=2
     ),
 )
 
@@ -142,9 +154,10 @@ pipelines["MDM"] = make_pipeline(
 
 pipelines["TS+LDA"] = make_pipeline(
     sf,
-    #CSP(nfilter=4, log=False),
+    CSP(nfilter=4, log=False),
     TangentSpace(metric="riemann"),
-    LDA(),
+    #LDA(),
+    QAOABatchClassifier(optimizer=AndersonAccelerationOptimizer())
 )
 
 print("Total pipelines to evaluate: ", len(pipelines))
@@ -155,7 +168,7 @@ evaluation = CrossSubjectEvaluation(
     suffix="examples",
     overwrite=overwrite,
     n_splits=3,
-    #random_state=seed,
+    random_state=seed,
     #shuffle=True,
 )
 
@@ -205,3 +218,4 @@ ax.set_ylabel("ROC AUC")
 #ax.set_ylim(0.35, 0.7)
 plt.xticks(rotation=45)
 plt.show()
+

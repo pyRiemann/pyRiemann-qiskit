@@ -51,6 +51,15 @@ doc/                     # Sphinx documentation
 benchmarks/              # Performance benchmarks
 ```
 
+## Key Design Patterns
+
+- **scikit-learn interface**: All classifiers implement `fit` / `predict` / `score`. New classifiers should subclass `QuanticClassifierBase` in `classification/wrappers.py`.
+- **Optimizer hierarchy**: `pyQiskitOptimizer` (in `utils/docplex.py`) is the abstract base. Subclasses override `spdmat_var` (variable type), `_solve_qp` (solve logic), and `get_weights`. Concrete subclasses: `ClassicalOptimizer`, `NaiveQAOAOptimizer`, `QAOACVOptimizer`, `QAOACVAngleOptimizer`.
+- **Quantum backend abstraction**: `utils/quantum_provider.py` → `get_simulator()` returns an AerSimulator by default. Callers should not import backends directly.
+- **Docplex ↔ Qiskit bridge**: Optimization problems are defined as Docplex models, converted via `from_docplex_mp`, then solved with QAOA or classical Cobyla.
+- **Hyperparameter factory**: `utils/hyper_params_factory.py` centralises circuit configuration (feature maps, ansätze, mixers). Use `create_mixer_rotational_X_gates` for QAOA mixers.
+- **Symbolic statevector cache**: Pre-computed statevectors live in `symb_statevectors/` (XFeatureMap, ZFeatureMap, ZZFeatureMap). Do not delete or regenerate these unless intentional.
+
 ## Key Constraints & Considerations
 
 ### Quantum Computing Limitations
@@ -112,6 +121,13 @@ benchmarks/              # Performance benchmarks
 
 3. **Coverage**: Maintain test coverage for new features
 
+4. **Test fixtures** (from `tests/conftest.py`):
+   - `get_covmats(n_matrices, n_channels)` — generates SPD covariance matrices
+   - `get_labels(n_matrices, n_classes)` — generates classification labels
+   - `get_dataset(kind)` — generates full `(X, y)` datasets; kinds: `rand`, `bin`, `rand_cov`, `bin_cov`
+   - `requires_matplotlib` / `requires_seaborn` — decorators for optional-dependency tests
+   - Use `BinaryTest` / `MultiClassTest` base classes for classifier tests
+
 ### Git Workflow
 
 1. **Avoid merge commits**: Use `git rebase` instead of merging master into feature
@@ -157,6 +173,7 @@ benchmarks/              # Performance benchmarks
 3. Use limited trials for quantum algorithms (note this in comments)
 4. Include README.txt in the subdirectory
 5. Examples should be runnable with: `pip install .[docs]`
+6. Prefix filename with `noplot_` to exclude an example from sphinx-gallery rendering while still running it in CI (use this for long-running experiments)
 
 ### Working with Dependencies
 
@@ -173,6 +190,7 @@ benchmarks/              # Performance benchmarks
 - `requirements.txt`: Development requirements
 - `.pre-commit-config.yaml`: Pre-commit hooks
 - `ecosystem.json`: Qiskit Ecosystem metadata
+- `symb_statevectors/`: Cached symbolic statevectors for XFeatureMap, ZFeatureMap, ZZFeatureMap — do not delete
 
 ## Integration Points
 
