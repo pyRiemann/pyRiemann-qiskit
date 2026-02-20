@@ -37,6 +37,7 @@ from pyriemann.tangentspace import TangentSpace
 from qiskit_algorithms.optimizers import L_BFGS_B
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
+
 from pyriemann_qiskit.classification import QuanticNCH
 from pyriemann_qiskit.utils.hyper_params_factory import (
     create_mixer_with_circular_entanglement,
