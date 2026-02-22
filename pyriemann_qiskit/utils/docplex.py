@@ -17,7 +17,7 @@ from qiskit.quantum_info import partial_trace
 from qiskit.primitives import BackendSampler
 from qiskit.quantum_info import Statevector
 from qiskit_algorithms import QAOA
-from qiskit_algorithms.optimizers import SLSQP, SPSA
+from qiskit_algorithms.optimizers import SLSQP, SPSA, L_BFGS_B
 from qiskit_optimization.algorithms import CobylaOptimizer, MinimumEigenOptimizer
 from qiskit_optimization.converters import IntegerToBinary, LinearEqualityToPenalty
 from qiskit_optimization.problems import VarType
@@ -609,7 +609,7 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
     quantum_instance : QuantumInstance, default=None
         A quantum backend instance.
         If None, AerSimulator will be used.
-    optimizer : SciPyOptimizer, default=SPSA()
+    optimizer : SciPyOptimizer, default=L_BFGS_B(maxiter=100, maxfun=200)
         An instance of a scipy optimizer to find the optimal weights for the
         parametric circuit (ansatz).
 
@@ -647,7 +647,7 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
         create_mixer=create_mixer_rotational_X_gates(0),
         n_reps=3,
         quantum_instance=None,
-        optimizer=SPSA(),
+        optimizer=L_BFGS_B(maxiter=100, maxfun=200),
     ):
         self.n_reps = n_reps
         self.create_mixer = create_mixer
@@ -860,6 +860,7 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
         # minimize function to search for the optimal parameters
         start_time = time.time()
         result = self.optimizer.minimize(loss, initial_guess, bounds=bounds)
+
         stop_time = time.time()
         self.run_time_ = stop_time - start_time
 

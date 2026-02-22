@@ -1,0 +1,231 @@
+"""Transfer learning utilities compatible with MOABB's evaluation framework."""
+
+import inspect
+from copy import deepcopy
+from time import time
+
+import numpy as np
+from mne.epochs import BaseEpochs
+from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.metrics import get_scorer
+from sklearn.model_selection import (
+    GroupKFold,
+    LeaveOneGroupOut,
+    StratifiedKFold,
+)
+from sklearn.preprocessing import LabelEncoder
+from tqdm import tqdm
+
+from moabb.evaluations import CrossSubjectEvaluation
+from moabb.evaluations.splitters import CrossSubjectSplitter
+from moabb.evaluations.utils import _create_save_path, _ensure_fitted, _save_model_cv
+from pyriemann.transfer import decode_domains, encode_domains
+
+
+def _pipeline_accepts_groups(clf):
+    """Return True if clf.fit() declares a groups parameter."""
+    return "groups" in inspect.signature(clf.fit).parameters
+
+
+def _pipeline_accepts_target_domain(clf):
+    """Return True if clf.fit() declares a target_domain parameter."""
+    return "target_domain" in inspect.signature(clf.fit).parameters
+
+
+class TLDecoder(BaseEstimator, ClassifierMixin):
+    """Decodes domain-encoded labels and fits any plain sklearn estimator.
+
+    Use as the final step in a TL pipeline when the base estimator does not
+    support ``sample_weight`` (e.g. LDA). Unlike TLClassifier, no domain
+    weighting is applied — all samples are weighted equally.
+
+    Parameters
+    ----------
+    estimator : sklearn estimator
+        Classifier to fit on the decoded (plain integer) labels.
+    """
+
+    def __init__(self, estimator):
+        self.estimator = estimator
+
+    def fit(self, X, y_enc):
+        _, y_plain, _ = decode_domains(X, y_enc)
+        self.estimator_ = deepcopy(self.estimator)
+        self.estimator_.fit(X, y_plain.astype(int))
+        self.classes_ = self.estimator_.classes_
+        return self
+
+    def predict(self, X):
+        return self.estimator_.predict(X)
+
+    def predict_proba(self, X):
+        return self.estimator_.predict_proba(X)
+
+
+class Adapter(BaseEstimator, ClassifierMixin):
+    """Meta-estimator bridging MOABB's evaluation interface with pyriemann TL pipelines.
+
+    Handles preprocessing (raw → covariances) and domain encoding, then delegates
+    to a user-supplied factory that constructs the TL estimator for the given
+    target domain at fit time.
+
+    Parameters
+    ----------
+    preprocessing : sklearn transformer
+        Transforms raw input into covariance matrices.
+    make_estimator : callable
+        ``make_estimator(target_domain: str) -> estimator``
+        Factory returning any pyriemann TL-compatible estimator
+        (e.g. a pipeline of TLCenter/TLScale/TLRotate/TLClassifier, or MDWM).
+        The estimator must accept domain-encoded labels at fit time and plain
+        covariance matrices at predict time.
+    """
+
+    def __init__(self, preprocessing, make_estimator):
+        self.preprocessing = preprocessing
+        self.make_estimator = make_estimator
+
+    def fit(self, X, y, groups, target_domain):
+        self.preprocessing_ = deepcopy(self.preprocessing)
+        X_cov = self.preprocessing_.fit_transform(X)
+        _, y_enc = encode_domains(X_cov, y, groups)
+        self.estimator_ = self.make_estimator(str(target_domain))
+        self.estimator_.fit(X_cov, y_enc)
+        self.classes_ = np.unique(y)
+        return self
+
+    def predict(self, X):
+        return self.estimator_.predict(self.preprocessing_.transform(X))
+
+    def predict_proba(self, X):
+        return self.estimator_.predict_proba(self.preprocessing_.transform(X))
+
+
+class TLCrossSubjectEvaluation(CrossSubjectEvaluation):
+    """CrossSubjectEvaluation with group and target-domain forwarding.
+
+    Extends CrossSubjectEvaluation with one behavioural change:
+
+    Pipelines whose fit() declares ``groups`` receive the training subject IDs.
+    Pipelines whose fit() also declares ``target_domain`` receive the test
+    subject's ID as target_domain. All other pipelines are unaffected.
+
+    **kwargs
+        Forwarded to CrossSubjectEvaluation.__init__().
+    """
+
+    # flake8: noqa: C901
+    def evaluate(
+        self, dataset, pipelines, param_grid, process_pipeline, postprocess_pipeline=None
+    ):
+        if not self.is_valid(dataset):
+            raise AssertionError("Dataset is not appropriate for evaluation")
+
+        run_pipes = {}
+        for subject in dataset.subject_list:
+            run_pipes.update(
+                self.results.not_yet_computed(
+                    pipelines, dataset, subject, process_pipeline
+                )
+            )
+        if len(run_pipes) == 0:
+            return
+
+        X, y, metadata = self.paradigm.get_data(
+            dataset=dataset,
+            return_epochs=self.return_epochs,
+            return_raws=self.return_raws,
+            cache_config=self.cache_config,
+            postprocess_pipeline=postprocess_pipeline,
+            process_pipelines=[process_pipeline],
+        )
+        le = LabelEncoder()
+        y = y if self.mne_labels else le.fit_transform(y)
+
+        groups = metadata.subject.values
+        sessions = metadata.session.values
+        n_subjects = len(dataset.subject_list)
+
+        scorer = get_scorer(self.paradigm.scoring)
+
+        if self.n_splits is None:
+            cv_class = LeaveOneGroupOut
+            cv_kwargs = {}
+        else:
+            cv_class = GroupKFold
+            cv_kwargs = {"n_splits": self.n_splits}
+            n_subjects = self.n_splits
+
+        self.cv = CrossSubjectSplitter(
+            cv_class=cv_class, random_state=self.random_state, **cv_kwargs
+        )
+
+        inner_cv = StratifiedKFold(3, shuffle=True, random_state=self.random_state)
+
+        for cv_ind, (train, test) in enumerate(
+            tqdm(
+                self.cv.split(y, metadata),
+                total=n_subjects,
+                desc=f"{dataset.code}-CrossSubject",
+            )
+        ):
+            subject = groups[test[0]]
+            run_pipes = self.results.not_yet_computed(
+                pipelines, dataset, subject, process_pipeline
+            )
+
+            for name, clf in run_pipes.items():
+                t_start = time()
+                clf = self._grid_search(
+                    param_grid=param_grid, name=name, grid_clf=clf, inner_cv=inner_cv
+                )
+
+                if _pipeline_accepts_target_domain(clf):
+                    model = deepcopy(clf).fit(
+                        X[train], y[train],
+                        groups=groups[train],
+                        target_domain=str(groups[train[0]]),
+                    )
+                elif _pipeline_accepts_groups(clf):
+                    model = deepcopy(clf).fit(
+                        X[train], y[train], groups=groups[train]
+                    )
+                else:
+                    model = deepcopy(clf).fit(X[train], y[train])
+
+                _ensure_fitted(model)
+                duration = time() - t_start
+
+                if self.hdf5_path is not None and self.save_model:
+                    model_save_path = _create_save_path(
+                        hdf5_path=self.hdf5_path,
+                        code=dataset.code,
+                        subject=subject,
+                        session="",
+                        name=name,
+                        grid=self.search,
+                        eval_type="CrossSubject",
+                    )
+                    _save_model_cv(
+                        model=model,
+                        save_path=model_save_path,
+                        cv_index=str(cv_ind),
+                    )
+
+                for session in np.unique(sessions[test]):
+                    ix = sessions[test] == session
+                    score = scorer(model, X[test[ix]], y[test[ix]])
+                    nchan = (
+                        X.info["nchan"] if isinstance(X, BaseEpochs) else X.shape[1]
+                    )
+                    res = {
+                        "time": duration,
+                        "dataset": dataset,
+                        "subject": subject,
+                        "session": session,
+                        "score": score,
+                        "n_samples": len(train),
+                        "n_channels": nchan,
+                        "pipeline": name,
+                    }
+                    yield res
