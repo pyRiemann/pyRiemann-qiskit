@@ -38,6 +38,7 @@ class AndersonAccelerationOptimizer(Optimizer):
     Anderson acceleration is a gradient-free fixed-point iteration method
     that achieves superlinear convergence for compact operators. It is
     particularly well-suited for quantum circuit optimization where:
+
     - Gradients are expensive or unavailable
     - The objective function is bounded (compact operator)
     - The parameter space may have Riemannian structure
