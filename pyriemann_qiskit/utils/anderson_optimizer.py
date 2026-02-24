@@ -153,16 +153,16 @@ class AndersonAccelerationOptimizer(Optimizer):
         # Evaluate initial point
         f_current = fun(x)
         nfev += 1
-        
+
         # Initialize trajectory tracking
         self.trajectory_ = [x.copy()]
         self.loss_history_ = [f_current]
-        
+
         iteration = 0
         for iteration in range(self._maxiter):
             # Anderson acceleration for Riemannian manifold (Bloch sphere)
             # Parameters are angles, so we need to respect the manifold structure
-            
+
             # Estimate Riemannian gradient using central differences
             # For angles on Bloch sphere, we use periodic differences
             grad_approx = np.zeros(n)
@@ -172,34 +172,34 @@ class AndersonAccelerationOptimizer(Optimizer):
                 x_plus[i] += self._beta
                 f_plus = fun(x_plus)
                 nfev += 1
-                
+
                 # Backward step
                 x_minus = x.copy()
                 x_minus[i] -= self._beta
                 f_minus = fun(x_minus)
                 nfev += 1
-                
+
                 # Central difference (Riemannian gradient approximation)
                 grad_approx[i] = (f_plus - f_minus) / (2 * self._beta)
-            
+
             # Compute residual in tangent space
             # For Riemannian manifolds, residual is the tangent vector
             r = -self._beta * grad_approx
-            
+
             # Check convergence
             r_norm = np.linalg.norm(r)
             if r_norm < self._tol:
                 break
-            
+
             # Store current iterate and residual
             W_history.append(x.copy())
             R_history.append(r.copy())
-            
+
             # Limit history depth
             if len(W_history) > self._m:
                 W_history.pop(0)
                 R_history.pop(0)
-            
+
             # Anderson acceleration step
             if len(W_history) > 1:
                 # Build difference matrices (Equations 41-42)
@@ -207,35 +207,43 @@ class AndersonAccelerationOptimizer(Optimizer):
                 m_k = len(W_history) - 1
                 Delta_W = np.zeros((n, m_k))
                 Delta_R = np.zeros((n, m_k))
-                
+
                 for i in range(m_k):
                     # Compute differences (these are tangent vectors)
-                    Delta_W[:, i] = W_history[i+1] - W_history[i]
-                    Delta_R[:, i] = R_history[i+1] - R_history[i]
-                    
+                    Delta_W[:, i] = W_history[i + 1] - W_history[i]
+                    Delta_R[:, i] = R_history[i + 1] - R_history[i]
+
                     # For angles, handle wraparound if needed
                     # Normalize differences to [-π, π] range
                     if bounds is not None:
                         for j in range(n):
-                            lower, upper = bounds[j] if bounds[j] != (None, None) else (0, 2*np.pi)
+                            lower, upper = (
+                                bounds[j]
+                                if bounds[j] != (None, None)
+                                else (0, 2 * np.pi)
+                            )
                             period = upper - lower
                             # Wrap difference to [-period/2, period/2]
                             if abs(Delta_W[j, i]) > period / 2:
-                                Delta_W[j, i] = Delta_W[j, i] - np.sign(Delta_W[j, i]) * period
+                                Delta_W[j, i] = (
+                                    Delta_W[j, i] - np.sign(Delta_W[j, i]) * period
+                                )
                             if abs(Delta_R[j, i]) > period / 2:
-                                Delta_R[j, i] = Delta_R[j, i] - np.sign(Delta_R[j, i]) * period
-                
+                                Delta_R[j, i] = (
+                                    Delta_R[j, i] - np.sign(Delta_R[j, i]) * period
+                                )
+
                 # Solve least-squares problem (Equation 43)
                 # min_gamma ||r_k - Delta_R * gamma||^2 + lambda * ||gamma||^2
                 A = Delta_R.T @ Delta_R + self._lambda_reg * np.eye(m_k)
                 b = Delta_R.T @ r
-                
+
                 try:
                     gamma = np.linalg.solve(A, b)
                 except np.linalg.LinAlgError:
                     # Fallback to lstsq if solve fails
                     gamma, _, _, _ = lstsq(A, b)
-                
+
                 # Update step (Equation 44)
                 # w_{k+1} = w_k + alpha * r_k - (Delta_W + alpha * Delta_R) * gamma
                 x_new = x + self._alpha * r - (Delta_W + self._alpha * Delta_R) @ gamma
@@ -243,7 +251,7 @@ class AndersonAccelerationOptimizer(Optimizer):
                 # First iteration or no history: simple fixed-point step
                 # w_{k+1} = w_k + alpha * r_k
                 x_new = x + self._alpha * r
-            
+
             # Project back to manifold (Riemannian retraction)
             # For angles on Bloch sphere, wrap to valid range
             if bounds is not None:
@@ -258,16 +266,16 @@ class AndersonAccelerationOptimizer(Optimizer):
                             x_new[i] = max(x_new[i], lower)
                         if upper is not None:
                             x_new[i] = min(x_new[i], upper)
-            
+
             # Update
             x = x_new
             f_current = fun(x)
             nfev += 1
-            
+
             # Store trajectory
             self.trajectory_ = [x.copy()]
             self.loss_history_.append(f_current)
-        
+
         # Return result
         result = OptimizerResult()
         result.x = x
@@ -291,22 +299,23 @@ class AndersonAccelerationOptimizer(Optimizer):
     def get_support_level(self):
         """Return support level dictionary."""
         from qiskit_algorithms.optimizers import OptimizerSupportLevel
+
         return {
             "gradient": OptimizerSupportLevel.ignored,
             "bounds": OptimizerSupportLevel.supported,
             "initial_point": OptimizerSupportLevel.required,
         }
-    
+
     def plot_bloch_trajectory(self, param_indices=(0, 1), figsize=(10, 8)):
         """Plot optimization trajectory on Bloch sphere.
-        
+
         Parameters
         ----------
         param_indices : tuple of int, default=(0, 1)
             Which two parameters to visualize (θ, φ angles).
         figsize : tuple, default=(10, 8)
             Figure size.
-            
+
         Returns
         -------
         fig : matplotlib.figure.Figure
@@ -319,54 +328,54 @@ class AndersonAccelerationOptimizer(Optimizer):
             from mpl_toolkits.mplot3d import Axes3D
         except ImportError:
             raise ImportError("matplotlib is required for visualization")
-        
+
         if len(self.trajectory_) == 0:
             raise ValueError("No trajectory data. Run minimize() first.")
-        
+
         # Extract parameters
         idx_theta, idx_phi = param_indices
         trajectory = np.array(self.trajectory_)
         theta = trajectory[:, idx_theta]
         phi = trajectory[:, idx_phi]
-        
+
         # Convert to Bloch sphere coordinates
         x = np.sin(theta) * np.cos(phi)
         y = np.sin(theta) * np.sin(phi)
         z = np.cos(theta)
-        
+
         # Create figure
         fig = plt.figure(figsize=figsize)
-        ax = fig.add_subplot(111, projection='3d')
-        
+        ax = fig.add_subplot(111, projection="3d")
+
         # Draw Bloch sphere
         u = np.linspace(0, 2 * np.pi, 100)
         v = np.linspace(0, np.pi, 100)
         x_sphere = np.outer(np.cos(u), np.sin(v))
         y_sphere = np.outer(np.sin(u), np.sin(v))
         z_sphere = np.outer(np.ones(np.size(u)), np.cos(v))
-        ax.plot_surface(x_sphere, y_sphere, z_sphere, alpha=0.1, color='gray')
-        
+        ax.plot_surface(x_sphere, y_sphere, z_sphere, alpha=0.1, color="gray")
+
         # Plot trajectory
-        ax.plot(x, y, z, 'b-', linewidth=2, label='Path')
-        ax.scatter(x[0], y[0], z[0], c='green', s=100, marker='o', label='Start')
-        ax.scatter(x[-1], y[-1], z[-1], c='red', s=100, marker='*', label='End')
-        
-        ax.set_xlabel('X')
-        ax.set_ylabel('Y')
-        ax.set_zlabel('Z')
-        ax.set_title('Anderson Optimization on Bloch Sphere')
+        ax.plot(x, y, z, "b-", linewidth=2, label="Path")
+        ax.scatter(x[0], y[0], z[0], c="green", s=100, marker="o", label="Start")
+        ax.scatter(x[-1], y[-1], z[-1], c="red", s=100, marker="*", label="End")
+
+        ax.set_xlabel("X")
+        ax.set_ylabel("Y")
+        ax.set_zlabel("Z")
+        ax.set_title("Anderson Optimization on Bloch Sphere")
         ax.legend()
-        
+
         return fig, ax
-    
+
     def plot_loss_history(self, figsize=(10, 6)):
         """Plot loss function history.
-        
+
         Parameters
         ----------
         figsize : tuple, default=(10, 6)
             Figure size.
-            
+
         Returns
         -------
         fig : matplotlib.figure.Figure
@@ -378,17 +387,18 @@ class AndersonAccelerationOptimizer(Optimizer):
             import matplotlib.pyplot as plt
         except ImportError:
             raise ImportError("matplotlib is required for visualization")
-        
+
         if len(self.loss_history_) == 0:
             raise ValueError("No loss history. Run minimize() first.")
-        
+
         fig, ax = plt.subplots(figsize=figsize)
-        ax.plot(self.loss_history_, 'b-', linewidth=2)
-        ax.set_xlabel('Iteration')
-        ax.set_ylabel('Loss')
-        ax.set_title('Anderson Acceleration Convergence')
+        ax.plot(self.loss_history_, "b-", linewidth=2)
+        ax.set_xlabel("Iteration")
+        ax.set_ylabel("Loss")
+        ax.set_title("Anderson Acceleration Convergence")
         ax.grid(True, alpha=0.3)
-        
+
         return fig, ax
+
 
 # Made with Bob

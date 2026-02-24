@@ -735,7 +735,7 @@ class QuanticMDM(QuanticClassifierBase):
         create_mixer=None,
         n_reps=3,
         qaoa_initial_points=[0.0, 0.0],
-        qaoacv_implementation=None
+        qaoacv_implementation=None,
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -763,7 +763,7 @@ class QuanticMDM(QuanticClassifierBase):
             self.create_mixer,
             self.n_reps,
             self.qaoa_initial_points,
-            self.qaoacv_implementation
+            self.qaoacv_implementation,
         )
 
         classifier = CpMDM(optimizer=self._optimizer, metric=self.metric)
@@ -890,7 +890,7 @@ class QuanticNCH(QuanticClassifierBase):
         create_mixer=None,
         n_reps=3,
         qaoa_initial_points=[0.0, 0.0],
-        qaoacv_implementation=None
+        qaoacv_implementation=None,
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -921,7 +921,7 @@ class QuanticNCH(QuanticClassifierBase):
             self.create_mixer,
             self.n_reps,
             self.qaoa_initial_points,
-            self.qaoacv_implementation
+            self.qaoacv_implementation,
         )
 
         classifier = NearestConvexHull(

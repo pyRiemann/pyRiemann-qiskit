@@ -6,20 +6,15 @@ from time import time
 
 import numpy as np
 from mne.epochs import BaseEpochs
-from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.metrics import get_scorer
-from sklearn.model_selection import (
-    GroupKFold,
-    LeaveOneGroupOut,
-    StratifiedKFold,
-)
-from sklearn.preprocessing import LabelEncoder
-from tqdm import tqdm
-
 from moabb.evaluations import CrossSubjectEvaluation
 from moabb.evaluations.splitters import CrossSubjectSplitter
 from moabb.evaluations.utils import _create_save_path, _ensure_fitted, _save_model_cv
 from pyriemann.transfer import decode_domains, encode_domains
+from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.metrics import get_scorer
+from sklearn.model_selection import GroupKFold, LeaveOneGroupOut, StratifiedKFold
+from sklearn.preprocessing import LabelEncoder
+from tqdm import tqdm
 
 
 def _pipeline_accepts_groups(clf):
@@ -116,7 +111,12 @@ class TLCrossSubjectEvaluation(CrossSubjectEvaluation):
 
     # flake8: noqa: C901
     def evaluate(
-        self, dataset, pipelines, param_grid, process_pipeline, postprocess_pipeline=None
+        self,
+        dataset,
+        pipelines,
+        param_grid,
+        process_pipeline,
+        postprocess_pipeline=None,
     ):
         if not self.is_valid(dataset):
             raise AssertionError("Dataset is not appropriate for evaluation")
@@ -183,7 +183,8 @@ class TLCrossSubjectEvaluation(CrossSubjectEvaluation):
                 try:
                     if _pipeline_accepts_target_domain(clf):
                         model = deepcopy(clf).fit(
-                            X[train], y[train],
+                            X[train],
+                            y[train],
                             groups=groups[train],
                             target_domain=str(groups[train[0]]),
                         )
@@ -196,6 +197,7 @@ class TLCrossSubjectEvaluation(CrossSubjectEvaluation):
                     _ensure_fitted(model)
                 except Exception as e:
                     import traceback
+
                     print(f"\n[TLCrossSubjectEvaluation] ERROR fitting '{name}': {e}")
                     traceback.print_exc()
                     continue
@@ -224,12 +226,13 @@ class TLCrossSubjectEvaluation(CrossSubjectEvaluation):
                         score = scorer(model, X[test[ix]], y[test[ix]])
                     except Exception as e:
                         import traceback
-                        print(f"\n[TLCrossSubjectEvaluation] ERROR scoring '{name}': {e}")
+
+                        print(
+                            f"\n[TLCrossSubjectEvaluation] ERROR scoring '{name}': {e}"
+                        )
                         traceback.print_exc()
                         continue
-                    nchan = (
-                        X.info["nchan"] if isinstance(X, BaseEpochs) else X.shape[1]
-                    )
+                    nchan = X.info["nchan"] if isinstance(X, BaseEpochs) else X.shape[1]
                     res = {
                         "time": duration,
                         "dataset": dataset,

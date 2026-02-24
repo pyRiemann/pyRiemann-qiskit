@@ -28,7 +28,6 @@ from moabb.analysis.meta_analysis import (
 )
 from moabb.analysis.plotting import meta_analysis_plot, summary_plot
 from moabb.datasets import Cattan2019_PHMD, Hinss2021, Rodrigues2017
-from pyriemann_qiskit.utils.transfer import Adapter, TLCrossSubjectEvaluation, TLDecoder
 from moabb.paradigms import RestingStateToP300Adapter
 from pyriemann.classification import MDM
 from pyriemann.estimation import Covariances
@@ -38,10 +37,12 @@ from pyriemann.transfer import MDWM, TLCenter, TLRotate, TLScale
 from qiskit_algorithms.optimizers import L_BFGS_B
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
+
 from pyriemann_qiskit.classification import QuanticNCH
 from pyriemann_qiskit.utils.hyper_params_factory import (
     create_mixer_with_circular_entanglement,
 )
+from pyriemann_qiskit.utils.transfer import Adapter, TLCrossSubjectEvaluation, TLDecoder
 
 print(__doc__)
 
@@ -146,6 +147,7 @@ pipelines["TS+LDA+TL"] = Adapter(
     preprocessing=cov,
     make_estimator=RPAFactory(make_pipeline(TangentSpace(metric="riemann"), LDA())),
 )
+
 
 def make_mdwm_05(target_domain):
     return MDWM(domain_tradeoff=0.5, target_domain=target_domain, metric="riemann")
