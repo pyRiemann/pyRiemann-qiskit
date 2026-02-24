@@ -861,7 +861,7 @@ class QuanticNCH(QuanticClassifierBase):
         circuit.
     qaoa_initial_points : Tuple[int, int], default=[0.0, 0.0].
         Starting parameters (beta and gamma) for the NaiveQAOAOptimizer.
-    qaoacv_implementation : str | None, default=None
+    qaoacv_implementation : {"ulvi", "luna"} | None, default=None
         QAOA-CV implementation variant. When create_mixer is provided:
         "ulvi" selects QAOACVAngleOptimizer, "luna" or other string values
         select QAOACVOptimizer. If None, uses default QAOA-CV behavior.
