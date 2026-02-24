@@ -124,18 +124,23 @@ def rpa(estimator):
     return factory
 
 
-pipelines["MDM+TL"] = Adapter(preprocessing=cov, make_estimator=rpa(MDM()))
+pipelines["MDM+TL"] = Adapter(
+    preprocessing=cov,
+    make_estimator=rpa(make_pipeline(Whitening(metric="riemann"), MDM())),
+)
 
 pipelines["TS+LDA+TL"] = Adapter(
     preprocessing=cov,
     make_estimator=rpa(make_pipeline(TangentSpace(metric="riemann"), LDA())),
 )
 
+def make_mdwm_05(target_domain):
+    return MDWM(domain_tradeoff=0.5, target_domain=target_domain, metric="riemann")
+
+
 pipelines["MDWM(0.5)"] = Adapter(
     preprocessing=cov,
-    make_estimator=lambda td: MDWM(
-        domain_tradeoff=0.5, target_domain=td, metric="riemann"
-    ),
+    make_estimator=make_mdwm_05,
 )
 
 print("Total pipelines to evaluate: ", len(pipelines))
@@ -160,6 +165,7 @@ evaluation_cattan = TLCrossSubjectEvaluation(
     random_state=seed,
 )
 results_cattan = evaluation_cattan.process(pipelines)
+print("Cattan pipelines computed:", results_cattan["pipeline"].unique().tolist())
 
 # --- Rodrigues2017: CrossSubject ---
 paradigm_rodrigues = RestingStateToP300Adapter(events=dict(closed=1, open=2))
@@ -196,8 +202,9 @@ results = pd.concat(
     ignore_index=True,
 )
 
+print(results)
 print("Averaging the session performance:")
-print(results.groupby("pipeline").mean(numeric_only=True)[["score", "time"]])
+print(results.groupby("pipeline")[["score", "time"]].mean())
 
 preferred_order = [
     "NCH+MIN_HULL_QAOACV(Ulvi)",
@@ -209,6 +216,7 @@ preferred_order = [
     "MDM",
 ]
 active_pipelines = results["pipeline"].unique()
+print(active_pipelines)
 order = [p for p in preferred_order if p in active_pipelines]
 
 ##############################################################################

@@ -85,7 +85,7 @@ class Adapter(BaseEstimator, ClassifierMixin):
         self.preprocessing = preprocessing
         self.make_estimator = make_estimator
 
-    def fit(self, X, y, groups, target_domain):
+    def fit(self, X, y, groups=None, target_domain=None):
         self.preprocessing_ = deepcopy(self.preprocessing)
         X_cov = self.preprocessing_.fit_transform(X)
         _, y_enc = encode_domains(X_cov, y, groups)
@@ -176,24 +176,40 @@ class TLCrossSubjectEvaluation(CrossSubjectEvaluation):
 
             for name, clf in run_pipes.items():
                 t_start = time()
-                clf = self._grid_search(
-                    param_grid=param_grid, name=name, grid_clf=clf, inner_cv=inner_cv
-                )
-
-                if _pipeline_accepts_target_domain(clf):
-                    model = deepcopy(clf).fit(
-                        X[train], y[train],
-                        groups=groups[train],
-                        target_domain=str(groups[train[0]]),
+                tqdm.write(f"[DEBUG] attempting '{name}'")
+                try:
+                    clf = self._grid_search(
+                        param_grid=param_grid, name=name, grid_clf=clf,
+                        inner_cv=inner_cv,
                     )
-                elif _pipeline_accepts_groups(clf):
-                    model = deepcopy(clf).fit(
-                        X[train], y[train], groups=groups[train]
-                    )
-                else:
-                    model = deepcopy(clf).fit(X[train], y[train])
+                except Exception as e:
+                    import traceback
+                    tqdm.write(f"[TLCrossSubjectEvaluation] ERROR grid_search '{name}': {e}")
+                    traceback.print_exc()
+                    continue
 
-                _ensure_fitted(model)
+                try:
+                    if _pipeline_accepts_target_domain(clf):
+                        model = deepcopy(clf).fit(
+                            X[train], y[train],
+                            groups=groups[train],
+                            target_domain=str(groups[train[0]]),
+                        )
+                    elif _pipeline_accepts_groups(clf):
+                        model = deepcopy(clf).fit(
+                            X[train], y[train], groups=groups[train]
+                        )
+                    else:
+                        model = deepcopy(clf).fit(X[train], y[train])
+                    tqdm.write(f"[DEBUG] '{name}' fit OK")
+                    _ensure_fitted(model)
+                    tqdm.write(f"[DEBUG] '{name}' ensure_fitted OK")
+                except Exception as e:
+                    import traceback
+                    tqdm.write(f"[TLCrossSubjectEvaluation] ERROR fitting '{name}': {e}")
+                    traceback.print_exc()
+                    continue
+
                 duration = time() - t_start
 
                 if self.hdf5_path is not None and self.save_model:
@@ -214,7 +230,14 @@ class TLCrossSubjectEvaluation(CrossSubjectEvaluation):
 
                 for session in np.unique(sessions[test]):
                     ix = sessions[test] == session
-                    score = scorer(model, X[test[ix]], y[test[ix]])
+                    try:
+                        score = scorer(model, X[test[ix]], y[test[ix]])
+                        tqdm.write(f"[DEBUG] '{name}' score={score}")
+                    except Exception as e:
+                        import traceback
+                        tqdm.write(f"[TLCrossSubjectEvaluation] ERROR scoring '{name}': {e}")
+                        traceback.print_exc()
+                        continue
                     nchan = (
                         X.info["nchan"] if isinstance(X, BaseEpochs) else X.shape[1]
                     )
