@@ -604,7 +604,7 @@ def create_mixer_identity():
 
     Notes
     -----
-    .. versionadded:: 0.4.0
+    .. versionadded:: 0.5.0
     """
 
     def mixer_identity(n_qubits, use_params=False):
