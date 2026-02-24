@@ -350,7 +350,7 @@ class QAOABatchClassifier(QAOACVAngleOptimizer, ClassifierMixin):
         if not hasattr(self, "optim_params_"):
             raise ValueError("Model not trained. Call fit() first.")
 
-        n_samples = X.shape[0]
+        n_samples, _ = X.shape
 
         # Normalize using training statistics
         X_range = self.X_max_ - self.X_min_
