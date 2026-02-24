@@ -5,6 +5,7 @@ variational quantum circuit parameters on Riemannian manifolds (Bloch sphere).
 
 The parameters are rotation angles for quantum gates, which live on a
 Riemannian manifold with periodic boundary conditions. The optimizer:
+
 - Computes gradients in the tangent space
 - Handles periodic wraparound for angle parameters
 - Uses Riemannian retraction to project back to the manifold
