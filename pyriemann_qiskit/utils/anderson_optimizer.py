@@ -136,6 +136,7 @@ class AndersonAccelerationOptimizer(Optimizer):
         -------
         OptimizerResult
             Result object containing:
+
             - x: optimal parameters
             - fun: objective value at optimal parameters
             - nfev: number of function evaluations
