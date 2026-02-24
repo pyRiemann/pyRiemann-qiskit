@@ -113,25 +113,38 @@ pipelines["TS+LDA"] = make_pipeline(
 cov = Covariances(estimator="lwf")
 
 
-def rpa(estimator):
-    def factory(target_domain):
+class RPAFactory:
+    """Builds an RPA pipeline for a given target domain.
+
+    Using a class (instead of a closure) gives a distinctive repr per
+    estimator, which MOABB needs to assign a unique digest to each pipeline.
+    Two closures from the same ``def`` are indistinguishable after address
+    stripping and would hash to the same digest, silently merging results.
+    """
+
+    def __init__(self, estimator):
+        self.estimator = estimator
+
+    def __call__(self, target_domain):
         return make_pipeline(
             TLCenter(target_domain=target_domain),
             TLScale(target_domain=target_domain, centered_data=True),
             TLRotate(target_domain=target_domain),
-            TLDecoder(estimator),
+            TLDecoder(self.estimator),
         )
-    return factory
+
+    def __repr__(self):
+        return f"RPAFactory(estimator={self.estimator!r})"
 
 
 pipelines["MDM+TL"] = Adapter(
     preprocessing=cov,
-    make_estimator=rpa(make_pipeline(Whitening(metric="riemann"), MDM())),
+    make_estimator=RPAFactory(make_pipeline(Whitening(metric="riemann"), MDM())),
 )
 
 pipelines["TS+LDA+TL"] = Adapter(
     preprocessing=cov,
-    make_estimator=rpa(make_pipeline(TangentSpace(metric="riemann"), LDA())),
+    make_estimator=RPAFactory(make_pipeline(TangentSpace(metric="riemann"), LDA())),
 )
 
 def make_mdwm_05(target_domain):

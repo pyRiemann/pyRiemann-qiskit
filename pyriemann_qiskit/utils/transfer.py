@@ -176,17 +176,9 @@ class TLCrossSubjectEvaluation(CrossSubjectEvaluation):
 
             for name, clf in run_pipes.items():
                 t_start = time()
-                tqdm.write(f"[DEBUG] attempting '{name}'")
-                try:
-                    clf = self._grid_search(
-                        param_grid=param_grid, name=name, grid_clf=clf,
-                        inner_cv=inner_cv,
-                    )
-                except Exception as e:
-                    import traceback
-                    tqdm.write(f"[TLCrossSubjectEvaluation] ERROR grid_search '{name}': {e}")
-                    traceback.print_exc()
-                    continue
+                clf = self._grid_search(
+                    param_grid=param_grid, name=name, grid_clf=clf, inner_cv=inner_cv
+                )
 
                 try:
                     if _pipeline_accepts_target_domain(clf):
@@ -201,12 +193,10 @@ class TLCrossSubjectEvaluation(CrossSubjectEvaluation):
                         )
                     else:
                         model = deepcopy(clf).fit(X[train], y[train])
-                    tqdm.write(f"[DEBUG] '{name}' fit OK")
                     _ensure_fitted(model)
-                    tqdm.write(f"[DEBUG] '{name}' ensure_fitted OK")
                 except Exception as e:
                     import traceback
-                    tqdm.write(f"[TLCrossSubjectEvaluation] ERROR fitting '{name}': {e}")
+                    print(f"\n[TLCrossSubjectEvaluation] ERROR fitting '{name}': {e}")
                     traceback.print_exc()
                     continue
 
@@ -232,10 +222,9 @@ class TLCrossSubjectEvaluation(CrossSubjectEvaluation):
                     ix = sessions[test] == session
                     try:
                         score = scorer(model, X[test[ix]], y[test[ix]])
-                        tqdm.write(f"[DEBUG] '{name}' score={score}")
                     except Exception as e:
                         import traceback
-                        tqdm.write(f"[TLCrossSubjectEvaluation] ERROR scoring '{name}': {e}")
+                        print(f"\n[TLCrossSubjectEvaluation] ERROR scoring '{name}': {e}")
                         traceback.print_exc()
                         continue
                     nchan = (
