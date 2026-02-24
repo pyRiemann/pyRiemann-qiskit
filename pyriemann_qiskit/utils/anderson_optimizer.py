@@ -10,6 +10,7 @@ Riemannian manifold with periodic boundary conditions. The optimizer:
 - Uses Riemannian retraction to project back to the manifold
 
 The algorithm follows equations 41-44 from the mesh-free IGL formulation:
+
 - ΔW = [w_k - w_{k-1}, ..., w_{k-m+1} - w_{k-m}]  (Eq. 41)
 - ΔR = [r_k - r_{k-1}, ..., r_{k-m+1} - r_{k-m}]  (Eq. 42)
 - γ = argmin_γ ||r_k - ΔR·γ||² + λ||γ||²         (Eq. 43)
