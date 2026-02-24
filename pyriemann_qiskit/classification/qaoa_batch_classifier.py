@@ -67,7 +67,7 @@ class QAOABatchClassifier(QAOACVAngleOptimizer, ClassifierMixin):
 
     Notes
     -----
-    .. versionadded:: 0.6.0
+    .. versionadded:: 0.5.0
 
     Examples
     --------
