@@ -113,49 +113,33 @@ pipelines["TS+LDA"] = make_pipeline(
 
 cov = Covariances(estimator="lwf")
 
-
-class RPAFactory:
-    """Builds an RPA pipeline for a given target domain.
-
-    Using a class (instead of a closure) gives a distinctive repr per
-    estimator, which MOABB needs to assign a unique digest to each pipeline.
-    Two closures from the same ``def`` are indistinguishable after address
-    stripping and would hash to the same digest, silently merging results.
-    """
-
-    def __init__(self, estimator):
-        self.estimator = estimator
-
-    def __call__(self, target_domain):
-        return make_pipeline(
-            TLCenter(target_domain=target_domain),
-            TLScale(target_domain=target_domain, centered_data=True),
-            TLRotate(target_domain=target_domain),
-            TLClassifier(target_domain=target_domain, estimator=self.estimator),
-        )
-
-    def __repr__(self):
-        return f"RPAFactory(estimator={self.estimator!r})"
-
-
 pipelines["MDM+TL"] = Adapter(
     preprocessing=cov,
-    make_estimator=RPAFactory(make_pipeline(MDM())),
+    estimator=make_pipeline(
+        TLCenter(target_domain=None),
+        TLScale(target_domain=None, centered_data=True),
+        TLRotate(target_domain=None),
+        TLClassifier(target_domain=None, estimator=MDM(), domain_weight=None),
+    ),
 )
 
 pipelines["TS+LDA+TL"] = Adapter(
     preprocessing=cov,
-    make_estimator=RPAFactory(make_pipeline(TangentSpace(metric="riemann"), LDA())),
+    estimator=make_pipeline(
+        TLCenter(target_domain=None),
+        TLScale(target_domain=None, centered_data=True),
+        TLRotate(target_domain=None),
+        TLClassifier(
+            target_domain=None,
+            estimator=make_pipeline(TangentSpace(metric="riemann"), LDA()),
+            domain_weight=None,
+        ),
+    ),
 )
-
-
-def make_mdwm_05(target_domain):
-    return MDWM(domain_tradeoff=0.5, target_domain=target_domain, metric="riemann")
-
 
 pipelines["MDWM(0.5)"] = Adapter(
     preprocessing=cov,
-    make_estimator=make_mdwm_05,
+    estimator=MDWM(domain_tradeoff=0.5, target_domain=None, metric="riemann"),
 )
 
 print("Total pipelines to evaluate: ", len(pipelines))

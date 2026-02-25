@@ -28,34 +28,43 @@ def _pipeline_accepts_target_domain(clf):
 
 
 
+def _set_target_domain(estimator, target_domain):
+    """Set target_domain on any step (or the estimator itself) that declares it."""
+    if hasattr(estimator, "steps"):
+        for _, step in estimator.steps:
+            if hasattr(step, "target_domain"):
+                step.set_params(target_domain=target_domain)
+    elif hasattr(estimator, "target_domain"):
+        estimator.set_params(target_domain=target_domain)
+
+
 class Adapter(BaseEstimator, ClassifierMixin):
     """Meta-estimator bridging MOABB's evaluation interface with pyriemann TL pipelines.
 
-    Handles preprocessing (raw → covariances) and domain encoding, then delegates
-    to a user-supplied factory that constructs the TL estimator for the given
-    target domain at fit time.
+    Handles preprocessing (raw → covariances), domain encoding, and
+    target-domain propagation, then delegates to a plain pyriemann TL estimator.
 
     Parameters
     ----------
     preprocessing : sklearn transformer
         Transforms raw input into covariance matrices.
-    make_estimator : callable
-        ``make_estimator(target_domain: str) -> estimator``
-        Factory returning any pyriemann TL-compatible estimator
-        (e.g. a pipeline of TLCenter/TLScale/TLRotate/TLClassifier, or MDWM).
-        The estimator must accept domain-encoded labels at fit time and plain
-        covariance matrices at predict time.
+    estimator : sklearn estimator
+        Any pyriemann TL-compatible estimator (e.g. a pipeline of
+        TLCenter/TLScale/TLRotate/TLClassifier, or MDWM) constructed with
+        ``target_domain=None``. The actual value is injected via
+        ``set_params`` at fit time from ``TLCrossSubjectEvaluation``.
     """
 
-    def __init__(self, preprocessing, make_estimator):
+    def __init__(self, preprocessing, estimator):
         self.preprocessing = preprocessing
-        self.make_estimator = make_estimator
+        self.estimator = estimator
 
     def fit(self, X, y, groups=None, target_domain=None):
         self.preprocessing_ = deepcopy(self.preprocessing)
         X_cov = self.preprocessing_.fit_transform(X)
         _, y_enc = encode_domains(X_cov, y, groups)
-        self.estimator_ = self.make_estimator(str(target_domain))
+        self.estimator_ = deepcopy(self.estimator)
+        _set_target_domain(self.estimator_, target_domain)
         self.estimator_.fit(X_cov, y_enc)
         self.classes_ = np.unique(y)
         return self
