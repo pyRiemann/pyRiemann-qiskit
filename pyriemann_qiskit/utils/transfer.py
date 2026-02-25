@@ -9,7 +9,7 @@ from mne.epochs import BaseEpochs
 from moabb.evaluations import CrossSubjectEvaluation
 from moabb.evaluations.splitters import CrossSubjectSplitter
 from moabb.evaluations.utils import _create_save_path, _ensure_fitted, _save_model_cv
-from pyriemann.transfer import decode_domains, encode_domains
+from pyriemann.transfer import encode_domains
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.metrics import get_scorer
 from sklearn.model_selection import GroupKFold, LeaveOneGroupOut, StratifiedKFold
@@ -26,35 +26,6 @@ def _pipeline_accepts_target_domain(clf):
     """Return True if clf.fit() declares a target_domain parameter."""
     return "target_domain" in inspect.signature(clf.fit).parameters
 
-
-class TLDecoder(BaseEstimator, ClassifierMixin):
-    """Decodes domain-encoded labels and fits any plain sklearn estimator.
-
-    Use as the final step in a TL pipeline when the base estimator does not
-    support ``sample_weight`` (e.g. LDA). Unlike TLClassifier, no domain
-    weighting is applied — all samples are weighted equally.
-
-    Parameters
-    ----------
-    estimator : sklearn estimator
-        Classifier to fit on the decoded (plain integer) labels.
-    """
-
-    def __init__(self, estimator):
-        self.estimator = estimator
-
-    def fit(self, X, y_enc):
-        _, y_plain, _ = decode_domains(X, y_enc)
-        self.estimator_ = deepcopy(self.estimator)
-        self.estimator_.fit(X, y_plain.astype(int))
-        self.classes_ = self.estimator_.classes_
-        return self
-
-    def predict(self, X):
-        return self.estimator_.predict(X)
-
-    def predict_proba(self, X):
-        return self.estimator_.predict_proba(X)
 
 
 class Adapter(BaseEstimator, ClassifierMixin):

@@ -33,7 +33,7 @@ from pyriemann.classification import MDM
 from pyriemann.estimation import Covariances
 from pyriemann.preprocessing import Whitening
 from pyriemann.tangentspace import TangentSpace
-from pyriemann.transfer import MDWM, TLCenter, TLRotate, TLScale
+from pyriemann.transfer import MDWM, TLCenter, TLClassifier, TLRotate, TLScale
 from qiskit_algorithms.optimizers import L_BFGS_B
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
@@ -42,7 +42,7 @@ from pyriemann_qiskit.classification import QuanticNCH
 from pyriemann_qiskit.utils.hyper_params_factory import (
     create_mixer_with_circular_entanglement,
 )
-from pyriemann_qiskit.utils.transfer import Adapter, TLCrossSubjectEvaluation, TLDecoder
+from pyriemann_qiskit.utils.transfer import Adapter, TLCrossSubjectEvaluation
 
 print(__doc__)
 
@@ -65,7 +65,7 @@ np.random.seed(seed)
 
 sf = make_pipeline(
     Covariances(estimator="lwf"),
-    Whitening(metric="riemann"),
+   # Whitening(metric="riemann"),
 )
 
 n_samples_per_hull = 6
@@ -131,7 +131,7 @@ class RPAFactory:
             TLCenter(target_domain=target_domain),
             TLScale(target_domain=target_domain, centered_data=True),
             TLRotate(target_domain=target_domain),
-            TLDecoder(self.estimator),
+            TLClassifier(target_domain=target_domain, estimator=self.estimator),
         )
 
     def __repr__(self):
@@ -140,7 +140,7 @@ class RPAFactory:
 
 pipelines["MDM+TL"] = Adapter(
     preprocessing=cov,
-    make_estimator=RPAFactory(make_pipeline(Whitening(metric="riemann"), MDM())),
+    make_estimator=RPAFactory(make_pipeline(MDM())),
 )
 
 pipelines["TS+LDA+TL"] = Adapter(
