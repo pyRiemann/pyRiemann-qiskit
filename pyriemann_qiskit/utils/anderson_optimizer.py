@@ -28,6 +28,8 @@ References
        iterations. SIAM Journal on Numerical Analysis, 49(4), 1715-1735.
 """
 
+from collections import deque
+
 import numpy as np
 from qiskit_algorithms.optimizers import Optimizer, OptimizerResult
 from scipy.linalg import lstsq
@@ -150,9 +152,9 @@ class AndersonAccelerationOptimizer(Optimizer):
         n = len(x)
         nfev = 0
 
-        # History storage
-        W_history = []  # Parameter history
-        R_history = []  # Residual history
+        # History storage — deque auto-evicts oldest entry when full (O(1) FIFO)
+        W_history = deque(maxlen=self._m)  # Parameter history
+        R_history = deque(maxlen=self._m)  # Residual history
 
         # Evaluate initial point
         f_current = fun(x)
@@ -162,28 +164,34 @@ class AndersonAccelerationOptimizer(Optimizer):
         self.trajectory_ = [x.copy()]
         self.loss_history_ = [f_current]
 
+        # Precompute vectorised bounds arrays once (avoids repeated per-element work)
+        if bounds is not None:
+            lower_b = np.array([b[0] if b[0] is not None else np.nan for b in bounds])
+            upper_b = np.array([b[1] if b[1] is not None else np.nan for b in bounds])
+            periodic = ~(np.isnan(lower_b) | np.isnan(upper_b))
+            period_b = np.where(periodic, upper_b - lower_b, 1.0)  # dummy for non-periodic
+            has_lower = ~np.isnan(lower_b) & ~periodic
+            has_upper = ~np.isnan(upper_b) & ~periodic
+            # For wraparound correction: period column-vector broadcasts over m_k columns
+            period_col = period_b[:, np.newaxis]
+
         iteration = 0
         for iteration in range(self._maxiter):
             # Anderson acceleration for Riemannian manifold (Bloch sphere)
             # Parameters are angles, so we need to respect the manifold structure
 
-            # Estimate Riemannian gradient using central differences
-            # For angles on Bloch sphere, we use periodic differences
+            # Estimate Riemannian gradient using central differences.
+            # Modify x[i] in-place and restore — avoids 2n array allocations per iter.
             grad_approx = np.zeros(n)
             for i in range(n):
-                # Forward step (respecting periodicity if bounds suggest it)
-                x_plus = x.copy()
-                x_plus[i] += self._beta
-                f_plus = fun(x_plus)
+                orig = x[i]
+                x[i] = orig + self._beta
+                f_plus = fun(x)
                 nfev += 1
-
-                # Backward step
-                x_minus = x.copy()
-                x_minus[i] -= self._beta
-                f_minus = fun(x_minus)
+                x[i] = orig - self._beta
+                f_minus = fun(x)
                 nfev += 1
-
-                # Central difference (Riemannian gradient approximation)
+                x[i] = orig
                 grad_approx[i] = (f_plus - f_minus) / (2 * self._beta)
 
             # Compute residual in tangent space
@@ -195,47 +203,25 @@ class AndersonAccelerationOptimizer(Optimizer):
             if r_norm < self._tol:
                 break
 
-            # Store current iterate and residual
+            # Store current iterate and residual (r is freshly allocated — no .copy() needed)
             W_history.append(x.copy())
-            R_history.append(r.copy())
-
-            # Limit history depth
-            if len(W_history) > self._m:
-                W_history.pop(0)
-                R_history.pop(0)
+            R_history.append(r)
 
             # Anderson acceleration step
             if len(W_history) > 1:
-                # Build difference matrices (Equations 41-42)
-                # For Riemannian manifolds, compute differences in tangent space
-                m_k = len(W_history) - 1
-                Delta_W = np.zeros((n, m_k))
-                Delta_R = np.zeros((n, m_k))
+                # Build difference matrices (Equations 41-42) via vectorised np.diff
+                W_arr = np.array(W_history)   # shape (m_k+1, n)
+                R_arr = np.array(R_history)
+                Delta_W = np.diff(W_arr, axis=0).T  # shape (n, m_k)
+                Delta_R = np.diff(R_arr, axis=0).T
 
-                for i in range(m_k):
-                    # Compute differences (these are tangent vectors)
-                    Delta_W[:, i] = W_history[i + 1] - W_history[i]
-                    Delta_R[:, i] = R_history[i + 1] - R_history[i]
+                # For angles, handle wraparound in tangent-space differences
+                if bounds is not None:
+                    for dmat in (Delta_W, Delta_R):
+                        mask = np.abs(dmat) > period_col / 2
+                        dmat -= np.where(mask, np.sign(dmat) * period_col, 0.0)
 
-                    # For angles, handle wraparound if needed
-                    # Normalize differences to [-π, π] range
-                    if bounds is not None:
-                        for j in range(n):
-                            lower, upper = (
-                                bounds[j]
-                                if bounds[j] != (None, None)
-                                else (0, 2 * np.pi)
-                            )
-                            period = upper - lower
-                            # Wrap difference to [-period/2, period/2]
-                            if abs(Delta_W[j, i]) > period / 2:
-                                Delta_W[j, i] = (
-                                    Delta_W[j, i] - np.sign(Delta_W[j, i]) * period
-                                )
-                            if abs(Delta_R[j, i]) > period / 2:
-                                Delta_R[j, i] = (
-                                    Delta_R[j, i] - np.sign(Delta_R[j, i]) * period
-                                )
+                m_k = Delta_W.shape[1]
 
                 # Solve least-squares problem (Equation 43)
                 # min_gamma ||r_k - Delta_R * gamma||^2 + lambda * ||gamma||^2
@@ -256,28 +242,23 @@ class AndersonAccelerationOptimizer(Optimizer):
                 # w_{k+1} = w_k + alpha * r_k
                 x_new = x + self._alpha * r
 
-            # Project back to manifold (Riemannian retraction)
-            # For angles on Bloch sphere, wrap to valid range
+            # Project back to manifold (Riemannian retraction) — vectorised
             if bounds is not None:
-                for i, (lower, upper) in enumerate(bounds):
-                    if lower is not None and upper is not None:
-                        # Wrap angle to [lower, upper] range (periodic boundary)
-                        period = upper - lower
-                        x_new[i] = lower + np.mod(x_new[i] - lower, period)
-                    else:
-                        # Standard clipping for non-periodic bounds
-                        if lower is not None:
-                            x_new[i] = max(x_new[i], lower)
-                        if upper is not None:
-                            x_new[i] = min(x_new[i], upper)
+                x_new = np.where(
+                    periodic,
+                    lower_b + np.mod(x_new - lower_b, period_b),
+                    x_new,
+                )
+                x_new = np.where(has_lower, np.maximum(x_new, lower_b), x_new)
+                x_new = np.where(has_upper, np.minimum(x_new, upper_b), x_new)
 
             # Update
             x = x_new
             f_current = fun(x)
             nfev += 1
 
-            # Store trajectory
-            self.trajectory_ = [x.copy()]
+            # Append to trajectory (fix: was overwriting instead of appending)
+            self.trajectory_.append(x.copy())
             self.loss_history_.append(f_current)
 
         # Return result
@@ -403,6 +384,3 @@ class AndersonAccelerationOptimizer(Optimizer):
         ax.grid(True, alpha=0.3)
 
         return fig, ax
-
-
-# Made with Bob
