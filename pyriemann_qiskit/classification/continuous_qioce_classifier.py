@@ -92,7 +92,8 @@ class ContinuousQIOCEClassifier(QAOACVAngleOptimizer, ClassifierMixin):
         # Initialize parent QAOACVAngleOptimizer
         super().__init__(
             create_mixer=(
-                create_mixer if create_mixer is not None
+                create_mixer
+                if create_mixer is not None
                 else create_mixer_rotational_X_gates(0)
             ),
             n_reps=n_reps,
@@ -146,13 +147,15 @@ class ContinuousQIOCEClassifier(QAOACVAngleOptimizer, ClassifierMixin):
         float
             Predicted probability for class 1, in [0, 1].
         """
-        amps = state_vec.data                # shape (2**n_features,)
-        probs = np.abs(amps) ** 2            # probability per basis state
+        amps = state_vec.data  # shape (2**n_features,)
+        probs = np.abs(amps) ** 2  # probability per basis state
         indices = np.arange(len(probs))
-        bloch_z_values = np.array([
-            2.0 * probs[(indices >> i) & 1 == 0].sum() - 1.0
-            for i in range(n_features)
-        ])
+        bloch_z_values = np.array(
+            [
+                2.0 * probs[(indices >> i) & 1 == 0].sum() - 1.0
+                for i in range(n_features)
+            ]
+        )
         avg_bloch_z = bloch_z_values.mean()
         return (1.0 - avg_bloch_z) / 2.0
 
@@ -251,9 +254,7 @@ class ContinuousQIOCEClassifier(QAOACVAngleOptimizer, ClassifierMixin):
         # Store final state vector for interface compatibility (first training sample)
         gamma_dict = {p: v for p, v in zip(gamma_params, self.optim_params_)}
         circuit_partial = ansatz_0.assign_parameters(gamma_dict)
-        theta_dict = {
-            p: v for p, v in zip(continuous_input_params, self.X_train_[0])
-        }
+        theta_dict = {p: v for p, v in zip(continuous_input_params, self.X_train_[0])}
         optimized_circuit = circuit_partial.assign_parameters(theta_dict)
         self.state_vector_ = Statevector(optimized_circuit)
         self.minimum_ = self.training_loss_history_[-1]

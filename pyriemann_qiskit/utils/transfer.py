@@ -27,7 +27,6 @@ def _pipeline_accepts_target_domain(clf):
     return "target_domain" in inspect.signature(clf.fit).parameters
 
 
-
 def _set_target_domain(estimator, target_domain):
     """Set target_domain on any step (or the estimator itself) that declares it."""
     if hasattr(estimator, "steps"):

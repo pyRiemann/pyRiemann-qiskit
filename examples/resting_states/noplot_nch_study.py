@@ -260,14 +260,14 @@ evaluation_hinss_cs = TLCrossSubjectEvaluation(
     n_splits=3,
     random_state=seed,
 )
-#results_hinss_cs = evaluation_hinss_cs.process(pipelines)
+# results_hinss_cs = evaluation_hinss_cs.process(pipelines)
 
 ##############################################################################
 # Aggregate Results
 # -----------------
 
 results = pd.concat(
-    #[results_cattan, results_rodrigues, results_hinss_cs],
+    # [results_cattan, results_rodrigues, results_hinss_cs],
     [results_cattan, results_rodrigues],
     ignore_index=True,
 )

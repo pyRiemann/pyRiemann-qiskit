@@ -169,7 +169,9 @@ class AndersonAccelerationOptimizer(Optimizer):
             lower_b = np.array([b[0] if b[0] is not None else np.nan for b in bounds])
             upper_b = np.array([b[1] if b[1] is not None else np.nan for b in bounds])
             periodic = ~(np.isnan(lower_b) | np.isnan(upper_b))
-            period_b = np.where(periodic, upper_b - lower_b, 1.0)  # dummy for non-periodic
+            period_b = np.where(
+                periodic, upper_b - lower_b, 1.0
+            )  # dummy for non-periodic
             has_lower = ~np.isnan(lower_b) & ~periodic
             has_upper = ~np.isnan(upper_b) & ~periodic
             # For wraparound correction: period column-vector broadcasts over m_k columns
@@ -210,7 +212,7 @@ class AndersonAccelerationOptimizer(Optimizer):
             # Anderson acceleration step
             if len(W_history) > 1:
                 # Build difference matrices (Equations 41-42) via vectorised np.diff
-                W_arr = np.array(W_history)   # shape (m_k+1, n)
+                W_arr = np.array(W_history)  # shape (m_k+1, n)
                 R_arr = np.array(R_history)
                 Delta_W = np.diff(W_arr, axis=0).T  # shape (n, m_k)
                 Delta_R = np.diff(R_arr, axis=0).T

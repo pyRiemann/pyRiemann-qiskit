@@ -1,19 +1,21 @@
 import numpy as np
 import pytest
 
-from pyriemann_qiskit.classification.continuous_qioce_classifier import ContinuousQIOCEClassifier
-
+from pyriemann_qiskit.classification.continuous_qioce_classifier import (
+    ContinuousQIOCEClassifier,
+)
 
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture(scope="module")
 def binary_data():
     """Tiny separable binary dataset: class 0 = zeros, class 1 = ones."""
     rng = np.random.RandomState(42)
-    X0 = rng.uniform(0.0, 0.1, (4, 2))   # cluster near 0
-    X1 = rng.uniform(0.9, 1.0, (4, 2))   # cluster near 1
+    X0 = rng.uniform(0.0, 0.1, (4, 2))  # cluster near 0
+    X1 = rng.uniform(0.9, 1.0, (4, 2))  # cluster near 1
     X = np.vstack([X0, X1])
     y = np.array([0, 0, 0, 0, 1, 1, 1, 1])
     return X, y
@@ -31,6 +33,7 @@ def fitted_clf(binary_data):
 # ---------------------------------------------------------------------------
 # Pure-numpy tests (no quantum, fast)
 # ---------------------------------------------------------------------------
+
 
 class TestNormalizeFeatures:
     def test_output_range(self):
@@ -80,6 +83,7 @@ class TestErrorCases:
 # Post-fit attribute tests
 # ---------------------------------------------------------------------------
 
+
 class TestFitAttributes:
     def test_classes_set(self, fitted_clf):
         assert hasattr(fitted_clf, "classes_")
@@ -117,6 +121,7 @@ class TestFitAttributes:
 # ---------------------------------------------------------------------------
 # Predict / predict_proba / score tests
 # ---------------------------------------------------------------------------
+
 
 class TestPredict:
     def test_predict_shape(self, fitted_clf, binary_data):
