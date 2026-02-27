@@ -1,12 +1,14 @@
 """
 ====================================================================
-Classification of resting-state datasets from MOABB using NCH
+Classification of resting-state datasets from MOABB using NCH and QIOCE
 ====================================================================
 
-Comparison of classical pipelines (MDM, TS+LDA) across three
-resting-state datasets: Hinss2021 (CrossSubject & CrossSession),
-Rodrigues2017 (CrossSubject), and Cattan2019_PHMD (CrossSubject).
-Results are aggregated and analyzed with MOABB statistical tools.
+Comparison of classical pipelines (MDM, TS+LDA) and quantum pipelines
+(NCH, QIOCE) across three resting-state datasets: Hinss2021
+(CrossSubject & CrossSession), Rodrigues2017 (CrossSubject), and
+Cattan2019_PHMD (CrossSubject). Both plain and transfer-learning (TL)
+variants are benchmarked. Results are aggregated and analyzed with
+MOABB statistical tools.
 
 """
 # Author: Gregoire Cattan, Quentin Barthelemy
@@ -38,7 +40,7 @@ from qiskit_algorithms.optimizers import L_BFGS_B
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
 
-from pyriemann_qiskit.classification import QuanticNCH
+from pyriemann_qiskit.classification import ContinuousQIOCEClassifier, QuanticNCH
 from pyriemann_qiskit.utils.hyper_params_factory import (
     create_mixer_with_circular_entanglement,
 )
@@ -65,10 +67,9 @@ np.random.seed(seed)
 
 sf = make_pipeline(
     Covariances(estimator="lwf"),
-   # Whitening(metric="riemann"),
 )
 
-n_samples_per_hull = 6
+n_samples_per_hull = 2
 
 pipelines = {}
 
@@ -83,38 +84,43 @@ pipelines["TS+LDA"] = make_pipeline(
     LDA(),
 )
 
-# pipelines["NCH+MIN_HULL_QAOACV(Ulvi)"] = make_pipeline(
-#     sf,
-#     QuanticNCH(
-#         seed=seed,
-#         n_samples_per_hull=n_samples_per_hull,
-#         n_jobs=12,
-#         subsampling="min",
-#         quantum=True,
-#         create_mixer=create_mixer_with_circular_entanglement(0),
-#         shots=100,
-#         qaoa_optimizer=L_BFGS_B(maxiter=100, maxfun=200),
-#         n_reps=2,
-#         qaoacv_implementation="ulvi",
-#     ),
-# )
+pipelines["NCH+MIN_HULL_QAOACV(Ulvi)"] = make_pipeline(
+    sf,
+    QuanticNCH(
+        seed=seed,
+        n_samples_per_hull=n_samples_per_hull,
+        n_jobs=12,
+        subsampling="min",
+        quantum=True,
+        create_mixer=create_mixer_with_circular_entanglement(0),
+        shots=100,
+        qaoa_optimizer=L_BFGS_B(maxiter=100, maxfun=200),
+        n_reps=2,
+        qaoacv_implementation="ulvi",
+    ),
+)
 
-# pipelines["NCH+MIN_HULL_NAIVEQAOA"] = make_pipeline(
-#     sf,
-#     QuanticNCH(
-#         seed=seed,
-#         n_samples_per_hull=n_samples_per_hull,
-#         n_jobs=12,
-#         subsampling="min",
-#         quantum=True,
-#         n_reps=2,
-#     ),
-# )
+pipelines["NCH+MIN_HULL_NAIVEQAOA"] = make_pipeline(
+    sf,
+    QuanticNCH(
+        seed=seed,
+        n_samples_per_hull=n_samples_per_hull,
+        n_jobs=12,
+        subsampling="min",
+        quantum=True,
+        n_reps=2,
+    ),
+)
 
-cov = Covariances(estimator="lwf")
+pipelines["QIOCE"] = make_pipeline(
+    sf,
+    Whitening(dim_red={"n_components": 4}),
+    TangentSpace(metric="riemann"),
+    ContinuousQIOCEClassifier(n_reps=2, max_features=10),
+)
 
 pipelines["MDM+TL"] = Adapter(
-    preprocessing=cov,
+    preprocessing=sf,
     estimator=make_pipeline(
         TLCenter(target_domain=None),
         TLScale(target_domain=None, centered_data=True),
@@ -124,7 +130,7 @@ pipelines["MDM+TL"] = Adapter(
 )
 
 pipelines["TS+LDA+TL"] = Adapter(
-    preprocessing=cov,
+    preprocessing=sf,
     estimator=make_pipeline(
         TLCenter(target_domain=None),
         TLScale(target_domain=None, centered_data=True),
@@ -138,8 +144,72 @@ pipelines["TS+LDA+TL"] = Adapter(
 )
 
 pipelines["MDWM(0.5)"] = Adapter(
-    preprocessing=cov,
+    preprocessing=sf,
     estimator=MDWM(domain_tradeoff=0.5, target_domain=None, metric="riemann"),
+)
+
+pipelines["NCH+MIN_HULL_QAOACV(Ulvi)+TL"] = Adapter(
+    preprocessing=sf,
+    estimator=make_pipeline(
+        TLCenter(target_domain=None),
+        TLScale(target_domain=None, centered_data=True),
+        TLRotate(target_domain=None),
+        TLClassifier(
+            target_domain=None,
+            estimator=QuanticNCH(
+                seed=seed,
+                n_samples_per_hull=n_samples_per_hull,
+                n_jobs=12,
+                subsampling="min",
+                quantum=True,
+                create_mixer=create_mixer_with_circular_entanglement(0),
+                shots=100,
+                qaoa_optimizer=L_BFGS_B(maxiter=100, maxfun=200),
+                n_reps=2,
+                qaoacv_implementation="ulvi",
+            ),
+            domain_weight=None,
+        ),
+    ),
+)
+
+pipelines["NCH+MIN_HULL_NAIVEQAOA+TL"] = Adapter(
+    preprocessing=sf,
+    estimator=make_pipeline(
+        TLCenter(target_domain=None),
+        TLScale(target_domain=None, centered_data=True),
+        TLRotate(target_domain=None),
+        TLClassifier(
+            target_domain=None,
+            estimator=QuanticNCH(
+                seed=seed,
+                n_samples_per_hull=n_samples_per_hull,
+                n_jobs=12,
+                subsampling="min",
+                quantum=True,
+                n_reps=2,
+            ),
+            domain_weight=None,
+        ),
+    ),
+)
+
+pipelines["QIOCE+TL"] = Adapter(
+    preprocessing=sf,
+    estimator=make_pipeline(
+        TLCenter(target_domain=None),
+        TLScale(target_domain=None, centered_data=True),
+        TLRotate(target_domain=None),
+        TLClassifier(
+            target_domain=None,
+            estimator=make_pipeline(
+                Whitening(dim_red={"n_components": 4}),
+                TangentSpace(metric="riemann"),
+                ContinuousQIOCEClassifier(n_reps=2, max_features=10),
+            ),
+            domain_weight=None,
+        ),
+    ),
 )
 
 print("Total pipelines to evaluate: ", len(pipelines))
@@ -190,14 +260,15 @@ evaluation_hinss_cs = TLCrossSubjectEvaluation(
     n_splits=3,
     random_state=seed,
 )
-results_hinss_cs = evaluation_hinss_cs.process(pipelines)
+#results_hinss_cs = evaluation_hinss_cs.process(pipelines)
 
 ##############################################################################
 # Aggregate Results
 # -----------------
 
 results = pd.concat(
-    [results_cattan, results_rodrigues, results_hinss_cs],
+    #[results_cattan, results_rodrigues, results_hinss_cs],
+    [results_cattan, results_rodrigues],
     ignore_index=True,
 )
 
@@ -206,8 +277,12 @@ print("Averaging the session performance:")
 print(results.groupby("pipeline")[["score", "time"]].mean())
 
 preferred_order = [
+    "NCH+MIN_HULL_QAOACV(Ulvi)+TL",
+    "NCH+MIN_HULL_NAIVEQAOA+TL",
+    "QIOCE+TL",
     "NCH+MIN_HULL_QAOACV(Ulvi)",
     "NCH+MIN_HULL_NAIVEQAOA",
+    "QIOCE",
     "MDWM(0.5)",
     "TS+LDA+TL",
     "MDM+TL",
