@@ -7,6 +7,7 @@ It is for example suitable for:
 """
 import math
 import time
+import warnings
 
 import numpy as np
 from docplex.mp.vartype import BinaryVarType, ContinuousVarType, IntegerVarType
@@ -652,7 +653,7 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
         self.create_mixer = create_mixer
         self.quantum_instance = quantum_instance
         self.optimizer = optimizer
-        print("Warning! QAOACVAngleOptimizer only support simulation")
+        warnings.warn("QAOACVAngleOptimizer only supports simulation")
 
     @staticmethod
     def prepare_model(qp):
@@ -726,6 +727,55 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
         """
         return ClassicalOptimizer.get_weights(self, prob, classes)
 
+    def _build_ansatz(self, n_var):
+        """Build QAOA ansatz circuit with angle encoding for *n_var* qubits.
+
+        Extracts the circuit construction that is shared between
+        :meth:`_solve_qp` and subclasses such as ``QAOABatchClassifier``.
+
+        Parameters
+        ----------
+        n_var : int
+            Number of qubits / decision variables.
+
+        Returns
+        -------
+        ansatz_0 : QuantumCircuit
+            Decomposed QAOA ansatz circuit containing both the θ (input) and
+            γ (cost/mixer) parameters.
+        continuous_input_params : list of Parameter
+            The θ parameters that encode the input features (one per qubit).
+        """
+        cost = QuantumCircuit(n_var)
+        for i in range(n_var):
+            param_rx = Parameter(f"γ_rx_{i}")
+            cost.rx(param_rx, i)
+
+            param_ry = Parameter(f"γ_ry_{i}")
+            cost.ry(param_ry, i)
+
+            param_rz = Parameter(f"γ_rz_{i}")
+            cost.rz(param_rz, i)
+
+        cost_op_has_no_parameter = False
+        mixer = self.create_mixer(cost.num_qubits, use_params=cost_op_has_no_parameter)
+
+        initial_state = QuantumCircuit(n_var)
+        continuous_input_params = []
+        for i in range(n_var):
+            param_input = Parameter(f"θ_{i}")
+            continuous_input_params.append(param_input)
+            initial_state.ry(param_input, i)
+
+        ansatz_0 = QAOAAnsatz(
+            cost_operator=cost,
+            reps=self.n_reps,
+            initial_state=initial_state,
+            mixer_operator=mixer,
+        ).decompose()
+
+        return ansatz_0, continuous_input_params
+
     def _solve_qp(self, qp, reshape=True):
         n_var = qp.get_num_vars()
 
@@ -736,43 +786,9 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
         # Store variable bounds without converting to binary
         variable_bounds = QAOACVAngleOptimizer.prepare_model(qp)
 
-        # cost operator
-        # Create simple cost operator with Ry gates (one for each variable)
-        cost = QuantumCircuit(n_var)
-        for i in range(n_var):
-            # Rx gate
-            param_rx = Parameter(f"γ_rx_{i}")
-            cost.rx(param_rx, i)
-
-            # Ry gate
-            param_ry = Parameter(f"γ_ry_{i}")
-            cost.ry(param_ry, i)
-
-            # Rz gate
-            param_rz = Parameter(f"γ_rz_{i}")
-            cost.rz(param_rz, i)
-
-        # The cost operator always has parameters (one per Ry gate)
-        cost_op_has_no_parameter = False
-
-        mixer = self.create_mixer(cost.num_qubits, use_params=cost_op_has_no_parameter)
-
-        # Create initial state: encode continuous features using Ry rotations
-        # This is applied once before the QAOA repetitions
-        initial_state = QuantumCircuit(n_var)
-        continuous_input_params = []
-        for i in range(n_var):
-            param_input = Parameter(f"θ_{i}")
-            continuous_input_params.append(param_input)
-            initial_state.ry(param_input, i)
-
-        # QAOA circuit without measurement for state vector
-        ansatz_0 = QAOAAnsatz(
-            cost_operator=cost,
-            reps=self.n_reps,
-            initial_state=initial_state,
-            mixer_operator=mixer,
-        ).decompose()
+        # Build QAOA ansatz using shared helper
+        # continuous_input_params are also optimised in this context
+        ansatz_0, _ = self._build_ansatz(n_var)
 
         def prob(state_vec, i):
             """Extract variable value from state vector using Bloch sphere.

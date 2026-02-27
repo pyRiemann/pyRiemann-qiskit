@@ -8,18 +8,15 @@ independently.
 import time
 
 import numpy as np
-from docplex.mp.model import Model
-from qiskit.circuit import Parameter, QuantumCircuit
-from qiskit.circuit.library import QAOAAnsatz
-from qiskit.quantum_info import Statevector, partial_trace
+from qiskit.quantum_info import Statevector
 from qiskit_algorithms.optimizers import L_BFGS_B
-from qiskit_optimization.translators import from_docplex_mp
 from sklearn.base import ClassifierMixin
+from sklearn.utils.validation import check_random_state
 
 from ..utils.docplex import QAOACVAngleOptimizer, create_mixer_rotational_X_gates
 
 
-class QAOABatchClassifier(QAOACVAngleOptimizer, ClassifierMixin):
+class ContinuousQIOCEClassifier(QAOACVAngleOptimizer, ClassifierMixin):
     """QAOA classifier with batch training using angle encoding.
 
     This classifier inherits from QAOACVAngleOptimizer and trains a single
@@ -45,6 +42,8 @@ class QAOABatchClassifier(QAOACVAngleOptimizer, ClassifierMixin):
         If input has more features, dimensionality reduction should be applied.
     quantum_instance : QuantumInstance, default=None
         Quantum backend instance. If None, uses statevector simulation.
+    random_state : int, RandomState or None, default=None
+        Seed for reproducible parameter initialisation (sklearn convention).
 
     Attributes
     ----------
@@ -53,17 +52,21 @@ class QAOABatchClassifier(QAOACVAngleOptimizer, ClassifierMixin):
     n_features_ : int
         Number of features in training data.
     optim_params_ : ndarray
-        Optimized circuit parameters (inherited from QAOACVAngleOptimizer).
+        Optimised γ (cost/mixer) circuit parameters.
     training_loss_history_ : list
         Loss values during training.
     X_min_ : ndarray
-        Minimum values for feature normalization.
+        Minimum values for feature normalisation.
     X_max_ : ndarray
-        Maximum values for feature normalization.
+        Maximum values for feature normalisation.
     X_train_ : ndarray
-        Normalized training data.
+        Normalised training data.
     y_train_ : ndarray
         Training labels (binary: 0 or 1).
+    state_vector_ : Statevector
+        State vector at optimal parameters for the first training sample.
+        Stored for interface compatibility with the parent class; not used
+        in prediction.
 
     Notes
     -----
@@ -71,10 +74,8 @@ class QAOABatchClassifier(QAOACVAngleOptimizer, ClassifierMixin):
 
     Examples
     --------
-    >>> from pyriemann_qiskit.classification.qaoa_batch_classifier import (
-    ...     QAOABatchClassifier
-    ... )
-    >>> clf = QAOABatchClassifier(n_reps=2, max_features=5)
+    >>> from pyriemann_qiskit.classification import ContinuousQIOCEClassifier
+    >>> clf = ContinuousQIOCEClassifier(n_reps=2, max_features=5)
     >>> clf.fit(X_train, y_train)
     >>> y_pred = clf.predict(X_test)
     """
@@ -86,17 +87,20 @@ class QAOABatchClassifier(QAOACVAngleOptimizer, ClassifierMixin):
         create_mixer=None,
         max_features=10,
         quantum_instance=None,
+        random_state=None,
     ):
         # Initialize parent QAOACVAngleOptimizer
         super().__init__(
-            create_mixer=create_mixer
-            if create_mixer is not None
-            else create_mixer_rotational_X_gates(0),
+            create_mixer=(
+                create_mixer if create_mixer is not None
+                else create_mixer_rotational_X_gates(0)
+            ),
             n_reps=n_reps,
             quantum_instance=quantum_instance,
             optimizer=optimizer if optimizer is not None else L_BFGS_B(),
         )
         self.max_features = max_features
+        self.random_state = random_state
 
     def _normalize_features(self, X):
         """Normalize features to [0, pi] range for angle encoding."""
@@ -111,65 +115,58 @@ class QAOABatchClassifier(QAOACVAngleOptimizer, ClassifierMixin):
         X_norm = (X - X_min) / X_range
         return X_norm * np.pi
 
-    def _create_dummy_qp(self, n_features):
-        """Create a dummy docplex quadratic program for interface compatibility.
+    def _fit_normalize(self, X):
+        """Store normalisation statistics and return normalised X.
 
-        The parent's _solve_qp expects a QP to extract n_var. We create a
-        simple model with n_features continuous variables.
+        Computes ``X_min_`` and ``X_max_`` once and normalises in the same
+        pass, so ``fit`` does not need to compute min/max twice.
         """
-        prob = Model()
-
-        # Create continuous variables (one per feature)
-        for i in range(n_features):
-            prob.continuous_var(lb=0, ub=1, name=f"x_{i}")
-
-        # Add a dummy objective (will be replaced by classification loss)
-        prob.minimize(0)
-
-        return prob
+        self.X_min_ = np.min(X, axis=0)
+        self.X_max_ = np.max(X, axis=0)
+        X_range = self.X_max_ - self.X_min_
+        X_range[X_range == 0] = 1.0
+        return (X - self.X_min_) / X_range * np.pi
 
     def _extract_class_probability(self, state_vec, n_features):
         """Extract class probability from quantum state.
 
-        Uses the average Bloch Z-component across all qubits as a
-        discriminative feature for binary classification.
-
-        This aggregates the prob() function logic from parent class
-        across all qubits.
-        """
-        bloch_z_sum = 0.0
-
-        for i in range(n_features):
-            # Get reduced density matrix for qubit i
-            qubits_to_trace = [j for j in range(n_features) if j != i]
-
-            if qubits_to_trace:
-                reduced_dm = partial_trace(state_vec, qubits_to_trace)
-            else:
-                reduced_dm = state_vec.to_operator()
-
-            # Pauli Z expectation value (same as parent's prob() function)
-            pauli_z = np.array([[1, 0], [0, -1]], dtype=complex)
-            dm_matrix = reduced_dm.data
-            bloch_z = np.real(np.trace(dm_matrix @ pauli_z))
-            bloch_z_sum += bloch_z
-
-        # Average Bloch Z component, map to [0, 1]
-        avg_bloch_z = bloch_z_sum / n_features
-        prob_class_1 = (1.0 - avg_bloch_z) / 2.0
-
-        return prob_class_1
-
-    def _solve_qp(self, qp, reshape=False):
-        """Override parent's _solve_qp to train on batch of training vectors.
-
-        Instead of solving a single quadratic program, this method trains
-        the QAOA circuit on all training samples to minimize cross-entropy loss.
+        Computes the average Bloch Z-component directly from statevector
+        amplitudes — O(2^n) instead of the O(n × 4^n) ``partial_trace``
+        approach used in the parent class.
 
         Parameters
         ----------
-        qp : QuadraticProgram
-            Docplex model used to extract number of variables.
+        state_vec : Statevector
+            Quantum state to evaluate.
+        n_features : int
+            Number of qubits.
+
+        Returns
+        -------
+        float
+            Predicted probability for class 1, in [0, 1].
+        """
+        amps = state_vec.data                # shape (2**n_features,)
+        probs = np.abs(amps) ** 2            # probability per basis state
+        indices = np.arange(len(probs))
+        bloch_z_values = np.array([
+            2.0 * probs[(indices >> i) & 1 == 0].sum() - 1.0
+            for i in range(n_features)
+        ])
+        avg_bloch_z = bloch_z_values.mean()
+        return (1.0 - avg_bloch_z) / 2.0
+
+    def _solve_qp(self, qp=None, reshape=False):
+        """Override parent's _solve_qp to train on batch of training vectors.
+
+        Instead of solving a single quadratic program, this method trains
+        the QAOA circuit on all training samples to minimise cross-entropy
+        loss. ``qp`` is ignored; ``self.n_features_`` is used directly.
+
+        Parameters
+        ----------
+        qp : QuadraticProgram or None
+            Unused; retained only for interface compatibility with parent.
         reshape : bool, default=False
             Not used in batch training.
 
@@ -182,64 +179,40 @@ class QAOABatchClassifier(QAOACVAngleOptimizer, ClassifierMixin):
             raise ValueError("Training data not set. Call fit() first.")
 
         n_samples = self.X_train_.shape[0]
-        n_var = qp.get_num_vars()
+        n_var = self.n_features_
 
-        # Build QAOA circuit using parent's structure
-        # Cost operator: Rx, Ry, Rz gates per qubit (same as parent)
-        cost = QuantumCircuit(n_var)
-        for i in range(n_var):
-            param_rx = Parameter(f"γ_rx_{i}")
-            cost.rx(param_rx, i)
+        # Build QAOA circuit using shared parent helper
+        ansatz_0, continuous_input_params = self._build_ansatz(n_var)
 
-            param_ry = Parameter(f"γ_ry_{i}")
-            cost.ry(param_ry, i)
-
-            param_rz = Parameter(f"γ_rz_{i}")
-            cost.rz(param_rz, i)
-
-        cost_op_has_no_parameter = False
-        mixer = self.create_mixer(cost.num_qubits, use_params=cost_op_has_no_parameter)
-
-        # Initial state: encode continuous features using Ry rotations (same as parent)
-        initial_state = QuantumCircuit(n_var)
-        continuous_input_params = []
-        for i in range(n_var):
-            param_input = Parameter(f"θ_{i}")
-            continuous_input_params.append(param_input)
-            initial_state.ry(param_input, i)
-
-        # Build QAOA ansatz (same as parent)
-        ansatz_0 = QAOAAnsatz(
-            cost_operator=cost,
-            reps=self.n_reps,
-            initial_state=initial_state,
-            mixer_operator=mixer,
-        ).decompose()
-
-        # Store ansatz for prediction
+        # Store ansatz and input params for prediction
         self._ansatz = ansatz_0
         self._continuous_input_params = continuous_input_params
+
+        # Separate gamma (cost/mixer) params from theta (input-encoding) params
+        theta_set = set(continuous_input_params)
+        gamma_params = [p for p in ansatz_0.parameters if p not in theta_set]
+        self._gamma_params = gamma_params
 
         # Training loss history
         self.training_loss_history_ = []
 
-        # Define batch loss function (this is the key difference from parent)
         def loss(params):
             """Cross-entropy loss over all training samples."""
+            # Pre-bind gamma params once per loss call (cheaper than full bind × N)
+            gamma_dict = {p: v for p, v in zip(gamma_params, params)}
+            circuit_with_gamma = ansatz_0.assign_parameters(gamma_dict)
+
             total_loss = 0.0
-
             for i in range(n_samples):
-                # Combine feature values with circuit parameters
-                all_params = np.concatenate([self.X_train_[i], params])
-
-                # Create state vector
-                circuit = ansatz_0.assign_parameters(all_params)
+                # Rebind only the theta (input) params per sample
+                theta_dict = {
+                    p: v for p, v in zip(continuous_input_params, self.X_train_[i])
+                }
+                circuit = circuit_with_gamma.assign_parameters(theta_dict)
                 state_vec = Statevector(circuit)
 
                 # Get predicted probability for class 1
                 prob_pred = self._extract_class_probability(state_vec, n_var)
-
-                # Clip to avoid log(0)
                 prob_pred = np.clip(prob_pred, 1e-10, 1 - 1e-10)
 
                 # Binary cross-entropy loss
@@ -249,16 +222,14 @@ class QAOABatchClassifier(QAOACVAngleOptimizer, ClassifierMixin):
                 )
                 total_loss += loss_i
 
-            # Average loss
             avg_loss = total_loss / n_samples
             self.training_loss_history_.append(avg_loss)
-
             return avg_loss
 
-        # Initialize circuit parameters
-        # 3 parameters per qubit per QAOA layer (same as parent)
-        num_params = 3 * n_var * self.n_reps
-        initial_guess = np.random.uniform(0, np.pi / 2, num_params)
+        # Derive num_params from circuit — robust to mixer parameterisation changes
+        num_params = ansatz_0.num_parameters - len(continuous_input_params)
+        rng = check_random_state(self.random_state)
+        initial_guess = rng.uniform(0, np.pi / 2, num_params)
         bounds = [(0, np.pi)] * num_params
 
         # Optimize
@@ -277,11 +248,13 @@ class QAOABatchClassifier(QAOACVAngleOptimizer, ClassifierMixin):
         print(f"Training completed in {self.run_time_:.2f}s")
         print(f"Final loss: {self.training_loss_history_[-1]:.4f}")
 
-        # Store final state vector with optimized parameters (same as parent)
-        # Use first training sample as reference
-        optimized_circuit = ansatz_0.assign_parameters(
-            np.concatenate([self.X_train_[0], self.optim_params_])
-        )
+        # Store final state vector for interface compatibility (first training sample)
+        gamma_dict = {p: v for p, v in zip(gamma_params, self.optim_params_)}
+        circuit_partial = ansatz_0.assign_parameters(gamma_dict)
+        theta_dict = {
+            p: v for p, v in zip(continuous_input_params, self.X_train_[0])
+        }
+        optimized_circuit = circuit_partial.assign_parameters(theta_dict)
         self.state_vector_ = Statevector(optimized_circuit)
         self.minimum_ = self.training_loss_history_[-1]
 
@@ -297,7 +270,7 @@ class QAOABatchClassifier(QAOACVAngleOptimizer, ClassifierMixin):
 
         Returns
         -------
-        self : QAOABatchClassifier
+        self : ContinuousQIOCEClassifier
             Fitted classifier.
         """
         # Store classes
@@ -318,19 +291,11 @@ class QAOABatchClassifier(QAOACVAngleOptimizer, ClassifierMixin):
 
         self.n_features_ = n_features
 
-        # Normalize and store training features
-        self.X_train_ = self._normalize_features(X)
-        self.X_min_ = np.min(X, axis=0)
-        self.X_max_ = np.max(X, axis=0)
+        # Normalise features and store training statistics in a single pass
+        self.X_train_ = self._fit_normalize(X)
 
-        # Create dummy QP for interface compatibility
-        prob = self._create_dummy_qp(n_features)
-
-        # Convert docplex Model to QuadraticProgram
-        qp = from_docplex_mp(prob)
-
-        # Train the circuit by calling parent's _solve_qp (which we override)
-        self._solve_qp(qp, reshape=False)
+        # Train the circuit
+        self._solve_qp()
 
         return self
 
@@ -352,24 +317,24 @@ class QAOABatchClassifier(QAOACVAngleOptimizer, ClassifierMixin):
 
         n_samples, _ = X.shape
 
-        # Normalize using training statistics
+        # Normalise using training statistics
         X_range = self.X_max_ - self.X_min_
         X_range[X_range == 0] = 1.0
         X_norm = (X - self.X_min_) / X_range * np.pi
 
+        # Pre-bind gamma params once for all test samples
+        gamma_dict = {p: v for p, v in zip(self._gamma_params, self.optim_params_)}
+        circuit_with_gamma = self._ansatz.assign_parameters(gamma_dict)
+
         proba = np.zeros((n_samples, 2))
-
         for i in range(n_samples):
-            # Combine feature values with optimized circuit parameters
-            all_params = np.concatenate([X_norm[i], self.optim_params_])
-
-            # Create state vector
-            circuit = self._ansatz.assign_parameters(all_params)
+            theta_dict = {
+                p: v for p, v in zip(self._continuous_input_params, X_norm[i])
+            }
+            circuit = circuit_with_gamma.assign_parameters(theta_dict)
             state_vec = Statevector(circuit)
 
-            # Get probability for class 1
             prob_class_1 = self._extract_class_probability(state_vec, self.n_features_)
-
             proba[i, 0] = 1.0 - prob_class_1
             proba[i, 1] = prob_class_1
 
