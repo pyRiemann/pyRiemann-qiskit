@@ -72,11 +72,11 @@ class AndersonAccelerationOptimizer(Optimizer):
     fd_epsilon : float, default=1e-5
         Finite-difference step size for gradient approximation.
         Should be small (~1e-5 to 1e-7) for accurate numerical gradients.
-    learning_rate : float, default=0.5
+    learning_rate : float, default=0.1
         Step size for the fixed-point map ``g(x) = x - lr·∇f(x)``.
-        Controls how far the iterates move each step. Values in 0.1–1.0
+        Controls how far the iterates move each step. Values in 0.05–0.5
         are typical; too small causes slow convergence, too large causes
-        oscillation.
+        oscillation or bounds overshoot.
 
     Attributes
     ----------
@@ -117,7 +117,7 @@ class AndersonAccelerationOptimizer(Optimizer):
         lambda_reg=1e-8,
         tol=1e-6,
         fd_epsilon=1e-5,
-        learning_rate=0.5,
+        learning_rate=0.1,
     ):
         super().__init__()
         self._maxiter = maxiter
@@ -176,9 +176,15 @@ class AndersonAccelerationOptimizer(Optimizer):
         if bounds is not None:
             lower_b = np.array([b[0] if b[0] is not None else np.nan for b in bounds])
             upper_b = np.array([b[1] if b[1] is not None else np.nan for b in bounds])
-            periodic = ~(np.isnan(lower_b) | np.isnan(upper_b))
+            # Only treat as periodic if the span is a full 2π rotation period.
+            # Bounds like [0, π] (QIOCE) must be clipped, not wrapped — wrapping
+            # with period π teleports parameters to the wrong end of the range.
+            span = upper_b - lower_b
+            periodic = ~(np.isnan(lower_b) | np.isnan(upper_b)) & np.isclose(
+                span, 2 * np.pi
+            )
             period_b = np.where(
-                periodic, upper_b - lower_b, 1.0
+                periodic, span, 1.0
             )  # dummy for non-periodic
             has_lower = ~np.isnan(lower_b) & ~periodic
             has_upper = ~np.isnan(upper_b) & ~periodic
