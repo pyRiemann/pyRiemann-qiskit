@@ -38,11 +38,12 @@ from scipy.linalg import lstsq
 class AndersonAccelerationOptimizer(Optimizer):
     """Anderson acceleration optimizer for variational quantum circuits.
 
-    Anderson acceleration is a gradient-free fixed-point iteration method
-    that achieves superlinear convergence for compact operators. It is
-    particularly well-suited for quantum circuit optimization where:
+    Anderson acceleration is a derivative-free fixed-point iteration method
+    that achieves superlinear convergence for compact operators. Gradients are
+    approximated via central finite differences, so no analytical gradient is
+    required. It is particularly well-suited for quantum circuit optimization where:
 
-    - Gradients are expensive or unavailable
+    - Analytical gradients are expensive or unavailable
     - The objective function is bounded (compact operator)
     - The parameter space may have Riemannian structure
 
@@ -68,11 +69,14 @@ class AndersonAccelerationOptimizer(Optimizer):
         nearly collinear.
     tol : float, default=1e-6
         Convergence tolerance on the residual norm.
-    beta : float, default=0.01
-        Step size for computing finite-difference gradients in the
-        fixed-point operator. Smaller values (0.001-0.01) work better
-        for smooth quantum circuit loss functions. Larger values (0.1)
-        may be needed for noisy functions.
+    fd_epsilon : float, default=1e-5
+        Finite-difference step size for gradient approximation.
+        Should be small (~1e-5 to 1e-7) for accurate numerical gradients.
+    learning_rate : float, default=0.5
+        Step size for the fixed-point map ``g(x) = x - lr·∇f(x)``.
+        Controls how far the iterates move each step. Values in 0.1–1.0
+        are typical; too small causes slow convergence, too large causes
+        oscillation.
 
     Attributes
     ----------
@@ -86,8 +90,10 @@ class AndersonAccelerationOptimizer(Optimizer):
         Regularization parameter.
     _tol : float
         Convergence tolerance.
-    _beta : float
+    _fd_epsilon : float
         Finite-difference step size.
+    _lr : float
+        Learning rate for the fixed-point map.
     trajectory_ : list of ndarray
         Optimization trajectory (parameter history).
     loss_history_ : list of float
@@ -110,7 +116,8 @@ class AndersonAccelerationOptimizer(Optimizer):
         alpha=1.0,
         lambda_reg=1e-8,
         tol=1e-6,
-        beta=0.01,
+        fd_epsilon=1e-5,
+        learning_rate=0.5,
     ):
         super().__init__()
         self._maxiter = maxiter
@@ -118,7 +125,8 @@ class AndersonAccelerationOptimizer(Optimizer):
         self._alpha = alpha
         self._lambda_reg = lambda_reg
         self._tol = tol
-        self._beta = beta
+        self._fd_epsilon = fd_epsilon
+        self._lr = learning_rate
         self.trajectory_ = []
         self.loss_history_ = []
 
@@ -182,23 +190,39 @@ class AndersonAccelerationOptimizer(Optimizer):
             # Anderson acceleration for Riemannian manifold (Bloch sphere)
             # Parameters are angles, so we need to respect the manifold structure
 
-            # Estimate Riemannian gradient using central differences.
+            # Estimate gradient using central differences.
             # Modify x[i] in-place and restore — avoids 2n array allocations per iter.
+            # Clamp perturbations to stay within bounds so loss is never evaluated
+            # at an illegal parameter value.
             grad_approx = np.zeros(n)
             for i in range(n):
                 orig = x[i]
-                x[i] = orig + self._beta
+                step = self._fd_epsilon
+
+                x_plus = orig + step
+                x_minus = orig - step
+                if bounds is not None:
+                    lo = bounds[i][0]
+                    hi = bounds[i][1]
+                    if lo is not None:
+                        x_minus = max(x_minus, lo)
+                    if hi is not None:
+                        x_plus = min(x_plus, hi)
+                actual_step = (x_plus - x_minus) / 2.0
+
+                x[i] = x_plus
                 f_plus = fun(x)
                 nfev += 1
-                x[i] = orig - self._beta
+                x[i] = x_minus
                 f_minus = fun(x)
                 nfev += 1
                 x[i] = orig
-                grad_approx[i] = (f_plus - f_minus) / (2 * self._beta)
+                if actual_step != 0.0:
+                    grad_approx[i] = (f_plus - f_minus) / (2.0 * actual_step)
 
-            # Compute residual in tangent space
-            # For Riemannian manifolds, residual is the tangent vector
-            r = -self._beta * grad_approx
+            # Compute residual: r_k = g(x_k) - x_k = -lr * grad_approx
+            # lr controls step size independently from fd_epsilon.
+            r = -self._lr * grad_approx
 
             # Check convergence
             r_norm = np.linalg.norm(r)
@@ -280,7 +304,8 @@ class AndersonAccelerationOptimizer(Optimizer):
             "alpha": self._alpha,
             "lambda_reg": self._lambda_reg,
             "tol": self._tol,
-            "beta": self._beta,
+            "fd_epsilon": self._fd_epsilon,
+            "learning_rate": self._lr,
         }
 
     def get_support_level(self):
