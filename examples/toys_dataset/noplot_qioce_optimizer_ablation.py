@@ -15,7 +15,7 @@ on a toy binary classification dataset:
 
 Three metrics are reported across cross-validation folds:
 
-- Test accuracy
+- ROC AUC
 - Training time
 - Number of loss function evaluations (cost of optimization)
 
@@ -29,6 +29,7 @@ averaged across folds.
 import time
 
 import matplotlib.pyplot as plt
+from sklearn.metrics import roc_auc_score
 import numpy as np
 from qiskit_algorithms.optimizers import COBYLA, NFT, SLSQP, SPSA, L_BFGS_B
 from sklearn.datasets import make_classification
@@ -111,7 +112,7 @@ for name, opt in optimizer_configs:
         clf.fit(X_train, y_train)
         elapsed = time.time() - t0
 
-        acc = clf.score(X_test, y_test)
+        acc = roc_auc_score(y_test, clf.predict_proba(X_test)[:, 1])
         # training_loss_history_ has one entry per loss() call,
         # so its length equals the number of function evaluations.
         nfev = len(clf.training_loss_history_)
@@ -122,7 +123,7 @@ for name, opt in optimizer_configs:
         results[name]["nfev"].append(nfev)
         results[name]["loss_curves"].append(loss_curve)
 
-        print(f"  Fold {fold + 1}: acc={acc:.3f}, nfev={nfev}, time={elapsed:.1f}s")
+        print(f"  Fold {fold + 1}: auc={acc:.3f}, nfev={nfev}, time={elapsed:.1f}s")
 
 ###############################################################################
 # Plots
@@ -143,8 +144,8 @@ stds = [np.std(results[n]["acc"]) for n in names]
 bars = ax.bar(x_pos, means, width, yerr=stds, capsize=5, color=colors, alpha=0.85)
 ax.set_xticks(x_pos)
 ax.set_xticklabels(names, rotation=20, ha="right")
-ax.set_ylabel("Test accuracy")
-ax.set_title("Accuracy")
+ax.set_ylabel("ROC AUC")
+ax.set_title("ROC AUC")
 ax.set_ylim(0, 1.05)
 ax.axhline(0.5, color="grey", linestyle="--", linewidth=0.8, label="chance")
 ax.legend(fontsize=8)
