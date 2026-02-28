@@ -83,7 +83,7 @@ class ContinuousQIOCEClassifier(QAOACVAngleOptimizer, ClassifierMixin):
     def __init__(
         self,
         n_reps=3,
-        optimizer=None,
+        optimizer=L_BFGS_B(maxiter=100, maxfun=200),
         create_mixer=None,
         max_features=10,
         quantum_instance=None,
@@ -98,7 +98,7 @@ class ContinuousQIOCEClassifier(QAOACVAngleOptimizer, ClassifierMixin):
             ),
             n_reps=n_reps,
             quantum_instance=quantum_instance,
-            optimizer=optimizer if optimizer is not None else L_BFGS_B(),
+            optimizer=optimizer
         )
         self.max_features = max_features
         self.random_state = random_state
