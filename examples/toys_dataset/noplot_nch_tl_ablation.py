@@ -25,11 +25,16 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 — registers 3D projection
 from pyriemann.classification import MDM
 from pyriemann.estimation import Covariances
-from pyriemann.transfer import TLCenter, TLClassifier, TLRotate, TLScale
+from pyriemann.preprocessing import Whitening
+from pyriemann.transfer import TLCenter, TLClassifier, TLRotate, TLScale, encode_domains
 from sklearn.metrics import roc_auc_score
 from sklearn.pipeline import make_pipeline
+
+from pyriemann_qiskit.utils.math import to_xyz
+from pyriemann_qiskit.visualization.manifold import plot_manifold
 
 from pyriemann_qiskit.classification import QuanticNCH
 from pyriemann_qiskit.utils.transfer import Adapter
@@ -65,7 +70,7 @@ def make_subject_data(n_trials_per_class, n_channels, n_times, n_classes, subj_s
     X_list, y_list = [], []
     for cls in range(n_classes):
         signal = np.zeros(n_channels)
-        signal[cls] = 2.0  # class-specific channel activation
+        signal[cls] = 3.0  # class-specific channel activation
         noise = rng.randn(n_trials_per_class, n_channels, n_times)
         noise += signal[:, None]
         X_cls = np.einsum("ij,tjk->tik", A, noise)  # apply domain shift
@@ -210,5 +215,103 @@ ax.set_ylabel("ROC AUC")
 ax.axhline(0.5, color="grey", linestyle="--", linewidth=0.8, label="chance")
 ax.legend(fontsize=8)
 plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+##############################################################################
+# 3D Manifold: Before and After RPA
+# ----------------------------------
+#
+# A 2×2 SPD matrix has exactly 3 unique entries: [[a, b], [b, d]] → (a, b, d).
+# Whitening(n_components=2) maps each 4×4 covariance to 2×2, giving exact 3D
+# coordinates on the SPD cone via to_xyz — no approximation, no PCA.
+# Color = subject, marker = class (o / ^).
+#
+# Before RPA: each subject's cloud sits in a different region of the cone
+#             (domain shift visible as scattered subject clusters).
+# After  RPA: subjects rotate toward the reference domain — clusters merge
+#             and class structure becomes the dominant axis.
+
+# Re-compute covariance matrices for all subjects
+cov_pipe = Covariances(estimator="lwf")
+covs_list, subj_arr, class_arr, domain_arr = [], [], [], []
+for s in range(n_subjects):
+    C_s = cov_pipe.fit_transform(X_per_subj[s])
+    n_s = len(y_per_subj[s])
+    covs_list.append(C_s)
+    subj_arr.append(np.full(n_s, s))
+    class_arr.append(y_per_subj[s])
+    domain_arr.append(np.full(n_s, str(s), dtype=object))
+
+covs_raw = np.concatenate(covs_list)
+subj_arr = np.concatenate(subj_arr)
+class_arr = np.concatenate(class_arr)
+domain_arr = np.concatenate(domain_arr)
+
+# Encode domains + classes for pyriemann TL transformers
+_, y_enc = encode_domains(covs_raw, class_arr, domain_arr)
+
+# Fit RPA: align all subjects toward subject "0" as reference
+target_domain = "0"
+covs_c = TLCenter(target_domain=target_domain).fit_transform(covs_raw, y_enc)
+covs_s = TLScale(
+    target_domain=target_domain, centered_data=True
+).fit_transform(covs_c, y_enc)
+covs_aligned = TLRotate(target_domain=target_domain).fit_transform(covs_s, y_enc)
+
+
+def to_3d_coords(covs):
+    """4×4 SPD → 2×2 via whitening → exact 3D coordinates (a, b, d)."""
+    covs2x2 = Whitening(dim_red={"n_components": 2}).fit_transform(covs)
+    return to_xyz(covs2x2)
+
+
+coords_before = to_3d_coords(covs_raw)
+coords_after = to_3d_coords(covs_aligned)
+
+subject_colors = plt.cm.tab10(np.linspace(0, 1, n_subjects))
+markers = ["o", "^"]  # class 0, class 1
+
+fig = plt.figure(figsize=(14, 6), facecolor="white")
+fig.suptitle("SPD manifold — whitening to 2×2 + xyz (3D)", fontsize=13)
+
+for ax_idx, (coords, title) in enumerate(
+    [(coords_before, "Before RPA"), (coords_after, "After RPA")]
+):
+    ax = fig.add_subplot(1, 2, ax_idx + 1, projection="3d")
+    ax.set_title(title)
+    for s in range(n_subjects):
+        for cls in range(n_classes):
+            mask = (subj_arr == s) & (class_arr == cls)
+            ax.scatter(
+                coords[mask, 0],
+                coords[mask, 1],
+                coords[mask, 2],
+                color=subject_colors[s],
+                marker=markers[cls],
+                alpha=0.7,
+                s=40,
+            )
+    ax.set_xlabel("σ₁²")
+    ax.set_ylabel("σ₁₂")
+    ax.set_zlabel("σ₂²")
+
+legend_handles = [
+    plt.Line2D(
+        [0], [0], marker="o", color="w",
+        markerfacecolor=subject_colors[s], markersize=8, label=f"S{s}",
+    )
+    for s in range(n_subjects)
+] + [
+    plt.Line2D(
+        [0], [0], marker=m, color="gray",
+        markersize=8, linestyle="None", label=f"class {cls}",
+    )
+    for cls, m in enumerate(markers)
+]
+fig.legend(
+    handles=legend_handles, loc="center right",
+    fontsize=7, ncol=1, bbox_to_anchor=(1.02, 0.5),
+)
 plt.tight_layout()
 plt.show()

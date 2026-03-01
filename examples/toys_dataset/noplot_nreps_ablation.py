@@ -73,7 +73,7 @@ def make_subject_data(n_trials_per_class, n_channels, n_times, n_classes, subj_s
     X_list, y_list = [], []
     for cls in range(n_classes):
         scale = np.ones(n_channels)
-        scale[cls] = 5.0  # class k: channel k has 5× higher variance
+        scale[cls] = 2.0  # class k: channel k has 2× higher variance
         noise = rng.randn(n_trials_per_class, n_channels, n_times)
         noise *= scale[:, None]  # scale per channel — survives covariance centering
         X_cls = np.einsum("ij,tjk->tik", A, noise)
