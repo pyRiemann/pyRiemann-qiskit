@@ -1,57 +1,63 @@
 """
 ====================================================================
-Classification of P300 datasets from MOABB using NCH
+Classification of resting-state datasets from MOABB using NCH and QIOCE
 ====================================================================
 
-Comparison of NCH with different optimization methods,
-in a "hard" dataset (classical methods don't provide results).
+Comparison of classical pipelines (MDM, TS+LDA) and quantum pipelines
+(NCH, QIOCE) across three resting-state datasets: Hinss2021
+(CrossSubject & CrossSession), Rodrigues2017 (CrossSubject), and
+Cattan2019_PHMD (CrossSubject). Both plain and transfer-learning (TL)
+variants are benchmarked. Results are aggregated and analyzed with
+MOABB statistical tools.
 
 """
 # Author: Gregoire Cattan, Quentin Barthelemy
 # Modified from noplot_classify_P300_nch.py
 # License: BSD (3-clause)
 
+import itertools
 import random
+import time
 
 import numpy as np
-import qiskit_algorithms
+import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
 from moabb import set_log_level
-from moabb.datasets import Cattan2019_PHMD
-from moabb.evaluations import CrossSubjectEvaluation
+from moabb.analysis.meta_analysis import (
+    compute_dataset_statistics,
+    find_significant_differences,
+)
+from moabb.analysis.plotting import meta_analysis_plot, summary_plot
+from moabb.datasets import Cattan2019_PHMD, Hinss2021, Rodrigues2017
 from moabb.paradigms import RestingStateToP300Adapter
 from pyriemann.classification import MDM
 from pyriemann.estimation import Covariances
+from pyriemann.preprocessing import Whitening
 from pyriemann.tangentspace import TangentSpace
-from qiskit_algorithms.optimizers import SPSA
+from pyriemann.transfer import MDWM, TLCenter, TLClassifier, TLRotate, TLScale
+from qiskit_algorithms.optimizers import NFT
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
 
-from pyriemann_qiskit.classification import QuanticNCH
-from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_rotational_X_gates
-
-# import warnings
-
+from pyriemann_qiskit.classification import ContinuousQIOCEClassifier, QuanticNCH
+from pyriemann_qiskit.utils.hyper_params_factory import (
+    create_mixer_with_circular_entanglement,
+)
+from pyriemann_qiskit.utils.transfer import Adapter, TLCrossSubjectEvaluation
 
 print(__doc__)
-
-##############################################################################
-# getting rid of the warnings about the future
-# warnings.simplefilter(action="ignore", category=FutureWarning)
-# warnings.simplefilter(action="ignore", category=RuntimeWarning)
-
-# warnings.filterwarnings("ignore")
 
 set_log_level("info")
 
 ##############################################################################
 # Set global seed for better reproducibility
-seed = 475751
+
+seed = round(time.time())
+print(seed)
 
 random.seed(seed)
 np.random.seed(seed)
-qiskit_algorithms.utils.algorithm_globals.random_seed
 
 ##############################################################################
 # Create Pipelines
@@ -59,106 +65,14 @@ qiskit_algorithms.utils.algorithm_globals.random_seed
 #
 # Pipelines must be a dict of sklearn pipeline transformer.
 
-events = ["on", "off"]
-paradigm = RestingStateToP300Adapter(events=events)
-
-datasets = [Cattan2019_PHMD()]
-
-overwrite = True  # set to True if we want to overwrite cached results
-
-pipelines = {}
-
-n_hulls_per_class = 3
-n_samples_per_hull = 6
-
 sf = make_pipeline(
     Covariances(estimator="lwf"),
 )
 
-##############################################################################
-# NCH without quantum optimization
-pipelines["NCH+RANDOM_HULL"] = make_pipeline(
-    sf,
-    QuanticNCH(
-        seed=seed,
-        n_hulls_per_class=n_hulls_per_class,
-        n_samples_per_hull=n_samples_per_hull,
-        n_jobs=12,
-        subsampling="random",
-        quantum=False,
-    ),
-)
+n_samples_per_hull = 6
 
-pipelines["NCH+MIN_HULL"] = make_pipeline(
-    sf,
-    QuanticNCH(
-        seed=seed,
-        n_samples_per_hull=n_samples_per_hull,
-        n_jobs=12,
-        subsampling="min",
-        quantum=False,
-    ),
-)
+pipelines = {}
 
-
-##############################################################################
-# NCH with quantum optimization
-pipelines["NCH+RANDOM_HULL_QAOACV"] = make_pipeline(
-    sf,
-    QuanticNCH(
-        seed=seed,
-        n_hulls_per_class=n_hulls_per_class,
-        n_samples_per_hull=n_samples_per_hull,
-        n_jobs=12,
-        subsampling="random",
-        quantum=True,
-        create_mixer=create_mixer_rotational_X_gates(0),
-        shots=100,
-        qaoa_optimizer=SPSA(maxiter=100, blocking=False),
-        n_reps=2,
-    ),
-)
-
-pipelines["NCH+RANDOM_HULL_NAIVEQAOA"] = make_pipeline(
-    sf,
-    QuanticNCH(
-        seed=seed,
-        n_hulls_per_class=n_hulls_per_class,
-        n_samples_per_hull=n_samples_per_hull,
-        n_jobs=12,
-        subsampling="random",
-        quantum=True,
-    ),
-)
-
-pipelines["NCH+MIN_HULL_QAOACV"] = make_pipeline(
-    sf,
-    QuanticNCH(
-        seed=seed,
-        n_samples_per_hull=n_samples_per_hull,
-        n_jobs=12,
-        subsampling="min",
-        quantum=True,
-        create_mixer=create_mixer_rotational_X_gates(0),
-        shots=100,
-        qaoa_optimizer=SPSA(maxiter=100, blocking=False),
-        n_reps=2,
-    ),
-)
-
-pipelines["NCH+MIN_HULL_NAIVEQAOA"] = make_pipeline(
-    sf,
-    QuanticNCH(
-        seed=seed,
-        n_samples_per_hull=n_samples_per_hull,
-        n_jobs=12,
-        subsampling="min",
-        quantum=True,
-    ),
-)
-
-##############################################################################
-# SOTA classical methods for comparison
 pipelines["MDM"] = make_pipeline(
     sf,
     MDM(),
@@ -170,40 +84,224 @@ pipelines["TS+LDA"] = make_pipeline(
     LDA(),
 )
 
+pipelines["NCH+MIN_HULL_QAOACV(Ulvi)"] = make_pipeline(
+    sf,
+    QuanticNCH(
+        seed=seed,
+        n_samples_per_hull=n_samples_per_hull,
+        n_jobs=12,
+        subsampling="min",
+        quantum=True,
+        create_mixer=create_mixer_with_circular_entanglement(0),
+        shots=100,
+        qaoa_optimizer=NFT(maxiter=25),
+        n_reps=2,
+        qaoacv_implementation="ulvi",
+    ),
+)
+
+pipelines["NCH+MIN_HULL_NAIVEQAOA"] = make_pipeline(
+    sf,
+    QuanticNCH(
+        seed=seed,
+        n_samples_per_hull=n_samples_per_hull,
+        n_jobs=12,
+        subsampling="min",
+        quantum=True,
+        n_reps=2,
+    ),
+)
+
+pipelines["QIOCE"] = make_pipeline(
+    sf,
+    Whitening(dim_red={"n_components": 4}),
+    TangentSpace(metric="riemann"),
+    ContinuousQIOCEClassifier(n_reps=2, max_features=10, optimizer=NFT(maxiter=25)),
+)
+
+pipelines["MDM+TL"] = Adapter(
+    preprocessing=sf,
+    estimator=make_pipeline(
+        TLCenter(target_domain=None),
+        TLScale(target_domain=None, centered_data=True),
+        TLRotate(target_domain=None),
+        TLClassifier(target_domain=None, estimator=MDM(), domain_weight=None),
+    ),
+)
+
+pipelines["TS+LDA+TL"] = Adapter(
+    preprocessing=sf,
+    estimator=make_pipeline(
+        TLCenter(target_domain=None),
+        TLScale(target_domain=None, centered_data=True),
+        TLRotate(target_domain=None),
+        TLClassifier(
+            target_domain=None,
+            estimator=make_pipeline(TangentSpace(metric="riemann"), LDA()),
+            domain_weight=None,
+        ),
+    ),
+)
+
+pipelines["MDWM(0.5)"] = Adapter(
+    preprocessing=sf,
+    estimator=MDWM(domain_tradeoff=0.5, target_domain=None, metric="riemann"),
+)
+
+pipelines["NCH+MIN_HULL_QAOACV(Ulvi)+TL"] = Adapter(
+    preprocessing=sf,
+    estimator=make_pipeline(
+        TLCenter(target_domain=None),
+        TLScale(target_domain=None, centered_data=True),
+        TLRotate(target_domain=None),
+        TLClassifier(
+            target_domain=None,
+            estimator=QuanticNCH(
+                seed=seed,
+                n_samples_per_hull=n_samples_per_hull,
+                n_jobs=12,
+                subsampling="min",
+                quantum=True,
+                create_mixer=create_mixer_with_circular_entanglement(0),
+                shots=100,
+                qaoa_optimizer=NFT(maxiter=25),
+                n_reps=2,
+                qaoacv_implementation="ulvi",
+            ),
+            domain_weight=None,
+        ),
+    ),
+)
+
+pipelines["NCH+MIN_HULL_NAIVEQAOA+TL"] = Adapter(
+    preprocessing=sf,
+    estimator=make_pipeline(
+        TLCenter(target_domain=None),
+        TLScale(target_domain=None, centered_data=True),
+        TLRotate(target_domain=None),
+        TLClassifier(
+            target_domain=None,
+            estimator=QuanticNCH(
+                seed=seed,
+                n_samples_per_hull=n_samples_per_hull,
+                n_jobs=12,
+                subsampling="min",
+                quantum=True,
+                n_reps=2,
+            ),
+            domain_weight=None,
+        ),
+    ),
+)
+
+pipelines["QIOCE+TL"] = Adapter(
+    preprocessing=sf,
+    estimator=make_pipeline(
+        TLCenter(target_domain=None),
+        TLScale(target_domain=None, centered_data=True),
+        TLRotate(target_domain=None),
+        TLClassifier(
+            target_domain=None,
+            estimator=make_pipeline(
+                Whitening(dim_red={"n_components": 4}),
+                TangentSpace(metric="riemann"),
+                ContinuousQIOCEClassifier(
+                    n_reps=2, max_features=10, optimizer=NFT(maxiter=25)
+                ),
+            ),
+            domain_weight=None,
+        ),
+    ),
+)
+
 print("Total pipelines to evaluate: ", len(pipelines))
 
-evaluation = CrossSubjectEvaluation(
-    paradigm=paradigm,
-    datasets=datasets,
-    suffix="examples",
+overwrite = True  # set to True if we want to overwrite cached results
+
+##############################################################################
+# Evaluations
+# -----------
+#
+# One CrossSubject evaluation per dataset. Each dataset requires its own
+# paradigm due to different event codes.
+
+# --- Cattan2019_PHMD: CrossSubject ---
+paradigm_cattan = RestingStateToP300Adapter(events=dict(on=0, off=1))
+evaluation_cattan = TLCrossSubjectEvaluation(
+    paradigm=paradigm_cattan,
+    datasets=[Cattan2019_PHMD()],
+    suffix="nch_study_cattan",
     overwrite=overwrite,
     n_splits=3,
     random_state=seed,
 )
+results_cattan = evaluation_cattan.process(pipelines)
+print("Cattan pipelines computed:", results_cattan["pipeline"].unique().tolist())
 
-results = evaluation.process(pipelines)
+# --- Rodrigues2017: CrossSubject ---
+paradigm_rodrigues = RestingStateToP300Adapter(events=dict(closed=1, open=2))
+evaluation_rodrigues = TLCrossSubjectEvaluation(
+    paradigm=paradigm_rodrigues,
+    datasets=[Rodrigues2017()],
+    suffix="nch_study_rodrigues",
+    overwrite=overwrite,
+    n_splits=3,
+    random_state=seed,
+)
+results_rodrigues = evaluation_rodrigues.process(pipelines)
 
-print("Averaging the session performance:")
-print(results.groupby("pipeline").mean("score")[["score", "time"]])
+# --- Hinss2021: CrossSubject ---
+paradigm_hinss = RestingStateToP300Adapter(
+    events=dict(easy=2, medium=3), tmin=0, tmax=0.5
+)
+evaluation_hinss_cs = TLCrossSubjectEvaluation(
+    paradigm=paradigm_hinss,
+    datasets=[Hinss2021()],
+    suffix="nch_study_hinss_cs",
+    overwrite=overwrite,
+    n_splits=3,
+    random_state=seed,
+)
+# results_hinss_cs = evaluation_hinss_cs.process(pipelines)
 
 ##############################################################################
-# Plot Results
-# ----------------
-#
-# Here we plot the results to compare the two pipelines
+# Aggregate Results
+# -----------------
 
-fig, ax = plt.subplots(facecolor="white", figsize=[8, 4])
+results = pd.concat(
+    # [results_cattan, results_rodrigues, results_hinss_cs],
+    [results_cattan, results_rodrigues],
+    ignore_index=True,
+)
 
-order = [
-    "NCH+RANDOM_HULL",
-    "NCH+RANDOM_HULL_NAIVEQAOA",
-    "NCH+RANDOM_HULL_QAOACV",
-    "NCH+MIN_HULL",
+print(results)
+print("Averaging the session performance:")
+print(results.groupby("pipeline")[["score", "time"]].mean())
+
+preferred_order = [
+    "NCH+MIN_HULL_QAOACV(Ulvi)+TL",
+    "NCH+MIN_HULL_NAIVEQAOA+TL",
+    "QIOCE+TL",
+    "NCH+MIN_HULL_QAOACV(Ulvi)",
     "NCH+MIN_HULL_NAIVEQAOA",
-    "NCH+MIN_HULL_QAOACV",
+    "QIOCE",
+    "MDWM(0.5)",
+    "TS+LDA+TL",
+    "MDM+TL",
     "TS+LDA",
     "MDM",
 ]
+active_pipelines = results["pipeline"].unique()
+print(active_pipelines)
+order = [p for p in preferred_order if p in active_pipelines]
+
+##############################################################################
+# Plot Results: Raw Scores
+# ------------------------
+#
+# Strip + point plot of per-subject scores across all datasets.
+
+fig, ax = plt.subplots(facecolor="white", figsize=[8, 4])
 
 sns.stripplot(
     data=results,
@@ -228,6 +326,33 @@ sns.pointplot(
 )
 
 ax.set_ylabel("ROC AUC")
-ax.set_ylim(0.35, 0.7)
 plt.xticks(rotation=45)
+plt.tight_layout()
 plt.show()
+
+##############################################################################
+# Plot Results: Statistical Analysis
+# ------------------------------------
+#
+# Summary plot showing pairwise statistical significance across datasets.
+# Green = significantly higher, grey = no significant difference,
+# red = significantly lower.
+
+stats = compute_dataset_statistics(results)
+P, T = find_significant_differences(stats)
+
+fig_stat = summary_plot(P, T)
+plt.tight_layout()
+plt.show()
+
+##############################################################################
+# Plot Results: Meta-Analysis
+# ---------------------------
+#
+# Standardized effect sizes with confidence intervals across datasets,
+# one plot per pair of pipelines (alg1 is hypothesized to outperform alg2).
+
+for alg1, alg2 in itertools.combinations(order, 2):
+    fig_meta = meta_analysis_plot(stats, alg1, alg2)
+    plt.tight_layout()
+    plt.show()

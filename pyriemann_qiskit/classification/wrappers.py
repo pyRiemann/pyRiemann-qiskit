@@ -645,6 +645,8 @@ class QuanticMDM(QuanticClassifierBase):
         Add qaoa_initial_points parameter.
     .. versionchanged:: 0.4.2
         Separate wrapper from algorithm (CpMDM)
+    .. versionchanged:: 0.5.0
+        Add the qaoacv_implementation parameter.
 
     Parameters
     ----------
@@ -690,6 +692,11 @@ class QuanticMDM(QuanticClassifierBase):
         circuit.
     qaoa_initial_points : Tuple[int, int], default=[0.0, 0.0].
         Starting parameters (beta and gamma) for the NaiveQAOAOptimizer.
+    qaoacv_implementation : {"ulvi", "luna"} | None, default=None
+        QAOA-CV implementation variant. When create_mixer is provided:
+        "ulvi" selects QAOACVAngleOptimizer, "luna" or other string values
+        select QAOACVOptimizer. If None, uses default QAOACVOptimizer.
+        If not quantum or not mixer provided, has no effect.
 
     See Also
     --------
@@ -728,6 +735,7 @@ class QuanticMDM(QuanticClassifierBase):
         create_mixer=None,
         n_reps=3,
         qaoa_initial_points=[0.0, 0.0],
+        qaoacv_implementation=None,
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -740,6 +748,7 @@ class QuanticMDM(QuanticClassifierBase):
         self.create_mixer = create_mixer
         self.n_reps = n_reps
         self.qaoa_initial_points = qaoa_initial_points
+        self.qaoacv_implementation = qaoacv_implementation
 
     def _init_algo(self, n_features):
         self._log("Quantic MDM initiating algorithm")
@@ -754,6 +763,7 @@ class QuanticMDM(QuanticClassifierBase):
             self.create_mixer,
             self.n_reps,
             self.qaoa_initial_points,
+            self.qaoacv_implementation,
         )
 
         classifier = CpMDM(optimizer=self._optimizer, metric=self.metric)
@@ -799,6 +809,8 @@ class QuanticNCH(QuanticClassifierBase):
         Add QAOA-CV optimization.
     .. versionchanged:: 0.4.1
         Add the qaoa_initial_points parameter.
+    .. versionchanged:: 0.5.0
+        Add the qaoacv_implementation parameter.
 
     Parameters
     ----------
@@ -849,6 +861,10 @@ class QuanticNCH(QuanticClassifierBase):
         circuit.
     qaoa_initial_points : Tuple[int, int], default=[0.0, 0.0].
         Starting parameters (beta and gamma) for the NaiveQAOAOptimizer.
+    qaoacv_implementation : {"ulvi", "luna"} | None, default=None
+        QAOA-CV implementation variant. When create_mixer is provided:
+        "ulvi" selects QAOACVAngleOptimizer, "luna" or other string values
+        select QAOACVOptimizer. If None, uses default QAOA-CV behavior.
 
     References
     ----------
@@ -874,6 +890,7 @@ class QuanticNCH(QuanticClassifierBase):
         create_mixer=None,
         n_reps=3,
         qaoa_initial_points=[0.0, 0.0],
+        qaoacv_implementation=None,
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -889,6 +906,7 @@ class QuanticNCH(QuanticClassifierBase):
         self.create_mixer = create_mixer
         self.n_reps = n_reps
         self.qaoa_initial_points = qaoa_initial_points
+        self.qaoacv_implementation = qaoacv_implementation
 
     def _init_algo(self, n_features):
         self._log("Nearest Convex Hull Classifier initiating algorithm")
@@ -903,6 +921,7 @@ class QuanticNCH(QuanticClassifierBase):
             self.create_mixer,
             self.n_reps,
             self.qaoa_initial_points,
+            self.qaoacv_implementation,
         )
 
         classifier = NearestConvexHull(

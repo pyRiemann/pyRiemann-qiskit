@@ -1,4 +1,5 @@
 from . import (
+    anderson_optimizer,
     distance,
     docplex,
     filtering,
@@ -6,6 +7,7 @@ from . import (
     mean,
     preprocessing,
     quantum_provider,
+    transfer,
     utils,
 )
 from .firebase_connector import (
@@ -19,6 +21,7 @@ from .firebase_connector import (
 from .math import union_of_diff
 
 __all__ = [
+    "anderson_optimizer",
     "hyper_params_factory",
     "filtering",
     "preprocessing",
@@ -33,5 +36,6 @@ __all__ = [
     "filter_subjects_by_incomplete_results",
     "add_moabb_dataframe_results_to_caches",
     "convert_caches_to_dataframes",
+    "transfer",
     "utils",
 ]
