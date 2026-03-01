@@ -36,7 +36,7 @@ from pyriemann.estimation import Covariances
 from pyriemann.preprocessing import Whitening
 from pyriemann.tangentspace import TangentSpace
 from pyriemann.transfer import MDWM, TLCenter, TLClassifier, TLRotate, TLScale
-from qiskit_algorithms.optimizers import L_BFGS_B
+from qiskit_algorithms.optimizers import NFT
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
 
@@ -69,7 +69,7 @@ sf = make_pipeline(
     Covariances(estimator="lwf"),
 )
 
-n_samples_per_hull = 2
+n_samples_per_hull = 6
 
 pipelines = {}
 
@@ -94,7 +94,7 @@ pipelines["NCH+MIN_HULL_QAOACV(Ulvi)"] = make_pipeline(
         quantum=True,
         create_mixer=create_mixer_with_circular_entanglement(0),
         shots=100,
-        qaoa_optimizer=L_BFGS_B(maxiter=100, maxfun=200),
+        qaoa_optimizer=NFT(maxiter=25),
         n_reps=2,
         qaoacv_implementation="ulvi",
     ),
@@ -116,7 +116,11 @@ pipelines["QIOCE"] = make_pipeline(
     sf,
     Whitening(dim_red={"n_components": 4}),
     TangentSpace(metric="riemann"),
-    ContinuousQIOCEClassifier(n_reps=2, max_features=10),
+    ContinuousQIOCEClassifier(
+        n_reps=2,
+        max_features=10,
+        optimizer=NFT(maxiter=25)
+    ),
 )
 
 pipelines["MDM+TL"] = Adapter(
@@ -164,7 +168,7 @@ pipelines["NCH+MIN_HULL_QAOACV(Ulvi)+TL"] = Adapter(
                 quantum=True,
                 create_mixer=create_mixer_with_circular_entanglement(0),
                 shots=100,
-                qaoa_optimizer=L_BFGS_B(maxiter=100, maxfun=200),
+                qaoa_optimizer=NFT(maxiter=25),
                 n_reps=2,
                 qaoacv_implementation="ulvi",
             ),
@@ -205,7 +209,7 @@ pipelines["QIOCE+TL"] = Adapter(
             estimator=make_pipeline(
                 Whitening(dim_red={"n_components": 4}),
                 TangentSpace(metric="riemann"),
-                ContinuousQIOCEClassifier(n_reps=2, max_features=10),
+                ContinuousQIOCEClassifier(n_reps=2, max_features=10, optimizer=NFT(maxiter=25)),
             ),
             domain_weight=None,
         ),
