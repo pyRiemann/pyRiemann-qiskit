@@ -1,14 +1,17 @@
 """
 ====================================================================
-Classification of resting-state datasets from MOABB using NCH and QIOCE
+Classification of resting-state datasets from MOABB using NCH, QIOCE and QuantumStateMDM
 ====================================================================
 
 Comparison of classical pipelines (MDM, TS+LDA) and quantum pipelines
-(NCH, QIOCE) across three resting-state datasets: Hinss2021
+(NCH, QIOCE, QuantumStateMDM) across three resting-state datasets: Hinss2021
 (CrossSubject & CrossSession), Rodrigues2017 (CrossSubject), and
 Cattan2019_PHMD (CrossSubject). Both plain and transfer-learning (TL)
-variants are benchmarked. Results are aggregated and analyzed with
-MOABB statistical tools.
+variants are benchmarked where applicable. Results are aggregated and
+analyzed with MOABB statistical tools.
+
+Note: QuantumStateMDM operates directly on raw EEG epochs (no covariance
+estimation) and is therefore evaluated without a TL variant.
 
 """
 # Author: Gregoire Cattan, Quentin Barthelemy
@@ -40,7 +43,11 @@ from qiskit_algorithms.optimizers import NFT
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
 
-from pyriemann_qiskit.classification import ContinuousQIOCEClassifier, QuanticNCH
+from pyriemann_qiskit.classification import (
+    ContinuousQIOCEClassifier,
+    QuanticNCH,
+    QuantumStateMDM,
+)
 from pyriemann_qiskit.utils.hyper_params_factory import (
     create_mixer_with_circular_entanglement,
 )
@@ -110,6 +117,10 @@ pipelines["NCH+MIN_HULL_NAIVEQAOA"] = make_pipeline(
         quantum=True,
         n_reps=2,
     ),
+)
+
+pipelines["QuantumStateMDM"] = make_pipeline(
+    QuantumStateMDM(n_jobs=12),
 )
 
 pipelines["QIOCE"] = make_pipeline(
@@ -287,6 +298,7 @@ preferred_order = [
     "NCH+MIN_HULL_NAIVEQAOA+TL",
     "QIOCE",
     "QIOCE+TL",
+    "QuantumStateMDM",
     "MDWM(0.5)",
     "MDM+TL",
     "MDM",
