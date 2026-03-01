@@ -264,15 +264,15 @@ evaluation_hinss_cs = TLCrossSubjectEvaluation(
     n_splits=3,
     random_state=seed,
 )
-# results_hinss_cs = evaluation_hinss_cs.process(pipelines)
+results_hinss_cs = evaluation_hinss_cs.process(pipelines)
 
 ##############################################################################
 # Aggregate Results
 # -----------------
 
 results = pd.concat(
-    # [results_cattan, results_rodrigues, results_hinss_cs],
-    [results_cattan, results_rodrigues],
+    [results_cattan, results_rodrigues, results_hinss_cs],
+    #[results_cattan, results_rodrigues],
     ignore_index=True,
 )
 
@@ -282,16 +282,16 @@ print(results.groupby("pipeline")[["score", "time"]].mean())
 
 preferred_order = [
     "NCH+MIN_HULL_QAOACV(Ulvi)+TL",
-    "NCH+MIN_HULL_NAIVEQAOA+TL",
-    "QIOCE+TL",
     "NCH+MIN_HULL_QAOACV(Ulvi)",
     "NCH+MIN_HULL_NAIVEQAOA",
+    "NCH+MIN_HULL_NAIVEQAOA+TL",
     "QIOCE",
+    "QIOCE+TL",
     "MDWM(0.5)",
-    "TS+LDA+TL",
     "MDM+TL",
-    "TS+LDA",
     "MDM",
+    "TS+LDA",
+    "TS+LDA+TL",
 ]
 active_pipelines = results["pipeline"].unique()
 print(active_pipelines)
