@@ -183,9 +183,7 @@ class AndersonAccelerationOptimizer(Optimizer):
             periodic = ~(np.isnan(lower_b) | np.isnan(upper_b)) & np.isclose(
                 span, 2 * np.pi
             )
-            period_b = np.where(
-                periodic, span, 1.0
-            )  # dummy for non-periodic
+            period_b = np.where(periodic, span, 1.0)  # dummy for non-periodic
             has_lower = ~np.isnan(lower_b) & ~periodic
             has_upper = ~np.isnan(upper_b) & ~periodic
             # For wraparound correction: period column-vector broadcasts over m_k columns

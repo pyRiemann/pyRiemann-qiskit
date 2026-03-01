@@ -29,10 +29,10 @@ averaged across folds.
 import time
 
 import matplotlib.pyplot as plt
-from sklearn.metrics import roc_auc_score
 import numpy as np
-from qiskit_algorithms.optimizers import COBYLA, NFT, SLSQP, SPSA, L_BFGS_B
+from qiskit_algorithms.optimizers import COBYLA, L_BFGS_B, NFT, SLSQP, SPSA
 from sklearn.datasets import make_classification
+from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler
 

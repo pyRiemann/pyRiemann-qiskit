@@ -82,8 +82,9 @@ def make_subject_data(n_trials_per_class, n_channels, n_times, n_classes, subj_s
     return np.concatenate(X_list), np.concatenate(y_list)
 
 
-X, y = make_subject_data(n_trials_per_class, n_channels, n_times, n_classes,
-                         subj_seed=seed)
+X, y = make_subject_data(
+    n_trials_per_class, n_channels, n_times, n_classes, subj_seed=seed
+)
 print(f"Dataset: X={X.shape}, y={y.shape}")
 
 ##############################################################################
@@ -153,10 +154,15 @@ for n_reps in n_reps_range:
             clf_.fit(X[train_idx], y[train_idx])
             elapsed = time.time() - t0
             auc = roc_auc_score(y[test_idx], clf_.predict_proba(X[test_idx])[:, 1])
-            results.append({
-                "pipeline": name, "n_reps": n_reps,
-                "fold": fold, "auc": auc, "time": elapsed,
-            })
+            results.append(
+                {
+                    "pipeline": name,
+                    "n_reps": n_reps,
+                    "fold": fold,
+                    "auc": auc,
+                    "time": elapsed,
+                }
+            )
             print(f"  {name} fold={fold}: auc={auc:.3f}, time={elapsed:.1f}s")
 
 results = pd.DataFrame(results)
@@ -178,10 +184,12 @@ fig.suptitle("QAOA circuit depth ablation (n_reps) — quantum simulation", font
 pipeline_names = ["NCH (Naive QAOA)", "NCH (Ulvi)", "QIOCE"]
 colors = ["#4C72B0", "#DD8452", "#55A868"]
 
-for ax_idx, (metric, ylabel, title) in enumerate([
-    ("auc",  "ROC AUC",           "Classification performance"),
-    ("time", "Training time (s)", "Computational cost"),
-]):
+for ax_idx, (metric, ylabel, title) in enumerate(
+    [
+        ("auc", "ROC AUC", "Classification performance"),
+        ("time", "Training time (s)", "Computational cost"),
+    ]
+):
     ax = axes[ax_idx]
     for name, color in zip(pipeline_names, colors):
         sub = results[results["pipeline"] == name]

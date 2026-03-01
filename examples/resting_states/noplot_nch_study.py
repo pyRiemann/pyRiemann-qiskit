@@ -116,11 +116,7 @@ pipelines["QIOCE"] = make_pipeline(
     sf,
     Whitening(dim_red={"n_components": 4}),
     TangentSpace(metric="riemann"),
-    ContinuousQIOCEClassifier(
-        n_reps=2,
-        max_features=10,
-        optimizer=NFT(maxiter=25)
-    ),
+    ContinuousQIOCEClassifier(n_reps=2, max_features=10, optimizer=NFT(maxiter=25)),
 )
 
 pipelines["MDM+TL"] = Adapter(
@@ -209,7 +205,9 @@ pipelines["QIOCE+TL"] = Adapter(
             estimator=make_pipeline(
                 Whitening(dim_red={"n_components": 4}),
                 TangentSpace(metric="riemann"),
-                ContinuousQIOCEClassifier(n_reps=2, max_features=10, optimizer=NFT(maxiter=25)),
+                ContinuousQIOCEClassifier(
+                    n_reps=2, max_features=10, optimizer=NFT(maxiter=25)
+                ),
             ),
             domain_weight=None,
         ),
