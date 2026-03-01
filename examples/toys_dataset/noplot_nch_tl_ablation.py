@@ -69,10 +69,10 @@ def make_subject_data(n_trials_per_class, n_channels, n_times, n_classes, subj_s
     A = np.linalg.cholesky(M @ M.T + n_channels * np.eye(n_channels))
     X_list, y_list = [], []
     for cls in range(n_classes):
-        signal = np.zeros(n_channels)
-        signal[cls] = 3.0  # class-specific channel activation
+        scale = np.ones(n_channels)
+        scale[cls] = 0.001  # class k: channel k has 1.5× higher std → survives lwf centering
         noise = rng.randn(n_trials_per_class, n_channels, n_times)
-        noise += signal[:, None]
+        noise *= scale[:, None]
         X_cls = np.einsum("ij,tjk->tik", A, noise)  # apply domain shift
         X_list.append(X_cls)
         y_list.append(np.full(n_trials_per_class, cls))
@@ -313,5 +313,37 @@ fig.legend(
     handles=legend_handles, loc="center right",
     fontsize=7, ncol=1, bbox_to_anchor=(1.02, 0.5),
 )
+plt.tight_layout()
+plt.show()
+
+##############################################################################
+# Same 3D manifold, coloured by class instead of subject
+
+class_colors = ["red", "blue"]
+
+fig = plt.figure(figsize=(14, 6), facecolor="white")
+fig.suptitle("SPD manifold — whitening to 2×2 + xyz (3D, colour = class)", fontsize=13)
+
+for ax_idx, (coords, title) in enumerate(
+    [(coords_before, "Before RPA"), (coords_after, "After RPA")]
+):
+    ax = fig.add_subplot(1, 2, ax_idx + 1, projection="3d")
+    ax.set_title(title)
+    for cls in range(n_classes):
+        mask = class_arr == cls
+        ax.scatter(
+            coords[mask, 0],
+            coords[mask, 1],
+            coords[mask, 2],
+            color=class_colors[cls],
+            alpha=0.5,
+            s=40,
+            label=f"class {cls}",
+        )
+    ax.set_xlabel("σ₁²")
+    ax.set_ylabel("σ₁₂")
+    ax.set_zlabel("σ₂²")
+    ax.legend(fontsize=8)
+
 plt.tight_layout()
 plt.show()
