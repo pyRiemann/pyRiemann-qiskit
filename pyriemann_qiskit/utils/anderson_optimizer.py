@@ -31,9 +31,8 @@ References
 from collections import deque
 
 import numpy as np
-from qiskit_algorithms.optimizers import Optimizer, OptimizerResult
+from qiskit_algorithms.optimizers import Optimizer, OptimizerResult, OptimizerSupportLevel
 from scipy.linalg import lstsq
-
 
 class AndersonAccelerationOptimizer(Optimizer):
     """Anderson acceleration optimizer for variational quantum circuits.
@@ -80,20 +79,6 @@ class AndersonAccelerationOptimizer(Optimizer):
 
     Attributes
     ----------
-    _maxiter : int
-        Maximum iterations.
-    _m : int
-        History depth.
-    _alpha : float
-        Damping parameter.
-    _lambda_reg : float
-        Regularization parameter.
-    _tol : float
-        Convergence tolerance.
-    _fd_epsilon : float
-        Finite-difference step size.
-    _lr : float
-        Learning rate for the fixed-point map.
     trajectory_ : list of ndarray
         Optimization trajectory (parameter history).
     loss_history_ : list of float
@@ -316,104 +301,9 @@ class AndersonAccelerationOptimizer(Optimizer):
 
     def get_support_level(self):
         """Return support level dictionary."""
-        from qiskit_algorithms.optimizers import OptimizerSupportLevel
 
         return {
             "gradient": OptimizerSupportLevel.ignored,
             "bounds": OptimizerSupportLevel.supported,
             "initial_point": OptimizerSupportLevel.required,
         }
-
-    def plot_bloch_trajectory(self, param_indices=(0, 1), figsize=(10, 8)):
-        """Plot optimization trajectory on Bloch sphere.
-
-        Parameters
-        ----------
-        param_indices : tuple of int, default=(0, 1)
-            Which two parameters to visualize (θ, φ angles).
-        figsize : tuple, default=(10, 8)
-            Figure size.
-
-        Returns
-        -------
-        fig : matplotlib.figure.Figure
-            The figure object.
-        ax : matplotlib.axes.Axes
-            The 3D axes object.
-        """
-        try:
-            import matplotlib.pyplot as plt
-            from mpl_toolkits.mplot3d import Axes3D
-        except ImportError:
-            raise ImportError("matplotlib is required for visualization")
-
-        if len(self.trajectory_) == 0:
-            raise ValueError("No trajectory data. Run minimize() first.")
-
-        # Extract parameters
-        idx_theta, idx_phi = param_indices
-        trajectory = np.array(self.trajectory_)
-        theta = trajectory[:, idx_theta]
-        phi = trajectory[:, idx_phi]
-
-        # Convert to Bloch sphere coordinates
-        x = np.sin(theta) * np.cos(phi)
-        y = np.sin(theta) * np.sin(phi)
-        z = np.cos(theta)
-
-        # Create figure
-        fig = plt.figure(figsize=figsize)
-        ax = fig.add_subplot(111, projection="3d")
-
-        # Draw Bloch sphere
-        u = np.linspace(0, 2 * np.pi, 100)
-        v = np.linspace(0, np.pi, 100)
-        x_sphere = np.outer(np.cos(u), np.sin(v))
-        y_sphere = np.outer(np.sin(u), np.sin(v))
-        z_sphere = np.outer(np.ones(np.size(u)), np.cos(v))
-        ax.plot_surface(x_sphere, y_sphere, z_sphere, alpha=0.1, color="gray")
-
-        # Plot trajectory
-        ax.plot(x, y, z, "b-", linewidth=2, label="Path")
-        ax.scatter(x[0], y[0], z[0], c="green", s=100, marker="o", label="Start")
-        ax.scatter(x[-1], y[-1], z[-1], c="red", s=100, marker="*", label="End")
-
-        ax.set_xlabel("X")
-        ax.set_ylabel("Y")
-        ax.set_zlabel("Z")
-        ax.set_title("Anderson Optimization on Bloch Sphere")
-        ax.legend()
-
-        return fig, ax
-
-    def plot_loss_history(self, figsize=(10, 6)):
-        """Plot loss function history.
-
-        Parameters
-        ----------
-        figsize : tuple, default=(10, 6)
-            Figure size.
-
-        Returns
-        -------
-        fig : matplotlib.figure.Figure
-            The figure object.
-        ax : matplotlib.axes.Axes
-            The axes object.
-        """
-        try:
-            import matplotlib.pyplot as plt
-        except ImportError:
-            raise ImportError("matplotlib is required for visualization")
-
-        if len(self.loss_history_) == 0:
-            raise ValueError("No loss history. Run minimize() first.")
-
-        fig, ax = plt.subplots(figsize=figsize)
-        ax.plot(self.loss_history_, "b-", linewidth=2)
-        ax.set_xlabel("Iteration")
-        ax.set_ylabel("Loss")
-        ax.set_title("Anderson Acceleration Convergence")
-        ax.grid(True, alpha=0.3)
-
-        return fig, ax
