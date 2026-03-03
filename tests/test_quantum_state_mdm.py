@@ -48,11 +48,10 @@ def test_fit_attributes(fitted_clf, binary_data):
     X, y = binary_data
     assert hasattr(fitted_clf, "classes_")
     assert hasattr(fitted_clf, "density_matrices_")
+    assert hasattr(fitted_clf, "povm_")
+    assert hasattr(fitted_clf, "priors_")
     assert hasattr(fitted_clf, "n_channels_")
-    assert hasattr(fitted_clf, "n_qubits_")
-    assert hasattr(fitted_clf, "n_channels_padded_")
     assert fitted_clf.n_channels_ == X.shape[1]
-    assert fitted_clf.n_channels_padded_ == 2 ** fitted_clf.n_qubits_
     np.testing.assert_array_equal(fitted_clf.classes_, [0, 1])
 
 
@@ -75,13 +74,77 @@ def test_density_matrices_are_psd(binary_data):
         assert np.all(eigvals >= -1e-10), f"Negative eigenvalue: {eigvals.min()}"
 
 
-def test_density_matrices_trace_leq_one(binary_data):
-    """Trace of each density matrix should be <= 1 (it equals 1 when no
-    truncation happens, slightly less after the channel truncation)."""
+def test_density_matrices_trace_one(binary_data):
+    """Each density matrix must have trace exactly 1."""
     X, y = binary_data
     clf = QuantumStateMDM().fit(X, y)
     for rho in clf.density_matrices_.values():
-        assert np.trace(rho) <= 1.0 + 1e-10
+        np.testing.assert_allclose(np.trace(rho), 1.0, atol=1e-10)
+
+
+# ---------------------------------------------------------------------------
+# Priors
+# ---------------------------------------------------------------------------
+
+
+def test_priors_keys(fitted_clf):
+    assert set(fitted_clf.priors_.keys()) == {0, 1}
+
+
+def test_priors_sum_to_one(fitted_clf):
+    total = sum(fitted_clf.priors_.values())
+    np.testing.assert_allclose(total, 1.0, atol=1e-12)
+
+
+def test_priors_match_class_frequencies(binary_data):
+    X, y = binary_data
+    clf = QuantumStateMDM().fit(X, y)
+    for c in clf.classes_:
+        expected = np.mean(y == c)
+        np.testing.assert_allclose(clf.priors_[c], expected, atol=1e-12)
+
+
+def test_unequal_priors():
+    """Classifier should handle imbalanced class distributions."""
+    rng = np.random.RandomState(1)
+    X = rng.randn(12, 4, 30)
+    y = np.array([0] * 9 + [1] * 3)   # 3:1 imbalance
+    clf = QuantumStateMDM().fit(X, y)
+    np.testing.assert_allclose(clf.priors_[0], 0.75, atol=1e-12)
+    np.testing.assert_allclose(clf.priors_[1], 0.25, atol=1e-12)
+    pred = clf.predict(X)
+    assert pred.shape == (12,)
+
+
+# ---------------------------------------------------------------------------
+# POVM
+# ---------------------------------------------------------------------------
+
+
+def test_povm_keys(fitted_clf):
+    assert set(fitted_clf.povm_.keys()) == {0, 1}
+
+
+def test_povm_shape(fitted_clf, binary_data):
+    X, _ = binary_data
+    n_ch = X.shape[1]
+    for Pi in fitted_clf.povm_.values():
+        assert Pi.shape == (n_ch, n_ch)
+
+
+def test_povm_completeness(fitted_clf, binary_data):
+    """POVM elements must sum to identity: sum_c Pi_c = I."""
+    X, _ = binary_data
+    n_ch = X.shape[1]
+    Pi_sum = sum(fitted_clf.povm_.values())
+    np.testing.assert_allclose(Pi_sum, np.eye(n_ch), atol=1e-10)
+
+
+def test_povm_elements_are_psd(fitted_clf):
+    """Each POVM element must be positive semidefinite."""
+    for Pi in fitted_clf.povm_.values():
+        eigvals = np.linalg.eigvalsh(Pi)
+        assert np.all(eigvals >= -1e-10), f"Negative eigenvalue: {eigvals.min()}"
 
 
 # ---------------------------------------------------------------------------
@@ -102,7 +165,7 @@ def test_predict_labels_from_classes(fitted_clf, binary_data):
 
 
 # ---------------------------------------------------------------------------
-# predict_proba
+# predict_proba — proper probabilities by construction (no softmax)
 # ---------------------------------------------------------------------------
 
 
@@ -113,6 +176,7 @@ def test_predict_proba_shape(fitted_clf, binary_data):
 
 
 def test_predict_proba_sums_to_one(fitted_clf, binary_data):
+    """POVM constraint guarantees exact sum-to-one."""
     X, _ = binary_data
     proba = fitted_clf.predict_proba(X)
     np.testing.assert_allclose(proba.sum(axis=1), 1.0, atol=1e-10)
@@ -121,7 +185,7 @@ def test_predict_proba_sums_to_one(fitted_clf, binary_data):
 def test_predict_proba_non_negative(fitted_clf, binary_data):
     X, _ = binary_data
     proba = fitted_clf.predict_proba(X)
-    assert np.all(proba >= 0.0)
+    assert np.all(proba >= -1e-10)
 
 
 def test_predict_consistent_with_proba(fitted_clf, binary_data):
@@ -138,14 +202,14 @@ def test_predict_consistent_with_proba(fitted_clf, binary_data):
 
 
 def test_non_power_of_2_channels():
+    """Channel count need not be a power of 2."""
     rng = np.random.RandomState(0)
-    X = rng.randn(6, 5, 40)  # 5 channels — not a power of 2
+    X = rng.randn(6, 5, 40)
     y = np.array([0] * 3 + [1] * 3)
     clf = QuantumStateMDM().fit(X, y)
     pred = clf.predict(X)
     assert pred.shape == (6,)
-    assert clf.n_qubits_ == 3          # ceil(log2(5)) == 3
-    assert clf.n_channels_padded_ == 8
+    assert clf.n_channels_ == 5
 
 
 def test_single_channel():
@@ -167,6 +231,9 @@ def test_multiclass():
     proba = clf.predict_proba(X)
     assert proba.shape == (9, 3)
     np.testing.assert_allclose(proba.sum(axis=1), 1.0, atol=1e-10)
+    # POVM completeness for 3 classes
+    Pi_sum = sum(clf.povm_.values())
+    np.testing.assert_allclose(Pi_sum, np.eye(4), atol=1e-10)
 
 
 # ---------------------------------------------------------------------------
@@ -200,11 +267,11 @@ def test_sklearn_pipeline(binary_data):
 
 
 def test_separable_data():
-    """On directionally separable data the classifier should achieve perfect accuracy.
+    """On directionally separable data the classifier should achieve
+    perfect accuracy.
 
-    Amplitude encoding normalizes each time sample to unit norm, so sign
-    differences cancel out (x and -x yield the same quantum state |ψ⟩⟨ψ|).
-    We instead separate classes by which *channel* carries the signal.
+    Classes differ by which channel carries the signal, giving
+    clearly distinct EEG covariance operators and density matrices.
     """
     rng = np.random.RandomState(0)
     n_trials, n_ch, n_times = 8, 4, 20

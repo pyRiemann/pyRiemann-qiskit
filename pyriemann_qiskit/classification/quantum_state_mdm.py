@@ -1,82 +1,71 @@
 """Quantum State MDM classifier."""
 
-import math
-
 import numpy as np
 from joblib import Parallel, delayed
-from scipy.special import softmax
+from scipy.linalg import eigh
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import check_is_fitted
 
 
-def _encode(x_t, n_channels_padded):
-    """Normalize a time sample to a unit-norm quantum state (amplitude encoding).
+def _build_operator(X):
+    """Construct normalized EEG measurement operator from a single trial.
 
     Parameters
     ----------
-    x_t : ndarray, shape (n_channels,)
-        A single EEG time sample.
-    n_channels_padded : int
-        Padded dimension (power of 2).
+    X : ndarray, shape (n_channels, n_times)
 
     Returns
     -------
-    psi : ndarray, shape (n_channels_padded,) or None
-        Unit-norm state vector, or None if the sample has near-zero norm.
+    M : ndarray, shape (n_channels, n_channels)
+        Normalized EEG covariance (trace=1), acting as a quantum observable.
     """
-    x_pad = np.zeros(n_channels_padded)
-    x_pad[: len(x_t)] = x_t
-    norm = np.linalg.norm(x_pad)
-    if norm < 1e-12:
-        return None
-    return x_pad / norm
+    M = X @ X.T / X.shape[1]
+    tr = np.trace(M)
+    if tr < 1e-12:
+        n = X.shape[0]
+        return np.eye(n) / n
+    return M / tr
 
 
-def _score_trial(x, density_matrices, classes, n_channels_padded, n_channels):
-    """Compute per-class fidelity scores for a single trial.
+def _score_trial(X_i, povm, classes):
+    """Compute POVM scores trace(Pi_c . M) for one trial.
 
     Parameters
     ----------
-    x : ndarray, shape (n_channels, n_times)
-        Single EEG trial.
-    density_matrices : dict
-        Per-class density matrices, keyed by label.
+    X_i : ndarray, shape (n_channels, n_times)
+    povm : dict[label -> ndarray (n_channels, n_channels)]
     classes : ndarray
-        Ordered class labels.
-    n_channels_padded : int
-    n_channels : int
 
     Returns
     -------
     scores : ndarray, shape (n_classes,)
-        Average quantum fidelity ⟨ψ_t|ρ_c|ψ_t⟩ for each class.
+        Valid probabilities: non-negative and summing to 1.
     """
-    n_times = x.shape[1]
-    scores = np.zeros(len(classes))
-    for ci, c in enumerate(classes):
-        rho = density_matrices[c]
-        F = 0.0
-        T_eff = 0
-        for t in range(n_times):
-            psi = _encode(x[:, t], n_channels_padded)
-            if psi is None:
-                continue
-            psi_trunc = psi[:n_channels]
-            F += psi_trunc @ rho @ psi_trunc
-            T_eff += 1
-        scores[ci] = F / T_eff if T_eff > 0 else 0.0
-    return scores
+    M = _build_operator(X_i)
+    return np.array([np.sum(povm[c] * M) for c in classes])
 
 
 class QuantumStateMDM(BaseEstimator, ClassifierMixin):
-    """Quantum state nearest mean classifier.
+    """Quantum state classifier using the Pretty Good Measurement (PGM).
 
-    Takes raw EEG epochs as input (no covariance estimation step).
-    Each time sample is treated as a quantum state via amplitude encoding.
-    Classification is by quantum fidelity with per-class density matrices.
+    The mental state of the user (class A or B) is modeled as a mixed
+    quantum state (density matrix) rho_c, estimated from training EEG via
+    quantum state tomography. Class priors pi_c are estimated from class
+    frequencies in the training set.
 
-    This is the quantum analog of pyriemann's MDM, operating on quantum
-    states rather than SPD matrices.
+    The classifier is a POVM (Positive Operator-Valued Measure) built via
+    the Pretty Good Measurement:
+
+        Pi_c = rho_total^{-1/2} (pi_c * rho_c) rho_total^{-1/2}
+
+    where rho_total = sum_c pi_c * rho_c is the prior-weighted average state.
+
+    The POVM satisfies sum_c Pi_c = I, so scores trace(Pi_c . M) are valid
+    probabilities (non-negative, summing to 1) directly from the Born rule —
+    no softmax needed.
+
+    For two classes with equal priors, this approximates the Helstrom
+    measurement (theoretically optimal quantum state discrimination).
 
     Parameters
     ----------
@@ -86,15 +75,16 @@ class QuantumStateMDM(BaseEstimator, ClassifierMixin):
     Attributes
     ----------
     density_matrices_ : dict[label -> ndarray (n_channels, n_channels)]
-        Per-class density matrices fitted from training data.
+        Per-class density matrices rho_c (trace=1, PSD), estimated via
+        quantum state tomography.
+    povm_ : dict[label -> ndarray (n_channels, n_channels)]
+        Per-class POVM elements Pi_c satisfying sum_c Pi_c = I.
+    priors_ : dict[label -> float]
+        Class prior probabilities estimated from training set frequencies.
     classes_ : ndarray
         Unique class labels seen at fit time.
     n_channels_ : int
         Number of EEG channels.
-    n_qubits_ : int
-        Number of qubits (ceil(log2(n_channels))).
-    n_channels_padded_ : int
-        Padded channel dimension (2 ** n_qubits_).
 
     Notes
     -----
@@ -105,7 +95,7 @@ class QuantumStateMDM(BaseEstimator, ClassifierMixin):
         self.n_jobs = n_jobs
 
     def fit(self, X, y):
-        """Fit per-class density matrices from raw EEG epochs.
+        """Fit class density matrices and POVM from raw EEG epochs.
 
         Parameters
         ----------
@@ -121,36 +111,47 @@ class QuantumStateMDM(BaseEstimator, ClassifierMixin):
         X = np.asarray(X)
         y = np.asarray(y)
 
-        n_channels = X.shape[1]
-        n_qubits = math.ceil(math.log2(n_channels)) if n_channels > 1 else 1
-        n_channels_padded = 2**n_qubits
-
-        self.n_channels_ = n_channels
-        self.n_qubits_ = n_qubits
-        self.n_channels_padded_ = n_channels_padded
+        self.n_channels_ = X.shape[1]
         self.classes_ = np.unique(y)
+        n_total = len(y)
 
-        self.density_matrices_ = {}
+        # Step 1: quantum state tomography + prior estimation
+        density_matrices = {}
+        priors = {}
         for c in self.classes_:
-            rho_c = np.zeros((n_channels_padded, n_channels_padded))
-            count = 0
-            for i in np.where(y == c)[0]:
-                n_times = X[i].shape[1]
-                for t in range(n_times):
-                    psi = _encode(X[i][:, t], n_channels_padded)
-                    if psi is None:
-                        continue
-                    rho_c += np.outer(psi, psi)
-                    count += 1
-            if count > 0:
-                rho_c /= count
-            # Truncate back to original channel dimension
-            self.density_matrices_[c] = rho_c[:n_channels, :n_channels]
+            idx = np.where(y == c)[0]
+            priors[c] = len(idx) / n_total
+            Sigma_c = np.zeros((self.n_channels_, self.n_channels_))
+            for i in idx:
+                Sigma_c += X[i] @ X[i].T / X[i].shape[1]
+            Sigma_c /= len(idx)
+            density_matrices[c] = Sigma_c / np.trace(Sigma_c)
+
+        self.priors_ = priors
+        self.density_matrices_ = density_matrices
+
+        # Step 2: Pretty Good Measurement
+        # rho_total = sum_c pi_c * rho_c  (prior-weighted average state)
+        rho_total = sum(
+            priors[c] * density_matrices[c] for c in self.classes_
+        )
+
+        # rho_total^{-1/2} via eigendecomposition (regularized)
+        eigenvalues, eigenvectors = eigh(rho_total)
+        inv_sqrt_eig = 1.0 / np.sqrt(np.maximum(eigenvalues, 1e-10))
+        rho_inv_sqrt = eigenvectors @ np.diag(inv_sqrt_eig) @ eigenvectors.T
+
+        # Pi_c = rho_total^{-1/2} (pi_c * rho_c) rho_total^{-1/2}
+        # satisfies sum_c Pi_c = I by construction
+        self.povm_ = {
+            c: rho_inv_sqrt @ (priors[c] * density_matrices[c]) @ rho_inv_sqrt
+            for c in self.classes_
+        }
 
         return self
 
     def _compute_scores(self, X):
-        """Return raw fidelity scores for all trials.
+        """Return POVM scores trace(Pi_c . M) for all trials.
 
         Parameters
         ----------
@@ -159,18 +160,13 @@ class QuantumStateMDM(BaseEstimator, ClassifierMixin):
         Returns
         -------
         scores : ndarray, shape (n_trials, n_classes)
+            Valid probabilities: non-negative and summing to 1.
         """
-        check_is_fitted(self, ["density_matrices_", "classes_"])
+        check_is_fitted(self, ["povm_", "classes_"])
         X = np.asarray(X)
 
         all_scores = Parallel(n_jobs=self.n_jobs)(
-            delayed(_score_trial)(
-                X[i],
-                self.density_matrices_,
-                self.classes_,
-                self.n_channels_padded_,
-                self.n_channels_,
-            )
+            delayed(_score_trial)(X[i], self.povm_, self.classes_)
             for i in range(len(X))
         )
         return np.array(all_scores)
@@ -190,7 +186,10 @@ class QuantumStateMDM(BaseEstimator, ClassifierMixin):
         return self.classes_[np.argmax(scores, axis=1)]
 
     def predict_proba(self, X):
-        """Predict class probabilities via softmax of fidelity scores.
+        """Predict class probabilities.
+
+        POVM scores are valid probabilities by construction (non-negative,
+        summing to 1). No softmax is applied.
 
         Parameters
         ----------
@@ -200,5 +199,4 @@ class QuantumStateMDM(BaseEstimator, ClassifierMixin):
         -------
         proba : ndarray, shape (n_trials, n_classes)
         """
-        scores = self._compute_scores(X)
-        return softmax(scores, axis=1)
+        return self._compute_scores(X)
