@@ -98,7 +98,7 @@ class ContinuousQIOCEClassifier(QAOACVAngleOptimizer, ClassifierMixin):
             ),
             n_reps=n_reps,
             quantum_instance=quantum_instance,
-            optimizer=optimizer
+            optimizer=optimizer,
         )
         self.max_features = max_features
         self.random_state = random_state

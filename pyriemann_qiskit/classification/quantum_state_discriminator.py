@@ -132,9 +132,7 @@ class QuantumStateDiscriminator(BaseEstimator, ClassifierMixin):
 
         # Step 2: Pretty Good Measurement
         # rho_total = sum_c pi_c * rho_c  (prior-weighted average state)
-        rho_total = sum(
-            priors[c] * density_matrices[c] for c in self.classes_
-        )
+        rho_total = sum(priors[c] * density_matrices[c] for c in self.classes_)
 
         # rho_total^{-1/2} via eigendecomposition (regularized)
         eigenvalues, eigenvectors = eigh(rho_total)

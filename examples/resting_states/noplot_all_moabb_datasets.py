@@ -143,11 +143,7 @@ pipelines["QIOCE"] = make_pipeline(
     sf,
     Whitening(dim_red={"n_components": 4}),
     TangentSpace(metric="riemann"),
-    ContinuousQIOCEClassifier(
-        n_reps=2,
-        max_features=10,
-        optimizer=NFT(maxiter=25)
-    ),
+    ContinuousQIOCEClassifier(n_reps=2, max_features=10, optimizer=NFT(maxiter=25)),
 )
 
 pipelines["MDM+TL"] = Adapter(
@@ -236,7 +232,9 @@ pipelines["QIOCE+TL"] = Adapter(
             estimator=make_pipeline(
                 Whitening(dim_red={"n_components": 4}),
                 TangentSpace(metric="riemann"),
-                ContinuousQIOCEClassifier(n_reps=2, max_features=10, optimizer=NFT(maxiter=25)),
+                ContinuousQIOCEClassifier(
+                    n_reps=2, max_features=10, optimizer=NFT(maxiter=25)
+                ),
             ),
             domain_weight=None,
         ),
@@ -277,7 +275,7 @@ evaluation_rodrigues = TLCrossSubjectEvaluation(
     n_splits=3,
     random_state=seed,
 )
-#results_rodrigues = evaluation_rodrigues.process(pipelines)
+# results_rodrigues = evaluation_rodrigues.process(pipelines)
 
 # --- Hinss2021: CrossSubject ---
 paradigm_hinss = RestingStateToP300Adapter(
@@ -291,14 +289,14 @@ evaluation_hinss_cs = TLCrossSubjectEvaluation(
     n_splits=3,
     random_state=seed,
 )
-#results_hinss_cs = evaluation_hinss_cs.process(pipelines)
+# results_hinss_cs = evaluation_hinss_cs.process(pipelines)
 
 ##############################################################################
 # Aggregate Results
 # -----------------
 
 results = pd.concat(
-    #[results_cattan, results_rodrigues, results_hinss_cs],
+    # [results_cattan, results_rodrigues, results_hinss_cs],
     [results_cattan],
     ignore_index=True,
 )

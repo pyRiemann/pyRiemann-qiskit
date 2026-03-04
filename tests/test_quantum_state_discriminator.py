@@ -7,7 +7,6 @@ from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import QuantumStateDiscriminator
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -108,7 +107,7 @@ def test_unequal_priors():
     """Classifier should handle imbalanced class distributions."""
     rng = np.random.RandomState(1)
     X = rng.randn(12, 4, 30)
-    y = np.array([0] * 9 + [1] * 3)   # 3:1 imbalance
+    y = np.array([0] * 9 + [1] * 3)  # 3:1 imbalance
     clf = QuantumStateDiscriminator().fit(X, y)
     np.testing.assert_allclose(clf.priors_[0], 0.75, atol=1e-12)
     np.testing.assert_allclose(clf.priors_[1], 0.25, atol=1e-12)
