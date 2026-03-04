@@ -1,11 +1,11 @@
-"""Tests for QuantumStateMDM classifier."""
+"""Tests for QuantumStateDiscriminator."""
 
 import numpy as np
 import pytest
 from sklearn.base import clone
 from sklearn.pipeline import make_pipeline
 
-from pyriemann_qiskit.classification import QuantumStateMDM
+from pyriemann_qiskit.classification import QuantumStateDiscriminator
 
 
 # ---------------------------------------------------------------------------
@@ -28,7 +28,7 @@ def binary_data(rndstate):
 @pytest.fixture(scope="module")
 def fitted_clf(binary_data):
     X, y = binary_data
-    clf = QuantumStateMDM()
+    clf = QuantumStateDiscriminator()
     clf.fit(X, y)
     return clf
 
@@ -40,7 +40,7 @@ def fitted_clf(binary_data):
 
 def test_fit_returns_self(binary_data):
     X, y = binary_data
-    clf = QuantumStateMDM()
+    clf = QuantumStateDiscriminator()
     assert clf.fit(X, y) is clf
 
 
@@ -68,7 +68,7 @@ def test_density_matrices_shape(fitted_clf, binary_data):
 
 def test_density_matrices_are_psd(binary_data):
     X, y = binary_data
-    clf = QuantumStateMDM().fit(X, y)
+    clf = QuantumStateDiscriminator().fit(X, y)
     for rho in clf.density_matrices_.values():
         eigvals = np.linalg.eigvalsh(rho)
         assert np.all(eigvals >= -1e-10), f"Negative eigenvalue: {eigvals.min()}"
@@ -77,7 +77,7 @@ def test_density_matrices_are_psd(binary_data):
 def test_density_matrices_trace_one(binary_data):
     """Each density matrix must have trace exactly 1."""
     X, y = binary_data
-    clf = QuantumStateMDM().fit(X, y)
+    clf = QuantumStateDiscriminator().fit(X, y)
     for rho in clf.density_matrices_.values():
         np.testing.assert_allclose(np.trace(rho), 1.0, atol=1e-10)
 
@@ -98,7 +98,7 @@ def test_priors_sum_to_one(fitted_clf):
 
 def test_priors_match_class_frequencies(binary_data):
     X, y = binary_data
-    clf = QuantumStateMDM().fit(X, y)
+    clf = QuantumStateDiscriminator().fit(X, y)
     for c in clf.classes_:
         expected = np.mean(y == c)
         np.testing.assert_allclose(clf.priors_[c], expected, atol=1e-12)
@@ -109,7 +109,7 @@ def test_unequal_priors():
     rng = np.random.RandomState(1)
     X = rng.randn(12, 4, 30)
     y = np.array([0] * 9 + [1] * 3)   # 3:1 imbalance
-    clf = QuantumStateMDM().fit(X, y)
+    clf = QuantumStateDiscriminator().fit(X, y)
     np.testing.assert_allclose(clf.priors_[0], 0.75, atol=1e-12)
     np.testing.assert_allclose(clf.priors_[1], 0.25, atol=1e-12)
     pred = clf.predict(X)
@@ -206,7 +206,7 @@ def test_non_power_of_2_channels():
     rng = np.random.RandomState(0)
     X = rng.randn(6, 5, 40)
     y = np.array([0] * 3 + [1] * 3)
-    clf = QuantumStateMDM().fit(X, y)
+    clf = QuantumStateDiscriminator().fit(X, y)
     pred = clf.predict(X)
     assert pred.shape == (6,)
     assert clf.n_channels_ == 5
@@ -216,7 +216,7 @@ def test_single_channel():
     rng = np.random.RandomState(7)
     X = rng.randn(4, 1, 20)
     y = np.array([0, 0, 1, 1])
-    pred = QuantumStateMDM().fit(X, y).predict(X)
+    pred = QuantumStateDiscriminator().fit(X, y).predict(X)
     assert pred.shape == (4,)
 
 
@@ -224,7 +224,7 @@ def test_multiclass():
     rng = np.random.RandomState(3)
     X = rng.randn(9, 4, 30)
     y = np.array([0, 0, 0, 1, 1, 1, 2, 2, 2])
-    clf = QuantumStateMDM().fit(X, y)
+    clf = QuantumStateDiscriminator().fit(X, y)
     assert len(clf.classes_) == 3
     pred = clf.predict(X)
     assert pred.shape == (9,)
@@ -242,20 +242,20 @@ def test_multiclass():
 
 
 def test_sklearn_clone():
-    clf = QuantumStateMDM(n_jobs=2)
+    clf = QuantumStateDiscriminator(n_jobs=2)
     clf2 = clone(clf)
     assert clf2.get_params() == clf.get_params()
 
 
 def test_get_params():
-    clf = QuantumStateMDM(n_jobs=4)
+    clf = QuantumStateDiscriminator(n_jobs=4)
     params = clf.get_params()
     assert params == {"n_jobs": 4}
 
 
 def test_sklearn_pipeline(binary_data):
     X, y = binary_data
-    pipe = make_pipeline(QuantumStateMDM())
+    pipe = make_pipeline(QuantumStateDiscriminator())
     pipe.fit(X, y)
     pred = pipe.predict(X)
     assert pred.shape == (X.shape[0],)
@@ -283,7 +283,7 @@ def test_separable_data():
     X1[:, 1, :] = rng.uniform(0.5, 1.0, (n_trials, n_times))
     X = np.concatenate([X0, X1], axis=0)
     y = np.array([0] * n_trials + [1] * n_trials)
-    clf = QuantumStateMDM().fit(X, y)
+    clf = QuantumStateDiscriminator().fit(X, y)
     assert clf.score(X, y) == 1.0
 
 
@@ -294,6 +294,6 @@ def test_separable_data():
 
 def test_parallel_predict_matches_serial(binary_data):
     X, y = binary_data
-    clf_serial = QuantumStateMDM(n_jobs=1).fit(X, y)
-    clf_parallel = QuantumStateMDM(n_jobs=2).fit(X, y)
+    clf_serial = QuantumStateDiscriminator(n_jobs=1).fit(X, y)
+    clf_parallel = QuantumStateDiscriminator(n_jobs=2).fit(X, y)
     np.testing.assert_array_equal(clf_serial.predict(X), clf_parallel.predict(X))

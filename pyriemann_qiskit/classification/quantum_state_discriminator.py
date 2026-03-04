@@ -1,4 +1,4 @@
-"""Quantum State MDM classifier."""
+"""Quantum State Discriminator classifier."""
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -45,7 +45,7 @@ def _score_trial(X_i, povm, classes):
     return np.array([np.sum(povm[c] * M) for c in classes])
 
 
-class QuantumStateMDM(BaseEstimator, ClassifierMixin):
+class QuantumStateDiscriminator(BaseEstimator, ClassifierMixin):
     """Quantum state classifier using the Pretty Good Measurement (PGM).
 
     The mental state of the user (class A or B) is modeled as a mixed

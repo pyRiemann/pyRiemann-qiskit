@@ -1,6 +1,6 @@
 from .algorithms import NearestConvexHull
 from .continuous_qioce_classifier import ContinuousQIOCEClassifier
-from .quantum_state_mdm import QuantumStateMDM
+from .quantum_state_discriminator import QuantumStateDiscriminator
 from .wrappers import (
     QuanticClassifierBase,
     QuanticMDM,
@@ -17,5 +17,5 @@ __all__ = [
     "QuanticSVM",
     "QuanticVQC",
     "QuanticClassifierBase",
-    "QuantumStateMDM",
+    "QuantumStateDiscriminator",
 ]
