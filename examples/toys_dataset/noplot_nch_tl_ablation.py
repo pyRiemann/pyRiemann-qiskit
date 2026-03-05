@@ -168,7 +168,7 @@ for test_subj in range(n_subjects):
             clf_.fit(X_train, y_train)
         score = roc_auc_score(y_test, clf_.predict_proba(X_test)[:, 1])
         results.append({"pipeline": name, "subject": test_subj, "score": score})
-        print(f"  subject={test_subj}, pipeline={name}: auc={score:.3f}")
+        print(f"  subject={test_subj}, pipeline={name}: auc={score:.3f}") # noqa
 
 results = pd.DataFrame(results)
 print("\nResults:")
