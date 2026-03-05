@@ -34,7 +34,6 @@ from sklearn.metrics import roc_auc_score
 from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.utils.math import to_xyz
-from pyriemann_qiskit.visualization.manifold import plot_manifold
 
 from pyriemann_qiskit.classification import QuanticNCH
 from pyriemann_qiskit.utils.transfer import Adapter
@@ -70,7 +69,7 @@ def make_subject_data(n_trials_per_class, n_channels, n_times, n_classes, subj_s
     X_list, y_list = [], []
     for cls in range(n_classes):
         scale = np.ones(n_channels)
-        scale[cls] = 0.001  # class k: channel k has 1.5× higher std → survives lwf centering
+        scale[cls] = 0.001  # class k: Increase std → survives lwf centering
         noise = rng.randn(n_trials_per_class, n_channels, n_times)
         noise *= scale[:, None]
         X_cls = np.einsum("ij,tjk->tik", A, noise)  # apply domain shift

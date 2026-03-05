@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 
 from pyriemann_qiskit.utils.anderson_optimizer import AndersonAccelerationOptimizer
 

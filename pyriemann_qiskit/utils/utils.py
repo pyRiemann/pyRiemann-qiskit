@@ -69,18 +69,21 @@ def get_docplex_optimizer_from_params_bag(
     classical_optimizer : Optimizer
         Classical optimizer instance used when quantum=False.
     create_mixer : callable or None
-        Function to create custom mixer for QAOA-CV. If None and quantum is True, uses NaiveQAOAOptimizer.
+        Function to create custom mixer for QAOA-CV. If None and quantum is True,
+        uses NaiveQAOAOptimizer.
     n_reps : int
         Number of repetitions for QAOA ansatz layers.
     qaoa_initial_points : array-like
         Initial parameter values for QAOA optimization.
     qaoacv_implementation : str
         QAOA-CV implementation variant. "ulvi" selects QAOACVAngleOptimizer,
-        "luna" or other values select QAOACVOptimizer. If not quantum or create_mixer is undefined, then does nothing.
+        "luna" or other values select QAOACVOptimizer.
+        If not quantum or create_mixer is undefined, then does nothing.
 
     Returns
     -------
-    optimizer : ClassicalOptimizer, NaiveQAOAOptimizer, QAOACVAngleOptimizer, or QAOACVOptimizer
+    optimizer : ClassicalOptimizer, NaiveQAOAOptimizer, QAOACVAngleOptimizer,
+        or QAOACVOptimizer
         Configured optimizer instance based on the provided parameters.
 
     Notes
@@ -110,7 +113,7 @@ def get_docplex_optimizer_from_params_bag(
                     optimizer=qaoa_optimizer,
                 )
             else:
-                if not "luna" in qaoacv_implementation:
+                if "luna" not in qaoacv_implementation:
                     logger._log("No valid QAOA-CV implementation found.")
                 logger._log("Using QAOACVOptimizer")
                 return QAOACVOptimizer(

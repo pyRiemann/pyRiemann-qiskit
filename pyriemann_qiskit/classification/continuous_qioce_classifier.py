@@ -286,7 +286,7 @@ class ContinuousQIOCEClassifier(QAOACVAngleOptimizer, ClassifierMixin):
         n_samples, n_features = X.shape
         if n_features > self.max_features:
             raise ValueError(
-                f"Input has {n_features} features but max_features={self.max_features}. "
+                f"N features {n_features} > {self.max_features}. "
                 "Apply dimensionality reduction first."
             )
 

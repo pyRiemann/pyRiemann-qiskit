@@ -1,6 +1,7 @@
 """
 ====================================================================
-Classification of resting-state datasets from MOABB using NCH, QIOCE and QuantumStateDiscriminator
+Classification of resting-state datasets from MOABB using NCH, QIOCE
+and QuantumStateDiscriminator
 ====================================================================
 
 Comparison of classical pipelines (MDM, TS+LDA) and quantum pipelines
@@ -47,10 +48,6 @@ from pyriemann_qiskit.classification import (
     ContinuousQIOCEClassifier,
     QuanticNCH,
     QuantumStateDiscriminator,
-)
-from pyriemann_qiskit.classification.igl_reference import (
-    IGLTimeSeriesSklearnClassifier,
-    VPConfig,
 )
 from pyriemann_qiskit.utils.hyper_params_factory import (
     create_mixer_with_circular_entanglement,
@@ -125,18 +122,6 @@ pipelines["NCH+MIN_HULL_NAIVEQAOA"] = make_pipeline(
 
 pipelines["QuantumStateDiscriminator"] = make_pipeline(
     QuantumStateDiscriminator(n_jobs=12),
-)
-
-pipelines["IGL"] = make_pipeline(
-    IGLTimeSeriesSklearnClassifier(
-        n_components=16,
-        n_anchors=64,
-        n_scales=3,
-        operator="gaussian",
-        training="vp",
-        vp_config=VPConfig(epochs=500, warmup_epochs=100, log_every=500, verbose=False),
-        random_state=seed,
-    ),
 )
 
 pipelines["QIOCE"] = make_pipeline(
@@ -236,7 +221,11 @@ pipelines["QIOCE+TL"] = Adapter(
             estimator=make_pipeline(
                 Whitening(dim_red={"n_components": 4}),
                 TangentSpace(metric="riemann"),
-                ContinuousQIOCEClassifier(n_reps=2, max_features=10, optimizer=NFT(maxiter=25)),
+                ContinuousQIOCEClassifier(
+                    n_reps=2,
+                    max_features=10,
+                    optimizer=NFT(maxiter=25)
+                ),
             ),
             domain_weight=None,
         ),
@@ -277,7 +266,7 @@ evaluation_rodrigues = TLCrossSubjectEvaluation(
     n_splits=3,
     random_state=seed,
 )
-#results_rodrigues = evaluation_rodrigues.process(pipelines)
+results_rodrigues = evaluation_rodrigues.process(pipelines)
 
 # --- Hinss2021: CrossSubject ---
 paradigm_hinss = RestingStateToP300Adapter(
@@ -291,15 +280,14 @@ evaluation_hinss_cs = TLCrossSubjectEvaluation(
     n_splits=3,
     random_state=seed,
 )
-#results_hinss_cs = evaluation_hinss_cs.process(pipelines)
+results_hinss_cs = evaluation_hinss_cs.process(pipelines)
 
 ##############################################################################
 # Aggregate Results
 # -----------------
 
 results = pd.concat(
-    #[results_cattan, results_rodrigues, results_hinss_cs],
-    [results_cattan],
+    [results_cattan, results_rodrigues, results_hinss_cs],
     ignore_index=True,
 )
 
@@ -320,9 +308,6 @@ preferred_order = [
     "MDM",
     "TS+LDA",
     "TS+LDA+TL",
-    "TS+IGL",
-    "TS+IGL+TL",
-    "IGL",
 ]
 active_pipelines = results["pipeline"].unique()
 print(active_pipelines)

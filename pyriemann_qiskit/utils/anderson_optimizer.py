@@ -31,8 +31,13 @@ References
 from collections import deque
 
 import numpy as np
-from qiskit_algorithms.optimizers import Optimizer, OptimizerResult, OptimizerSupportLevel
+from qiskit_algorithms.optimizers import (
+    Optimizer,
+    OptimizerResult,
+    OptimizerSupportLevel
+)
 from scipy.linalg import lstsq
+
 
 class AndersonAccelerationOptimizer(Optimizer):
     """Anderson acceleration optimizer for variational quantum circuits.
@@ -173,7 +178,8 @@ class AndersonAccelerationOptimizer(Optimizer):
             )  # dummy for non-periodic
             has_lower = ~np.isnan(lower_b) & ~periodic
             has_upper = ~np.isnan(upper_b) & ~periodic
-            # For wraparound correction: period column-vector broadcasts over m_k columns
+            # For wraparound correction: period column-vector broadcasts
+            # over m_k columns
             period_col = period_b[:, np.newaxis]
 
         iteration = 0
@@ -220,7 +226,8 @@ class AndersonAccelerationOptimizer(Optimizer):
             if r_norm < self._tol:
                 break
 
-            # Store current iterate and residual (r is freshly allocated — no .copy() needed)
+            # Store current iterate and residual
+            # (r is freshly allocated — no .copy() needed)
             W_history.append(x.copy())
             R_history.append(r)
 
