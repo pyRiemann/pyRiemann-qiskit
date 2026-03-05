@@ -248,7 +248,7 @@ class ContinuousQIOCEClassifier(QAOACVAngleOptimizer, ClassifierMixin):
         self.run_time_ = stop_time - start_time
         self.optim_params_ = result.x
 
-        print(f"Training completed in {self.run_time_:.2f}s") # noqa
+        print(f"Training completed in {self.run_time_:.2f}s")  # noqa
         print(f"Final loss: {self.training_loss_history_[-1]:.4f}")  # noqa
 
         # Store final state vector for interface compatibility (first training sample)
