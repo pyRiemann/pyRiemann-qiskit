@@ -18,5 +18,5 @@ __all__ = [
     "QuanticVQC",
     "QuanticClassifierBase",
     "QuantumStateDiscriminator",
-    "ContinuousQIOCEClassifier"
+    "ContinuousQIOCEClassifier",
 ]

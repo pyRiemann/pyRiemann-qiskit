@@ -33,9 +33,8 @@ from pyriemann.transfer import TLCenter, TLClassifier, TLRotate, TLScale, encode
 from sklearn.metrics import roc_auc_score
 from sklearn.pipeline import make_pipeline
 
-from pyriemann_qiskit.utils.math import to_xyz
-
 from pyriemann_qiskit.classification import QuanticNCH
+from pyriemann_qiskit.utils.math import to_xyz
 from pyriemann_qiskit.utils.transfer import Adapter
 
 print(__doc__)
@@ -121,9 +120,7 @@ def make_tl_pipeline(estimator):
             TLCenter(target_domain=None),
             TLScale(target_domain=None, centered_data=True),
             TLRotate(target_domain=None),
-            TLClassifier(
-                target_domain=None, estimator=estimator, domain_weight=None
-            ),
+            TLClassifier(target_domain=None, estimator=estimator, domain_weight=None),
         ),
     )
 
@@ -253,9 +250,9 @@ _, y_enc = encode_domains(covs_raw, class_arr, domain_arr)
 # Fit RPA: align all subjects toward subject "0" as reference
 target_domain = "0"
 covs_c = TLCenter(target_domain=target_domain).fit_transform(covs_raw, y_enc)
-covs_s = TLScale(
-    target_domain=target_domain, centered_data=True
-).fit_transform(covs_c, y_enc)
+covs_s = TLScale(target_domain=target_domain, centered_data=True).fit_transform(
+    covs_c, y_enc
+)
 covs_aligned = TLRotate(target_domain=target_domain).fit_transform(covs_s, y_enc)
 
 
@@ -297,20 +294,33 @@ for ax_idx, (coords, title) in enumerate(
 
 legend_handles = [
     plt.Line2D(
-        [0], [0], marker="o", color="w",
-        markerfacecolor=subject_colors[s], markersize=8, label=f"S{s}",
+        [0],
+        [0],
+        marker="o",
+        color="w",
+        markerfacecolor=subject_colors[s],
+        markersize=8,
+        label=f"S{s}",
     )
     for s in range(n_subjects)
 ] + [
     plt.Line2D(
-        [0], [0], marker=m, color="gray",
-        markersize=8, linestyle="None", label=f"class {cls}",
+        [0],
+        [0],
+        marker=m,
+        color="gray",
+        markersize=8,
+        linestyle="None",
+        label=f"class {cls}",
     )
     for cls, m in enumerate(markers)
 ]
 fig.legend(
-    handles=legend_handles, loc="center right",
-    fontsize=7, ncol=1, bbox_to_anchor=(1.02, 0.5),
+    handles=legend_handles,
+    loc="center right",
+    fontsize=7,
+    ncol=1,
+    bbox_to_anchor=(1.02, 0.5),
 )
 plt.tight_layout()
 plt.show()
