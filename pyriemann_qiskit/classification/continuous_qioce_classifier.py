@@ -249,7 +249,7 @@ class ContinuousQIOCEClassifier(QAOACVAngleOptimizer, ClassifierMixin):
         self.optim_params_ = result.x
 
         print(f"Training completed in {self.run_time_:.2f}s")
-        print(f"Final loss: {self.training_loss_history_[-1]:.4f}") # noqa
+        print(f"Final loss: {self.training_loss_history_[-1]:.4f}")  # noqa
 
         # Store final state vector for interface compatibility (first training sample)
         gamma_dict = {p: v for p, v in zip(gamma_params, self.optim_params_)}

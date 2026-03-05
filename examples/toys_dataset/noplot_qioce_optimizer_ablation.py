@@ -123,7 +123,9 @@ for name, opt in optimizer_configs:
         results[name]["nfev"].append(nfev)
         results[name]["loss_curves"].append(loss_curve)
 
-        print(f"  Fold {fold + 1}: auc={acc:.3f}, nfev={nfev}, time={elapsed:.1f}s") # noqa
+        print(
+            f"  Fold {fold + 1}: auc={acc:.3f}, nfev={nfev}, time={elapsed:.1f}s"
+        )  # noqa
 
 ###############################################################################
 # Plots

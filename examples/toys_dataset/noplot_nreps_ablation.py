@@ -163,7 +163,7 @@ for n_reps in n_reps_range:
                     "time": elapsed,
                 }
             )
-            print(f"  {name} fold={fold}: auc={auc:.3f}, time={elapsed:.1f}s") # noqa
+            print(f"  {name} fold={fold}: auc={auc:.3f}, time={elapsed:.1f}s")  # noqa
 
 results = pd.DataFrame(results)
 print(f"\nTotal rows: {len(results)}")
