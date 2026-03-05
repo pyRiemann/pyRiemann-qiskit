@@ -88,7 +88,7 @@ class QuantumStateDiscriminator(BaseEstimator, ClassifierMixin):
 
     Notes
     -----
-    .. versionadded:: 0.6.0
+    .. versionadded:: 0.5.0
     """
 
     def __init__(self, n_jobs=1):
