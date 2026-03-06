@@ -5,11 +5,16 @@ from copy import deepcopy
 from time import time
 
 import numpy as np
+
 try:
     from mne.epochs import BaseEpochs
     from moabb.evaluations import CrossSubjectEvaluation
     from moabb.evaluations.splitters import CrossSubjectSplitter
-    from moabb.evaluations.utils import _create_save_path, _ensure_fitted, _save_model_cv
+    from moabb.evaluations.utils import (
+        _create_save_path,
+        _ensure_fitted,
+        _save_model_cv,
+    )
 
     HAS_MOABB = True
 except ImportError:
@@ -163,7 +168,10 @@ if HAS_MOABB:
                 for name, clf in run_pipes.items():
                     t_start = time()
                     clf = self._grid_search(
-                        param_grid=param_grid, name=name, grid_clf=clf, inner_cv=inner_cv
+                        param_grid=param_grid,
+                        name=name,
+                        grid_clf=clf,
+                        inner_cv=inner_cv,
                     )
 
                     try:
@@ -184,7 +192,9 @@ if HAS_MOABB:
                     except Exception as e:
                         import traceback
 
-                        print(f"\n[TLCrossSubjectEvaluation] ERROR fitting '{name}': {e}")
+                        print(
+                            f"\n[TLCrossSubjectEvaluation] ERROR fitting '{name}': {e}"
+                        )
                         traceback.print_exc()
                         continue
 
@@ -218,7 +228,9 @@ if HAS_MOABB:
                             )
                             traceback.print_exc()
                             continue
-                        nchan = X.info["nchan"] if isinstance(X, BaseEpochs) else X.shape[1]
+                        nchan = (
+                            X.info["nchan"] if isinstance(X, BaseEpochs) else X.shape[1]
+                        )
                         res = {
                             "time": duration,
                             "dataset": dataset,
