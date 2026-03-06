@@ -23,7 +23,7 @@ jobs:
           key: light_benchmark.yml
       - name: Install dependencies
         run: |
-          pip install --upgrade pip "setuptools<72"
+          sudo apt-get install -y python3-setuptools
           pip install --no-build-isolation .[docs]
       - name: Run benchmark script (PR)
         id: run-benchmark-pr
@@ -34,7 +34,7 @@ jobs:
           ref: 'main'
       - name: Install dependencies
         run: |
-          pip install --upgrade pip "setuptools<72"
+          sudo apt-get install -y python3-setuptools
           pip install --no-build-isolation .[docs]
       - name: Run benchmark script (main)
         id: run-benchmark-main
