@@ -33,7 +33,8 @@ jobs:
           ref: 'main'
       - name: Install dependencies
         run: |
-          pip install .[docs]
+          pip install "setuptools<72"
+          pip install --build-isolation .[docs]
       - name: Run benchmark script (main)
         id: run-benchmark-main
         run: |
