@@ -34,7 +34,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install "setuptools<72"
-          pip install --build-isolation .[docs]
+          pip install --no-build-isolation .[docs]
       - name: Run benchmark script (main)
         id: run-benchmark-main
         run: |
