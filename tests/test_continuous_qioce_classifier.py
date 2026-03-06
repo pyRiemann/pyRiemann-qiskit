@@ -65,7 +65,7 @@ class TestErrorCases:
     def test_max_features_exceeded_raises(self):
         X = np.random.rand(4, 6)
         y = np.array([0, 0, 1, 1])
-        with pytest.raises(ValueError, match="max_features"):
+        with pytest.raises(ValueError, match="Apply dimensionality reduction"):
             ContinuousQIOCEClassifier(n_reps=1, max_features=4).fit(X, y)
 
     def test_predict_before_fit_raises(self):
