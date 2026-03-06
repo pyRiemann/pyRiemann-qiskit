@@ -8,7 +8,7 @@ RUN apt-get update
 RUN apt-get -y install git
 
 RUN apt-get --allow-releaseinfo-change update
-RUN python -m pip install --upgrade pip
+RUN python -m pip install --upgrade pip setuptools
 RUN apt-get -y install --fix-missing git-core
 RUN apt-get -y install build-essential
 
