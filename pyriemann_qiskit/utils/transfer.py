@@ -5,10 +5,15 @@ from copy import deepcopy
 from time import time
 
 import numpy as np
-from mne.epochs import BaseEpochs
-from moabb.evaluations import CrossSubjectEvaluation
-from moabb.evaluations.splitters import CrossSubjectSplitter
-from moabb.evaluations.utils import _create_save_path, _ensure_fitted, _save_model_cv
+try:
+    from mne.epochs import BaseEpochs
+    from moabb.evaluations import CrossSubjectEvaluation
+    from moabb.evaluations.splitters import CrossSubjectSplitter
+    from moabb.evaluations.utils import _create_save_path, _ensure_fitted, _save_model_cv
+
+    HAS_MOABB = True
+except ImportError:
+    HAS_MOABB = False
 from pyriemann.transfer import encode_domains
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.metrics import get_scorer
@@ -75,151 +80,153 @@ class Adapter(BaseEstimator, ClassifierMixin):
         return self.estimator_.predict_proba(self.preprocessing_.transform(X))
 
 
-class TLCrossSubjectEvaluation(CrossSubjectEvaluation):
-    """CrossSubjectEvaluation with group and target-domain forwarding.
+if HAS_MOABB:
 
-    Extends CrossSubjectEvaluation with one behavioural change:
+    class TLCrossSubjectEvaluation(CrossSubjectEvaluation):
+        """CrossSubjectEvaluation with group and target-domain forwarding.
 
-    Pipelines whose fit() declares ``groups`` receive the training subject IDs.
-    Pipelines whose fit() also declares ``target_domain`` receive the test
-    subject's ID as target_domain. All other pipelines are unaffected.
+        Extends CrossSubjectEvaluation with one behavioural change:
 
-    **kwargs
-        Forwarded to CrossSubjectEvaluation.__init__().
-    """
+        Pipelines whose fit() declares ``groups`` receive the training subject IDs.
+        Pipelines whose fit() also declares ``target_domain`` receive the test
+        subject's ID as target_domain. All other pipelines are unaffected.
 
-    # flake8: noqa: C901
-    def evaluate(
-        self,
-        dataset,
-        pipelines,
-        param_grid,
-        process_pipeline,
-        postprocess_pipeline=None,
-    ):
-        if not self.is_valid(dataset):
-            raise AssertionError("Dataset is not appropriate for evaluation")
+        **kwargs
+            Forwarded to CrossSubjectEvaluation.__init__().
+        """
 
-        run_pipes = {}
-        for subject in dataset.subject_list:
-            run_pipes.update(
-                self.results.not_yet_computed(
+        # flake8: noqa: C901
+        def evaluate(
+            self,
+            dataset,
+            pipelines,
+            param_grid,
+            process_pipeline,
+            postprocess_pipeline=None,
+        ):
+            if not self.is_valid(dataset):
+                raise AssertionError("Dataset is not appropriate for evaluation")
+
+            run_pipes = {}
+            for subject in dataset.subject_list:
+                run_pipes.update(
+                    self.results.not_yet_computed(
+                        pipelines, dataset, subject, process_pipeline
+                    )
+                )
+            if len(run_pipes) == 0:
+                return
+
+            X, y, metadata = self.paradigm.get_data(
+                dataset=dataset,
+                return_epochs=self.return_epochs,
+                return_raws=self.return_raws,
+                cache_config=self.cache_config,
+                postprocess_pipeline=postprocess_pipeline,
+                process_pipelines=[process_pipeline],
+            )
+            le = LabelEncoder()
+            y = y if self.mne_labels else le.fit_transform(y)
+
+            groups = metadata.subject.values
+            sessions = metadata.session.values
+            n_subjects = len(dataset.subject_list)
+
+            scorer = get_scorer(self.paradigm.scoring)
+
+            if self.n_splits is None:
+                cv_class = LeaveOneGroupOut
+                cv_kwargs = {}
+            else:
+                cv_class = GroupKFold
+                cv_kwargs = {"n_splits": self.n_splits}
+                n_subjects = self.n_splits
+
+            self.cv = CrossSubjectSplitter(
+                cv_class=cv_class, random_state=self.random_state, **cv_kwargs
+            )
+
+            inner_cv = StratifiedKFold(3, shuffle=True, random_state=self.random_state)
+
+            for cv_ind, (train, test) in enumerate(
+                tqdm(
+                    self.cv.split(y, metadata),
+                    total=n_subjects,
+                    desc=f"{dataset.code}-CrossSubject",
+                )
+            ):
+                subject = groups[test[0]]
+                run_pipes = self.results.not_yet_computed(
                     pipelines, dataset, subject, process_pipeline
                 )
-            )
-        if len(run_pipes) == 0:
-            return
 
-        X, y, metadata = self.paradigm.get_data(
-            dataset=dataset,
-            return_epochs=self.return_epochs,
-            return_raws=self.return_raws,
-            cache_config=self.cache_config,
-            postprocess_pipeline=postprocess_pipeline,
-            process_pipelines=[process_pipeline],
-        )
-        le = LabelEncoder()
-        y = y if self.mne_labels else le.fit_transform(y)
-
-        groups = metadata.subject.values
-        sessions = metadata.session.values
-        n_subjects = len(dataset.subject_list)
-
-        scorer = get_scorer(self.paradigm.scoring)
-
-        if self.n_splits is None:
-            cv_class = LeaveOneGroupOut
-            cv_kwargs = {}
-        else:
-            cv_class = GroupKFold
-            cv_kwargs = {"n_splits": self.n_splits}
-            n_subjects = self.n_splits
-
-        self.cv = CrossSubjectSplitter(
-            cv_class=cv_class, random_state=self.random_state, **cv_kwargs
-        )
-
-        inner_cv = StratifiedKFold(3, shuffle=True, random_state=self.random_state)
-
-        for cv_ind, (train, test) in enumerate(
-            tqdm(
-                self.cv.split(y, metadata),
-                total=n_subjects,
-                desc=f"{dataset.code}-CrossSubject",
-            )
-        ):
-            subject = groups[test[0]]
-            run_pipes = self.results.not_yet_computed(
-                pipelines, dataset, subject, process_pipeline
-            )
-
-            for name, clf in run_pipes.items():
-                t_start = time()
-                clf = self._grid_search(
-                    param_grid=param_grid, name=name, grid_clf=clf, inner_cv=inner_cv
-                )
-
-                try:
-                    if _pipeline_accepts_target_domain(clf):
-                        model = deepcopy(clf).fit(
-                            X[train],
-                            y[train],
-                            groups=groups[train],
-                            target_domain=str(groups[train[0]]),
-                        )
-                    elif _pipeline_accepts_groups(clf):
-                        model = deepcopy(clf).fit(
-                            X[train], y[train], groups=groups[train]
-                        )
-                    else:
-                        model = deepcopy(clf).fit(X[train], y[train])
-                    _ensure_fitted(model)
-                except Exception as e:
-                    import traceback
-
-                    print(f"\n[TLCrossSubjectEvaluation] ERROR fitting '{name}': {e}")
-                    traceback.print_exc()
-                    continue
-
-                duration = time() - t_start
-
-                if self.hdf5_path is not None and self.save_model:
-                    model_save_path = _create_save_path(
-                        hdf5_path=self.hdf5_path,
-                        code=dataset.code,
-                        subject=subject,
-                        session="",
-                        name=name,
-                        grid=self.search,
-                        eval_type="CrossSubject",
-                    )
-                    _save_model_cv(
-                        model=model,
-                        save_path=model_save_path,
-                        cv_index=str(cv_ind),
+                for name, clf in run_pipes.items():
+                    t_start = time()
+                    clf = self._grid_search(
+                        param_grid=param_grid, name=name, grid_clf=clf, inner_cv=inner_cv
                     )
 
-                for session in np.unique(sessions[test]):
-                    ix = sessions[test] == session
                     try:
-                        score = scorer(model, X[test[ix]], y[test[ix]])
+                        if _pipeline_accepts_target_domain(clf):
+                            model = deepcopy(clf).fit(
+                                X[train],
+                                y[train],
+                                groups=groups[train],
+                                target_domain=str(groups[train[0]]),
+                            )
+                        elif _pipeline_accepts_groups(clf):
+                            model = deepcopy(clf).fit(
+                                X[train], y[train], groups=groups[train]
+                            )
+                        else:
+                            model = deepcopy(clf).fit(X[train], y[train])
+                        _ensure_fitted(model)
                     except Exception as e:
                         import traceback
 
-                        print(
-                            f"\n[TLCrossSubjectEvaluation] ERROR scoring '{name}': {e}"
-                        )
+                        print(f"\n[TLCrossSubjectEvaluation] ERROR fitting '{name}': {e}")
                         traceback.print_exc()
                         continue
-                    nchan = X.info["nchan"] if isinstance(X, BaseEpochs) else X.shape[1]
-                    res = {
-                        "time": duration,
-                        "dataset": dataset,
-                        "subject": subject,
-                        "session": session,
-                        "score": score,
-                        "n_samples": len(train),
-                        "n_channels": nchan,
-                        "pipeline": name,
-                    }
-                    yield res
+
+                    duration = time() - t_start
+
+                    if self.hdf5_path is not None and self.save_model:
+                        model_save_path = _create_save_path(
+                            hdf5_path=self.hdf5_path,
+                            code=dataset.code,
+                            subject=subject,
+                            session="",
+                            name=name,
+                            grid=self.search,
+                            eval_type="CrossSubject",
+                        )
+                        _save_model_cv(
+                            model=model,
+                            save_path=model_save_path,
+                            cv_index=str(cv_ind),
+                        )
+
+                    for session in np.unique(sessions[test]):
+                        ix = sessions[test] == session
+                        try:
+                            score = scorer(model, X[test[ix]], y[test[ix]])
+                        except Exception as e:
+                            import traceback
+
+                            print(
+                                f"\n[TLCrossSubjectEvaluation] ERROR scoring '{name}': {e}"
+                            )
+                            traceback.print_exc()
+                            continue
+                        nchan = X.info["nchan"] if isinstance(X, BaseEpochs) else X.shape[1]
+                        res = {
+                            "time": duration,
+                            "dataset": dataset,
+                            "subject": subject,
+                            "session": session,
+                            "score": score,
+                            "n_samples": len(train),
+                            "n_channels": nchan,
+                            "pipeline": name,
+                        }
+                        yield res
