@@ -25,17 +25,15 @@ jobs:
       - name: Generate HTML docs
         env:
           FIREBASE_CERTIFICATE: ${{ secrets.FIREBASE_CERTIFICATE }}
+          PIP_NO_BUILD_ISOLATION: "1"
         uses: gcattan/sphinx-action@master
         with:
           docs-folder: "doc/"
           pre-build-command: |
             apt-get --allow-releaseinfo-change update
-            python -m pip install --upgrade pip
-            pip uninstall setuptools
-            sudo curl https://bootstrap.pypa.io/ez_setup.py | python
             apt-get -y install --fix-missing git-core
             apt-get -y install build-essential
-            pip install --no-build-isolation .[docs]
+            pip install --force-reinstall "setuptools<75"
             cp -a ./symb_statevectors/. ./examples/ERP/symb_statevectors
             cp -a ./symb_statevectors/. ./examples/MI/symb_statevectors
             cp -a ./symb_statevectors/. ./examples/other_datasets/symb_statevectors
