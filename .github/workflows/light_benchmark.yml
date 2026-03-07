@@ -23,8 +23,7 @@ jobs:
           key: light_benchmark.yml
       - name: Install dependencies
         run: |
-          echo "setuptools<75" > /tmp/pip-constraints.txt
-          pip config set global.constraint /tmp/pip-constraints.txt
+          sudo curl https://bootstrap.pypa.io/ez_setup.py | python
           pip install .[docs]
       - name: Run benchmark script (PR)
         id: run-benchmark-pr
@@ -35,8 +34,7 @@ jobs:
           ref: 'main'
       - name: Install dependencies
         run: |
-          echo "setuptools<75" > /tmp/pip-constraints.txt
-          pip config set global.constraint /tmp/pip-constraints.txt
+          sudo curl https://bootstrap.pypa.io/ez_setup.py | python
           pip install .[docs]
       - name: Run benchmark script (main)
         id: run-benchmark-main
