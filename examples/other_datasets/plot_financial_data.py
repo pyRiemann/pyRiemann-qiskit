@@ -170,7 +170,7 @@ print(f"number of fraudulent loans: {target[target == 1].size}")
 print(f"number of genuine loans: {target[target == 0].size}")
 
 # Simple treatment for NaN value
-features.fillna(method="ffill", inplace=True)
+features.ffill(inplace=True)
 
 # Convert date value to linux time
 features["FECHA_ALTA_CLIENTE"] = pd.to_datetime(features["FECHA_ALTA_CLIENTE"])
