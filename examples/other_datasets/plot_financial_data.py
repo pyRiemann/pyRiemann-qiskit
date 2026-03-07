@@ -319,6 +319,11 @@ gs = HalvingGridSearchCV(
 # Here we will keep a ratio of 2 non-fraud epochs for 1 fraud epochs.
 # Note: at this stage `features` also contains the `index` column.
 
+# Drop rows where target is NaN and cast to int for imbalanced-learn
+valid_mask = target.notna()
+features = features[valid_mask]
+target = target[valid_mask].astype(int)
+
 # Possibly avoids tie-break situations
 np.random.seed(42)
 
