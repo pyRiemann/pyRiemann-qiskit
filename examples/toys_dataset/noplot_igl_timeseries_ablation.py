@@ -3,19 +3,26 @@
 IGL Time-Series ablation study on toy EEG data
 ====================================================================
 
-Grid-search over kernel operators, training epochs, and Tikhonov
-regularization (``source_l2``) for ``IGLTimeSeriesSklearnClassifier``
-on synthetically generated EEG epochs.
+Grid-search over kernel operators, Tikhonov regularization
+(``source_l2``), spatial filter rank (``n_components``), and temporal
+basis size (``n_anchors``) for ``IGLTimeSeriesSklearnClassifier`` on
+synthetically generated EEG epochs.
 
 The ablation factors are:
 
 - **operator**: gaussian, cauchy, helmholtz, gabor, laplacian, mexican_hat
-- **epochs**: 1000, 1500
-- **source_l2** (Tikhonov lambda for the lstsq W_out solve): 0.01, 0.1
+- **source_l2**: 0.01, 0.1  (Tikhonov lambda for the exact W_out lstsq solve)
+- **n_components**: 8, 16   (spatial filter bank width, like CSP rank)
+- **n_anchors**: 32, 64     (temporal basis expressivity)
 
-Data generation mirrors the toy EEG setup used in other ablation
-scripts: each class has a distinct channel activation pattern,
-simulating an ERP-like paradigm (2 classes, single subject).
+A **LinearHead** baseline is also evaluated: mean-pool over time then
+logistic regression — no kernel, no VP, pure Wx+b.  This lets us
+measure how much the Green kernel temporal integration actually helps.
+
+EEG is modelled as a mixture of sinusoids (delta, theta, alpha, beta,
+gamma) with a spatial mixing matrix.  Class discrimination is encoded
+in band amplitude: class 0 has boosted alpha power, class 1 has
+boosted beta power.
 """
 # Author: Gregoire Cattan
 # License: BSD (3-clause)
@@ -27,8 +34,12 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
+from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 from pyriemann_qiskit.classification.igl_reference import (
     IGLTimeSeriesSklearnClassifier,
@@ -52,10 +63,10 @@ n_splits = 5
 # Ablation grid
 operators = ["gaussian", "cauchy", "helmholtz", "gabor", "laplacian", "mexican_hat"]
 lambdas = [0.01, 0.1]
+n_components_list = [8, 16]   # spatial filter rank (sparsity in channel space)
+n_anchors_list = [32, 64]     # temporal basis size (expressivity)
 
 # Fixed IGL hyper-params (not ablated)
-n_components = 16
-n_anchors = 64
 n_scales = 3
 warmup_fraction = 0.2  # warmup_epochs = epochs * warmup_fraction
 epochs = 1500
@@ -137,20 +148,61 @@ X, y = make_eeg_data(n_trials_per_class, n_channels, n_times, n_classes, rng, sf
 print(f"Dataset: X={X.shape}, y={y.shape}, classes={np.unique(y)}")
 
 ##############################################################################
+# Linear-head baseline
+# --------------------
+#
+# Mean-pool raw EEG over time [N, C, T] → [N, C], then fit a logistic
+# regression (Wx+b).  No kernel, no Variable Projection.
+# This baseline isolates how much the Green kernel temporal integration
+# contributes over a simple linear readout of mean channel activity.
+
+
+class MeanPoolLinear(BaseEstimator, ClassifierMixin):
+    """Mean-pool over time + logistic regression. No temporal kernel."""
+
+    def fit(self, X, y):
+        self.pipe_ = make_pipeline(
+            StandardScaler(), LogisticRegression(max_iter=1000, random_state=seed)
+        )
+        self.pipe_.fit(X.mean(axis=-1), y)   # X: [N, C, T] → [N, C]
+        self.classes_ = np.unique(y)
+        return self
+
+    def predict_proba(self, X):
+        return self.pipe_.predict_proba(X.mean(axis=-1))
+
+
+##############################################################################
 # Ablation loop
 # -------------
 #
-# For each combination of (operator, epochs, source_l2) we run
-# StratifiedKFold cross-validation and collect per-fold ROC AUC.
+# Two loops:
+#   1. LinearHead baseline  — no hyper-params, just CV.
+#   2. IGL grid             — all combinations of (operator, lambda,
+#                             n_components, n_anchors).
 
 cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=seed)
-
 results = []
-grid = list(itertools.product(operators, lambdas))
-print(f"\nTotal configurations: {len(grid)}  |  CV folds: {n_splits}")
-print(f"Total fits: {len(grid) * n_splits}\n")
 
-for op, lam in grid:
+# --- Baseline ---
+print("=== LinearHead baseline ===")
+baseline = MeanPoolLinear()
+fold_scores = []
+for fold, (train_idx, test_idx) in enumerate(cv.split(X, y)):
+    b = deepcopy(baseline)
+    b.fit(X[train_idx], y[train_idx])
+    auc = roc_auc_score(y[test_idx], b.predict_proba(X[test_idx])[:, 1])
+    fold_scores.append(auc)
+    results.append({"model": "LinearHead", "operator": "—", "source_l2": None,
+                    "n_components": None, "n_anchors": None, "fold": fold, "auc": auc})
+print(f"  mean_auc={np.mean(fold_scores):.3f}  folds={[f'{s:.3f}' for s in fold_scores]}")
+
+# --- IGL grid ---
+igl_grid = list(itertools.product(operators, lambdas, n_components_list, n_anchors_list))
+print(f"\n=== IGL grid: {len(igl_grid)} configs × {n_splits} folds = "
+      f"{len(igl_grid) * n_splits} fits ===\n")
+
+for op, lam, n_comp, n_anch in igl_grid:
     warmup_epochs = max(1, int(epochs * warmup_fraction))
     config = VPConfig(
         epochs=epochs,
@@ -160,8 +212,8 @@ for op, lam in grid:
         verbose=False,
     )
     clf = IGLTimeSeriesSklearnClassifier(
-        n_components=n_components,
-        n_anchors=n_anchors,
+        n_components=n_comp,
+        n_anchors=n_anch,
         n_scales=n_scales,
         operator=op,
         training="vp",
@@ -173,123 +225,170 @@ for op, lam in grid:
     for fold, (train_idx, test_idx) in enumerate(cv.split(X, y)):
         clf_ = deepcopy(clf)
         clf_.fit(X[train_idx], y[train_idx])
-        proba = clf_.predict_proba(X[test_idx])
-        auc = roc_auc_score(y[test_idx], proba[:, 1])
+        auc = roc_auc_score(y[test_idx], clf_.predict_proba(X[test_idx])[:, 1])
         fold_scores.append(auc)
-        results.append(
-            {
-                "operator": op,
-                "epochs": epochs,
-                "source_l2": lam,
-                "fold": fold,
-                "auc": auc,
-            }
-        )
+        results.append({"model": "IGL", "operator": op, "source_l2": lam,
+                        "n_components": n_comp, "n_anchors": n_anch,
+                        "fold": fold, "auc": auc})
 
-    mean_auc = np.mean(fold_scores)
-    print(
-        f"op={op:12s}  epochs={epochs:4d}  lambda={lam:.2f}  "
-        f"mean_auc={mean_auc:.3f}  folds={[f'{s:.3f}' for s in fold_scores]}"
-    )
+    print(f"op={op:12s}  λ={lam:.2f}  K={n_comp:2d}  R={n_anch:2d}  "
+          f"mean={np.mean(fold_scores):.3f}  "
+          f"folds={[f'{s:.3f}' for s in fold_scores]}")
 
 results = pd.DataFrame(results)
 
 ##############################################################################
-# Summary table
-# -------------
+# Summary tables
+# --------------
+
+igl_results = results[results["model"] == "IGL"]
+baseline_auc = results[results["model"] == "LinearHead"]["auc"].mean()
+
+print(f"\nLinearHead baseline mean AUC: {baseline_auc:.3f}")
 
 summary = (
-    results.groupby(["operator", "epochs", "source_l2"])["auc"]
+    igl_results.groupby(["operator", "source_l2", "n_components", "n_anchors"])["auc"]
     .agg(["mean", "std"])
     .reset_index()
     .sort_values("mean", ascending=False)
 )
-print("\n=== Ablation Summary (sorted by mean AUC) ===")
-print(summary.to_string(index=False))
+print("\n=== IGL Ablation Summary (top 10) ===")
+print(summary.head(10).to_string(index=False))
 
 ##############################################################################
-# Plots
-# -----
+# Plot 1 — IGL vs LinearHead
+# --------------------------
 #
-# 1. Operator comparison (averaged over epochs and lambda).
-# 2. Epochs × lambda heatmap (averaged over operators).
+# Best IGL config (per fold) vs LinearHead.
 
-fig, axes = plt.subplots(1, 2, figsize=(14, 5), facecolor="white")
-
-# --- Plot 1: operator comparison ---
-ax = axes[0]
-op_summary = results.groupby("operator")["auc"].mean().reset_index().sort_values(
-    "auc", ascending=False
-)
-sns.barplot(data=results, x="operator", y="auc", order=op_summary["operator"], ax=ax,
-            capsize=0.1, palette="Set2", errorbar="sd")
-ax.axhline(0.5, color="grey", linestyle="--", linewidth=0.8, label="chance")
-ax.set_title("Operator comparison\n(averaged over epochs & λ)")
-ax.set_ylabel("ROC AUC")
-ax.set_xlabel("Kernel operator")
-ax.tick_params(axis="x", rotation=30)
-ax.legend(fontsize=8)
-
-# --- Plot 2: epochs × lambda heatmap ---
-ax = axes[1]
-pivot = (
-    results.groupby(["epochs", "source_l2"])["auc"]
+best_igl = (
+    igl_results.groupby(["operator", "source_l2", "n_components", "n_anchors"])["auc"]
     .mean()
-    .unstack("source_l2")
+    .idxmax()
 )
-sns.heatmap(
-    pivot,
-    annot=True,
-    fmt=".3f",
-    cmap="YlGnBu",
-    vmin=0.5,
-    vmax=1.0,
-    ax=ax,
-    cbar_kws={"label": "mean ROC AUC"},
+best_igl_label = (
+    f"IGL best\n(op={best_igl[0]}, λ={best_igl[1]}, K={best_igl[2]}, R={best_igl[3]})"
 )
-ax.set_title("Epochs × λ heatmap\n(averaged over operators)")
-ax.set_xlabel("source_l2 (λ)")
-ax.set_ylabel("epochs")
+best_igl_rows = igl_results[
+    (igl_results["operator"] == best_igl[0])
+    & (igl_results["source_l2"] == best_igl[1])
+    & (igl_results["n_components"] == best_igl[2])
+    & (igl_results["n_anchors"] == best_igl[3])
+].copy()
+best_igl_rows["label"] = best_igl_label
 
-plt.suptitle("IGLTimeSeriesSklearnClassifier — Ablation on toy EEG", fontsize=13)
+baseline_rows = results[results["model"] == "LinearHead"].copy()
+baseline_rows["label"] = "LinearHead\n(mean-pool + LR)"
+
+compare_df = pd.concat([best_igl_rows, baseline_rows], ignore_index=True)
+
+fig, ax = plt.subplots(figsize=(6, 4), facecolor="white")
+sns.stripplot(data=compare_df, x="label", y="auc", jitter=True, alpha=0.6,
+              palette="Set1", ax=ax)
+sns.pointplot(data=compare_df, x="label", y="auc", palette="Set1",
+              linestyle="none", ax=ax)
+ax.axhline(0.5, color="grey", linestyle="--", linewidth=0.8, label="chance")
+ax.axhline(baseline_auc, color="steelblue", linestyle=":", linewidth=1.2,
+           label=f"LinearHead mean ({baseline_auc:.3f})")
+ax.set_title("Best IGL vs LinearHead baseline")
+ax.set_ylabel("ROC AUC")
+ax.set_xlabel("")
+ax.legend(fontsize=8)
 plt.tight_layout()
 plt.show()
 
 ##############################################################################
-# Per-operator detail: strip + point plot faceted by (epochs, lambda)
+# Plot 2 — Operator comparison
+# ----------------------------
+#
+# IGL operator effect, averaged over (lambda, n_components, n_anchors).
+# Horizontal dashed line = LinearHead baseline.
 
-g = sns.FacetGrid(
-    results,
-    col="epochs",
-    row="source_l2",
-    height=3.5,
-    aspect=1.6,
-    sharey=True,
+op_order = (
+    igl_results.groupby("operator")["auc"].mean()
+    .sort_values(ascending=False)
+    .index.tolist()
 )
-g.map_dataframe(
-    sns.stripplot,
-    x="operator",
-    y="auc",
-    jitter=True,
-    alpha=0.5,
-    palette="Set1",
-    order=op_summary["operator"].tolist(),
+
+fig, ax = plt.subplots(figsize=(8, 4), facecolor="white")
+sns.barplot(data=igl_results, x="operator", y="auc", order=op_order,
+            capsize=0.1, palette="Set2", errorbar="sd", ax=ax)
+ax.axhline(0.5, color="grey", linestyle="--", linewidth=0.8, label="chance")
+ax.axhline(baseline_auc, color="steelblue", linestyle=":", linewidth=1.5,
+           label=f"LinearHead ({baseline_auc:.3f})")
+ax.set_title("Operator comparison (averaged over λ, n_components, n_anchors)")
+ax.set_ylabel("ROC AUC")
+ax.set_xlabel("Kernel operator")
+ax.tick_params(axis="x", rotation=30)
+ax.legend(fontsize=8)
+plt.tight_layout()
+plt.show()
+
+##############################################################################
+# Plot 3 — Hyperparameter heatmaps
+# ---------------------------------
+#
+# Left:  operator × source_l2  (averaged over n_components, n_anchors)
+# Right: n_components × n_anchors  (averaged over operator, source_l2)
+
+fig, axes = plt.subplots(1, 2, figsize=(14, 5), facecolor="white")
+
+# operator × lambda
+pivot_op_lam = (
+    igl_results.groupby(["operator", "source_l2"])["auc"]
+    .mean()
+    .unstack("source_l2")
+    .reindex(op_order)
 )
-g.map_dataframe(
-    sns.pointplot,
-    x="operator",
-    y="auc",
-    palette="Set1",
-    order=op_summary["operator"].tolist(),
-    linestyle="none",
+sns.heatmap(pivot_op_lam, annot=True, fmt=".3f", cmap="YlGnBu",
+            vmin=0.5, vmax=1.0, ax=axes[0],
+            cbar_kws={"label": "mean ROC AUC"})
+axes[0].set_title("operator × λ\n(averaged over K, R)")
+axes[0].set_xlabel("source_l2 (λ)")
+axes[0].set_ylabel("operator")
+
+# n_components × n_anchors
+pivot_kR = (
+    igl_results.groupby(["n_components", "n_anchors"])["auc"]
+    .mean()
+    .unstack("n_anchors")
 )
+sns.heatmap(pivot_kR, annot=True, fmt=".3f", cmap="YlGnBu",
+            vmin=0.5, vmax=1.0, ax=axes[1],
+            cbar_kws={"label": "mean ROC AUC"})
+axes[1].set_title("n_components (K) × n_anchors (R)\n(averaged over operator, λ)")
+axes[1].set_xlabel("n_anchors (R)")
+axes[1].set_ylabel("n_components (K)")
+
+plt.suptitle("IGLTimeSeriesSklearnClassifier — Hyperparameter ablation", fontsize=13)
+plt.tight_layout()
+plt.show()
+
+##############################################################################
+# Plot 4 — Per-operator FacetGrid (lambda × n_components)
+# --------------------------------------------------------
+
+facet_df = igl_results.copy()
+facet_df["config"] = (
+    "K=" + facet_df["n_components"].astype(str)
+    + " R=" + facet_df["n_anchors"].astype(str)
+)
+
+g = sns.FacetGrid(facet_df, col="source_l2", row="n_components",
+                  height=3.5, aspect=1.6, sharey=True)
+g.map_dataframe(sns.stripplot, x="operator", y="auc", jitter=True,
+                alpha=0.5, palette="Set1", order=op_order)
+g.map_dataframe(sns.pointplot, x="operator", y="auc", palette="Set1",
+                order=op_order, linestyle="none")
 for ax in g.axes.flat:
     ax.axhline(0.5, color="grey", linestyle="--", linewidth=0.8)
+    ax.axhline(baseline_auc, color="steelblue", linestyle=":", linewidth=1.2)
     ax.tick_params(axis="x", rotation=30)
 g.set_axis_labels("Kernel operator", "ROC AUC")
-g.set_titles(col_template="epochs={col_name}", row_template="λ={row_name}")
+g.set_titles(col_template="λ={col_name}", row_template="K={row_name}")
 g.figure.suptitle(
-    "IGL ablation — per (epochs, λ) breakdown", fontsize=12, y=1.02
+    "IGL — operator per (λ, K)  [blue dotted = LinearHead baseline]",
+    fontsize=12, y=1.02,
 )
 plt.tight_layout()
 plt.show()
