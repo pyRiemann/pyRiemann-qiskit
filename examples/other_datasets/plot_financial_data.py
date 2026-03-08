@@ -138,7 +138,7 @@ url = "https://zenodo.org/record/7418458/files/INFINITECH_synthetic_inmediate_lo
 dataset = pd.read_csv(url, sep=";")
 
 # Transform into binary classification, regroup frauds and suspicions of fraud
-dataset.FRAUD[dataset.FRAUD == 2] = 1
+dataset.loc[dataset.FRAUD == 2, "FRAUD"] = 1
 
 # Select a few features for the example
 channels = [
