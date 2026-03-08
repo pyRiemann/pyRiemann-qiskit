@@ -887,8 +887,10 @@ IGL underperforms all classical baselines (mean AUC 0.522), with the gap to
 TS+LDA being statistically significant ($p=0.04$, $d=1.32$).  This is
 surprising given that IGL operates on raw time series and theoretically
 adapts its intrinsic dimensionality to the data.  Possible explanations
-include: (i)~the 500 training epochs may be insufficient for the Variable
-Projection optimizer to converge on the relatively small EEG datasets;
+include: (i)~the 500 training epochs may be insufficient for the encoder
+to converge on the relatively small EEG datasets (the Variable Projection
+output weights are solved exactly via Tikhonov least-squares, but the
+encoder gradient updates may not have reached a good representation);
 (ii)~the Gaussian Green operator may not be well-suited to the temporal
 structure of resting-state EEG; (iii)~cross-subject variability may
 exceed the capacity of a single shared kernel.  Tuning

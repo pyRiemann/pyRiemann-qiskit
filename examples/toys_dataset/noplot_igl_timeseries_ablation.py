@@ -51,7 +51,6 @@ n_splits = 5
 
 # Ablation grid
 operators = ["gaussian", "cauchy", "helmholtz", "gabor", "laplacian", "mexican_hat"]
-epochs_list = [1000, 1500]
 lambdas = [0.01, 0.1]
 
 # Fixed IGL hyper-params (not ablated)
@@ -59,6 +58,7 @@ n_components = 16
 n_anchors = 64
 n_scales = 3
 warmup_fraction = 0.2  # warmup_epochs = epochs * warmup_fraction
+epochs = 1500
 
 ##############################################################################
 # Data Generation
@@ -146,11 +146,11 @@ print(f"Dataset: X={X.shape}, y={y.shape}, classes={np.unique(y)}")
 cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=seed)
 
 results = []
-grid = list(itertools.product(operators, epochs_list, lambdas))
+grid = list(itertools.product(operators, lambdas))
 print(f"\nTotal configurations: {len(grid)}  |  CV folds: {n_splits}")
 print(f"Total fits: {len(grid) * n_splits}\n")
 
-for op, epochs, lam in grid:
+for op, lam in grid:
     warmup_epochs = max(1, int(epochs * warmup_fraction))
     config = VPConfig(
         epochs=epochs,
