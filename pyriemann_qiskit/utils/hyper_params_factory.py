@@ -446,6 +446,56 @@ def create_mixer_rotational_X_gates(angle):
     return mixer_X
 
 
+def create_mixer_with_circular_entanglement(angle):
+    r"""Return a mixer with rotation gates and circular entanglement.
+
+    Applies Rx rotation gates to each qubit followed by circular
+    entanglement using CX gates between consecutive qubits, closing
+    the loop from the last qubit back to the first.
+
+    Parameters
+    ----------
+    angle : float
+        The angle of the rotation gates.
+
+    Returns
+    -------
+    mixer : Callable[[int, boolean], QuantumCircuit]
+        A method that creates the mixer with the correct angle.
+        This method takes into parameters the number of qubits in the circuit,
+        and a parameter `use_params`.
+        If True, `use_params` creates a Parameter in the circuit (same for all gates).
+
+    Notes
+    -----
+    .. versionadded:: 0.5.0
+    """
+
+    def mixer_circular_entanglement(n_qubits, use_params):
+        qr = QuantumRegister(n_qubits)
+        mixer = QuantumCircuit(qr)
+        p = Parameter("beta")
+
+        # Apply Rx rotation gates to each qubit
+        for i in range(n_qubits):
+            if use_params:
+                mixer.rx(p + angle, qr[i])
+            else:
+                mixer.rx(angle, qr[i])
+
+        # Circular entanglement between all qubits
+        for i in range(n_qubits - 1):
+            mixer.cx(qr[i], qr[i + 1])
+
+        # Close the loop: last qubit to first qubit
+        if n_qubits > 1:
+            mixer.cx(qr[n_qubits - 1], qr[0])
+
+        return mixer
+
+    return mixer_circular_entanglement
+
+
 def create_mixer_rotational_XY_gates(angle):
     r"""Return the XY mixer.
 
@@ -537,3 +587,29 @@ def create_mixer_rotational_XZ_gates(angle):
         return mixer
 
     return mixer_XZ
+
+
+def create_mixer_identity():
+    r"""Return an identity mixer (no operation).
+
+    This mixer applies no gates, effectively returning an identity operation.
+    Useful for testing or when no mixing is desired.
+
+    Returns
+    -------
+    mixer : Callable[[int, boolean], QuantumCircuit]
+        A method that creates an empty mixer circuit.
+        This method takes into parameters the number of qubits in the circuit,
+        and a parameter `use_params` (ignored, kept for API compatibility).
+
+    Notes
+    -----
+    .. versionadded:: 0.5.0
+    """
+
+    def mixer_identity(n_qubits, use_params=False):
+        qr = QuantumRegister(n_qubits)
+        mixer = QuantumCircuit(qr)
+        return mixer
+
+    return mixer_identity
