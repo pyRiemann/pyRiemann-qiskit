@@ -6,7 +6,7 @@ sphinx-design
 numpydoc
 cython
 filelock
-mne==1.10.0
+mne==1.11.0
 mne-bids==0.16.0
 mne[data]>=0.24
 seaborn>=0.12.1
