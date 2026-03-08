@@ -34,6 +34,7 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
     The minimal distance defines the predicted class.
 
     Current implementation is available only for log-Euclidean distance.
+    It is compatible with constraint programming optimization [2]_.
 
     Notes
     -----
@@ -70,6 +71,10 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         <https://arxiv.org/pdf/1806.05343>`_
         K. Zhao, A. Wiliem, S. Chen, and B. C. Lovell,
         Image and Vision Computing, 2019.
+    .. [2] `Translating the Nearest Convex Hull Classifier from Classical to
+        Quantum Computing <https://www.mdpi.com/2624-960X/7/4/51>`_
+        G. Cattan, A. Andreev, and Q. Barthélemy, 2025.
+
     """
 
     def __init__(

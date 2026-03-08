@@ -18,13 +18,13 @@ cvxpy==1.6.5
 qiskit==1.*
 qiskit_algorithms==0.4.0
 qiskit_machine_learning==0.8.4
-qiskit_ibm_runtime==0.34.0
+qiskit_ibm_runtime==0.44.0
 qiskit-optimization==0.7.0
 qiskit-aer==0.17.0
 scipy==1.13.1
 moabb==1.4.0
 pyriemann==0.9
-docplex>=2.21.207
-firebase_admin==7.1.0
+docplex==2.31.254
+hashable_list
 qiskit-symb==0.2.0
 symengine==0.11.0
