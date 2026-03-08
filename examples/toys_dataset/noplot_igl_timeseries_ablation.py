@@ -64,24 +64,76 @@ warmup_fraction = 0.2  # warmup_epochs = epochs * warmup_fraction
 # Data Generation
 # ---------------
 #
-# Two classes differ by which channel carries elevated variance.
-# Class 0: channel 0 is dominant.  Class 1: channel 1 is dominant.
-# A small amount of Gaussian noise covers all channels.
+# EEG is modelled as a mixture of sinusoids across canonical frequency bands,
+# with additive Gaussian noise.  The class label is encoded in the *amplitude*
+# of one frequency band per class:
+#
+#   Class 0: elevated alpha power  (8–13 Hz)
+#   Class 1: elevated beta power   (13–30 Hz)
+#
+# All channels share the same mixture; a random spatial mixing matrix
+# simulates volume conduction so that no single channel is trivially
+# discriminative.
+#
+# Band centre frequencies (Hz) and their default amplitudes:
+#   delta  ~2 Hz  → 0.5   (background slow drift)
+#   theta  ~6 Hz  → 0.5
+#   alpha ~10 Hz  → 1.0   (boosted for class 0)
+#   beta  ~20 Hz  → 1.0   (boosted for class 1)
+#   gamma ~40 Hz  → 0.3   (high-freq noise-like component)
+
+sfreq = 256  # sampling frequency (Hz) — sets the physical time axis
 
 
-def make_eeg_data(n_trials_per_class, n_channels, n_times, n_classes, rng):
+def make_eeg_data(n_trials_per_class, n_channels, n_times, n_classes, rng, sfreq=256):
+    t = np.linspace(0, n_times / sfreq, n_times, endpoint=False)  # time axis in seconds
+
+    # Canonical EEG bands: (centre_freq_Hz, base_amplitude)
+    bands = [
+        (2.0,  0.5),   # delta
+        (6.0,  0.5),   # theta
+        (10.0, 1.0),   # alpha
+        (20.0, 1.0),   # beta
+        (40.0, 0.3),   # gamma
+    ]
+    alpha_idx = 2  # index of the alpha band in `bands`
+    beta_idx  = 3  # index of the beta  band in `bands`
+
+    # Class 0 boosts alpha; class 1 boosts beta
+    class_boost = {0: (alpha_idx, 2.5), 1: (beta_idx, 2.5)}
+
+    # Random spatial mixing matrix shared across all trials (volume conduction)
+    M = rng.randn(n_channels, n_channels)
+    A = np.linalg.cholesky(M @ M.T + n_channels * np.eye(n_channels))
+    A /= np.linalg.norm(A, axis=0, keepdims=True)  # normalise columns
+
     X_list, y_list = [], []
     for cls in range(n_classes):
-        scale = np.ones(n_channels) * 0.3
-        scale[cls] = 1.5  # dominant channel for this class
-        noise = rng.randn(n_trials_per_class, n_channels, n_times)
-        X_cls = noise * scale[:, None]  # broadcast over time
-        X_list.append(X_cls)
+        amplitudes = [amp for _, amp in bands]
+        boost_idx, boost_val = class_boost[cls]
+        amplitudes[boost_idx] = boost_val
+
+        trials = []
+        for _ in range(n_trials_per_class):
+            # Build a single-channel template as a sum of sinusoids
+            # with random per-trial phase offsets (trial-to-trial variability)
+            template = np.zeros(n_times)
+            for (freq, _), amp in zip(bands, amplitudes):
+                phase = rng.uniform(0, 2 * np.pi)
+                template += amp * np.cos(2 * np.pi * freq * t + phase)
+
+            # Replicate to n_channels and apply spatial mixing + noise
+            X_trial = np.tile(template, (n_channels, 1))          # [C, T]
+            X_trial = A @ X_trial                                   # spatial mix
+            X_trial += 0.3 * rng.randn(n_channels, n_times)        # sensor noise
+            trials.append(X_trial)
+
+        X_list.append(np.stack(trials))                             # [N, C, T]
         y_list.append(np.full(n_trials_per_class, cls))
     return np.concatenate(X_list), np.concatenate(y_list)
 
 
-X, y = make_eeg_data(n_trials_per_class, n_channels, n_times, n_classes, rng)
+X, y = make_eeg_data(n_trials_per_class, n_channels, n_times, n_classes, rng, sfreq=sfreq)
 print(f"Dataset: X={X.shape}, y={y.shape}, classes={np.unique(y)}")
 
 ##############################################################################
