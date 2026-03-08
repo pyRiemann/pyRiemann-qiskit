@@ -41,9 +41,8 @@ from pyriemann.preprocessing import Whitening
 from pyriemann.utils.viz import plot_waveforms
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.experimental import enable_halving_search_cv  # noqa
 from sklearn.metrics import balanced_accuracy_score
-from sklearn.model_selection import HalvingGridSearchCV, train_test_split
+from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
@@ -139,7 +138,7 @@ url = "https://zenodo.org/record/7418458/files/INFINITECH_synthetic_inmediate_lo
 dataset = pd.read_csv(url, sep=";")
 
 # Transform into binary classification, regroup frauds and suspicions of fraud
-dataset.FRAUD[dataset.FRAUD == 2] = 1
+dataset.loc[dataset.FRAUD == 2, "FRAUD"] = 1
 
 # Select a few features for the example
 channels = [
@@ -170,7 +169,7 @@ print(f"number of fraudulent loans: {target[target == 1].size}")
 print(f"number of genuine loans: {target[target == 0].size}")
 
 # Simple treatment for NaN value
-features.fillna(method="ffill", inplace=True)
+features.ffill(inplace=True)
 
 # Convert date value to linux time
 features["FECHA_ALTA_CLIENTE"] = pd.to_datetime(features["FECHA_ALTA_CLIENTE"])
@@ -295,13 +294,12 @@ else:
 
 # Optimize the pipeline:
 # let's save some time and run the optimization with the classical SVM
-gs = HalvingGridSearchCV(
+gs = GridSearchCV(
     pipe,
     param_grid=param_grid,
     scoring="balanced_accuracy",
     cv=4,
     verbose=1,
-    random_state=0,
 )
 
 
@@ -318,6 +316,11 @@ gs = HalvingGridSearchCV(
 # So `NearMiss` we choose the closest non-fraud epochs to the fraud-epochs.
 # Here we will keep a ratio of 2 non-fraud epochs for 1 fraud epochs.
 # Note: at this stage `features` also contains the `index` column.
+
+# Drop rows where target is NaN and cast to int for imbalanced-learn
+valid_mask = target.notna()
+features = features[valid_mask]
+target = target[valid_mask].astype(int)
 
 # Possibly avoids tie-break situations
 np.random.seed(42)
