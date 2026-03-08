@@ -104,7 +104,7 @@ def get_docplex_optimizer_from_params_bag(
     """
     if quantum:
         if create_mixer:
-            if "ulvi" in qaoacv_implementation:
+            if qaoacv_implementation and "ulvi" in qaoacv_implementation:
                 logger._log("Using QAOACVAngleOptimizer")
                 return QAOACVAngleOptimizer(
                     create_mixer=create_mixer,
