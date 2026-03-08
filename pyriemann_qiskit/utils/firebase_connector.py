@@ -1,10 +1,10 @@
 import os
 from warnings import warn
 
-import firebase_admin
 from typing_extensions import deprecated
 
 try:
+    import firebase_admin
     from firebase_admin import credentials, firestore
 except Exception:
     warn(
