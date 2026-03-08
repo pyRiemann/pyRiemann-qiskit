@@ -113,7 +113,7 @@ def get_docplex_optimizer_from_params_bag(
                     optimizer=qaoa_optimizer,
                 )
             else:
-                if "luna" not in qaoacv_implementation:
+                if qaoacv_implementation and "luna" not in qaoacv_implementation:
                     logger._log("No valid QAOA-CV implementation found.")
                 logger._log("Using QAOACVOptimizer")
                 return QAOACVOptimizer(
