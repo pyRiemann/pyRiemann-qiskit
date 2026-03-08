@@ -1563,6 +1563,30 @@ class IGLTimeSeriesSklearnClassifier(BaseEstimator, ClassifierMixin):
             ).cpu().numpy()
         return proba
 
+    def effective_dimension(self, threshold: float = 0.1) -> int:
+        """Return the number of spatially active filters after fitting.
+
+        Since TimeIGLClassifier has no HardConcreteGates, spatial filter
+        activity is proxied by the combined contribution of each filter:
+
+            contribution_k = ||source_enc.weight[:, k]||_2
+                             * ||W_out[k, :]||_2
+
+        A filter is considered active if its contribution exceeds
+        ``threshold`` * max(contribution).
+
+        Args:
+            threshold: Fraction of the maximum contribution below which a
+                filter is considered inactive (default: 0.1).
+
+        Returns:
+            Number of active spatial filters.
+        """
+        filter_norms = self.model_.source_enc.weight.detach().norm(dim=0)
+        wout_norms = self.model_.W_out.detach().norm(dim=1)
+        contrib = filter_norms * wout_norms
+        return int((contrib > threshold * contrib.max()).sum().item())
+
 
 # ============================================================================
 # Section 10: Exports

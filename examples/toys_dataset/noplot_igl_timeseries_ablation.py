@@ -12,7 +12,7 @@ The ablation factors are:
 
 - **operator**: gaussian, cauchy, helmholtz, gabor, laplacian, mexican_hat
 - **source_l2**: 0.01, 0.1  (Tikhonov lambda for the exact W_out lstsq solve)
-- **n_components**: 8, 16   (spatial filter bank width, like CSP rank)
+- **n_components**: 2, 4, 16   (spatial filter bank width, like CSP rank)
 - **n_anchors**: 32, 64     (temporal basis expressivity)
 
 A **LinearHead** baseline is also evaluated: mean-pool over time then
@@ -55,15 +55,15 @@ seed = 42
 rng = np.random.RandomState(seed)
 
 n_trials_per_class = 30
-n_channels = 8
-n_times = 100
+n_channels = 16
+n_times = 512
 n_classes = 2
-n_splits = 5
+n_splits = 3
 
 # Ablation grid
 operators = ["gaussian", "cauchy", "helmholtz", "gabor", "laplacian", "mexican_hat"]
 lambdas = [0.01, 0.1]
-n_components_list = [8, 16]   # spatial filter rank (sparsity in channel space)
+n_components_list = [2, 4, 16]   # spatial filter rank (sparsity in channel space)
 n_anchors_list = [32, 64]     # temporal basis size (expressivity)
 
 # Fixed IGL hyper-params (not ablated)
@@ -194,7 +194,8 @@ for fold, (train_idx, test_idx) in enumerate(cv.split(X, y)):
     auc = roc_auc_score(y[test_idx], b.predict_proba(X[test_idx])[:, 1])
     fold_scores.append(auc)
     results.append({"model": "LinearHead", "operator": "—", "source_l2": None,
-                    "n_components": None, "n_anchors": None, "fold": fold, "auc": auc})
+                    "n_components": None, "n_anchors": None, "fold": fold,
+                    "auc": auc, "eff_dim": None})
 print(f"  mean_auc={np.mean(fold_scores):.3f}  folds={[f'{s:.3f}' for s in fold_scores]}")
 
 # --- IGL grid ---
@@ -226,10 +227,11 @@ for op, lam, n_comp, n_anch in igl_grid:
         clf_ = deepcopy(clf)
         clf_.fit(X[train_idx], y[train_idx])
         auc = roc_auc_score(y[test_idx], clf_.predict_proba(X[test_idx])[:, 1])
+        ed = clf_.effective_dimension()
         fold_scores.append(auc)
         results.append({"model": "IGL", "operator": op, "source_l2": lam,
                         "n_components": n_comp, "n_anchors": n_anch,
-                        "fold": fold, "auc": auc})
+                        "fold": fold, "auc": auc, "eff_dim": ed})
 
     print(f"op={op:12s}  λ={lam:.2f}  K={n_comp:2d}  R={n_anch:2d}  "
           f"mean={np.mean(fold_scores):.3f}  "
@@ -247,10 +249,11 @@ baseline_auc = results[results["model"] == "LinearHead"]["auc"].mean()
 print(f"\nLinearHead baseline mean AUC: {baseline_auc:.3f}")
 
 summary = (
-    igl_results.groupby(["operator", "source_l2", "n_components", "n_anchors"])["auc"]
-    .agg(["mean", "std"])
+    igl_results.groupby(["operator", "source_l2", "n_components", "n_anchors"])
+    .agg(auc_mean=("auc", "mean"), auc_std=("auc", "std"),
+         eff_dim_mean=("eff_dim", "mean"), eff_dim_std=("eff_dim", "std"))
     .reset_index()
-    .sort_values("mean", ascending=False)
+    .sort_values("auc_mean", ascending=False)
 )
 print("\n=== IGL Ablation Summary (top 10) ===")
 print(summary.head(10).to_string(index=False))
@@ -392,3 +395,69 @@ g.figure.suptitle(
 )
 plt.tight_layout()
 plt.show()
+
+##############################################################################
+# Plot 5 — Effective dimension
+# ----------------------------
+#
+# Left:  mean effective K per operator (averaged over λ, n_components, n_anchors).
+# Right: mean effective K vs mean AUC scatter — does using more active filters
+#        actually help?  Each point is one (operator, λ, K, R) configuration.
+
+fig, axes = plt.subplots(1, 2, figsize=(14, 5), facecolor="white")
+
+# --- Left: effective dim per operator ---
+ax = axes[0]
+ed_op = (
+    igl_results.groupby("operator")["eff_dim"]
+    .mean()
+    .reset_index()
+    .sort_values("eff_dim", ascending=False)
+)
+sns.barplot(data=igl_results, x="operator", y="eff_dim",
+            order=ed_op["operator"], palette="Set2", errorbar="sd",
+            capsize=0.1, ax=ax)
+ax.set_title("Mean effective K per operator\n(averaged over λ, K, R)")
+ax.set_ylabel("Effective spatial filters")
+ax.set_xlabel("Kernel operator")
+ax.tick_params(axis="x", rotation=30)
+
+# --- Right: eff_dim vs AUC scatter ---
+ax = axes[1]
+config_summary = (
+    igl_results.groupby(["operator", "source_l2", "n_components", "n_anchors"])
+    .agg(auc_mean=("auc", "mean"), eff_dim_mean=("eff_dim", "mean"))
+    .reset_index()
+)
+scatter = ax.scatter(
+    config_summary["eff_dim_mean"],
+    config_summary["auc_mean"],
+    c=pd.Categorical(config_summary["operator"]).codes,
+    cmap="tab10",
+    alpha=0.7,
+    s=60,
+)
+ax.axhline(baseline_auc, color="steelblue", linestyle=":", linewidth=1.2,
+           label=f"LinearHead ({baseline_auc:.3f})")
+ax.axhline(0.5, color="grey", linestyle="--", linewidth=0.8, label="chance")
+ax.set_xlabel("Mean effective spatial filters")
+ax.set_ylabel("Mean ROC AUC")
+ax.set_title("Effective K vs AUC\n(each point = one config)")
+# legend for operators
+for code, op in enumerate(config_summary["operator"].unique()):
+    ax.scatter([], [], c=[plt.cm.tab10(code / 10)], label=op, s=40)
+ax.legend(fontsize=7, ncol=2)
+
+plt.suptitle("IGLTimeSeriesSklearnClassifier — Effective spatial dimension",
+             fontsize=13)
+plt.tight_layout()
+plt.show()
+
+# Print per-config effective dimension alongside AUC
+print("\n=== Effective dimension summary (top 10 by AUC) ===")
+print(
+    summary[["operator", "source_l2", "n_components", "n_anchors",
+             "auc_mean", "auc_std", "eff_dim_mean", "eff_dim_std"]]
+    .head(10)
+    .to_string(index=False)
+)

@@ -1,18 +1,22 @@
 """
 ====================================================================
-Classification of resting-state datasets from MOABB using NCH, QIOCE
-and QuantumStateDiscriminator
+Classification of resting-state datasets from MOABB using NCH, QIOCE,
+QuantumStateDiscriminator and IGL
 ====================================================================
 
-Comparison of classical pipelines (MDM, TS+LDA) and quantum pipelines
-(NCH, QIOCE, QuantumStateDiscriminator) across three resting-state datasets: Hinss2021
-(CrossSubject & CrossSession), Rodrigues2017 (CrossSubject), and
+Comparison of classical pipelines (MDM, TS+LDA) and quantum/kernel pipelines
+(NCH, QIOCE, QuantumStateDiscriminator, IGL) across three resting-state
+datasets: Hinss2021 (CrossSubject), Rodrigues2017 (CrossSubject), and
 Cattan2019_PHMD (CrossSubject). Both plain and transfer-learning (TL)
 variants are benchmarked where applicable. Results are aggregated and
 analyzed with MOABB statistical tools.
 
-Note: QuantumStateDiscriminator operates directly on raw EEG epochs (no covariance
-estimation) and is therefore evaluated without a TL variant.
+Notes:
+- QuantumStateDiscriminator operates directly on raw EEG epochs (no
+  covariance estimation) and is evaluated without a TL variant.
+- IGL (IGLTimeSeriesSklearnClassifier) also operates on raw epochs.
+  Configuration selected from ablation study: mexican_hat kernel,
+  λ=0.1, K=8 spatial filters, R=64 temporal anchors, 1500 epochs VP.
 
 """
 # Author: Gregoire Cattan
@@ -48,6 +52,10 @@ from pyriemann_qiskit.classification import (
     ContinuousQIOCEClassifier,
     QuanticNCH,
     QuantumStateDiscriminator,
+)
+from pyriemann_qiskit.classification.igl_reference import (
+    IGLTimeSeriesSklearnClassifier,
+    VPConfig,
 )
 from pyriemann_qiskit.utils.hyper_params_factory import (
     create_mixer_with_circular_entanglement,
@@ -206,6 +214,26 @@ pipelines["NCH+MIN_HULL_NAIVEQAOA+TL"] = Adapter(
     ),
 )
 
+# Best config from ablation study (noplot_igl_timeseries_ablation.py):
+# mexican_hat, λ=0.1, K=8, R=64, epochs=1500
+pipelines["IGL"] = make_pipeline(
+    IGLTimeSeriesSklearnClassifier(
+        n_components=8,
+        n_anchors=64,
+        n_scales=3,
+        operator="mexican_hat",
+        training="vp",
+        vp_config=VPConfig(
+            epochs=1500,
+            warmup_epochs=300,
+            source_l2=0.1,
+            log_every=1500,
+            verbose=False,
+        ),
+        random_state=seed,
+    ),
+)
+
 pipelines["QIOCE+TL"] = Adapter(
     preprocessing=sf,
     estimator=make_pipeline(
@@ -302,6 +330,7 @@ preferred_order = [
     "MDM",
     "TS+LDA",
     "TS+LDA+TL",
+    "IGL",
 ]
 active_pipelines = results["pipeline"].unique()
 print(active_pipelines)
