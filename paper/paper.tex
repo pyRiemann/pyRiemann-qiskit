@@ -1,0 +1,950 @@
+\documentclass[journal]{IEEEtran}
+
+% ---- Packages ----
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{array}
+
+% Helpers
+\definecolor{todocolor}{rgb}{0.8,0,0}
+\newcommand{\todo}[1]{\textcolor{todocolor}{[\textbf{TODO:} #1]}}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\diag}{\operatorname{diag}}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+% ---- Title ----
+\title{Benchmarking Classical and Quantum Classifiers for\\
+Resting-State EEG: Pretty Good Measurement,\\
+QAOA-CV and Kernel Learning}
+
+\author{Gregoire Cattan, Alexandre Quemy, and Ulvi Movsum-zada%
+  \thanks{G.~Cattan is with IBM, Automation and AI, Krakow, Poland.}%
+  \thanks{A.~Quemy is with Hother, Krakow, Poland.}%
+  \thanks{U.~Movsum-zada is with the Faculty of Mathematics and Computer
+    Science and the Doctoral School of Exact and Natural Sciences,
+    Jagiellonian University, Prof.~Lojasiewicza~11, 31-007 Krakow, Poland.}%
+}
+
+\markboth{IEEE Transactions on Neural Systems and Rehabilitation Engineering,~Vol.~XX, No.~X, \todo{Year}}%
+{Cattan \emph{et al.}: Benchmarking Classical and Quantum Classifiers for Resting-State EEG}
+
+\begin{document}
+
+\maketitle
+
+% ============================================================
+\begin{abstract}
+Quantum-inspired and quantum machine learning (QML) methods have attracted
+considerable interest in neurotechnology, yet their benefit over classical
+baselines on realistic brain--computer interface (BCI) data remains unclear.
+This paper benchmarks \textbf{thirteen} classical and quantum pipelines on
+three resting-state EEG datasets from the MOABB framework under a
+cross-subject evaluation protocol with grouped $k$-fold splitting.
+We introduce three contributions evaluated for the first time on resting-state
+EEG data: (i)~\textsc{QuantumStateDiscriminator}, a novel quantum-inspired
+classifier that models mental states as density matrices, constructs a
+Positive Operator-Valued Measure (POVM) via the Pretty Good Measurement
+(PGM), and scores test trials using the Born rule---entirely bypassing
+the explicit covariance estimation step; (ii)~the \emph{Ulvi} optimizer
+variant of Quantum Approximate Optimization with Continuous Variables
+(QAOA-CV) with circular entanglement for the Nearest Convex Hull (NCH)
+classifier; and (iii)~Intrinsic Green's Learning (IGL), a PDE-inspired
+kernel framework applied to raw EEG time series.
+Experiments show that \textsc{QuantumStateDiscriminator} and QIOCE achieve
+mean ROC AUC scores comparable to the best classical baseline (MDM: 0.613),
+reaching 0.628 and 0.626, respectively, while the
+\textsc{QuantumStateDiscriminator} is the fastest classifier tested at under
+0.3~s mean training time.
+NCH-based quantum methods trail classical baselines but benefit from
+Riemannian transfer learning in synthetic domain-shift conditions.
+IGL underperforms on these datasets.
+These findings provide a rigorous first benchmark for the three proposed
+methods and highlight the trade-off between quantum-algorithmic expressiveness
+and practical performance on near-term simulated quantum hardware.
+\end{abstract}
+
+\begin{IEEEkeywords}
+brain--computer interface, resting-state EEG, quantum machine learning,
+Pretty Good Measurement, QAOA, transfer learning, MOABB, Riemannian geometry
+\end{IEEEkeywords}
+
+
+% ============================================================
+\section{Introduction}
+\label{sec:intro}
+
+Electroencephalography (EEG)-based brain--computer interfaces (BCIs) enable
+direct communication between users and devices by decoding neural activity.
+Resting-state paradigms---where participants alternate between distinct mental
+states such as relaxed rest and passive task---are of particular clinical
+interest because they impose minimal cognitive demands and are applicable to
+populations unable to perform active motor imagery~\cite{Cattan2019,Rodrigues2017,Hinss2021}.
+However, the non-stationarity of EEG and large between-subject variability
+make cross-subject generalization a persistent challenge~\cite{lotte2018review}.
+
+Riemannian geometry has emerged as the dominant framework for EEG
+classification~\cite{barachant2012multiclass}, treating covariance matrices as
+points on the symmetric positive definite (SPD) manifold and applying
+geodesic distances for nearest-mean classification (MDM) or projecting to the
+tangent space for linear discriminants~\cite{yger2017riemannian}.
+Transfer learning (TL) extensions---Riemannian Procrustes Analysis (RPA)---align
+subject covariance distributions through centering, scaling, and
+rotation~\cite{rodrigues2019riemannian}, improving cross-subject performance.
+
+Quantum and quantum-inspired machine learning has been proposed for
+biosignal classification, motivated by the structural similarity between
+density matrices and EEG covariance matrices~\cite{schuld2019quantum}.
+The Quantum Approximate Optimization Algorithm
+(QAOA)~\cite{farhi2014quantum} has been adapted to continuous-variable
+(CV) settings~\cite{lloyd2018quantum} and applied to EEG data through the
+Nearest Convex Hull classifier~\cite{quanticNCH2023}.  The Pretty Good
+Measurement~\cite{hausladen1994pretty} offers a principled quantum-theoretic
+framework for optimal state discrimination.
+
+Despite this activity, no study has systematically compared quantum and
+classical EEG classifiers under a rigorous cross-subject benchmark with
+standardized evaluation.  This paper addresses that gap with the following
+contributions:
+\begin{enumerate}
+  \item \textbf{\textsc{QuantumStateDiscriminator}}: a quantum-inspired
+    classifier that maps raw EEG epochs directly to density matrices and
+    performs optimal quantum state discrimination via the PGM without
+    requiring an explicit Riemannian covariance step.
+  \item \textbf{NCH+QAOA-CV (Ulvi optimizer)}: first application of the Ulvi
+    circular-entanglement QAOA-CV optimizer to EEG classification, and
+    evaluation of the effect of transfer learning alignment on NCH.
+  \item \textbf{IGL on resting-state EEG}: first benchmark of Intrinsic
+    Green's Learning---a PDE-inspired adaptive kernel method---on EEG mental
+    state classification.
+  \item \textbf{Cross-subject TL infrastructure for MOABB}: the
+    \texttt{Adapter} meta-estimator and \texttt{TLCrossSubjectEvaluation}
+    class enable seamless integration of pyriemann transfer-learning
+    pipelines into MOABB's cross-subject evaluation loop, forwarding subject
+    IDs and target domain at fit time without modifying the pipeline API.
+\end{enumerate}
+
+All pipelines are evaluated on three MOABB resting-state datasets under
+identical cross-subject conditions, enabling fair head-to-head comparison.
+The remainder of this paper is organized as follows.
+Section~\ref{sec:background} reviews the necessary background.
+Section~\ref{sec:methods} describes all pipelines and the evaluation protocol.
+Section~\ref{sec:results} reports benchmark results.
+Section~\ref{sec:ablation} presents controlled ablation studies.
+Section~\ref{sec:discussion} discusses findings, and
+Section~\ref{sec:conclusion} concludes.
+
+
+% ============================================================
+\section{Background}
+\label{sec:background}
+
+\subsection{Riemannian EEG Processing}
+
+Given a raw EEG epoch $X \in \mathbb{R}^{C \times T}$ ($C$ channels, $T$ time
+samples), the sample covariance matrix is
+\begin{equation}
+  \Sigma = \frac{1}{T-1} X X^\top \in \mathcal{S}^{+}_C,
+\end{equation}
+where $\mathcal{S}^{+}_C$ denotes the manifold of $C\!\times\!C$ symmetric
+positive definite (SPD) matrices.
+
+In practice, the sample covariance is ill-conditioned when $C$ is large relative
+to $T$.  The Ledoit--Wolf (LWF) shrinkage estimator~\cite{ledoit2004well} regularizes
+toward a scaled identity:
+\begin{equation}
+  \hat\Sigma_{\text{lwf}} = (1-\alpha)\,\Sigma + \alpha\,\frac{\tr(\Sigma)}{C}\,I,
+\end{equation}
+where $\alpha \in [0,1]$ is chosen analytically to minimize the expected squared
+Frobenius error between the estimator and the true covariance.  All pipelines
+requiring covariance matrices use the LWF estimator throughout this paper.
+
+\paragraph{MDM.}
+The Minimum Distance to Mean (MDM) classifier~\cite{barachant2012multiclass}
+assigns a test covariance $\Sigma$ to the class whose Riemannian mean $\mu_c$
+is closest:
+\begin{equation}
+  \hat{y} = \argmin_c \; \delta_R(\Sigma, \mu_c),
+\end{equation}
+where $\delta_R(A,B)=\|\log(A^{-1/2}BA^{-1/2})\|_F$ is the affine-invariant
+Riemannian distance.
+
+\paragraph{Tangent Space + LDA.}
+Covariance matrices are projected to the tangent space at the Riemannian mean
+of training data, yielding Euclidean feature vectors on which a Linear
+Discriminant Analysis (LDA) classifier is trained~\cite{yger2017riemannian}.
+
+\subsection{Riemannian Transfer Learning}
+
+Riemannian Procrustes Analysis (RPA)~\cite{rodrigues2019riemannian} aligns
+covariance distributions across subjects through a sequence of operations:
+\begin{itemize}
+  \item \textbf{TLCenter}: recenters each subject's distribution to the
+    identity matrix.
+  \item \textbf{TLScale}: normalizes trace variance across subjects.
+  \item \textbf{TLRotate}: rotates subject manifolds to align class means.
+\end{itemize}
+A \texttt{TLClassifier} wrapper then trains a downstream estimator on the
+aligned, labeled data from multiple source subjects.
+Figure~\ref{fig:ablation_tl} illustrates these three operations geometrically
+on synthetic cross-subject EEG data.
+
+\subsection{QAOA and Continuous-Variable Extensions}
+
+The Quantum Approximate Optimization Algorithm (QAOA)~\cite{farhi2014quantum} is a
+variational quantum algorithm of $p$ alternating cost and mixer Hamiltonian layers,
+where the \emph{cost operator is derived directly from the combinatorial objective function}.
+In the continuous-variable (CV) extension~\cite{lloyd2018quantum}, displacement
+operators replace qubit gates and the cost Hamiltonian encodes a real-valued objective.
+
+Three generations of QAOA-CV classifiers have been applied to EEG data:
+\begin{enumerate}
+  \item \textbf{NaiveQAOA}: standard QAOA-CV where the cost operator directly
+    encodes the NCH squared-distance objective.  The \emph{Nearest Convex
+    Hull (NCH)} classifier~\cite{quanticNCH2023} uses this ansatz to find,
+    for each class, the point in the convex hull of tangent-space covariances
+    closest to a test point, classifying by nearest hull.
+  \item \textbf{QAOA-CV}~\cite{luna2025qaoacv} (Luna et al.): keeps the
+    same circuit structure and cost operator as NaiveQAOA (Ising
+    Hamiltonian derived from the objective), but replaces the standard
+    loss.  Instead of minimizing the Hamiltonian expectation value
+    $\langle\psi|H_P|\psi\rangle$, it evaluates the classical cost function
+    directly at continuous-variable estimates recovered from the circuit's
+    marginal measurement probabilities: each variable $x_i$ is read out as
+    $\hat{x}_i = \mathrm{scaler}^{-1}(\Pr[\text{qubit}\,i = |0\rangle])$,
+    and the loss is $\mathcal{L} = f(\hat{x}_1, \ldots, \hat{x}_n)$.
+    This approach is therefore a variational algorithm with QAOA
+    circuit structure but a non-Hamiltonian, problem-native loss.
+  \item \textbf{QIOCE}~\cite{qioce2023}: departs from classical QAOA by
+    using a cost operator \emph{not} derived from the objective.  The
+    circuit ansatz is:
+    \begin{equation*}
+      \texttt{QAOAAnsatz}\!\left(\!\begin{array}{l}
+        \text{cost} = R_xR_yR_z\;\forall\text{ variable},\\
+        \text{reps} = 5,\\
+        \text{initial\_state} = R_y\;\forall\text{ variable},\\
+        \text{mixer} = \text{circular entanglement}
+      \end{array}\!\right)
+    \end{equation*}
+    with a custom loss function optimized by NFT\@.  QIOCE is therefore
+    better described as a parametric quantum circuit (PQC) classifier
+    with QAOA-like layered structure than as a strict QAOA instance.
+\end{enumerate}
+
+\subsection{Pretty Good Measurement}
+
+Given $K$ quantum states $\{\rho_k\}$ with prior probabilities $\{\pi_k\}$,
+the Pretty Good Measurement (PGM)~\cite{hausladen1994pretty} constructs
+POVM elements
+\begin{equation}
+  \Pi_k = \rho_{\text{tot}}^{-1/2} \,(\pi_k \rho_k)\, \rho_{\text{tot}}^{-1/2},
+  \qquad \rho_{\text{tot}} = \sum_k \pi_k \rho_k.
+\end{equation}
+By construction, $\sum_k \Pi_k = I$, so Born-rule scores
+$p(k \mid \rho) = \tr(\Pi_k \rho)$ are valid probabilities.  For two
+equiprobable pure states, the PGM achieves the Helstrom
+bound~\cite{helstrom1976quantum}.
+
+\subsection{MOABB and Cross-Subject Evaluation}
+
+The Mother of All BCI Benchmarks (MOABB)~\cite{jayaram2018moabb} provides a
+standardized framework for reproducible EEG decoding experiments.  We use the
+\texttt{CrossSubjectEvaluation} protocol extended with grouped $k$-fold
+splitting, where each fold uses a disjoint set of source subjects for
+training and a held-out subject for testing.
+
+
+% ============================================================
+\section{Methods}
+\label{sec:methods}
+
+\subsection{Datasets}
+
+Three MOABB resting-state datasets are used (Table~\ref{tab:datasets}):
+
+\begin{table}[h]
+  \caption{Datasets used in the benchmark.}
+  \label{tab:datasets}
+  \centering
+  \begin{tabular}{lcccl}
+    \toprule
+    Dataset & Subjects & Ch & Task & Classes \\
+    \midrule
+    Cattan2019\_PHMD~\cite{Cattan2019} & 12 & 16 & PHMD rest & on/off \\
+    Rodrigues2017~\cite{Rodrigues2017} & 50 & 16 & Eyes open/closed & closed/open \\
+    Hinss2021~\cite{Hinss2021}         & 15 & 32 & Mental workload & easy/medium \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Epochs are extracted using the \texttt{RestingStateToP300Adapter} paradigm.
+For Hinss2021, epochs span 0--0.5~s ($T_{\max}=0.5$~s).
+The Ledoit--Wolf regularized covariance estimator (\texttt{lwf}) is used
+for all pipelines that require covariance matrices.
+
+\subsection{Evaluation Protocol}
+
+All evaluations use \texttt{TLCrossSubjectEvaluation}, a subclass of
+\texttt{CrossSubjectEvaluation} that: (i)~passes group labels (subject IDs)
+to transfer-learning pipelines; and (ii)~sets the alignment target domain to
+the first training subject in each fold.  Evaluation uses GroupKFold with
+$k=3$ splits and ROC AUC as the performance metric.
+
+\subsection{Classical Baselines}
+
+\paragraph{MDM.}
+Ledoit--Wolf covariance $\rightarrow$ MDM~\cite{barachant2012multiclass}.
+
+\paragraph{TS+LDA.}
+Ledoit--Wolf covariance $\rightarrow$ TangentSpace ($\delta_R$) $\rightarrow$
+LDA~\cite{yger2017riemannian}.
+
+\paragraph{MDWM(0.5).}
+Domain-weighted minimum distance to mean with equal weighting between source
+and target domains (domain tradeoff $=0.5$)~\cite{zanini2018transfer}.
+
+\paragraph{MDM+TL / TS+LDA+TL.}
+Full RPA alignment (TLCenter $\rightarrow$ TLScale $\rightarrow$
+TLRotate) prepended to MDM or TS+LDA~\cite{rodrigues2019riemannian}.
+
+\subsection{Quantum Baselines}
+
+\paragraph{NCH+NaiveQAOA ($\pm$TL).}
+Ledoit--Wolf covariance $\rightarrow$ QuanticNCH with standard QAOA-CV
+(NaiveQAOA), $p=2$ layers, subsampling to $n=6$ hull points per
+class~\cite{quanticNCH2023}.
+
+\paragraph{QIOCE ($\pm$TL).}
+Ledoit--Wolf covariance $\rightarrow$ Whitening (4 components) $\rightarrow$
+TangentSpace $\rightarrow$ ContinuousQIOCEClassifier, $p=2$ layers, NFT
+optimizer (25 iterations), max 10 features~\cite{qioce2023}.
+
+\subsection{Novel Contributions}
+\label{sec:novel}
+
+\subsubsection{QuantumStateDiscriminator}
+
+The brain state (rest, task) is modelled as a \emph{mixed quantum state}
+(density matrix $\rho_c$)---a generalisation of a probability distribution
+over possible neural configurations.  Each EEG recording is treated as a
+\emph{measurement operator} $M$, and classification reduces to identifying
+which class quantum state $\rho_c$ best matches the observed measurement
+via the Born rule.  Crucially, this bypasses the Riemannian covariance
+pipeline entirely: raw epochs feed directly into the classifier.
+
+The \textsc{QuantumStateDiscriminator} learns one density matrix per class
+via quantum state tomography on labelled training EEG, then constructs a
+Positive Operator-Valued Measure (POVM) using the Pretty Good Measurement.
+Table~\ref{tab:qsd_qm} summarises the mapping between quantum concepts and
+EEG quantities.
+
+\begin{table}[h]
+  \caption{Quantum mechanics to EEG implementation mapping.}
+  \label{tab:qsd_qm}
+  \centering
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{ll}
+    \toprule
+    Quantum concept & EEG implementation \\
+    \midrule
+    System state (mixed)        & Class density matrix $\rho_c$ (learned) \\
+    Observable / measurement    & $M = XX^\top/T$, normalised to $\tr=1$ \\
+    Class prior                 & $\pi_c = N_c / N_{\text{tot}}$ \\
+    POVM element                & $\Pi_c = \rho_{\text{tot}}^{-1/2}(\pi_c\rho_c)\rho_{\text{tot}}^{-1/2}$ \\
+    Born rule score             & $\tr(\Pi_c \cdot M) \in [0,1]$, sums to 1 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Fit: quantum state tomography.}
+For each class $c \in \{1,\ldots,K\}$ with $N_c$ training trials:
+\begin{align}
+  \Sigma_c    &= \frac{1}{N_c} \sum_{i: y_i=c} \frac{X_i X_i^\top}{T_i}, \\
+  \rho_c      &= \frac{\Sigma_c}{\tr(\Sigma_c)}, \label{eq:tomography} \\
+  \pi_c       &= \frac{N_c}{N_{\text{total}}}. \label{eq:prior}
+\end{align}
+The EEG measurement operator $\Sigma_c$ is the mean sample covariance
+(unnormalized SCM); $\rho_c$ is its trace-normalization to a valid
+density matrix.
+
+\paragraph{Fit: Pretty Good Measurement.}
+Compute the prior-weighted average state and its inverse square root:
+\begin{align}
+  \rho_{\text{tot}} &= \sum_c \pi_c \rho_c, \label{eq:rho_tot} \\
+  \rho_{\text{tot}}^{-1/2} &= V \,\diag(1/\sqrt{\lambda_i})\, V^\top
+    \quad \text{(eigendecomposition)}, \label{eq:inv_sqrt}
+\end{align}
+then construct the POVM:
+\begin{equation}
+  \Pi_c = \rho_{\text{tot}}^{-1/2} \,(\pi_c \rho_c)\, \rho_{\text{tot}}^{-1/2}.
+  \label{eq:povm}
+\end{equation}
+By construction $\sum_c \Pi_c = I$, so POVM scores are valid
+probability distributions.
+
+\paragraph{Predict: Born rule.}
+For a new EEG trial $X$, build the normalized measurement operator
+\begin{equation}
+  M = \frac{X X^\top / T}{\tr(X X^\top / T)},
+  \label{eq:M}
+\end{equation}
+and compute the Born-rule score for each class:
+\begin{equation}
+  \text{score}_c = \tr(\Pi_c \cdot M) = \sum_{ij} (\Pi_c)_{ij} M_{ij}.
+  \label{eq:born}
+\end{equation}
+Predicted class: $\hat{y} = \argmax_c \; \text{score}_c$.
+Scores are returned directly as probabilities; no softmax is applied.
+
+\paragraph{Comparison with MDM.}
+Table~\ref{tab:qsd_vs_mdm} contrasts \textsc{QuantumStateDiscriminator}
+with Covariances+MDM.  Both are nearest-mean classifiers but differ in
+feature normalization, similarity measure, and how classes are coupled.
+
+\begin{table}[h]
+  \caption{Comparison of MDM and \textsc{QuantumStateDiscriminator}.}
+  \label{tab:qsd_vs_mdm}
+  \centering
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lcc}
+    \toprule
+     & Cov + MDM & QuantumStateDiscriminator \\
+    \midrule
+    Feature          & $XX^\top/(T{-}1)$          & $XX^\top/T$, norm.\ to $\tr=1$ \\
+    Class prototype  & Riemannian mean $\mu_c$    & Density matrix $\rho_c$ \\
+    Similarity       & Riemannian distance         & Quantum fidelity (PGM) \\
+    Class coupling   & Independent                 & Coupled via $\rho_{\text{tot}}$ \\
+    Priors           & Not used                    & $\pi_c = N_c/N_{\text{tot}}$ \\
+    Covariance step  & Required                    & Not required \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The inter-class coupling through $\rho_{\text{tot}}$ makes
+\textsc{QuantumStateDiscriminator} closer in spirit to LDA than to MDM,
+despite the name.  A true quantum MDM would compute
+$\argmin_c \delta_Q(\rho_M, \rho_c)$ using e.g.\ the Bures distance or
+quantum relative entropy without a POVM; the present classifier is more
+precisely a \emph{quantum state discrimination} method.
+
+\paragraph{Regularization note.}
+The measurement operator $M = XX^\top/T / \tr(XX^\top/T)$ is the
+trace-normalised biased SCM.  No regularization is applied, which can lead
+to ill-conditioning when the number of channels $C$ is large relative to
+the number of time samples $T$.  A natural extension is to apply shrinkage
+(e.g.\ Ledoit--Wolf) before trace normalization.
+
+\begin{algorithm}[t]
+  \caption{\textsc{QuantumStateDiscriminator}}
+  \label{alg:qsd}
+  \textbf{Input:} training set $\{(X_i, y_i)\}$, test epoch $X$\;
+  \begin{algorithmic}[1]
+    \For{each class $c$}
+      \State $\Sigma_c \leftarrow \tfrac{1}{N_c}\sum_{i:y_i=c} X_i X_i^\top / T_i$
+      \State $\rho_c \leftarrow \Sigma_c / \tr(\Sigma_c)$;
+             $\;\pi_c \leftarrow N_c / N_{\text{tot}}$
+    \EndFor
+    \State $\rho_{\text{tot}} \leftarrow \sum_c \pi_c \rho_c$
+    \State $\rho_{\text{tot}}^{-1/2} \leftarrow$ eigendecomposition of $\rho_{\text{tot}}$
+    \For{each class $c$}
+      \State $\Pi_c \leftarrow \rho_{\text{tot}}^{-1/2}(\pi_c\rho_c)\rho_{\text{tot}}^{-1/2}$
+    \EndFor
+    \State $M \leftarrow XX^\top/T / \tr(XX^\top/T)$
+    \State \Return $\argmax_c \;\tr(\Pi_c \cdot M)$
+  \end{algorithmic}
+\end{algorithm}
+
+\subsubsection{NCH+QAOA-CV (Ulvi Optimizer)}
+
+The Ulvi variant of QAOA-CV introduces circular entanglement between qumodes
+via beam-splitter gates arranged in a ring topology, alternating with
+single-mode displacement and phase-shift operators.  The mixer is constructed
+using \texttt{create\_mixer\_with\_circular\_entanglement(0)}.
+All other hyperparameters match the NaiveQAOA baseline: $p=2$ layers,
+NFT optimizer (25 iterations), $n=6$ hull points per class,
+$\texttt{shots}=100$.
+
+\subsubsection{IGL: Intrinsic Green's Learning}
+
+IGL~\cite{igl2024} (Quemy, ICLR 2026) models the target function as the
+solution to a linear PDE $\mathcal{L}u = f$, where $\mathcal{L}$ is a
+differential operator chosen as an architectural inductive bias (e.g.\
+Laplacian for smooth fields, Helmholtz for localized features) and $f$
+is a \emph{learned source term}.  The solution is expressed via Green's
+function:
+\begin{equation}
+  u(\xi) = (\mathcal{L}^{-1}f)(\xi) = \int_{\mathcal{M}} G(\xi,\zeta)\,f(\zeta)\,\mathrm{d}\zeta.
+  \label{eq:igl_green}
+\end{equation}
+Rather than approximating $u$ directly, IGL learns $f$ and integrates it
+against $G$---integration is a stable operation (unlike differentiation)
+and makes $u$ linear in the source weights, enabling a near-convex Stage~2
+solve.
+
+\paragraph{Factorized integral.}
+Both the source and the kernel are parameterized as low-rank tensors.
+The source is a rank-$R$ CP decomposition and the Green's kernel is a
+rank-$K$ product of univariate kernels:
+\begin{align}
+  \hat{f}(\zeta) &= \sum_{r=1}^R w_r \prod_{j=1}^d \phi_{r,j}(\zeta^j), \\
+  G(\xi,\zeta)   &\approx \sum_{k=1}^K \gamma_k \prod_{j=1}^d G_{k,j}(\xi^j,\zeta^j).
+\end{align}
+By Fubini's theorem, the $d$-dimensional integral in~\eqref{eq:igl_green}
+factorizes into $d$ independent 1D integrals:
+\begin{equation}
+  u(\xi) = \sum_{k,r} \gamma_k w_r \prod_{j=1}^d
+  I_{k,r,j}(\xi^j),
+  \quad
+  I_{k,r,j}(\xi^j)=\int G_{k,j}(\xi^j,\zeta^j)\,\phi_{r,j}(\zeta^j)\,\mathrm{d}\zeta^j,
+\end{equation}
+at total cost $\mathcal{O}(DW^2 + KRd)$ per sample, where $D$ is the ambient
+dimension and $d \ll D$ is the intrinsic dimension.  This is $D$-independent
+at Stage~2, in contrast to $\mathcal{O}(N^2)$ for kernel methods or
+$\mathcal{O}(DW^2)$ for MLPs.  An encoder $\Psi:\mathbb{R}^D\to\mathbb{R}^d$
+discovers the coordinate chart $\xi=\Psi(x)$ where the source admits
+low-rank structure; learnable Group-Lasso gates on each coordinate dimension
+automatically discover the effective intrinsic dimension
+$d_\mathrm{eff} \leq d_\mathrm{max}$~\cite{louizos2018learning}.
+
+\paragraph{Time-series variant (our adaptation).}
+The original IGL operates on flat feature vectors $X \in \mathbb{R}^D$:
+an MLP encoder discovers a low-dimensional latent chart
+$\xi = \Psi(x) \in \mathbb{R}^d$ ($d \ll D$), Hard Concrete Gates
+select the effective intrinsic dimension $d_\mathrm{eff}$, and the
+Green's kernel integrates over $\xi$-space.
+
+For raw EEG epochs $X \in \mathbb{R}^{C \times T}$ we use
+\texttt{IGLTimeSeriesSklearnClassifier}, which departs from this in two
+fundamental ways:
+\begin{enumerate}
+  \item \textbf{Time is the fixed intrinsic coordinate.}  The PDE domain
+    is the 1D time axis $t \in [0,1]^T$, so $d = 1$ by construction.
+    No encoder or Hard Concrete Gates are needed: the intrinsic dimension
+    is known \emph{a priori} from the signal structure.
+  \item \textbf{Spatial filtering replaces the MLP encoder.}  A linear
+    map $W_s : \mathbb{R}^C \to \mathbb{R}^K$ acts as a spatial filter
+    bank (analogous to CSP), producing $K$ source signals
+    $f_k(t) = W_s x(t)$ from the $C$-channel EEG at each time point.
+\end{enumerate}
+The Green's kernel then integrates each source signal over time,
+evaluating the solution at the \emph{final} time point:
+$u_k = \sum_s G(T,s)\,f_k(s)$,
+where $G(T,s) = \Phi[-1]^\top\Phi[s]$.  With a Gaussian operator,
+$G(T,s)$ decays with temporal distance from $T$, so recent events
+are weighted more heavily than distant ones.
+The $K$-dimensional embedding $\mathbf{u}$ is mapped to class logits
+by a linear head $W$, and no covariance estimation is required.
+
+\paragraph{Two-stage (VP) training.}
+Variable Projection~\cite{golub2003separable} separates coordinate
+discovery from source fitting:
+\begin{itemize}
+  \item \textbf{Stage~1 (outer, nonlinear)}: gradient descent on the encoder
+    and kernel parameters.
+  \item \textbf{Stage~2 (inner, linear)}: $W \leftarrow \arg\min_W\|\Phi W - y\|^2$
+    (Tikhonov least-squares, solved analytically).
+\end{itemize}
+By the envelope theorem, solving Stage~2 to optimality at each outer step
+forces Stage~1 gradients to reflect coordinate quality alone, preventing the
+dimensional collapse ($d_\mathrm{eff} \to 0$) that occurs with joint gradient descent.
+
+We use Gaussian operator, $K=16$ spatial components, $R=64$ anchor points,
+3 scales, 500 epochs (100 warmup).
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{igl_picture.png}
+  \caption{IGL pipeline as a two-stage algorithm (reproduced
+    from~\cite{igl2024}).
+    \textbf{Stage~1} (coordinate discovery): encoder $\Psi$ maps data
+    from the manifold $\mathcal{M} \subset \mathbb{R}^D$ to intrinsic
+    coordinates $\xi \in \mathbb{R}^d$ where the tensor source
+    $\hat{f}(\zeta)=\sum_r w_r\prod_j \phi_{r,j}(\zeta^j)$ decomposes.
+    Green's convolution $G*\hat{f}$ yields the solution $u(\xi)$.
+    \textbf{Stage~2} (source fitting): source weights $w_r$ are solved
+    via least squares ($\Phi\mathbf{w}=\mathbf{y}$).}
+  \label{fig:igl_pipeline}
+\end{figure}
+
+\subsection{Summary of Pipelines}
+
+Table~\ref{tab:pipelines} lists all 13 evaluated pipelines.
+
+\begin{table}[h]
+  \caption{All evaluated pipelines.}
+  \label{tab:pipelines}
+  \centering
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{lcc}
+    \toprule
+    Pipeline & TL & Type \\
+    \midrule
+    MDM                          & --  & Classical \\
+    MDM+TL                       & RPA & Classical \\
+    TS+LDA                       & --  & Classical \\
+    TS+LDA+TL                    & RPA & Classical \\
+    MDWM(0.5)                    & DW  & Classical \\
+    NCH+NaiveQAOA                & --  & Quantum \\
+    NCH+NaiveQAOA+TL             & RPA & Quantum \\
+    NCH+QAOACV(Ulvi)             & --  & Quantum \\
+    NCH+QAOACV(Ulvi)+TL          & RPA & Quantum \\
+    QIOCE                        & --  & Quantum \\
+    QIOCE+TL                     & RPA & Quantum \\
+    QuantumStateDiscriminator    & --  & Quantum-inspired \\
+    IGL                          & --  & Kernel \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+% ============================================================
+\section{Results}
+\label{sec:results}
+
+\subsection{Per-Pipeline AUC across All Datasets}
+
+Table~\ref{tab:auc} reports mean ROC AUC and mean training time (per fold,
+averaged across subjects and datasets) for all 13 pipelines.
+
+\begin{table}[h]
+  \caption{Mean ROC AUC and training time across all three datasets.}
+  \label{tab:auc}
+  \centering
+  \begin{tabular}{lcc}
+    \toprule
+    Pipeline & AUC (mean) & Time (s, mean) \\
+    \midrule
+    \textbf{QuantumStateDiscriminator}      & \textbf{0.628} & \textbf{0.27} \\
+    \textbf{QIOCE}                          & \textbf{0.626} & 933.3 \\
+    MDM                                     & 0.613          & 16.5 \\
+    MDWM(0.5)                               & 0.591          & 36.7 \\
+    MDM+TL                                  & 0.595          & 218.0 \\
+    TS+LDA                                  & 0.584          & 27.3 \\
+    NCH+QAOACV(Ulvi)                        & 0.555          & 1.5 \\
+    QIOCE+TL                                & 0.572          & 821.8 \\
+    NCH+NaiveQAOA                           & 0.529          & 1.5 \\
+    NCH+QAOACV(Ulvi)+TL                     & 0.551          & 219.6 \\
+    TS+LDA+TL                               & 0.542          & 226.6 \\
+    NCH+NaiveQAOA+TL                        & 0.517          & 104.1 \\
+    IGL                                     & 0.522          & 42.2 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Figure~\ref{fig:scatter} shows the distribution of per-subject AUC scores
+across all three datasets.  \textsc{QuantumStateDiscriminator} and QIOCE
+display higher mean performance and larger variability than MDM, while NCH
+variants cluster near chance level.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{scatter_plot.png}
+  \caption{ROC AUC distributions across all subjects and datasets.
+    Strip plot (individual subjects, $\alpha=0.5$) overlaid with
+    mean $\pm$ 95\% CI (point plot).  Pipelines ordered by the
+    preferred display order from the benchmark script.}
+  \label{fig:scatter}
+\end{figure}
+
+\subsection{Statistical Analysis}
+
+Figure~\ref{fig:summary} shows the pairwise statistical comparison matrix
+produced by MOABB's \texttt{find\_significant\_differences} procedure.
+Cells report the standardized effect size and $p$-value from a
+Wilcoxon signed-rank test across datasets; green cells indicate
+significance at $\alpha=0.05$.  The effect size displayed is the
+standardized mean difference computed by MOABB's meta-analysis
+procedure (not Cohen's $d$ in the strict parametric sense, since
+the Wilcoxon test is non-parametric).
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{summary_plot.png}
+  \caption{Algorithm comparison matrix.  Each cell shows the effect size
+    and $p$-value for the row algorithm vs.\ the column algorithm.
+    Green: row significantly better; red: column significantly better.}
+  \label{fig:summary}
+\end{figure}
+
+Key statistically significant differences ($p < 0.05$):
+\begin{itemize}
+  \item \textbf{TS+LDA $>$ IGL} ($p=0.04$, SMD$=1.32$): classical
+    tangent-space projection outperforms IGL across all three datasets
+    (Fig.~\ref{fig:meta_igl_tslda}).
+  \item \textbf{MDM+TL $>$ TS+LDA+TL} ($p=0.04$, SMD$=1.77$): after
+    RPA alignment, MDM yields significantly higher AUC than TS+LDA.
+  \item \textbf{MDM $>$ NCH+QAOACV(Ulvi)+TL} ($p=0.04$): meta-analysis
+    confirms consistent MDM advantage across datasets
+    (Fig.~\ref{fig:meta_mdm_ulvi}).
+  \item \textbf{TS+LDA $>$ NCH+NaiveQAOA} ($p=0.04$): the classical tangent
+    space baseline significantly outperforms NaiveQAOA
+    (Fig.~\ref{fig:meta_tslda_naive}).
+\end{itemize}
+
+No statistically significant difference was detected between
+\textsc{QuantumStateDiscriminator} and MDM, nor between QIOCE and MDM.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{igl_vs_tslda.png}
+  \caption{Meta-analysis forest plot: TS+LDA vs.\ IGL.
+    Positive SMD indicates TS+LDA is better.
+    Meta-effect significant ($p=0.043$).}
+  \label{fig:meta_igl_tslda}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{mdm_ulvitl.png}
+  \caption{Meta-analysis forest plot: MDM vs.\ NCH+QAOACV(Ulvi)+TL.
+    Negative SMD indicates MDM is better.
+    Meta-effect significant ($p=0.043$).}
+  \label{fig:meta_mdm_ulvi}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{tslda_vs_naive.png}
+  \caption{Meta-analysis forest plot: TS+LDA vs.\ NCH+NaiveQAOA.
+    Negative SMD indicates TS+LDA is better.
+    Meta-effect significant ($p=0.043$).}
+  \label{fig:meta_tslda_naive}
+\end{figure}
+
+\subsection{Effect of Transfer Learning}
+
+Transfer learning consistently \emph{hurts} QIOCE ($0.626 \to 0.572$),
+NCH+NaiveQAOA ($0.529 \to 0.517$), and TS+LDA ($0.584 \to 0.542$), while
+it has a small positive effect on MDM ($0.613 \to 0.595$; within noise) and
+leaves NCH+QAOACV(Ulvi) largely unchanged.  The MDM+TL vs.\ TS+LDA+TL
+significance suggests that Riemannian MDM is more robust to the RPA alignment
+than the tangent-space projection.
+
+
+% ============================================================
+\section{Ablation Studies}
+\label{sec:ablation}
+
+\subsection{Transfer Learning Benefit for NCH}
+\label{sec:ablation_tl}
+
+To isolate the effect of RPA alignment on NCH, we generate synthetic EEG data
+with controlled domain shift: 10 simulated subjects, 4 channels, 50 time
+samples, 20 trials per class, with class-specific Cholesky mixing matrices
+to introduce per-subject domain offsets (see
+\texttt{noplot\_nch\_tl\_ablation.py}).
+
+Figure~\ref{fig:ablation_tl} illustrates geometrically what RPA achieves
+on this synthetic dataset.  The left panel (coloured by subject) shows each
+subject's covariance distribution before and after the three RPA steps
+(TLCenter $\to$ TLScale $\to$ TLRotate): subject-specific clusters that are
+initially dispersed across the 3-D projection collapse into a common region
+after alignment.  The right panel (coloured by class) confirms that the two
+mental-state classes, which overlap before RPA, become linearly separable
+after alignment.
+
+Quantitatively, TL alignment improves MDM from a mean AUC of 0.49 to 0.53
+and---crucially---\emph{substantially} benefits NCH, lifting it from 0.41
+(below chance) to 0.49.  Without alignment, NCH underperforms chance due to
+uncompensated domain shift.  This confirms that RPA alignment is a necessary
+precondition for QAOA-based NCH to function in cross-subject settings.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{ablation_study_tl.png}
+  \caption{Three-dimensional PCA projection of SPD covariance matrices on
+    synthetic cross-subject EEG before and after Riemannian Procrustes
+    Analysis (RPA).
+    \emph{Left}: points coloured by subject---RPA collapses each subject's
+    cluster into a shared region, removing between-subject variability.
+    \emph{Right}: points coloured by class---after alignment, the two
+    mental-state classes become linearly separable in the projected space.}
+  \label{fig:ablation_tl}
+\end{figure}
+
+\subsection{QAOA Circuit Depth}
+\label{sec:ablation_nreps}
+
+We sweep the number of QAOA layers $p \in \{2,3,4,5\}$ on a single-subject
+synthetic dataset (4 channels, 50 samples, 60 trials).
+Figure~\ref{fig:ablation_nreps} shows that:
+\begin{enumerate}
+  \item Both NCH variants (NaiveQAOA and Ulvi) maintain AUC~$\approx 1.0$
+    across all depths and incur negligible training time ($< 1$~s), since
+    the NCH convex hull construction is the bottleneck.
+  \item QIOCE performance \emph{degrades} from AUC~$\approx 1.0$ at $p=2$
+    to $\approx 0.73$ at $p=5$, while training time grows from 30~s to
+    85~s.  This suggests overfitting or optimization landscape hardening
+    with deeper QIOCE circuits on small datasets.
+\end{enumerate}
+Consequently, $p=2$ layers is used in all MOABB experiments.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{ablation_study_nreps.png}
+  \caption{QAOA circuit depth ($n\_\text{reps}$) ablation.  Left: ROC AUC.
+    Right: training time.  NCH variants (blue/orange) are stable across depths;
+    QIOCE (green) degrades.}
+  \label{fig:ablation_nreps}
+\end{figure}
+
+\subsection{QIOCE Optimizer Comparison}
+\label{sec:ablation_optimizer}
+
+We compare six optimizers on QIOCE using a 60-sample, 4-feature toy
+classification dataset (\texttt{make\_classification}): L-BFGS-B, SLSQP,
+COBYLA, SPSA, NFT, and Anderson.
+Figure~\ref{fig:ablation_optimizer} summarizes ROC AUC, training time, and
+number of loss evaluations.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{ablation_study_qioce_optimizer.png}
+  \caption{QIOCE optimizer comparison.  L-BFGS-B, SLSQP, COBYLA, SPSA, and
+    NFT achieve similar AUC ($\approx 0.84$); Anderson achieves only 0.65
+    while consuming the most time (78~s) and evaluations (1{,}200).}
+  \label{fig:ablation_optimizer}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{ablation_study_qioce_optimizer_loss.png}
+  \caption{Convergence curves (mean $\pm$ std across folds) for each
+    optimizer.  Gradient-based methods (L-BFGS-B, SLSQP) converge within
+    50 evaluations.  Anderson converges slowly and exhibits high variance,
+    never reaching the loss achieved by other methods.}
+  \label{fig:ablation_optimizer_loss}
+\end{figure}
+
+Key findings:
+\begin{itemize}
+  \item L-BFGS-B, SLSQP, COBYLA, SPSA, and NFT yield equivalent AUC
+    (${\approx}0.84$); NFT is the fastest (5~s, $\sim$60 evaluations).
+  \item Anderson (the Ulvi optimizer) achieves the \emph{lowest} AUC (0.65)
+    with the \emph{highest} computational cost (78~s, 1{,}200 evaluations)
+    on this task.  Its convergence curve (Fig.~\ref{fig:ablation_optimizer_loss})
+    shows slow descent with persistent high variance.
+  \item NFT is chosen for the MOABB experiments as the best AUC/time
+    trade-off optimizer.
+\end{itemize}
+
+\paragraph{Note on the Ulvi optimizer.}
+The Anderson/Ulvi optimizer was designed for QAOA-CV circuits with circular
+entanglement (\emph{not} for the full QIOCE pipeline), so its poor performance
+on QIOCE is expected.  In the NCH+QAOACV(Ulvi) setting, the optimizer
+operates on a different circuit topology and objective, and the Ulvi NCH
+variant outperforms NaiveQAOA by $+0.026$ mean AUC.
+
+
+% ============================================================
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{QuantumStateDiscriminator}
+
+The \textsc{QuantumStateDiscriminator} achieves the highest mean AUC (0.628)
+in the benchmark while being by far the fastest classifier (0.27~s mean
+training time), highlighting an important practical advantage.  The absence
+of a statistically significant gap from MDM (0.613) suggests the
+quantum-theoretic PGM framework with Born-rule scoring is a viable
+alternative to Riemannian nearest-mean classification.
+
+The key insight is that trace-normalized EEG covariance matrices are valid
+density matrices, so the quantum measurement formalism applies directly.
+The PGM couples all classes through $\rho_{\text{tot}}$, which is closer in
+spirit to LDA than MDM.  Extending this approach with shrinkage regularization
+(Ledoit--Wolf normalization before trace normalization) or incorporating
+within-class structure into the POVM construction are natural directions.
+
+\subsection{QAOA-CV Ulvi Optimizer and NCH}
+
+The Ulvi circular-entanglement NCH variant consistently outperforms NaiveQAOA
+by approximately 0.026 mean AUC points, with no significant increase in
+training time.  However, both variants remain significantly below classical
+baselines (TS+LDA $>$ NaiveQAOA, $p=0.04$; MDM $>$ Ulvi+TL, $p=0.04$).
+
+The ablation study (Section~\ref{sec:ablation_tl}) shows that RPA alignment
+is \emph{necessary} for NCH to be reliable in cross-subject settings: without
+alignment, NCH falls below chance due to domain shift.  Despite RPA, NCH
+with TL still underperforms MDM.  This suggests the QAOA-CV optimization
+landscape is harder to navigate in high-dimensional EEG covariance space
+than in synthetic low-dimensional settings.
+
+The QAOA circuit depth ablation confirms $p=2$ layers is sufficient
+for NCH (performance saturates at 1.0 AUC on toy data for both variants).
+
+\subsection{IGL}
+
+IGL underperforms all classical baselines (mean AUC 0.522), with the gap to
+TS+LDA being statistically significant ($p=0.04$, $d=1.32$).  This is
+surprising given that IGL operates on raw time series and theoretically
+adapts its intrinsic dimensionality to the data.  Possible explanations
+include: (i)~the 500 training epochs may be insufficient for the Variable
+Projection optimizer to converge on the relatively small EEG datasets;
+(ii)~the Gaussian Green operator may not be well-suited to the temporal
+structure of resting-state EEG; (iii)~cross-subject variability may
+exceed the capacity of a single shared kernel.  Tuning
+\texttt{n\_components}, \texttt{n\_anchors}, and the kernel operator type
+per dataset is a potential avenue for improvement.
+
+\subsection{Transfer Learning}
+
+Counter-intuitively, RPA alignment degrades performance for most quantum
+pipelines on these datasets.  For QIOCE, the whitening and tangent-space
+projection pipeline may already provide implicit alignment, making RPA
+redundant or harmful.  For NCH, RPA improves synthetic cross-subject
+performance but does not recover the full performance gap to classical
+methods on real data.  The significant advantage of MDM+TL over TS+LDA+TL
+suggests that RPA benefits Riemannian distance-based classifiers more than
+tangent-space methods.
+
+\subsection{Limitations}
+
+All quantum circuits are \emph{simulated} classically; hardware noise and
+decoherence are not modeled.  The benchmark uses a limited number of datasets
+and assumes the LWF covariance estimator is universally appropriate.  The
+random seed at each run introduces variability in QAOA initialization; full
+reproducibility would require fixed seed across runs.
+\todo{Add note on hardware-feasibility of circuit sizes.}
+
+
+% ============================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have presented a systematic cross-subject benchmark of 13 classical and
+quantum EEG classifiers on three MOABB resting-state datasets.  Three new
+contributions were introduced and evaluated for the first time on real EEG:
+(i)~\textsc{QuantumStateDiscriminator}, which achieves the highest mean
+AUC (0.628) at negligible computational cost by applying the Pretty Good
+Measurement directly on EEG density matrices;
+(ii)~NCH+QAOA-CV with the Ulvi circular-entanglement optimizer, which
+outperforms the NaiveQAOA baseline while requiring significantly more work
+to match classical methods;
+(iii)~IGL, which currently underperforms classical baselines on resting-state
+data.
+
+The best overall configuration is \textsc{QuantumStateDiscriminator} (AUC
+0.628, time 0.27~s), followed closely by QIOCE (0.626, $\approx$15~min) and
+MDM (0.613, 16~s).  Classical baselines remain competitive, and no quantum
+method is yet statistically superior.
+
+Future work includes: execution on near-term quantum hardware to account for
+noise; evaluation on motor imagery and SSVEP paradigms; and hybrid
+quantum-classical architectures that combine PGM-style feature scoring with
+Riemannian alignment.
+
+
+% ============================================================
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+\end{document}

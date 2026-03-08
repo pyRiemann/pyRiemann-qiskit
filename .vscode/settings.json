@@ -1,0 +1,17 @@
+{
+    "python.defaultInterpreterPath": "${env:USERPROFILE}\\miniforge3\\envs\\data-bob\\python.exe",
+    "terminal.integrated.defaultProfile.windows": "Miniforge (quantum-layout)",
+    "terminal.integrated.profiles.windows": {
+        "Miniforge (data-bob)": {
+            "path": [
+                "${env:windir}\\System32\\cmd.exe"
+            ],
+            "args": [
+                "/K",
+                "${env:USERPROFILE}\\miniforge3\\Scripts\\activate.bat",
+                "quantum-layout"
+            ],
+            "icon": "terminal-cmd"
+        }
+    }
+}
