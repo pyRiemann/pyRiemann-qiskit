@@ -15,8 +15,8 @@ Notes:
 - QuantumStateDiscriminator operates directly on raw EEG epochs (no
   covariance estimation) and is evaluated without a TL variant.
 - IGL (IGLTimeSeriesSklearnClassifier) also operates on raw epochs.
-  Configuration selected from ablation study: mexican_hat kernel,
-  λ=0.1, K=8 spatial filters, R=64 temporal anchors, 1500 epochs VP.
+  Configuration selected from ablation study: laplacian kernel,
+  λ=0.01, K=4 spatial filters, R=32 temporal anchors, 1500 epochs VP.
 
 """
 # Author: Gregoire Cattan
@@ -215,18 +215,18 @@ pipelines["NCH+MIN_HULL_NAIVEQAOA+TL"] = Adapter(
 )
 
 # Best config from ablation study (noplot_igl_timeseries_ablation.py):
-# mexican_hat, λ=0.1, K=8, R=64, epochs=1500
+# laplacian, λ=0.01, K=4, R=32, epochs=1500
 pipelines["IGL"] = make_pipeline(
     IGLTimeSeriesSklearnClassifier(
-        n_components=8,
-        n_anchors=64,
+        n_components=4,
+        n_anchors=32,
         n_scales=3,
-        operator="mexican_hat",
+        operator="laplacian",
         training="vp",
         vp_config=VPConfig(
             epochs=1500,
             warmup_epochs=300,
-            source_l2=0.1,
+            source_l2=0.01,
             log_every=1500,
             verbose=False,
         ),

@@ -1582,7 +1582,7 @@ class IGLTimeSeriesSklearnClassifier(BaseEstimator, ClassifierMixin):
         Returns:
             Number of active spatial filters.
         """
-        filter_norms = self.model_.source_enc.weight.detach().norm(dim=0)
+        filter_norms = self.model_.source_enc.weight.detach().norm(dim=1)
         wout_norms = self.model_.W_out.detach().norm(dim=1)
         contrib = filter_norms * wout_norms
         return int((contrib > threshold * contrib.max()).sum().item())

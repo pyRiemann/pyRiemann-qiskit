@@ -1,69 +1,131 @@
-Dataset: X=(60, 8, 100), y=(60,), classes=[0 1]
+====================================================================
+IGL Time-Series ablation study on toy EEG data
+====================================================================
+
+Grid-search over kernel operators, Tikhonov regularization
+(``source_l2``), spatial filter rank (``n_components``), and temporal
+basis size (``n_anchors``) for ``IGLTimeSeriesSklearnClassifier`` on
+synthetically generated EEG epochs.
+
+The ablation factors are:
+
+- **operator**: gaussian, cauchy, helmholtz, gabor, laplacian, mexican_hat
+- **source_l2**: 0.01, 0.1  (Tikhonov lambda for the exact W_out lstsq solve)
+- **n_components**: 2, 4, 16   (spatial filter bank width, like CSP rank)
+- **n_anchors**: 32, 64     (temporal basis expressivity)
+
+A **LinearHead** baseline is also evaluated: mean-pool over time then
+logistic regression — no kernel, no VP, pure Wx+b.  This lets us
+measure how much the Green kernel temporal integration actually helps.
+
+EEG is modelled as a mixture of sinusoids (delta, theta, alpha, beta,
+gamma) with a spatial mixing matrix.  Class discrimination is encoded
+in band amplitude: class 0 has boosted alpha power, class 1 has
+boosted beta power.
+
+Dataset: X=(60, 16, 512), y=(60,), classes=[0 1]
 === LinearHead baseline ===
-  mean_auc=0.617  folds=['0.417', '0.583', '0.889', '0.750', '0.444']
+  mean_auc=0.567  folds=['0.410', '0.600', '0.690']
 
-=== IGL grid: 48 configs × 5 folds = 240 fits ===
+=== IGL grid: 72 configs × 3 folds = 216 fits ===
 
-op=gaussian      λ=0.01  K= 8  R=32  mean=0.639  folds=['0.694', '0.750', '0.667', '0.750', '0.333']
-op=gaussian      λ=0.01  K= 8  R=64  mean=0.506  folds=['0.778', '0.222', '0.694', '0.583', '0.250']
-op=gaussian      λ=0.01  K=16  R=32  mean=0.697  folds=['0.694', '0.778', '0.694', '0.569', '0.750']
-op=gaussian      λ=0.01  K=16  R=64  mean=0.683  folds=['0.306', '0.750', '0.750', '0.833', '0.778']
-op=gaussian      λ=0.10  K= 8  R=32  mean=0.506  folds=['0.278', '0.583', '0.722', '0.611', '0.333']
-op=gaussian      λ=0.10  K= 8  R=64  mean=0.667  folds=['0.306', '0.806', '0.778', '0.722', '0.722']
-op=gaussian      λ=0.10  K=16  R=32  mean=0.667  folds=['0.389', '0.750', '0.694', '0.722', '0.778']
-op=gaussian      λ=0.10  K=16  R=64  mean=0.622  folds=['0.278', '0.778', '0.667', '0.667', '0.722']
-op=cauchy        λ=0.01  K= 8  R=32  mean=0.533  folds=['0.222', '0.750', '0.639', '0.583', '0.472']
-op=cauchy        λ=0.01  K= 8  R=64  mean=0.456  folds=['0.333', '0.472', '0.639', '0.611', '0.222']
-op=cauchy        λ=0.01  K=16  R=32  mean=0.622  folds=['0.306', '0.750', '0.639', '0.639', '0.778']
-op=cauchy        λ=0.01  K=16  R=64  mean=0.633  folds=['0.278', '0.667', '0.722', '0.722', '0.778']
-op=cauchy        λ=0.10  K= 8  R=32  mean=0.572  folds=['0.333', '0.750', '0.806', '0.583', '0.389']
-op=cauchy        λ=0.10  K= 8  R=64  mean=0.711  folds=['0.778', '0.667', '0.778', '0.556', '0.778']
-op=cauchy        λ=0.10  K=16  R=32  mean=0.650  folds=['0.444', '0.778', '0.583', '0.667', '0.778']
-op=cauchy        λ=0.10  K=16  R=64  mean=0.611  folds=['0.333', '0.750', '0.750', '0.750', '0.472']
-op=helmholtz     λ=0.01  K= 8  R=32  mean=0.661  folds=['0.472', '0.722', '0.667', '0.667', '0.778']
-op=helmholtz     λ=0.01  K= 8  R=64  mean=0.467  folds=['0.472', '0.694', '0.556', '0.444', '0.167']
-op=helmholtz     λ=0.01  K=16  R=32  mean=0.667  folds=['0.472', '0.694', '0.667', '0.722', '0.778']
-op=helmholtz     λ=0.01  K=16  R=64  mean=0.622  folds=['0.472', '0.639', '0.556', '0.694', '0.750']
-op=helmholtz     λ=0.10  K= 8  R=32  mean=0.583  folds=['0.444', '0.611', '0.528', '0.694', '0.639']
-op=helmholtz     λ=0.10  K= 8  R=64  mean=0.561  folds=['0.611', '0.556', '0.528', '0.722', '0.389']
-op=helmholtz     λ=0.10  K=16  R=32  mean=0.644  folds=['0.444', '0.611', '0.611', '0.778', '0.778']
-op=helmholtz     λ=0.10  K=16  R=64  mean=0.606  folds=['0.361', '0.639', '0.583', '0.694', '0.750']
-op=gabor         λ=0.01  K= 8  R=32  mean=0.572  folds=['0.444', '0.583', '0.667', '0.556', '0.611']
-op=gabor         λ=0.01  K= 8  R=64  mean=0.608  folds=['0.750', '0.375', '0.583', '0.583', '0.750']
-op=gabor         λ=0.01  K=16  R=32  mean=0.622  folds=['0.472', '0.639', '0.583', '0.694', '0.722']
-op=gabor         λ=0.01  K=16  R=64  mean=0.589  folds=['0.278', '0.639', '0.556', '0.750', '0.722']
-op=gabor         λ=0.10  K= 8  R=32  mean=0.544  folds=['0.417', '0.583', '0.639', '0.444', '0.639']
-op=gabor         λ=0.10  K= 8  R=64  mean=0.522  folds=['0.306', '0.611', '0.444', '0.528', '0.722']
-op=gabor         λ=0.10  K=16  R=32  mean=0.650  folds=['0.306', '0.639', '0.833', '0.750', '0.722']
-op=gabor         λ=0.10  K=16  R=64  mean=0.578  folds=['0.361', '0.694', '0.583', '0.694', '0.556']
-op=laplacian     λ=0.01  K= 8  R=32  mean=0.506  folds=['0.250', '0.611', '0.417', '0.556', '0.694']
-op=laplacian     λ=0.01  K= 8  R=64  mean=0.644  folds=['0.306', '0.750', '0.806', '0.583', '0.778']
-op=laplacian     λ=0.01  K=16  R=32  mean=0.678  folds=['0.417', '0.778', '0.806', '0.611', '0.778']
-op=laplacian     λ=0.01  K=16  R=64  mean=0.567  folds=['0.333', '0.750', '0.583', '0.722', '0.444']
-op=laplacian     λ=0.10  K= 8  R=32  mean=0.483  folds=['0.306', '0.361', '0.722', '0.611', '0.417']
-op=laplacian     λ=0.10  K= 8  R=64  mean=0.544  folds=['0.306', '0.750', '0.722', '0.611', '0.333']
-op=laplacian     λ=0.10  K=16  R=32  mean=0.617  folds=['0.278', '0.722', '0.694', '0.611', '0.778']
-op=laplacian     λ=0.10  K=16  R=64  mean=0.633  folds=['0.278', '0.750', '0.778', '0.611', '0.750']
-op=mexican_hat   λ=0.01  K= 8  R=32  mean=0.611  folds=['0.306', '0.806', '0.556', '0.722', '0.667']
-op=mexican_hat   λ=0.01  K= 8  R=64  mean=0.467  folds=['0.306', '0.167', '0.611', '0.639', '0.611']
-op=mexican_hat   λ=0.01  K=16  R=32  mean=0.639  folds=['0.278', '0.889', '0.639', '0.611', '0.778']
-op=mexican_hat   λ=0.01  K=16  R=64  mean=0.644  folds=['0.306', '0.778', '0.694', '0.694', '0.750']
-op=mexican_hat   λ=0.10  K= 8  R=32  mean=0.578  folds=['0.278', '0.639', '0.583', '0.722', '0.667']
-op=mexican_hat   λ=0.10  K= 8  R=64  mean=0.756  folds=['0.722', '0.833', '0.694', '0.722', '0.806']
-op=mexican_hat   λ=0.10  K=16  R=32  mean=0.711  folds=['0.306', '0.889', '0.639', '0.889', '0.833']
-op=mexican_hat   λ=0.10  K=16  R=64  mean=0.639  folds=['0.306', '0.806', '0.639', '0.667', '0.778']
+op=gaussian      λ=0.01  K= 2  R=32  mean=0.637  folds=['0.550', '0.580', '0.780']
+op=gaussian      λ=0.01  K= 2  R=64  mean=0.643  folds=['0.560', '0.590', '0.780']
+op=gaussian      λ=0.01  K= 4  R=32  mean=0.643  folds=['0.580', '0.570', '0.780']
+op=gaussian      λ=0.01  K= 4  R=64  mean=0.650  folds=['0.580', '0.590', '0.780']
+op=gaussian      λ=0.01  K=16  R=32  mean=0.653  folds=['0.680', '0.570', '0.710']
+op=gaussian      λ=0.01  K=16  R=64  mean=0.560  folds=['0.250', '0.620', '0.810']
+op=gaussian      λ=0.10  K= 2  R=32  mean=0.637  folds=['0.550', '0.580', '0.780']
+op=gaussian      λ=0.10  K= 2  R=64  mean=0.643  folds=['0.560', '0.590', '0.780']
+op=gaussian      λ=0.10  K= 4  R=32  mean=0.643  folds=['0.580', '0.570', '0.780']
+op=gaussian      λ=0.10  K= 4  R=64  mean=0.650  folds=['0.580', '0.590', '0.780']
+op=gaussian      λ=0.10  K=16  R=32  mean=0.573  folds=['0.390', '0.580', '0.750']
+op=gaussian      λ=0.10  K=16  R=64  mean=0.517  folds=['0.140', '0.610', '0.800']
+op=cauchy        λ=0.01  K= 2  R=32  mean=0.640  folds=['0.580', '0.570', '0.770']
+op=cauchy        λ=0.01  K= 2  R=64  mean=0.650  folds=['0.620', '0.560', '0.770']
+op=cauchy        λ=0.01  K= 4  R=32  mean=0.660  folds=['0.580', '0.620', '0.780']
+op=cauchy        λ=0.01  K= 4  R=64  mean=0.647  folds=['0.580', '0.590', '0.770']
+op=cauchy        λ=0.01  K=16  R=32  mean=0.650  folds=['0.580', '0.580', '0.790']
+op=cauchy        λ=0.01  K=16  R=64  mean=0.660  folds=['0.650', '0.570', '0.760']
+op=cauchy        λ=0.10  K= 2  R=32  mean=0.640  folds=['0.580', '0.570', '0.770']
+op=cauchy        λ=0.10  K= 2  R=64  mean=0.650  folds=['0.620', '0.560', '0.770']
+op=cauchy        λ=0.10  K= 4  R=32  mean=0.660  folds=['0.580', '0.620', '0.780']
+op=cauchy        λ=0.10  K= 4  R=64  mean=0.647  folds=['0.580', '0.590', '0.770']
+op=cauchy        λ=0.10  K=16  R=32  mean=0.577  folds=['0.450', '0.560', '0.720']
+op=cauchy        λ=0.10  K=16  R=64  mean=0.583  folds=['0.500', '0.530', '0.720']
+op=helmholtz     λ=0.01  K= 2  R=32  mean=0.557  folds=['0.410', '0.510', '0.750']
+op=helmholtz     λ=0.01  K= 2  R=64  mean=0.580  folds=['0.460', '0.550', '0.730']
+op=helmholtz     λ=0.01  K= 4  R=32  mean=0.573  folds=['0.470', '0.500', '0.750']
+op=helmholtz     λ=0.01  K= 4  R=64  mean=0.637  folds=['0.530', '0.630', '0.750']
+op=helmholtz     λ=0.01  K=16  R=32  mean=0.600  folds=['0.620', '0.480', '0.700']
+op=helmholtz     λ=0.01  K=16  R=64  mean=0.463  folds=['0.480', '0.400', '0.510']
+op=helmholtz     λ=0.10  K= 2  R=32  mean=0.557  folds=['0.410', '0.510', '0.750']
+op=helmholtz     λ=0.10  K= 2  R=64  mean=0.580  folds=['0.460', '0.550', '0.730']
+op=helmholtz     λ=0.10  K= 4  R=32  mean=0.573  folds=['0.470', '0.500', '0.750']
+op=helmholtz     λ=0.10  K= 4  R=64  mean=0.637  folds=['0.530', '0.630', '0.750']
+op=helmholtz     λ=0.10  K=16  R=32  mean=0.593  folds=['0.430', '0.610', '0.740']
+op=helmholtz     λ=0.10  K=16  R=64  mean=0.523  folds=['0.420', '0.390', '0.760']
+op=gabor         λ=0.01  K= 2  R=32  mean=0.553  folds=['0.430', '0.470', '0.760']
+op=gabor         λ=0.01  K= 2  R=64  mean=0.503  folds=['0.430', '0.340', '0.740']
+op=gabor         λ=0.01  K= 4  R=32  mean=0.530  folds=['0.460', '0.370', '0.760']
+op=gabor         λ=0.01  K= 4  R=64  mean=0.623  folds=['0.530', '0.590', '0.750']
+op=gabor         λ=0.01  K=16  R=32  mean=0.550  folds=['0.470', '0.400', '0.780']
+op=gabor         λ=0.01  K=16  R=64  mean=0.637  folds=['0.630', '0.540', '0.740']
+op=gabor         λ=0.10  K= 2  R=32  mean=0.553  folds=['0.430', '0.470', '0.760']
+op=gabor         λ=0.10  K= 2  R=64  mean=0.503  folds=['0.430', '0.340', '0.740']
+op=gabor         λ=0.10  K= 4  R=32  mean=0.530  folds=['0.460', '0.370', '0.760']
+op=gabor         λ=0.10  K= 4  R=64  mean=0.623  folds=['0.530', '0.590', '0.750']
+op=gabor         λ=0.10  K=16  R=32  mean=0.580  folds=['0.470', '0.470', '0.800']
+op=gabor         λ=0.10  K=16  R=64  mean=0.503  folds=['0.260', '0.500', '0.750']
+op=laplacian     λ=0.01  K= 2  R=32  mean=0.657  folds=['0.630', '0.590', '0.750']
+op=laplacian     λ=0.01  K= 2  R=64  mean=0.670  folds=['0.650', '0.580', '0.780']
+op=laplacian     λ=0.01  K= 4  R=32  mean=0.687  folds=['0.660', '0.630', '0.770']
+op=laplacian     λ=0.01  K= 4  R=64  mean=0.657  folds=['0.650', '0.560', '0.760']
+op=laplacian     λ=0.01  K=16  R=32  mean=0.517  folds=['0.240', '0.570', '0.740']
+op=laplacian     λ=0.01  K=16  R=64  mean=0.653  folds=['0.690', '0.580', '0.690']
+op=laplacian     λ=0.10  K= 2  R=32  mean=0.657  folds=['0.630', '0.590', '0.750']
+op=laplacian     λ=0.10  K= 2  R=64  mean=0.670  folds=['0.650', '0.580', '0.780']
+op=laplacian     λ=0.10  K= 4  R=32  mean=0.687  folds=['0.660', '0.630', '0.770']
+op=laplacian     λ=0.10  K= 4  R=64  mean=0.657  folds=['0.650', '0.560', '0.760']
+op=laplacian     λ=0.10  K=16  R=32  mean=0.537  folds=['0.340', '0.530', '0.740']
+op=laplacian     λ=0.10  K=16  R=64  mean=0.647  folds=['0.680', '0.540', '0.720']
+op=mexican_hat   λ=0.01  K= 2  R=32  mean=0.630  folds=['0.570', '0.580', '0.740']
+op=mexican_hat   λ=0.01  K= 2  R=64  mean=0.627  folds=['0.590', '0.570', '0.720']
+op=mexican_hat   λ=0.01  K= 4  R=32  mean=0.643  folds=['0.590', '0.590', '0.750']
+op=mexican_hat   λ=0.01  K= 4  R=64  mean=0.650  folds=['0.600', '0.620', '0.730']
+op=mexican_hat   λ=0.01  K=16  R=32  mean=0.637  folds=['0.590', '0.620', '0.700']
+op=mexican_hat   λ=0.01  K=16  R=64  mean=0.557  folds=['0.520', '0.490', '0.660']
+op=mexican_hat   λ=0.10  K= 2  R=32  mean=0.630  folds=['0.570', '0.580', '0.740']
+op=mexican_hat   λ=0.10  K= 2  R=64  mean=0.627  folds=['0.590', '0.570', '0.720']
+op=mexican_hat   λ=0.10  K= 4  R=32  mean=0.643  folds=['0.590', '0.590', '0.750']
+op=mexican_hat   λ=0.10  K= 4  R=64  mean=0.650  folds=['0.600', '0.620', '0.730']
+op=mexican_hat   λ=0.10  K=16  R=32  mean=0.553  folds=['0.490', '0.520', '0.650']
+op=mexican_hat   λ=0.10  K=16  R=64  mean=0.643  folds=['0.630', '0.620', '0.680']
 
-LinearHead baseline mean AUC: 0.617
+LinearHead baseline mean AUC: 0.567
 
 === IGL Ablation Summary (top 10) ===
-   operator  source_l2  n_components  n_anchors     mean      std
-mexican_hat       0.10           8.0       64.0 0.755556 0.060221
-     cauchy       0.10           8.0       64.0 0.711111 0.099381
-mexican_hat       0.10          16.0       32.0 0.711111 0.248917
-   gaussian       0.01          16.0       32.0 0.697222 0.080027
-   gaussian       0.01          16.0       64.0 0.683333 0.213907
-  laplacian       0.01          16.0       32.0 0.677778 0.165038
-  helmholtz       0.01          16.0       32.0 0.666667 0.116203
-   gaussian       0.10          16.0       32.0 0.666667 0.158358
-   gaussian       0.10           8.0       64.0 0.666667 0.205067
-  helmholtz       0.01           8.0       32.0 0.661111 0.115202
+ operator  source_l2  n_components  n_anchors  auc_mean  auc_std  eff_dim_mean  eff_dim_std
+laplacian       0.01           4.0       32.0  0.686667 0.073711      4.000000     0.000000
+laplacian       0.10           4.0       32.0  0.686667 0.073711      4.000000     0.000000
+laplacian       0.10           2.0       64.0  0.670000 0.101489      2.000000     0.000000
+laplacian       0.01           2.0       64.0  0.670000 0.101489      2.000000     0.000000
+   cauchy       0.01           4.0       32.0  0.660000 0.105830      4.000000     0.000000
+   cauchy       0.01          16.0       64.0  0.660000 0.095394     13.666667     1.527525
+   cauchy       0.10           4.0       32.0  0.660000 0.105830      4.000000     0.000000
+laplacian       0.10           4.0       64.0  0.656667 0.100167      4.000000     0.000000
+laplacian       0.01           4.0       64.0  0.656667 0.100167      4.000000     0.000000
+laplacian       0.10           2.0       32.0  0.656667 0.083267      2.000000     0.000000
+
+=== Effective dimension summary (top 10 by AUC) ===
+ operator  source_l2  n_components  n_anchors  auc_mean  auc_std  eff_dim_mean  eff_dim_std
+laplacian       0.01           4.0       32.0  0.686667 0.073711      4.000000     0.000000
+laplacian       0.10           4.0       32.0  0.686667 0.073711      4.000000     0.000000
+laplacian       0.10           2.0       64.0  0.670000 0.101489      2.000000     0.000000
+laplacian       0.01           2.0       64.0  0.670000 0.101489      2.000000     0.000000
+   cauchy       0.01           4.0       32.0  0.660000 0.105830      4.000000     0.000000
+   cauchy       0.01          16.0       64.0  0.660000 0.095394     13.666667     1.527525
+   cauchy       0.10           4.0       32.0  0.660000 0.105830      4.000000     0.000000
+laplacian       0.10           4.0       64.0  0.656667 0.100167      4.000000     0.000000
+laplacian       0.01           4.0       64.0  0.656667 0.100167      4.000000     0.000000
+laplacian       0.10           2.0       32.0  0.656667 0.083267      2.000000     0.000000
