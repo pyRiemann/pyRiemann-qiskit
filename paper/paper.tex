@@ -332,82 +332,65 @@ optimizer (25 iterations), max 10 features~\cite{qioce2023}.
 
 \subsubsection{QuantumStateDiscriminator}
 
-The brain state (rest, task) is modelled as a \emph{mixed quantum state}
-(density matrix $\rho_c$)---a generalisation of a probability distribution
-over possible neural configurations.  Each EEG recording is treated as a
-\emph{measurement operator} $M$, and classification reduces to identifying
-which class quantum state $\rho_c$ best matches the observed measurement
-via the Born rule.  Crucially, this bypasses the Riemannian covariance
-pipeline entirely: raw epochs feed directly into the classifier.
-
-The \textsc{QuantumStateDiscriminator} learns one density matrix per class
-via quantum state tomography on labelled training EEG, then constructs a
-Positive Operator-Valued Measure (POVM) using the Pretty Good Measurement.
-Table~\ref{tab:qsd_qm} summarises the mapping between quantum concepts and
-EEG quantities.
-
-\begin{table}[h]
-  \caption{Quantum mechanics to EEG implementation mapping.}
-  \label{tab:qsd_qm}
-  \centering
-  \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{ll}
-    \toprule
-    Quantum concept & EEG implementation \\
-    \midrule
-    System state (mixed)        & Class density matrix $\rho_c$ (learned) \\
-    Observable / measurement    & $M = XX^\top/T$, normalised to $\tr=1$ \\
-    Class prior                 & $\pi_c = N_c / N_{\text{tot}}$ \\
-    POVM element                & $\Pi_c = \rho_{\text{tot}}^{-1/2}(\pi_c\rho_c)\rho_{\text{tot}}^{-1/2}$ \\
-    Born rule score             & $\tr(\Pi_c \cdot M) \in [0,1]$, sums to 1 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-\paragraph{Fit: quantum state tomography.}
-For each class $c \in \{1,\ldots,K\}$ with $N_c$ training trials:
-\begin{align}
-  \Sigma_c    &= \frac{1}{N_c} \sum_{i: y_i=c} \frac{X_i X_i^\top}{T_i}, \\
-  \rho_c      &= \frac{\Sigma_c}{\tr(\Sigma_c)}, \label{eq:tomography} \\
-  \pi_c       &= \frac{N_c}{N_{\text{total}}}. \label{eq:prior}
-\end{align}
-The EEG measurement operator $\Sigma_c$ is the mean sample covariance
-(unnormalized SCM); $\rho_c$ is its trace-normalization to a valid
-density matrix.
-
-\paragraph{Fit: Pretty Good Measurement.}
-Compute the prior-weighted average state and its inverse square root:
-\begin{align}
-  \rho_{\text{tot}} &= \sum_c \pi_c \rho_c, \label{eq:rho_tot} \\
-  \rho_{\text{tot}}^{-1/2} &= V \,\diag(1/\sqrt{\lambda_i})\, V^\top
-    \quad \text{(eigendecomposition)}, \label{eq:inv_sqrt}
-\end{align}
-then construct the POVM:
+\paragraph{Intuition.}
+Consider the brain during a resting-state experiment.  At any instant, the
+subject's neural activity is a superposition of possible mental states:
 \begin{equation}
-  \Pi_c = \rho_{\text{tot}}^{-1/2} \,(\pi_c \rho_c)\, \rho_{\text{tot}}^{-1/2}.
+  |\psi\rangle = |\text{active}\rangle\,|\text{EEG}_{\text{active}}\rangle
+               + |\text{resting}\rangle\,|\text{EEG}_{\text{resting}}\rangle.
+  \label{eq:mental_state}
+\end{equation}
+Here $|\psi\rangle$ is the mental state modelled as a quantum state, and the
+EEG recording acts as a \emph{measurement operator}: observing the EEG
+``collapses'' the superposition toward one of the two mental states.
+Classification therefore reduces to \emph{quantum state discrimination}---given
+a new EEG observation, which class state $|\text{active}\rangle$ or
+$|\text{resting}\rangle$ is it most compatible with?
+
+In practice the brain is an open system, so pure states give way to
+\emph{mixed states} (density matrices $\rho_c$, one per class).  The
+Pretty Good Measurement (PGM) constructs the optimal set of measurement
+operators $\{\Pi_c\}$ to tell the class states apart, and the Born rule
+$\tr(\Pi_c \cdot M)$ scores how well a new EEG observation $M$ matches
+class $c$.  Crucially, no Riemannian covariance pipeline is needed: raw
+epochs feed directly into the classifier.
+
+\paragraph{Fit.}
+For each class $c$, average the normalised EEG outer products over training
+trials to obtain a density matrix:
+\begin{equation}
+  \rho_c = \frac{1}{N_c}\sum_{i:y_i=c} \frac{X_i X_i^\top / T_i}{\tr(X_i X_i^\top / T_i)}.
+  \label{eq:tomography}
+\end{equation}
+The PGM then builds one measurement operator per class:
+\begin{equation}
+  \Pi_c = \rho_{\text{tot}}^{-1/2}(\pi_c\rho_c)\rho_{\text{tot}}^{-1/2},
+  \qquad \rho_{\text{tot}} = \textstyle\sum_c \pi_c\rho_c,
   \label{eq:povm}
 \end{equation}
-By construction $\sum_c \Pi_c = I$, so POVM scores are valid
-probability distributions.
+where $\pi_c = N_c/N_{\text{tot}}$ are class priors.
+By construction $\sum_c\Pi_c = I$, so scores are valid probabilities.
 
-\paragraph{Predict: Born rule.}
-For a new EEG trial $X$, build the normalized measurement operator
-\begin{equation}
-  M = \frac{X X^\top / T}{\tr(X X^\top / T)},
-  \label{eq:M}
-\end{equation}
-and compute the Born-rule score for each class:
-\begin{equation}
-  \text{score}_c = \tr(\Pi_c \cdot M) = \sum_{ij} (\Pi_c)_{ij} M_{ij}.
-  \label{eq:born}
-\end{equation}
-Predicted class: $\hat{y} = \argmax_c \; \text{score}_c$.
-Scores are returned directly as probabilities; no softmax is applied.
+\paragraph{Predict.}
+For a new epoch $X$, form the normalized measurement operator
+$M = XX^\top/T\,/\,\tr(XX^\top/T)$ and return
+$\hat{y} = \argmax_c\;\tr(\Pi_c \cdot M)$.
 
 \paragraph{Comparison with MDM.}
 Table~\ref{tab:qsd_vs_mdm} contrasts \textsc{QuantumStateDiscriminator}
-with Covariances+MDM.  Both are nearest-mean classifiers but differ in
-feature normalization, similarity measure, and how classes are coupled.
+with Covariances+MDM.  Importantly, both methods operate on the same
+mathematical object: symmetric positive semi-definite (SPD) matrices.
+Covariance matrices $\Sigma_c \in \mathcal{S}^+_C$ and density matrices
+$\rho_c \in \mathcal{S}^+_C$ are the same type of object; density matrices
+are simply restricted to the trace-1 slice of the SPD cone
+($\tr(\rho_c)=1$), which corresponds to normalising the covariance by its
+total power.  The two classifiers therefore live in the same space but
+navigate it differently: MDM uses the affine-invariant Riemannian distance
+to compare a test point to per-class Riemannian means, while
+\textsc{QuantumStateDiscriminator} uses the Born rule with PGM operators
+that jointly account for all classes.  The shared
+$\rho_{\text{tot}}$ in \eqref{eq:povm} makes the latter closer in spirit
+to LDA than to MDM.
 
 \begin{table}[h]
   \caption{Comparison of MDM and \textsc{QuantumStateDiscriminator}.}
@@ -420,47 +403,26 @@ feature normalization, similarity measure, and how classes are coupled.
     \midrule
     Feature          & $XX^\top/(T{-}1)$          & $XX^\top/T$, norm.\ to $\tr=1$ \\
     Class prototype  & Riemannian mean $\mu_c$    & Density matrix $\rho_c$ \\
-    Similarity       & Riemannian distance         & Quantum fidelity (PGM) \\
+    Similarity       & Riemannian distance         & Born rule (PGM) \\
     Class coupling   & Independent                 & Coupled via $\rho_{\text{tot}}$ \\
     Priors           & Not used                    & $\pi_c = N_c/N_{\text{tot}}$ \\
-    Covariance step  & Required                    & Not required \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-The inter-class coupling through $\rho_{\text{tot}}$ makes
-\textsc{QuantumStateDiscriminator} closer in spirit to LDA than to MDM,
-despite the name.  A true quantum MDM would compute
-$\argmin_c \delta_Q(\rho_M, \rho_c)$ using e.g.\ the Bures distance or
-quantum relative entropy without a POVM; the present classifier is more
-precisely a \emph{quantum state discrimination} method.
-
-\paragraph{Regularization note.}
-The measurement operator $M = XX^\top/T / \tr(XX^\top/T)$ is the
-trace-normalised biased SCM.  No regularization is applied, which can lead
-to ill-conditioning when the number of channels $C$ is large relative to
-the number of time samples $T$.  A natural extension is to apply shrinkage
-(e.g.\ Ledoit--Wolf) before trace normalization.
-
-\begin{algorithm}[t]
-  \caption{\textsc{QuantumStateDiscriminator}}
-  \label{alg:qsd}
-  \textbf{Input:} training set $\{(X_i, y_i)\}$, test epoch $X$\;
-  \begin{algorithmic}[1]
-    \For{each class $c$}
-      \State $\Sigma_c \leftarrow \tfrac{1}{N_c}\sum_{i:y_i=c} X_i X_i^\top / T_i$
-      \State $\rho_c \leftarrow \Sigma_c / \tr(\Sigma_c)$;
-             $\;\pi_c \leftarrow N_c / N_{\text{tot}}$
-    \EndFor
-    \State $\rho_{\text{tot}} \leftarrow \sum_c \pi_c \rho_c$
-    \State $\rho_{\text{tot}}^{-1/2} \leftarrow$ eigendecomposition of $\rho_{\text{tot}}$
-    \For{each class $c$}
-      \State $\Pi_c \leftarrow \rho_{\text{tot}}^{-1/2}(\pi_c\rho_c)\rho_{\text{tot}}^{-1/2}$
-    \EndFor
-    \State $M \leftarrow XX^\top/T / \tr(XX^\top/T)$
-    \State \Return $\argmax_c \;\tr(\Pi_c \cdot M)$
-  \end{algorithmic}
-\end{algorithm}
+\paragraph{Classical implementation.}
+Despite its quantum-theoretic formulation, \textsc{QuantumStateDiscriminator}
+runs entirely on classical hardware: density matrices are ordinary symmetric
+positive semi-definite matrices, the PGM reduces to two matrix
+multiplications, and the Born rule score is a Frobenius inner product.
+No quantum circuit, qubit, or simulator is required.
+This is precisely its practical advantage: the quantum framework provides a
+principled theoretical grounding for the classifier design, while the
+actual computation is as cheap as a covariance-based method.
+Porting it to \emph{actual} quantum hardware would require encoding $\rho_c$
+and $M$ as quantum states and implementing the POVM as a physical
+measurement---a non-trivial engineering challenge that this work deliberately
+sidesteps.
 
 \subsubsection{NCH+QAOA-CV (Ulvi Optimizer)}
 
