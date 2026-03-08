@@ -21,7 +21,9 @@ jobs:
           key: light_benchmark_nch_qaoacv.yml
       - name: Install dependencies
         run: |
-          pip install .[docs]
+          pip install --force-reinstall "setuptools<75"
+          pip install --no-build-isolation -r doc/requirements.txt
+          pip install --no-build-isolation .
       - name: Run benchmark script (PR)
         id: run-benchmark-pr
         run: |
@@ -31,7 +33,9 @@ jobs:
           ref: 'main'
       - name: Install dependencies
         run: |
-          pip install .[docs]
+          pip install --force-reinstall "setuptools<75"
+          pip install --no-build-isolation -r doc/requirements.txt
+          pip install --no-build-isolation .
       - name: Run benchmark script (main)
         id: run-benchmark-main
         run: |
