@@ -8,13 +8,13 @@ RUN apt-get update
 RUN apt-get -y install git
 
 RUN apt-get --allow-releaseinfo-change update
-RUN python -m pip install --upgrade pip
+RUN python -m pip install --upgrade pip "setuptools<72"
 RUN apt-get -y install --fix-missing git-core
 RUN apt-get -y install build-essential
 
-RUN pip install .
-RUN pip install .[docs]
-RUN pip install .[tests]
+RUN pip install --no-build-isolation .
+RUN pip install --no-build-isolation .[docs]
+RUN pip install --no-build-isolation .[tests]
 
 ## Creating folders for mne data
 RUN mkdir /root/mne_data
