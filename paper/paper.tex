@@ -61,9 +61,9 @@ classifier; and (iii)~Intrinsic Green's Learning (IGL), a PDE-inspired
 kernel framework applied to raw EEG time series.
 Experiments show that \textsc{QuantumStateDiscriminator} and QIOCE achieve
 mean ROC AUC scores comparable to the best classical baseline (MDM: 0.613),
-reaching 0.628 and 0.626, respectively, while the
+reaching 0.628 and 0.625, respectively, while the
 \textsc{QuantumStateDiscriminator} is the fastest classifier tested at under
-0.3~s mean training time.
+0.1~s mean training time.
 NCH-based quantum methods trail classical baselines but benefit from
 Riemannian transfer learning in synthetic domain-shift conditions.
 IGL underperforms on these datasets.
@@ -598,19 +598,19 @@ averaged across subjects and datasets) for all 14 pipelines, now including IGL.
     \toprule
     Pipeline & AUC (mean) & Time (s, mean) \\
     \midrule
-    \textbf{QuantumStateDiscriminator}      & \textbf{0.628} & \textbf{0.27} \\
-    \textbf{QIOCE}                          & \textbf{0.626} & 933.3 \\
-    MDM                                     & 0.613          & 16.5 \\
-    MDM+TL                                  & 0.595          & 218.0 \\
-    MDWM(0.5)                               & 0.591          & 36.7 \\
-    TS+LDA                                  & 0.584          & 27.3 \\
-    QIOCE+TL                                & 0.572          & 821.8 \\
-    NCH+QAOACV(Ulvi)                        & 0.555          & 1.5 \\
-    NCH+QAOACV(Ulvi)+TL                     & 0.551          & 219.6 \\
-    TS+LDA+TL                               & 0.542          & 226.6 \\
-    NCH+NaiveQAOA                           & 0.529          & 1.5 \\
-    NCH+NaiveQAOA+TL                        & 0.517          & 104.1 \\
-    IGL                                     & 0.522          & 42.2 \\
+    \textbf{QuantumStateDiscriminator}      & \textbf{0.628} & \textbf{0.10} \\
+    \textbf{QIOCE}                          & \textbf{0.625} & 471.8 \\
+    MDM                                     & 0.613          & 10.3 \\
+    MDM+TL                                  & 0.595          & 72.1 \\
+    MDWM(0.5)                               & 0.591          & 10.9 \\
+    TS+LDA                                  & 0.584          & 18.4 \\
+    QIOCE+TL                                & 0.574          & 742.4 \\
+    NCH+QAOACV(Ulvi)                        & 0.555          & 1.0 \\
+    NCH+QAOACV(Ulvi)+TL                     & 0.551          & 67.0 \\
+    TS+LDA+TL                               & 0.542          & 80.6 \\
+    NCH+NaiveQAOA                           & 0.539          & 1.0 \\
+    NCH+NaiveQAOA+TL                        & 0.533          & 68.8 \\
+    IGL                                     & 0.522          & 94.9 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -658,9 +658,11 @@ Key statistically significant differences ($p < 0.05$):
   \item \textbf{MDM $>$ NCH+QAOACV(Ulvi)+TL} ($p=0.04$, SMD$=1.06$,
     Fig.~\ref{fig:meta_mdm_ulvitl}): even the Ulvi circular-entanglement
     variant with RPA alignment does not match the classical MDM baseline.
-  \item \textbf{MDM $>$ TS+LDA+TL} ($p=0.02$, SMD$=1.45$): MDM without
+  \item \textbf{MDM $>$ TS+LDA+TL} ($p=0.023$, SMD$=1.45$,
+    Fig.~\ref{fig:meta_tsldatl_mdm}): MDM without
     transfer learning outperforms TS+LDA with full RPA alignment.
-  \item \textbf{MDM+TL $>$ TS+LDA+TL} ($p=0.04$, SMD$=1.77$): after RPA
+  \item \textbf{MDM+TL $>$ TS+LDA+TL} ($p=0.043$, SMD$=1.77$,
+    Fig.~\ref{fig:meta_tsldatl_mdmtl}): after RPA
     alignment, Riemannian nearest-mean significantly outperforms tangent-space
     linear discriminant.
 \end{itemize}
@@ -754,6 +756,24 @@ or between IGL and any other pipeline.
   \label{fig:meta_qsd_qiocetl}
 \end{figure}
 
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{tsldatl_vs_mdm.png}
+  \caption{Meta-analysis: MDM vs.\ TS+LDA+TL ($p=0.023$).
+    MDM without transfer learning consistently outperforms
+    TS+LDA with full RPA alignment across all datasets.}
+  \label{fig:meta_tsldatl_mdm}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{tsldatl_vs_mdmtl.png}
+  \caption{Meta-analysis: MDM+TL vs.\ TS+LDA+TL ($p=0.043$).
+    After RPA alignment, Riemannian nearest-mean significantly outperforms
+    the tangent-space linear discriminant.}
+  \label{fig:meta_tsldatl_mdmtl}
+\end{figure}
+
 \subsection{Effect of Transfer Learning}
 
 Transfer learning has a clearly detrimental effect on quantum pipelines.
@@ -761,12 +781,14 @@ QIOCE suffers the most: the QIOCE $>$ QIOCE+TL difference is statistically
 significant ($p=0.043$, Fig.~\ref{fig:meta_qioce_qiocetl}), confirming
 that RPA alignment actively degrades this classifier across all datasets,
 not merely by chance.  NCH+NaiveQAOA similarly degrades with TL
-($0.529 \to 0.517$), and TS+LDA drops from $0.584$ to $0.542$.
+($0.539 \to 0.533$), and TS+LDA drops from $0.584$ to $0.542$.
 By contrast, the two Riemannian classical baselines respond differently:
 MDM+TL is not significantly different from MDM, but MDM+TL $>$ TS+LDA+TL
-($p=0.04$, SMD$=1.77$) confirms that after alignment MDM is the more
-robust classifier.  The Ulvi NCH variant with TL also remains below MDM
-($p=0.04$), suggesting that neither the quantum circuit improvements nor
+($p=0.043$, SMD$=1.77$, Fig.~\ref{fig:meta_tsldatl_mdmtl}) and
+MDM $>$ TS+LDA+TL ($p=0.023$, SMD$=1.45$, Fig.~\ref{fig:meta_tsldatl_mdm})
+confirm that after alignment MDM is the more robust classifier.
+The Ulvi NCH variant with TL also remains below MDM
+($p=0.043$), suggesting that neither the quantum circuit improvements nor
 alignment recover the gap to the classical Riemannian baseline.
 
 
@@ -1031,7 +1053,7 @@ within-class structure into the POVM construction are natural directions.
 \subsection{QAOA-CV Ulvi Optimizer and NCH}
 
 The Ulvi circular-entanglement NCH variant consistently outperforms NaiveQAOA
-by approximately 0.026 mean AUC points, with no significant increase in
+by approximately 0.016 mean AUC points, with no significant increase in
 training time.  However, both variants remain significantly below classical
 baselines (MDM $>$ NaiveQAOA, $p=0.02$; MDM $>$ Ulvi+TL, $p=0.04$).
 
