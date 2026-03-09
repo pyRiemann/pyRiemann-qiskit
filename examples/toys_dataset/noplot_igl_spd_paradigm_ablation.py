@@ -104,7 +104,7 @@ paradigm_rs_hinss = RestingStateToP300Adapter(
     events=dict(easy=2, medium=3), tmin=0, tmax=0.5
 )
 
-cov_erp = ERPCovariances()
+cov_erp = ERPCovariances(estimator="oas")
 cov_lwf = Covariances(estimator="lwf")
 
 
