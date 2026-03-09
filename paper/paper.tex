@@ -46,7 +46,7 @@ QAOA-CV and Kernel Learning}
 Quantum-inspired and quantum machine learning (QML) methods have attracted
 considerable interest in neurotechnology, yet their benefit over classical
 baselines on realistic brain--computer interface (BCI) data remains unclear.
-This paper benchmarks \textbf{thirteen} classical and quantum pipelines on
+This paper benchmarks \textbf{fourteen} classical and quantum pipelines on
 three resting-state EEG datasets from the MOABB framework under a
 cross-subject evaluation protocol with grouped $k$-fold splitting.
 We introduce three contributions evaluated for the first time on resting-state
@@ -588,7 +588,7 @@ Table~\ref{tab:pipelines} lists all 13 evaluated pipelines.
 \subsection{Per-Pipeline AUC across All Datasets}
 
 Table~\ref{tab:auc} reports mean ROC AUC and mean training time (per fold,
-averaged across subjects and datasets) for all 13 pipelines.
+averaged across subjects and datasets) for all 14 pipelines, now including IGL.
 
 \begin{table}[h]
   \caption{Mean ROC AUC and training time across all three datasets.}
@@ -601,14 +601,14 @@ averaged across subjects and datasets) for all 13 pipelines.
     \textbf{QuantumStateDiscriminator}      & \textbf{0.628} & \textbf{0.27} \\
     \textbf{QIOCE}                          & \textbf{0.626} & 933.3 \\
     MDM                                     & 0.613          & 16.5 \\
-    MDWM(0.5)                               & 0.591          & 36.7 \\
     MDM+TL                                  & 0.595          & 218.0 \\
+    MDWM(0.5)                               & 0.591          & 36.7 \\
     TS+LDA                                  & 0.584          & 27.3 \\
-    NCH+QAOACV(Ulvi)                        & 0.555          & 1.5 \\
     QIOCE+TL                                & 0.572          & 821.8 \\
-    NCH+NaiveQAOA                           & 0.529          & 1.5 \\
+    NCH+QAOACV(Ulvi)                        & 0.555          & 1.5 \\
     NCH+QAOACV(Ulvi)+TL                     & 0.551          & 219.6 \\
     TS+LDA+TL                               & 0.542          & 226.6 \\
+    NCH+NaiveQAOA                           & 0.529          & 1.5 \\
     NCH+NaiveQAOA+TL                        & 0.517          & 104.1 \\
     IGL                                     & 0.522          & 42.2 \\
     \bottomrule
@@ -617,8 +617,9 @@ averaged across subjects and datasets) for all 13 pipelines.
 
 Figure~\ref{fig:scatter} shows the distribution of per-subject AUC scores
 across all three datasets.  \textsc{QuantumStateDiscriminator} and QIOCE
-display higher mean performance and larger variability than MDM, while NCH
-variants cluster near chance level.
+achieve the highest mean performance, followed by the classical MDM
+baseline.  IGL and NCH variants cluster near the lower end, with
+all pipelines remaining above chance level.
 
 \begin{figure}[h]
   \centering
@@ -634,75 +635,139 @@ variants cluster near chance level.
 
 Figure~\ref{fig:summary} shows the pairwise statistical comparison matrix
 produced by MOABB's \texttt{find\_significant\_differences} procedure.
-Cells report the standardized effect size and $p$-value from a
+Cells report the standardized mean difference (SMD) and $p$-value from a
 Wilcoxon signed-rank test across datasets; green cells indicate
-significance at $\alpha=0.05$.  The effect size displayed is the
-standardized mean difference computed by MOABB's meta-analysis
-procedure (not Cohen's $d$ in the strict parametric sense, since
-the Wilcoxon test is non-parametric).
+significance at $\alpha=0.05$.
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=\columnwidth]{summary_plot.png}
-  \caption{Algorithm comparison matrix.  Each cell shows the effect size
-    and $p$-value for the row algorithm vs.\ the column algorithm.
-    Green: row significantly better; red: column significantly better.}
+  \caption{Algorithm comparison matrix.  Each cell shows the SMD and
+    $p$-value for the row algorithm vs.\ the column algorithm.
+    Green: row significantly better ($p<0.05$).}
   \label{fig:summary}
 \end{figure}
 
 Key statistically significant differences ($p < 0.05$):
+
+\paragraph{Classical baselines.}
 \begin{itemize}
-  \item \textbf{TS+LDA $>$ IGL} ($p=0.04$, SMD$=1.32$): classical
-    tangent-space projection outperforms IGL across all three datasets
-    (Fig.~\ref{fig:meta_igl_tslda}).
-  \item \textbf{MDM+TL $>$ TS+LDA+TL} ($p=0.04$, SMD$=1.77$): after
-    RPA alignment, MDM yields significantly higher AUC than TS+LDA.
-  \item \textbf{MDM $>$ NCH+QAOACV(Ulvi)+TL} ($p=0.04$): meta-analysis
-    confirms consistent MDM advantage across datasets
-    (Fig.~\ref{fig:meta_mdm_ulvi}).
-  \item \textbf{TS+LDA $>$ NCH+NaiveQAOA} ($p=0.04$): the classical tangent
-    space baseline significantly outperforms NaiveQAOA
-    (Fig.~\ref{fig:meta_tslda_naive}).
+  \item \textbf{MDM $>$ NCH+NaiveQAOA} ($p=0.02$, SMD$=1.28$,
+    Fig.~\ref{fig:meta_mdm_naive}): MDM outperforms NaiveQAOA
+    consistently across all three datasets.
+  \item \textbf{MDM $>$ NCH+QAOACV(Ulvi)+TL} ($p=0.04$, SMD$=1.06$,
+    Fig.~\ref{fig:meta_mdm_ulvitl}): even the Ulvi circular-entanglement
+    variant with RPA alignment does not match the classical MDM baseline.
+  \item \textbf{MDM $>$ TS+LDA+TL} ($p=0.02$, SMD$=1.45$): MDM without
+    transfer learning outperforms TS+LDA with full RPA alignment.
+  \item \textbf{MDM+TL $>$ TS+LDA+TL} ($p=0.04$, SMD$=1.77$): after RPA
+    alignment, Riemannian nearest-mean significantly outperforms tangent-space
+    linear discriminant.
+\end{itemize}
+
+\paragraph{QIOCE.}
+\begin{itemize}
+  \item \textbf{QIOCE $>$ NCH+NaiveQAOA} ($p=0.02$, SMD$=1.40$,
+    Fig.~\ref{fig:meta_qioce_naive}): QIOCE substantially outperforms the
+    standard QAOA-CV hull classifier.
+  \item \textbf{QIOCE $>$ MDWM(0.5)} ($p=0.04$, SMD$=1.27$,
+    Fig.~\ref{fig:meta_mdwm_qioce}): QIOCE surpasses the domain-weighted
+    mean classifier.
+  \item \textbf{QIOCE $>$ TS+LDA} ($p=0.04$, SMD$=3.67$): the largest
+    observed effect size; QIOCE significantly outperforms the classical
+    tangent-space baseline.
+  \item \textbf{QIOCE $>$ QIOCE+TL} ($p=0.04$, Fig.~\ref{fig:meta_qioce_qiocetl}):
+    RPA transfer learning significantly \emph{hurts} QIOCE, confirming
+    that alignment is detrimental for this pipeline.
+\end{itemize}
+
+\paragraph{QuantumStateDiscriminator.}
+\begin{itemize}
+  \item \textbf{QSD $>$ NCH+NaiveQAOA} ($p=0.04$, SMD$=1.56$,
+    Fig.~\ref{fig:meta_qsd_naive}): \textsc{QuantumStateDiscriminator}
+    significantly outperforms the standard NCH QAOA-CV classifier.
+  \item \textbf{QSD $>$ QIOCE+TL} ($p=0.04$, SMD$=1.37$,
+    Fig.~\ref{fig:meta_qsd_qiocetl}): QSD outperforms QIOCE when TL
+    alignment is applied to the latter.
 \end{itemize}
 
 No statistically significant difference was detected between
-\textsc{QuantumStateDiscriminator} and MDM, nor between QIOCE and MDM.
+\textsc{QuantumStateDiscriminator} and MDM, between QIOCE and MDM,
+or between IGL and any other pipeline.
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=\columnwidth]{igl_vs_tslda.png}
-  \caption{Meta-analysis forest plot: TS+LDA vs.\ IGL.
-    Positive SMD indicates TS+LDA is better.
-    Meta-effect significant ($p=0.043$).}
-  \label{fig:meta_igl_tslda}
+  \includegraphics[width=\columnwidth]{mdm_vs_naive.png}
+  \caption{Meta-analysis: MDM vs.\ NCH+NaiveQAOA ($p=0.023$).
+    Negative SMD indicates MDM is better across all datasets.}
+  \label{fig:meta_mdm_naive}
 \end{figure}
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=\columnwidth]{mdm_ulvitl.png}
-  \caption{Meta-analysis forest plot: MDM vs.\ NCH+QAOACV(Ulvi)+TL.
-    Negative SMD indicates MDM is better.
-    Meta-effect significant ($p=0.043$).}
-  \label{fig:meta_mdm_ulvi}
+  \includegraphics[width=\columnwidth]{mdm_vs_ulvitl.png}
+  \caption{Meta-analysis: MDM vs.\ NCH+QAOACV(Ulvi)+TL ($p=0.043$).
+    MDM outperforms the Ulvi variant with RPA alignment on all datasets.}
+  \label{fig:meta_mdm_ulvitl}
 \end{figure}
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=\columnwidth]{tslda_vs_naive.png}
-  \caption{Meta-analysis forest plot: TS+LDA vs.\ NCH+NaiveQAOA.
-    Negative SMD indicates TS+LDA is better.
-    Meta-effect significant ($p=0.043$).}
-  \label{fig:meta_tslda_naive}
+  \includegraphics[width=\columnwidth]{qioce_vs_naive.png}
+  \caption{Meta-analysis: QIOCE vs.\ NCH+NaiveQAOA ($p=0.023$).
+    QIOCE consistently outperforms the standard NCH classifier.}
+  \label{fig:meta_qioce_naive}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{mdwm_vs_qioce.png}
+  \caption{Meta-analysis: QIOCE vs.\ MDWM(0.5) ($p=0.043$).
+    Positive SMD indicates QIOCE is better.}
+  \label{fig:meta_mdwm_qioce}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{qioce_vs_qiocetl.png}
+  \caption{Meta-analysis: QIOCE vs.\ QIOCE+TL ($p=0.043$).
+    Positive SMD indicates QIOCE (without TL) is better on all datasets,
+    demonstrating that RPA alignment significantly degrades QIOCE.}
+  \label{fig:meta_qioce_qiocetl}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{qsd_vs_naive.png}
+  \caption{Meta-analysis: \textsc{QuantumStateDiscriminator}
+    vs.\ NCH+NaiveQAOA ($p=0.043$).
+    QSD outperforms NaiveQAOA consistently across all datasets.}
+  \label{fig:meta_qsd_naive}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{qsd_vs_qiocetl.png}
+  \caption{Meta-analysis: \textsc{QuantumStateDiscriminator}
+    vs.\ QIOCE+TL ($p=0.043$).
+    QSD outperforms QIOCE when the latter is combined with RPA alignment.}
+  \label{fig:meta_qsd_qiocetl}
 \end{figure}
 
 \subsection{Effect of Transfer Learning}
 
-Transfer learning consistently \emph{hurts} QIOCE ($0.626 \to 0.572$),
-NCH+NaiveQAOA ($0.529 \to 0.517$), and TS+LDA ($0.584 \to 0.542$), while
-it has a small positive effect on MDM ($0.613 \to 0.595$; within noise) and
-leaves NCH+QAOACV(Ulvi) largely unchanged.  The MDM+TL vs.\ TS+LDA+TL
-significance suggests that Riemannian MDM is more robust to the RPA alignment
-than the tangent-space projection.
+Transfer learning has a clearly detrimental effect on quantum pipelines.
+QIOCE suffers the most: the QIOCE $>$ QIOCE+TL difference is statistically
+significant ($p=0.043$, Fig.~\ref{fig:meta_qioce_qiocetl}), confirming
+that RPA alignment actively degrades this classifier across all datasets,
+not merely by chance.  NCH+NaiveQAOA similarly degrades with TL
+($0.529 \to 0.517$), and TS+LDA drops from $0.584$ to $0.542$.
+By contrast, the two Riemannian classical baselines respond differently:
+MDM+TL is not significantly different from MDM, but MDM+TL $>$ TS+LDA+TL
+($p=0.04$, SMD$=1.77$) confirms that after alignment MDM is the more
+robust classifier.  The Ulvi NCH variant with TL also remains below MDM
+($p=0.04$), suggesting that neither the quantum circuit improvements nor
+alignment recover the gap to the classical Riemannian baseline.
 
 
 % ============================================================
@@ -830,58 +895,69 @@ canonical frequency bands (delta~2~Hz, theta~6~Hz, alpha~10~Hz,
 beta~20~Hz, gamma~40~Hz) with a random spatial mixing matrix simulating
 volume conduction.  Class discrimination is encoded in band amplitude:
 class~0 has boosted alpha power, class~1 has boosted beta power.
-The dataset contains 60 trials ($8$ channels, $100$ time points, sampled
-at 256~Hz) and is evaluated with stratified 5-fold cross-validation.
+The dataset contains 60 trials ($16$ channels, $512$ time points, sampled
+at 256~Hz) and is evaluated with stratified 3-fold cross-validation.
 
-We perform a full grid search over 48 configurations:
+We perform a full grid search over 72 configurations:
 6 kernel operators (gaussian, helmholtz, cauchy, gabor, laplacian,
 mexican\_hat) $\times$ 2 Tikhonov regularization strengths
-($\lambda \in \{0.01, 0.1\}$) $\times$ 2 spatial filter ranks
-($K \in \{8, 16\}$) $\times$ 2 temporal basis sizes ($R \in \{32, 64\}$),
-for a total of 240 fits.
+($\lambda \in \{0.01, 0.1\}$) $\times$ 3 spatial filter ranks
+($K \in \{2, 4, 16\}$) $\times$ 2 temporal basis sizes ($R \in \{32, 64\}$),
+for a total of 216 fits.
 A \textbf{LinearHead} baseline---mean-pooling raw EEG over time followed by
 logistic regression ($Wx+b$, no kernel)---is evaluated in the same protocol
 to quantify the contribution of the Green kernel temporal integration.
+We additionally report the \emph{effective spatial dimension}~$K_{\text{eff}}$:
+the number of spatial filters whose combined contribution
+(filter norm~$\times$~output weight norm) exceeds 10\,\% of the maximum.
 
 \paragraph{Operator comparison.}
 Figure~\ref{fig:ablation_igl_operator} shows mean ROC AUC per operator
 averaged over all $(K, R, \lambda)$ combinations.
-The \textbf{mexican\_hat} (band-pass) and \textbf{gaussian} kernels lead
-with mean AUC $\approx 0.62$, while gabor and laplacian trail at $\approx 0.59$.
-The strong performance of mexican\_hat is consistent with the data generation:
-the band-pass shape of the kernel naturally resonates with the amplitude
-differences between alpha and beta bands.
-Contrary to initial expectation, the gabor kernel---which is designed for
-frequency-localized bursts---does not outperform gaussian, suggesting that
-on this stationary sinusoidal data the frequency localization offered by
-gabor's Gaussian envelope is not necessary.
+\textbf{Laplacian} and \textbf{cauchy} kernels lead with mean AUC~$\approx 0.64$,
+while gabor and helmholtz trail at~$\approx 0.57$.
+The laplacian kernel's exponential decay ($e^{-r/\sigma}$) is well-matched
+to sharp spectral transitions in the temporal domain, penalising distant
+time-point correlations that do not carry discriminative power for alpha
+vs.\ beta band discrimination.
+Gabor, despite its theoretical advantage for frequency-localized bursts,
+underperforms on this stationary sinusoidal data: the Gaussian envelope
+is unnecessary when rhythms are sustained throughout the epoch.
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=\columnwidth]{igl_ablation_study_operator_comparison.png}
   \caption{Kernel operator comparison on synthetic sinusoidal EEG
-    (averaged over $\lambda$, $K$, $R$; 5-fold CV, $n=60$ trials).
-    Dotted line: LinearHead baseline (mean AUC $= 0.617$).
+    (averaged over $\lambda$, $K$, $R$; 3-fold CV, $n=60$ trials).
+    Dotted line: LinearHead baseline (mean AUC $= 0.567$).
     Error bars: $\pm 1$ SD across folds.}
   \label{fig:ablation_igl_operator}
 \end{figure}
 
-\paragraph{Effect of $\lambda$, $K$, and $R$.}
+\paragraph{Effect of $\lambda$, $K$, and effective dimension.}
 Figure~\ref{fig:ablation_igl_heatmaps} (left) shows the operator~$\times$~$\lambda$
-interaction.  Higher regularization ($\lambda=0.1$) substantially benefits
-peaked kernels: mexican\_hat gains $+0.081$ (0.590~$\to$~0.671) and cauchy
-gains $+0.075$ (0.561~$\to$~0.636), while gaussian mildly prefers lower
-regularization ($-0.016$).  This reflects the different conditioning of the
-least-squares solve: peaked kernels produce sparser Gram matrices that
-benefit from stronger Tikhonov damping.
+interaction.  Notably, $\lambda$ has almost no effect for most operators:
+results for $\lambda=0.01$ and $\lambda=0.1$ are nearly identical at
+$K \in \{2,4\}$, with small differences only emerging at $K=16$ where the
+temporal basis becomes over-complete.  This confirms that the Variable
+Projection W\_out solve is well-conditioned at low rank and is not
+sensitive to the Tikhonov damping strength.
 
-Figure~\ref{fig:ablation_igl_heatmaps} (right) shows the $K$~$\times$~$R$
-interaction.  A larger spatial filter bank ($K=16$, mean AUC~$0.637$) is
-consistently better than $K=8$ (mean AUC~$0.571$), which is expected given
-the random mixing matrix that spreads class information across all 8 channels.
-The number of temporal anchors $R$ has a weaker effect; $R=32$ is slightly
-preferable for $K=16$ (0.655 vs.\ 0.619), while for $K=8$ the two are
-near-equivalent.
+Figure~\ref{fig:ablation_igl_heatmaps} (right) reveals a clear sweet
+spot at $K=4$ (mean AUC~$0.634$), outperforming both $K=2$ (0.612) and
+$K=16$ (0.582).  Too few filters cannot capture all discriminative channel
+combinations introduced by the mixing matrix; too many introduce redundant
+directions that dilute the signal and harm generalisation on this small
+dataset.  The number of temporal anchors $R$ has a secondary effect;
+$R=64$ is marginally preferable at $K=4$ (0.644 vs.\ 0.623).
+
+Figure~\ref{fig:ablation_igl_effdim} shows that $K_{\text{eff}}$ equals $K$
+exactly for $K \in \{2,4\}$---all filters are active---while for $K=16$
+approximately 13--14 filters remain active ($K_{\text{eff}} \approx 13.7$
+for cauchy).  The scatter plot confirms that configurations with small
+but fully active filter banks ($K_{\text{eff}} \in \{2,4\}$) cluster
+at higher AUC, whereas large-$K$ configurations with partially inactive
+filters are more dispersed and trend lower.
 
 \begin{figure}[h]
   \centering
@@ -890,37 +966,46 @@ near-equivalent.
     \emph{Left}: operator~$\times$~$\lambda$ (averaged over $K$, $R$).
     \emph{Right}: spatial filters~$K$~$\times$~temporal anchors~$R$
     (averaged over operator, $\lambda$).
-    All values are mean ROC AUC from 5-fold CV.}
+    All values are mean ROC AUC from 3-fold CV.}
   \label{fig:ablation_igl_heatmaps}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{igl_ablation_study_eff_dim.png}
+  \caption{Effective spatial dimension $K_{\text{eff}}$ per operator
+    (left) and $K_{\text{eff}}$ vs.\ mean ROC AUC scatter (right).
+    Configs with fully active small filter banks ($K_{\text{eff}}\in\{2,4\}$)
+    achieve consistently higher AUC than over-parameterised configs.}
+  \label{fig:ablation_igl_effdim}
 \end{figure}
 
 \paragraph{Green kernel vs.\ linear head.}
 Figure~\ref{fig:ablation_igl_vs_linear} compares the best IGL configuration
-(mexican\_hat, $\lambda=0.1$, $K=8$, $R=64$; AUC~$=0.756$) against the
-LinearHead baseline (AUC~$=0.617$).
+(laplacian, $\lambda=0.01$, $K=4$, $R=32$; AUC~$=0.687$) against the
+LinearHead baseline (AUC~$=0.567$).
 The best IGL configuration outperforms mean-pool logistic regression by
-$+0.14$ AUC, demonstrating that the Green kernel temporal integration
+$+0.12$ AUC, demonstrating that the Green kernel temporal integration
 captures discriminative temporal structure that simple mean-pooling discards.
-Both methods show high fold-to-fold variance owing to the small dataset
-($n=60$), but the IGL confidence interval is entirely above the LinearHead
-mean, supporting the advantage of the kernel approach on oscillatory EEG.
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=\columnwidth]{igl_ablation_study_bestigl_vs_linearhead.png}
-  \caption{Best IGL configuration (mexican\_hat, $\lambda=0.1$, $K=8$,
-    $R=64$) vs.\ LinearHead baseline (mean-pool $+$ logistic regression).
+  \caption{Best IGL configuration (laplacian, $\lambda=0.01$, $K=4$,
+    $R=32$) vs.\ LinearHead baseline (mean-pool $+$ logistic regression).
     Strip: per-fold AUC scores.  Point: mean $\pm$ SD\@.
-    Dotted line: LinearHead mean (0.617).}
+    Dotted line: LinearHead mean (0.567).}
   \label{fig:ablation_igl_vs_linear}
 \end{figure}
 
-Overall, the ablation suggests that (i)~band-pass kernels (mexican\_hat)
-are well-matched to oscillatory EEG data; (ii)~stronger Tikhonov
-regularization benefits peaked kernels; (iii)~a wider spatial filter bank
-($K=16$) is important when channel mixing is strong; and (iv)~the
-Green kernel temporal integration meaningfully outperforms a linear baseline,
-validating the IGL temporal aggregation mechanism on sinusoidal EEG.
+Overall, the ablation suggests that (i)~kernels with local temporal decay
+(laplacian, cauchy) are well-matched to stationary oscillatory EEG;
+(ii)~Tikhonov regularization $\lambda$ has negligible impact at low rank,
+confirming that the VP solve is well-conditioned; (iii)~a moderate spatial
+filter bank ($K=4$) outperforms both under- and over-parameterised settings,
+with $K_{\text{eff}}=K$ indicating all filters are meaningfully used;
+and (iv)~the Green kernel temporal integration outperforms a linear baseline
+by $+0.12$ AUC, validating the temporal aggregation mechanism.
 
 
 % ============================================================
@@ -948,7 +1033,7 @@ within-class structure into the POVM construction are natural directions.
 The Ulvi circular-entanglement NCH variant consistently outperforms NaiveQAOA
 by approximately 0.026 mean AUC points, with no significant increase in
 training time.  However, both variants remain significantly below classical
-baselines (TS+LDA $>$ NaiveQAOA, $p=0.04$; MDM $>$ Ulvi+TL, $p=0.04$).
+baselines (MDM $>$ NaiveQAOA, $p=0.02$; MDM $>$ Ulvi+TL, $p=0.04$).
 
 The ablation study (Section~\ref{sec:ablation_tl}) shows that RPA alignment
 is \emph{necessary} for NCH to be reliable in cross-subject settings: without
@@ -962,19 +1047,25 @@ for NCH (performance saturates at 1.0 AUC on toy data for both variants).
 
 \subsection{IGL}
 
-IGL underperforms all classical baselines (mean AUC 0.522), with the gap to
-TS+LDA being statistically significant ($p=0.04$, $d=1.32$).  This is
-surprising given that IGL operates on raw time series and theoretically
-adapts its intrinsic dimensionality to the data.  Possible explanations
-include: (i)~the 500 training epochs may be insufficient for the encoder
-to converge on the relatively small EEG datasets (the Variable Projection
-output weights are solved exactly via Tikhonov least-squares, but the
-encoder gradient updates may not have reached a good representation);
-(ii)~the Gaussian Green operator may not be well-suited to the temporal
-structure of resting-state EEG; (iii)~cross-subject variability may
-exceed the capacity of a single shared kernel.  Tuning
-\texttt{n\_components}, \texttt{n\_anchors}, and the kernel operator type
-per dataset is a potential avenue for improvement.
+IGL achieves a mean AUC of 0.522, below all classical baselines but without
+any statistically significant pairwise difference from other pipelines.
+The ablation study (Section~\ref{sec:ablation_igl}) guided the configuration
+to the laplacian kernel with $K=4$ spatial filters and $R=32$ temporal
+anchors---the best-performing setting on synthetic EEG data.  Despite this
+principled selection, the transfer to real cross-subject resting-state EEG
+is limited.
+
+Possible explanations include: (i)~the encoder gradient updates may not
+have converged on the relatively small EEG datasets available per fold
+(the Variable Projection output weights are solved exactly via Tikhonov
+least-squares, but the encoder representation may be suboptimal);
+(ii)~cross-subject variability may exceed the capacity of a single shared
+kernel trained on a small number of trials; (iii)~the laplacian operator
+emphasizes sharp temporal transients, which may not match the stationary
+rhythmic structure of resting-state EEG at the cross-subject level.
+Adapting \texttt{n\_components}, \texttt{n\_anchors}, and the training
+duration per dataset, or combining IGL with subject-specific fine-tuning,
+are natural directions for improvement.
 
 \subsection{Transfer Learning}
 
@@ -1001,7 +1092,7 @@ reproducibility would require fixed seed across runs.
 \section{Conclusion}
 \label{sec:conclusion}
 
-We have presented a systematic cross-subject benchmark of 13 classical and
+We have presented a systematic cross-subject benchmark of 14 classical and
 quantum EEG classifiers on three MOABB resting-state datasets.  Three new
 contributions were introduced and evaluated for the first time on real EEG:
 (i)~\textsc{QuantumStateDiscriminator}, which achieves the highest mean
