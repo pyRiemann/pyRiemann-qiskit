@@ -19,7 +19,7 @@ Three EEG paradigms are compared, each with multiple representative datasets:
 Preprocessing is fitted **inside each fold** to avoid data leakage
 (important for ``ERPCovariances``, which uses labels to compute the template).
 
-A **TS+LDA baseline** is evaluated alongside IGL in each fold to provide
+A **TS+LR baseline** (TangentSpace + LogisticRegression) is evaluated alongside IGL in each fold to provide
 a reference AUC for each dataset.
 
 The ablation factors are:
@@ -56,7 +56,7 @@ from moabb.datasets import (
 from moabb.paradigms import MotorImagery, P300, RestingStateToP300Adapter
 from pyriemann.estimation import Covariances, ERPCovariances
 from pyriemann.tangentspace import TangentSpace
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold
 from sklearn.pipeline import make_pipeline
@@ -129,7 +129,7 @@ PARADIGMS = [
 # ----------------------
 #
 # Preprocessing is fitted on the training fold only (no data leakage).
-# TS+LDA is evaluated in the same fold as a reference baseline.
+# TS+LR is evaluated in the same fold as a reference baseline.
 
 cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=seed)
 le = LabelEncoder()
@@ -155,28 +155,28 @@ for paradigm_type, display_name, paradigm, cov_est, dataset in PARADIGMS:
     n_total_configs = len(operators)
     cfg_idx = 0
 
-    # TS+LDA baseline: one AUC per fold, shared across all operators
-    lda_aucs = []
+    # TS+LR baseline: one AUC per fold, shared across all operators
+    lr_aucs = []
     for train_idx, test_idx in cv.split(X_raw, y):
         X_raw_tr, X_raw_te = X_raw[train_idx], X_raw[test_idx]
         y_tr, y_te = y[train_idx], y[test_idx]
         try:
-            lda_pipe = make_pipeline(cov_est, TangentSpace(metric="riemann"), LDA())
-            lda_pipe.fit(X_raw_tr, y_tr)
-            lda_proba = lda_pipe.predict_proba(X_raw_te)
-            lda_aucs.append(roc_auc_score(y_te, lda_proba[:, 1]))
+            lr_pipe = make_pipeline(cov_est, TangentSpace(metric="riemann"), LogisticRegression(max_iter=1000))
+            lr_pipe.fit(X_raw_tr, y_tr)
+            lr_proba = lr_pipe.predict_proba(X_raw_te)
+            lr_aucs.append(roc_auc_score(y_te, lr_proba[:, 1]))
         except Exception as exc:
-            print(f"  [WARN] TS+LDA fold failed: {exc}")
-            lda_aucs.append(float("nan"))
+            print(f"  [WARN] TS+LR fold failed: {exc}")
+            lr_aucs.append(float("nan"))
 
-    mean_lda = float(np.nanmean(lda_aucs))
-    print(f"  TS+LDA baseline: mean_auc={mean_lda:.3f}  folds={[f'{a:.3f}' for a in lda_aucs]}")
+    mean_lr = float(np.nanmean(lr_aucs))
+    print(f"  TS+LR baseline: mean_auc={mean_lr:.3f}  folds={[f'{a:.3f}' for a in lr_aucs]}")
 
-    for fold_i, auc_lda in enumerate(lda_aucs):
+    for fold_i, auc_lda in enumerate(lr_aucs):
         records.append({
             "paradigm_type": paradigm_type,
             "dataset": display_name,
-            "model": "TS+LDA",
+            "model": "TS+LR",
             "operator": None,
             "fold": fold_i,
             "auc": auc_lda,
@@ -267,7 +267,7 @@ for paradigm_type, display_name, paradigm, cov_est, dataset in PARADIGMS:
 
 df = pd.DataFrame(records)
 df_igl = df[df["model"] == "IGL"].copy()
-df_lda = df[df["model"] == "TS+LDA"].copy()
+df_lr = df[df["model"] == "TS+LR"].copy()
 
 ##############################################################################
 # Summary table
@@ -281,9 +281,9 @@ print(
     .to_string()
 )
 
-print("\n=== TS+LDA baseline (mean over folds) ===")
+print("\n=== TS+LR baseline (mean over folds) ===")
 print(
-    df_lda.groupby(["paradigm_type", "dataset"])[["auc"]]
+    df_lr.groupby(["paradigm_type", "dataset"])[["auc"]]
     .mean()
     .round(3)
     .to_string()
@@ -306,16 +306,17 @@ ax.set_xlabel("Paradigm")
 ax.set_title("Intrinsic dimension discovered by IGL per EEG paradigm")
 ax.legend(title="Dataset", fontsize=7, bbox_to_anchor=(1.01, 1), loc="upper left")
 plt.tight_layout()
+plt.savefig("intrinsec_dim_igl.png", dpi=150, bbox_inches="tight")
 plt.show()
 
 ##############################################################################
-# Plot 2: IGL AUC vs TS+LDA AUC per dataset
+# Plot 2: IGL AUC vs TS+LR AUC per dataset
 # ------------------------------------------
 #
 # Each point is one dataset; error bars = std over folds and operators.
 
 agg_igl = df_igl.groupby("dataset")["auc"].agg(["mean", "std"]).reset_index()
-agg_lda = df_lda.groupby("dataset")["auc"].mean().reset_index().rename(columns={"auc": "lda_auc"})
+agg_lda = df_lr.groupby("dataset")["auc"].mean().reset_index().rename(columns={"auc": "lr_auc"})
 agg = agg_igl.merge(agg_lda, on="dataset")
 ptype_map = {d: t for t, d, *_ in PARADIGMS}
 agg["paradigm_type"] = agg["dataset"].map(ptype_map)
@@ -323,26 +324,27 @@ agg["paradigm_type"] = agg["dataset"].map(ptype_map)
 fig, ax = plt.subplots(facecolor="white", figsize=(6, 5))
 for ptype, grp in agg.groupby("paradigm_type"):
     ax.errorbar(
-        grp["lda_auc"], grp["mean"],
+        grp["lr_auc"], grp["mean"],
         yerr=grp["std"], fmt="o", label=ptype,
         color=PALETTE.get(ptype), capsize=4,
     )
     for _, row in grp.iterrows():
         ax.annotate(
             row["dataset"].split("(")[-1].rstrip(")"),
-            (row["lda_auc"], row["mean"]),
+            (row["lr_auc"], row["mean"]),
             fontsize=6, ha="left", va="bottom",
         )
 lims = [
     min(ax.get_xlim()[0], ax.get_ylim()[0]),
     max(ax.get_xlim()[1], ax.get_ylim()[1]),
 ]
-ax.plot(lims, lims, ls="--", color="grey", lw=0.8, label="IGL = TS+LDA")
-ax.set_xlabel("TS+LDA AUC (baseline)")
+ax.plot(lims, lims, ls="--", color="grey", lw=0.8, label="IGL = TS+LR")
+ax.set_xlabel("TS+LR AUC (baseline)")
 ax.set_ylabel("IGL AUC (mean ± std over operators/folds)")
-ax.set_title("IGL vs TS+LDA per dataset")
+ax.set_title("IGL vs TS+LR per dataset")
 ax.legend(fontsize=8)
 plt.tight_layout()
+plt.savefig("intrinsec_igl_vs_tslda.png", dpi=150, bbox_inches="tight")
 plt.show()
 
 ##############################################################################
@@ -359,6 +361,7 @@ ax.set_ylabel("ROC AUC")
 ax.set_title("AUC vs effective dimension per paradigm")
 ax.legend(fontsize=8)
 plt.tight_layout()
+plt.savefig("intrinsec_auc_vs_dim.png", dpi=150, bbox_inches="tight")
 plt.show()
 
 ##############################################################################
@@ -379,6 +382,7 @@ ax.set_title("Effective dimension per dataset")
 ax.legend(title="Paradigm", fontsize=8)
 plt.xticks(rotation=25, ha="right")
 plt.tight_layout()
+plt.savefig("intrinsec_dim_igl_per_dataset.png", dpi=150, bbox_inches="tight")
 plt.show()
 
 ##############################################################################
@@ -424,4 +428,35 @@ axes[1].set_title("Mean compression ratio per dataset")
 axes[1].axvline(1.0, ls="--", color="grey", lw=0.8)
 
 plt.tight_layout()
+plt.savefig("intrinsec_compress_ratio_per_paradigm.png", dpi=150, bbox_inches="tight")
+plt.show()
+
+##############################################################################
+# Plot 6: d_eff by operator, faceted by paradigm type
+# ----------------------------------------------------
+#
+# Shows how kernel choice affects the discovered intrinsic dimension,
+# separately for each EEG paradigm type.
+
+g = sns.FacetGrid(
+    df_igl, col="paradigm_type", height=4, aspect=0.9,
+    sharey=True, col_order=["P300", "MotorImagery", "RestingState"],
+)
+g.map_dataframe(
+    sns.boxplot, x="operator", y="eff_dim",
+    order=operators, palette="Set2",
+)
+g.map_dataframe(
+    sns.stripplot, x="operator", y="eff_dim",
+    order=operators, color="black", alpha=0.4, jitter=True, size=3,
+)
+g.set_axis_labels("Kernel operator", "Effective dimension $d_{\\mathrm{eff}}$")
+g.set_titles(col_template="{col_name}")
+g.figure.suptitle(
+    "Intrinsic dimension by kernel operator and EEG paradigm", y=1.02
+)
+for ax in g.axes.flat:
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=25, ha="right")
+plt.tight_layout()
+plt.savefig("intrinsec_dim_igl_operator.png", dpi=150, bbox_inches="tight")
 plt.show()

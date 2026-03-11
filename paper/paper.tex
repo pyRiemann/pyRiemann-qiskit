@@ -1030,6 +1030,156 @@ and (iv)~the Green kernel temporal integration outperforms a linear baseline
 by $+0.12$ AUC, validating the temporal aggregation mechanism.
 
 
+\subsection{IGL Intrinsic Dimension Across EEG Paradigms}
+\label{sec:ablation_igl_dim}
+
+To characterise what IGL learns from different EEG paradigms, we measure
+the effective intrinsic dimension $d_{\text{eff}}$ discovered by the Hard
+Concrete gates of \texttt{IGLSklearnClassifier} across seven datasets
+spanning three paradigm types.  For each dataset, covariance matrices are
+estimated (ERPCovariances for P300, LWF covariances for MI and resting
+state) and projected to the Riemannian tangent space, yielding a flat
+feature vector of ambient dimension $D = C(C+1)/2$.  IGL's gates then
+select the intrinsically informative subspace.  Four operators (gaussian,
+cauchy, laplacian, mexican\_hat) are evaluated, with preprocessing fitted
+inside each cross-validation fold to avoid data leakage.
+
+\paragraph{Intrinsic dimension by paradigm.}
+Figure~\ref{fig:intrinsec_dim} shows a clear ordering across paradigm
+types.  P300 datasets (bi2012 and Cattan2019-VR) exhibit the lowest
+effective dimension ($d_{\text{eff}} \approx 13$, IQR~12--14),
+consistent with the ERP signal being spatially concentrated in a small
+number of components.  Motor Imagery datasets require substantially more
+dimensions ($d_{\text{eff}} \approx 20$--26), reflecting the distributed
+mu/beta desynchronisation across the scalp.  Resting-state datasets
+span the widest range ($d_{\text{eff}} \approx 14$--26 depending on the
+dataset), which we attribute to the heterogeneity of the paradigms
+(medication state, workload, open/closed eyes).
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{intrinsec_dim_igl.png}
+  \caption{Effective dimension $d_{\text{eff}}$ per paradigm type,
+    aggregated across datasets, operators, and folds.
+    P300 is markedly lower-dimensional than MI and resting state.
+    Strip points show individual datasets.}
+  \label{fig:intrinsec_dim}
+\end{figure}
+
+Figure~\ref{fig:intrinsec_dim_per_dataset} shows the per-dataset breakdown.
+Within P300, both bi2012 and Cattan2019-VR give consistent $d_{\text{eff}}
+\approx 13$, suggesting robustness to recording context (screen vs.\
+virtual reality).  Within MI, AlexMI saturates at $d_{\text{eff}}\approx 26$
+while BNCI2014-001 plateaus at $\approx 20$, likely reflecting different
+electrode counts (16 vs.\ 22 channels).  Within resting state, PHMD and
+Rodrigues2017 saturate near the maximum ($\approx 25$--26), whereas
+Hinss2021 is lower ($\approx 17$), consistent with its shorter epoch
+windows (0--0.5~s) limiting temporal complexity.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{intrinsec_dim_igl_per_dataset.png}
+  \caption{Per-dataset effective dimension.  Both P300 datasets
+    consistently yield $d_{\text{eff}}\approx 13$.  MI and RS datasets
+    saturate near the max\_dim ceiling (32), with Hinss2021 as a notable
+    exception ($d_{\text{eff}}\approx 17$) due to short epochs.}
+  \label{fig:intrinsec_dim_per_dataset}
+\end{figure}
+
+\paragraph{Compression ratio.}
+Figure~\ref{fig:intrinsec_compress} shows the compression ratio
+$d_{\text{eff}}/D$.  P300 achieves the most dramatic compression
+($d_{\text{eff}}/D \approx 0.01$): ERPCovariances augments the feature
+matrix to a large $D$, yet IGL uses only $\sim$13 of those dimensions.
+MI and RS datasets have higher compression ratios ($\approx 0.10$--0.20),
+indicating that the tangent-space geometry is less compressible for
+continuous-state paradigms.  Hinss2021 is a notable exception among
+resting-state datasets, with a ratio of $\approx 0.03$ owing to its
+32-channel montage that produces a large ambient $D = 528$, making it
+geometrically similar to the P300 setting despite the different paradigm.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{intrinsec_compress_ratio_per_paradigm.png}
+  \caption{Compression ratio $d_{\text{eff}}/D$ by paradigm (left) and
+    per dataset (right).  P300 achieves the highest compression despite
+    using ERPCovariances, which yields a large ambient dimension $D$.}
+  \label{fig:intrinsec_compress}
+\end{figure}
+
+\paragraph{AUC vs.\ effective dimension.}
+Figure~\ref{fig:intrinsec_auc_dim} plots ROC AUC against $d_{\text{eff}}$
+for every fold and operator.  P300 (blue) occupies the low-$d_{\text{eff}}$
+region ($\approx 10$--17) while maintaining high AUC ($\approx 0.77$--0.89),
+illustrating that strong discrimination is achievable with few intrinsic
+dimensions.  The Hinss2021 resting-state dataset similarly achieves
+$\text{AUC}\approx 0.94$ at $d_{\text{eff}}\approx 14$--15.  In contrast,
+MI and the remaining resting-state datasets cluster at
+$d_{\text{eff}}\approx 25$--26 but show much wider AUC variance
+($0.29$--$0.77$), indicating that a high effective dimension does not
+guarantee discriminability.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{intrinsec_dim_igl_auc.png}
+  \caption{ROC AUC vs.\ effective dimension $d_{\text{eff}}$ per fold and
+    operator, coloured by paradigm type.  P300 achieves high AUC at
+    low $d_{\text{eff}}$; resting-state datasets at high $d_{\text{eff}}$
+    show large AUC variance.}
+  \label{fig:intrinsec_auc_dim}
+\end{figure}
+
+\paragraph{Effect of operator.}
+Figure~\ref{fig:intrinsec_operator} shows that for P300, the gaussian
+operator yields the lowest and most consistent $d_{\text{eff}}$
+($\approx 12$--13), while the laplacian kernel produces the highest and most
+variable values ($\approx 14$--17).  Cauchy and mexican\_hat fall in between
+and are all tightly clustered.  For MI and RS, all four operators saturate
+near the ceiling, confirming that the dimensionality is determined by the
+data structure rather than the kernel choice.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{intrinsec_dim_igl_operator.png}
+  \caption{Effective dimension per operator and paradigm type.  P300
+    shows operator sensitivity; MI and RS saturate regardless of kernel.}
+  \label{fig:intrinsec_operator}
+\end{figure}
+
+\paragraph{IGL vs.\ TS+LR baseline.}
+Figure~\ref{fig:intrinsec_vs_lda} plots the IGL AUC against the
+TS+LR (TangentSpace + LogisticRegression) baseline AUC for each dataset.
+Points above the diagonal indicate IGL outperforms the linear baseline.
+With logistic regression as the baseline, most points lie close to the
+diagonal, indicating that IGL and TS+LR reach comparable performance
+across paradigms.  IGL achieves a slight advantage on bi2012 ($+0.02$),
+Rodrigues2017 ($+0.08$), and PHMD ($+0.03$), while being essentially on
+par with TS+LR on Cattan2019-VR, BNCI2014-001, and Hinss2021
+($\Delta\approx 0$).  AlexMI is the only dataset where TS+LR leads IGL
+($-0.03$).  The near-diagonal alignment contrasts with the larger
+advantages observed when using LDA as a baseline, confirming that logistic
+regression already exploits the full ambient tangent-space dimension
+effectively.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{intrinsec_igl_vs_tslr.png}
+  \caption{IGL AUC (mean $\pm$ std over operators and folds) vs.\ TS+LR
+    AUC per dataset.  Points near the dashed diagonal indicate comparable
+    performance.  IGL is generally competitive with the logistic regression
+    baseline across all paradigms.}
+  \label{fig:intrinsec_vs_lda}
+\end{figure}
+
+\paragraph{Summary.}
+The intrinsic dimension of EEG covariance data on the SPD manifold is
+strongly paradigm-dependent: P300 requires only $\approx 13$ dimensions
+(out of $D > 100$), while MI and most resting-state paradigms saturate
+near the max\_dim ceiling of 32.  Against a TS+LR baseline, IGL achieves
+comparable classification AUC across all paradigms, demonstrating that
+its Green's kernel integration captures the relevant discriminative
+structure while operating in a substantially compressed subspace.
+
 % ============================================================
 \section{Discussion}
 \label{sec:discussion}
