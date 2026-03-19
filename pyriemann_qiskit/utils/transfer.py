@@ -70,7 +70,7 @@ class Adapter(BaseEstimator, ClassifierMixin):
 
     def fit(self, X, y, groups=None, target_domain=None):
         self.preprocessing_ = deepcopy(self.preprocessing)
-        X_cov = self.preprocessing_.fit_transform(X)
+        X_cov = self.preprocessing_.fit_transform(X, y)
         _, y_enc = encode_domains(X_cov, y, groups)
         self.estimator_ = deepcopy(self.estimator)
         _set_target_domain(self.estimator_, target_domain)
