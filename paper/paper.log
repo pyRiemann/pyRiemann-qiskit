@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.3.8)  8 MAR 2026 16:35
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.3.8)  23 MAR 2026 13:20
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -7,129 +7,102 @@ entering extended mode
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
 
-(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/ieeetran\IEEEt
-ran.cls
-Document Class: IEEEtran 2015/08/26 V1.8b by Michael Shell
--- See the "IEEEtran_HOWTO" manual for usage information.
--- http://www.michaelshell.org/tex/ieeetran/
-\@IEEEtrantmpdimenA=\dimen148
-\@IEEEtrantmpdimenB=\dimen149
-\@IEEEtrantmpdimenC=\dimen150
-\@IEEEtrantmpcountA=\count275
-\@IEEEtrantmpcountB=\count276
-\@IEEEtrantmpcountC=\count277
-\@IEEEtrantmptoksA=\toks17
-LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 5
-03.
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/base\article.c
+ls
+Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
 
-(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1ptm.
-fd
-File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/base\size10.cl
+o
+File: size10.clo 2025/01/22 v1.4n Standard LaTeX file (size option)
 )
--- Using 8.5in x 11in (letter) paper.
--- Using PDF output.
-\@IEEEnormalsizeunitybaselineskip=\dimen151
--- This is a 10 point document.
-LaTeX Encoding Info:    Redeclaring text command \textunderscore (encoding ?) o
-n input line 937.
-\CLASSINFOnormalsizebaselineskip=\dimen152
-\CLASSINFOnormalsizeunitybaselineskip=\dimen153
-\IEEEnormaljot=\dimen154
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <5> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 1090.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/it' in size <5> not available
-(Font)              Font shape `OT1/ptm/b/it' tried instead on input line 1090.
+\c@part=\count275
+\c@section=\count276
+\c@subsection=\count277
+\c@subsubsection=\count278
+\c@paragraph=\count279
+\c@subparagraph=\count280
+\c@figure=\count281
+\c@table=\count282
+\abovecaptionskip=\skip49
+\belowcaptionskip=\skip50
+\bibindent=\dimen148
+) (aaj2026.sty
+Package: aaj2026 2026/02/26 AI Agent Journal 2026 submission/camera-ready style
+ file
 
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 1090.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/it' in size <7> not available
-(Font)              Font shape `OT1/ptm/b/it' tried instead on input line 1090.
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/environ\enviro
+n.sty
+Package: environ 2014/05/04 v0.3 A new way to define environments
 
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <8> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 1090.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/it' in size <8> not available
-(Font)              Font shape `OT1/ptm/b/it' tried instead on input line 1090.
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/trimspaces\tri
+mspaces.sty
+Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
+)
+\@envbody=\toks17
+)
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/natbib\natbib.
+sty
+Package: natbib 2010/09/13 8.31b (PWD, AO)
+\bibhang=\skip51
+\bibsep=\skip52
+LaTeX Info: Redefining \cite on input line 694.
+\c@NAT@ctr=\count283
+)
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geome
+try.sty
+Package: geometry 2026/03/07 v6.0 Page Geometry
 
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 1090.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/it' in size <9> not available
-(Font)              Font shape `OT1/ptm/b/it' tried instead on input line 1090.
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyva
+l.sty
+Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
+\KV@toks@=\toks18
+)
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex
+.sty
+Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
 
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 1090.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/it' in size <10> not available
-(Font)              Font shape `OT1/ptm/b/it' tried instead on input line 1090.
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.
+sty
+Package: iftex 2024/12/12 v1.0g TeX engine tests
+))
+\Gm@cnth=\count284
+\Gm@cntv=\count285
+\c@Gm@tempcnt=\count286
+\Gm@bindingoffset=\dimen149
+\Gm@wd@mp=\dimen150
+\Gm@odd@mp=\dimen151
+\Gm@even@mp=\dimen152
+\Gm@layoutwidth=\dimen153
+\Gm@layoutheight=\dimen154
+\Gm@layouthoffset=\dimen155
+\Gm@layoutvoffset=\dimen156
+\Gm@dimlist=\toks19
 
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <11> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 1090.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/it' in size <11> not available
-(Font)              Font shape `OT1/ptm/b/it' tried instead on input line 1090.
-
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <12> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 1090.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/it' in size <12> not available
-(Font)              Font shape `OT1/ptm/b/it' tried instead on input line 1090.
-
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <17> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 1090.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/it' in size <17> not available
-(Font)              Font shape `OT1/ptm/b/it' tried instead on input line 1090.
-
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <20> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 1090.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/it' in size <20> not available
-(Font)              Font shape `OT1/ptm/b/it' tried instead on input line 1090.
-
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <24> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 1090.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/it' in size <24> not available
-(Font)              Font shape `OT1/ptm/b/it' tried instead on input line 1090.
-
-\IEEEquantizedlength=\dimen155
-\IEEEquantizedlengthdiff=\dimen156
-\IEEEquantizedtextheightdiff=\dimen157
-\IEEEilabelindentA=\dimen158
-\IEEEilabelindentB=\dimen159
-\IEEEilabelindent=\dimen160
-\IEEEelabelindent=\dimen161
-\IEEEdlabelindent=\dimen162
-\IEEElabelindent=\dimen163
-\IEEEiednormlabelsep=\dimen164
-\IEEEiedmathlabelsep=\dimen165
-\IEEEiedtopsep=\skip49
-\c@section=\count278
-\c@subsection=\count279
-\c@subsubsection=\count280
-\c@paragraph=\count281
-\c@IEEEsubequation=\count282
-\abovecaptionskip=\skip50
-\belowcaptionskip=\skip51
-\c@figure=\count283
-\c@table=\count284
-\@IEEEeqnnumcols=\count285
-\@IEEEeqncolcnt=\count286
-\@IEEEsubeqnnumrollback=\count287
-\@IEEEquantizeheightA=\dimen166
-\@IEEEquantizeheightB=\dimen167
-\@IEEEquantizeheightC=\dimen168
-\@IEEEquantizeprevdepth=\dimen169
-\@IEEEquantizemultiple=\count288
-\@IEEEquantizeboxA=\box53
-\@IEEEtmpitemindent=\dimen170
-\IEEEPARstartletwidth=\dimen171
-\c@IEEEbiography=\count289
-\@IEEEtranrubishbin=\box54
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geome
+try.cfg))
+\@aajabovecaptionskip=\skip53
+\@aajbelowcaptionskip=\skip54
 )
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/base\inputenc.
 sty
 Package: inputenc 2024/02/08 v1.3d Input encoding file
-\inpenc@prehook=\toks18
-\inpenc@posthook=\toks19
+\inpenc@prehook=\toks20
+\inpenc@posthook=\toks21
 )
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.s
+ty
+Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
+LaTeX Font Info:    Trying to load font information for T1+ptm on input line 11
+6.
+
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\t1ptm.f
+d
+File: t1ptm.fd 2001/06/04 font definitions for T1/ptm.
+))
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsmat
 h.sty
 Package: amsmath 2025/07/09 v2.17z AMS math features
-\@mathmargin=\skip52
+\@mathmargin=\skip55
 
 For additional information on amsmath, use the `?' option.
 
@@ -140,63 +113,63 @@ Package: amstext 2024/11/17 v2.01 AMS text
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsgen
 .sty
 File: amsgen.sty 1999/11/30 v2.0 generic functions
-\@emptytoks=\toks20
-\ex@=\dimen172
+\@emptytoks=\toks22
+\ex@=\dimen157
 ))
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsbsy
 .sty
 Package: amsbsy 1999/11/29 v1.2d Bold Symbols
-\pmbraise@=\dimen173
+\pmbraise@=\dimen158
 )
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsopn
 .sty
 Package: amsopn 2022/04/08 v2.04 operator names
 )
-\inf@bad=\count290
+\inf@bad=\count287
 LaTeX Info: Redefining \frac on input line 233.
-\uproot@=\count291
-\leftroot@=\count292
+\uproot@=\count288
+\leftroot@=\count289
 LaTeX Info: Redefining \overline on input line 398.
 LaTeX Info: Redefining \colon on input line 409.
-\classnum@=\count293
-\DOTSCASE@=\count294
+\classnum@=\count290
+\DOTSCASE@=\count291
 LaTeX Info: Redefining \ldots on input line 495.
 LaTeX Info: Redefining \dots on input line 498.
 LaTeX Info: Redefining \cdots on input line 619.
-\Mathstrutbox@=\box55
-\strutbox@=\box56
+\Mathstrutbox@=\box53
+\strutbox@=\box54
 LaTeX Info: Redefining \big on input line 721.
 LaTeX Info: Redefining \Big on input line 722.
 LaTeX Info: Redefining \bigg on input line 723.
 LaTeX Info: Redefining \Bigg on input line 724.
-\big@size=\dimen174
+\big@size=\dimen159
 LaTeX Font Info:    Redeclaring font encoding OML on input line 742.
 LaTeX Font Info:    Redeclaring font encoding OMS on input line 743.
-\macc@depth=\count295
+\macc@depth=\count292
 LaTeX Info: Redefining \bmod on input line 904.
 LaTeX Info: Redefining \pmod on input line 909.
 LaTeX Info: Redefining \smash on input line 939.
 LaTeX Info: Redefining \relbar on input line 969.
 LaTeX Info: Redefining \Relbar on input line 970.
-\c@MaxMatrixCols=\count296
+\c@MaxMatrixCols=\count293
 \dotsspace@=\muskip17
-\c@parentequation=\count297
-\dspbrk@lvl=\count298
-\tag@help=\toks21
-\row@=\count299
-\column@=\count300
-\maxfields@=\count301
-\andhelp@=\toks22
-\eqnshift@=\dimen175
-\alignsep@=\dimen176
-\tagshift@=\dimen177
-\tagwidth@=\dimen178
-\totwidth@=\dimen179
-\lineht@=\dimen180
-\@envbody=\toks23
-\multlinegap=\skip53
-\multlinetaggap=\skip54
-\mathdisplay@stack=\toks24
+\c@parentequation=\count294
+\dspbrk@lvl=\count295
+\tag@help=\toks23
+\row@=\count296
+\column@=\count297
+\maxfields@=\count298
+\andhelp@=\toks24
+\eqnshift@=\dimen160
+\alignsep@=\dimen161
+\tagshift@=\dimen162
+\tagwidth@=\dimen163
+\totwidth@=\dimen164
+\lineht@=\dimen165
+\@envbody=\toks25
+\multlinegap=\skip56
+\multlinetaggap=\skip57
+\mathdisplay@stack=\toks26
 LaTeX Info: Redefining \[ on input line 2950.
 LaTeX Info: Redefining \] on input line 2951.
 )
@@ -216,25 +189,20 @@ LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/amscls\amsthm.
 sty
 Package: amsthm 2020/05/29 v2.20.6
-\thm@style=\toks25
-\thm@bodyfont=\toks26
-\thm@headfont=\toks27
-\thm@notefont=\toks28
-\thm@headpunct=\toks29
-\thm@preskip=\skip55
-\thm@postskip=\skip56
-\thm@headsep=\skip57
-\dth@everypar=\toks30
+\thm@style=\toks27
+\thm@bodyfont=\toks28
+\thm@headfont=\toks29
+\thm@notefont=\toks30
+\thm@headpunct=\toks31
+\thm@preskip=\skip58
+\thm@postskip=\skip59
+\thm@headsep=\skip60
+\dth@everypar=\toks32
 )
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graph
 icx.sty
 Package: graphicx 2024/12/31 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
 
-(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyva
-l.sty
-Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
-\KV@toks@=\toks31
-)
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graph
 ics.sty
 Package: graphics 2024/08/06 v1.4g Standard LaTeX Graphics (DPC,SPQR)
@@ -253,38 +221,34 @@ Package graphics Info: Driver file: pdftex.def on input line 106.
 dftex.def
 File: pdftex.def 2025/09/29 v1.2d Graphics/color driver for pdftex
 ))
-\Gin@req@height=\dimen181
-\Gin@req@width=\dimen182
+\Gin@req@height=\dimen166
+\Gin@req@width=\dimen167
 )
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\bookt
 abs.sty
 Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
-\heavyrulewidth=\dimen183
-\lightrulewidth=\dimen184
-\cmidrulewidth=\dimen185
-\belowrulesep=\dimen186
-\belowbottomsep=\dimen187
-\aboverulesep=\dimen188
-\abovetopsep=\dimen189
-\cmidrulesep=\dimen190
-\cmidrulekern=\dimen191
-\defaultaddspace=\dimen192
-\@cmidla=\count302
-\@cmidlb=\count303
-\@aboverulesep=\dimen193
-\@belowrulesep=\dimen194
-\@thisruleclass=\count304
-\@lastruleclass=\count305
-\@thisrulewidth=\dimen195
+\heavyrulewidth=\dimen168
+\lightrulewidth=\dimen169
+\cmidrulewidth=\dimen170
+\belowrulesep=\dimen171
+\belowbottomsep=\dimen172
+\aboverulesep=\dimen173
+\abovetopsep=\dimen174
+\cmidrulesep=\dimen175
+\cmidrulekern=\dimen176
+\defaultaddspace=\dimen177
+\@cmidla=\count299
+\@cmidlb=\count300
+\@aboverulesep=\dimen178
+\@belowrulesep=\dimen179
+\@thisruleclass=\count301
+\@lastruleclass=\count302
+\@thisrulewidth=\dimen180
 )
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hyper
 ref.sty
 Package: hyperref 2026-01-29 v7.01p Hypertext links for LaTeX
 
-(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.
-sty
-Package: iftex 2024/12/12 v1.0g TeX engine tests
-)
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/kvsetkeys\kvse
 tkeys.sty
 Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
@@ -334,21 +298,21 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 tions.sty
 Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
 ))
-\c@section@level=\count306
+\c@section@level=\count303
 )
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/etoolbox\etool
 box.sty
 Package: etoolbox 2025/10/02 v2.5m e-TeX tools for LaTeX (JAW)
-\etb@tempcnta=\count307
+\etb@tempcnta=\count304
 )
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/generic/stringenc\st
 ringenc.sty
 Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO
 )
 )
-\@linkdim=\dimen196
-\Hy@linkcounter=\count308
-\Hy@pagecounter=\count309
+\@linkdim=\dimen181
+\Hy@linkcounter=\count305
+\Hy@pagecounter=\count306
 
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\pd1en
 c.def
@@ -360,7 +324,7 @@ Now handling font encoding PD1 ...
 alc.sty
 Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
 )
-\Hy@SavedSpaceFactor=\count310
+\Hy@SavedSpaceFactor=\count307
 
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\puenc
 .def
@@ -375,14 +339,14 @@ Package hyperref Info: Plain pages OFF on input line 4216.
 Package hyperref Info: Backreferencing OFF on input line 4221.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
 Package hyperref Info: Bookmarks ON on input line 4468.
-\c@Hy@tempcnt=\count311
+\c@Hy@tempcnt=\count308
 
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty
 \Urlmuskip=\muskip18
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
 LaTeX Info: Redefining \url on input line 4807.
-\XeTeXLinkMargin=\dimen197
+\XeTeXLinkMargin=\dimen182
 
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/generic/bitset\bitse
 t.sty
@@ -393,9 +357,9 @@ igintcalc.sty
 Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
 )
 ))
-\Fld@menulength=\count312
-\Field@Width=\dimen198
-\Fld@charsize=\dimen199
+\Fld@menulength=\count309
+\Field@Width=\dimen183
+\Fld@charsize=\dimen184
 Package hyperref Info: Hyper figures OFF on input line 6084.
 Package hyperref Info: Link nesting OFF on input line 6089.
 Package hyperref Info: Hyper index ON on input line 6092.
@@ -403,17 +367,17 @@ Package hyperref Info: backreferencing OFF on input line 6099.
 Package hyperref Info: Link coloring OFF on input line 6104.
 Package hyperref Info: Link coloring with OCG OFF on input line 6109.
 Package hyperref Info: PDF/A mode OFF on input line 6114.
-\Hy@abspage=\count313
-\c@Item=\count314
-\c@Hfootnote=\count315
+\Hy@abspage=\count310
+\c@Item=\count311
+\c@Hfootnote=\count312
 )
 Package hyperref Info: Driver (autodetected): hpdftex.
 
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hpdft
 ex.def
 File: hpdftex.def 2026-01-29 v7.01p Hyperref driver for pdfTeX
-\Fld@listcount=\count316
-\c@bookmark@seq@number=\count317
+\Fld@listcount=\count313
+\c@bookmark@seq@number=\count314
 
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/rerunfilecheck
 \rerunfilecheck.sty
@@ -426,7 +390,7 @@ Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
 Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 84.
 )
-\Hy@SectionHShift=\skip58
+\Hy@SectionHShift=\skip61
 )
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/xcolor\xcolor.
 sty
@@ -458,18 +422,18 @@ nment
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/float\float.st
 y
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count318
-\float@exts=\toks32
-\float@box=\box57
-\@float@everytoks=\toks33
-\@floatcapt=\box58
+\c@float@type=\count315
+\float@exts=\toks33
+\float@box=\box55
+\@float@everytoks=\toks34
+\@floatcapt=\box56
 )
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/base\ifthen.st
 y
 Package: ifthen 2024/03/16 v1.1e Standard LaTeX ifthen package (DPC)
 )
-\@float@every@algorithm=\toks34
-\c@algorithm=\count319
+\@float@every@algorithm=\toks35
+\c@algorithm=\count316
 )
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/algorithmicx\a
 lgpseudocode.sty
@@ -480,77 +444,176 @@ lgorithmicx.sty
 Package: algorithmicx 2005/04/27 v1.2 Algorithmicx
 
 Document Style algorithmicx 1.2 - a greatly improved `algorithmic' style
-\c@ALG@line=\count320
-\c@ALG@rem=\count321
-\c@ALG@nested=\count322
-\ALG@tlm=\skip59
-\ALG@thistlm=\skip60
-\c@ALG@Lnr=\count323
-\c@ALG@blocknr=\count324
-\c@ALG@storecount=\count325
-\c@ALG@tmpcounter=\count326
-\ALG@tmplength=\skip61
+\c@ALG@line=\count317
+\c@ALG@rem=\count318
+\c@ALG@nested=\count319
+\ALG@tlm=\skip62
+\ALG@thistlm=\skip63
+\c@ALG@Lnr=\count320
+\c@ALG@blocknr=\count321
+\c@ALG@storecount=\count322
+\c@ALG@tmpcounter=\count323
+\ALG@tmplength=\skip64
 )
 Document Style - pseudocode environments for use with the `algorithmicx' style
-)
-(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/cite\cite.sty
-LaTeX Info: Redefining \cite on input line 302.
-LaTeX Info: Redefining \nocite on input line 332.
-Package: cite 2015/02/27  v 5.5
 )
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.st
 y
 Package: array 2025/09/25 v2.6n Tabular extension package (FMi)
-\col@sep=\dimen256
-\ar@mcellbox=\box59
-\extrarowheight=\dimen257
-\NC@list=\toks35
-\extratabsurround=\skip62
-\backup@length=\skip63
-\ar@cellbox=\box60
+\col@sep=\dimen185
+\ar@mcellbox=\box57
+\extrarowheight=\dimen186
+\NC@list=\toks36
+\extratabsurround=\skip65
+\backup@length=\skip66
+\ar@cellbox=\box58
+)
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/units\nicefrac
+.sty
+Package: nicefrac 1998/08/04 v0.9b Nice fractions
+\L@UnitsRaiseDisplaystyle=\skip67
+\L@UnitsRaiseTextstyle=\skip68
+\L@UnitsRaiseScriptstyle=\skip69
+)
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/microtype\micr
+otype.sty
+Package: microtype 2026/03/01 v3.2d Micro-typographical refinements (RS)
+\MT@toks=\toks37
+\MT@tempbox=\box59
+\MT@count=\count324
+LaTeX Info: Redefining \noprotrusionifhmode on input line 1084.
+LaTeX Info: Redefining \leftprotrusion on input line 1085.
+\MT@prot@toks=\toks38
+LaTeX Info: Redefining \rightprotrusion on input line 1104.
+LaTeX Info: Redefining \textls on input line 1449.
+\MT@outer@kern=\dimen187
+LaTeX Info: Redefining \microtypecontext on input line 2053.
+LaTeX Info: Redefining \textmicrotypecontext on input line 2070.
+\MT@listname@count=\count325
+
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/microtype\micr
+otype-pdftex.def
+File: microtype-pdftex.def 2026/03/01 v3.2d Definitions specific to pdftex (RS)
+
+LaTeX Info: Redefining \lsstyle on input line 944.
+LaTeX Info: Redefining \lslig on input line 944.
+\MT@outer@space=\skip70
+)
+Package microtype Info: Loading configuration file microtype.cfg.
+
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/microtype\micr
+otype.cfg
+File: microtype.cfg 2026/03/01 v3.2d microtype main configuration file (RS)
+)
+LaTeX Info: Redefining \microtypesetup on input line 3065.
 )
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3ba
 ckend-pdftex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count327
+\l__color_backend_stack_int=\count326
 ) (paper.aux)
 \openout1 = `paper.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
 
--- Lines per column: 58 (exact).
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: letterpaper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(92.14519pt, 430.00462pt, 92.14519pt)
+* v-part:(T,H,B)=(95.39737pt, 556.47656pt, 143.09605pt)
+* \paperwidth=614.295pt
+* \paperheight=794.96999pt
+* \textwidth=430.00462pt
+* \textheight=556.47656pt
+* \oddsidemargin=19.8752pt
+* \evensidemargin=19.8752pt
+* \topmargin=-13.87262pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=10.0pt
+* \footskip=30.0pt
+* \marginparwidth=65.0pt
+* \marginparsep=11.0pt
+* \columnsep=10.0pt
+* \skip\footins=9.0pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+*geometry* verbose mode - [ newgeometry ] result:
+* driver: pdftex
+* paper: letterpaper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(108.405pt, 397.48499pt, 108.40501pt)
+* v-part:(T,H,B)=(72.26999pt, 650.43pt, 72.27pt)
+* \paperwidth=614.295pt
+* \paperheight=794.96999pt
+* \textwidth=397.48499pt
+* \textheight=650.43pt
+* \oddsidemargin=36.13501pt
+* \evensidemargin=36.13501pt
+* \topmargin=-37.0pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=10.0pt
+* \footskip=30.0pt
+* \marginparwidth=65.0pt
+* \marginparsep=11.0pt
+* \columnsep=10.0pt
+* \skip\footins=9.0pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
 
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\su
 pp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count328
-\scratchdimen=\dimen258
-\scratchbox=\box61
-\nofMPsegments=\count329
-\nofMParguments=\count330
-\everyMPshowfont=\toks36
-\MPscratchCnt=\count331
-\MPscratchDim=\dimen259
-\MPnumerator=\count332
-\makeMPintoPDFobject=\count333
-\everyMPtoPDFconversion=\toks37
+\scratchcounter=\count327
+\scratchdimen=\dimen188
+\scratchbox=\box60
+\nofMPsegments=\count328
+\nofMParguments=\count329
+\everyMPshowfont=\toks39
+\MPscratchCnt=\count330
+\MPscratchDim=\dimen189
+\MPnumerator=\count331
+\makeMPintoPDFobject=\count332
+\everyMPtoPDFconversion=\toks40
 )
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\e
 pstopdf-base.sty
@@ -562,517 +625,264 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 pdf-sys.cfg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-Package hyperref Info: Link coloring OFF on input line 40.
+Package hyperref Info: Link coloring OFF on input line 50.
  (paper.out) (paper.out)
 \@outlinefile=\write3
 \openout3 = `paper.out'.
 
-LaTeX Font Info:    Trying to load font information for U+msa on input line 51.
+LaTeX Info: Redefining \microtypecontext on input line 50.
+Package microtype Info: Applying patch `item' on input line 50.
+Package microtype Info: Applying patch `toc' on input line 50.
+Package microtype Info: Applying patch `eqnum' on input line 50.
+Package microtype Info: Applying patch `footnote' on input line 50.
+Package microtype Info: Applying patch `verbatim' on input line 50.
+LaTeX Info: Redefining \microtypesetup on input line 50.
+Package microtype Info: Generating PDF output.
+Package microtype Info: Character protrusion enabled (level 2).
+Package microtype Info: Using default protrusion set `alltext'.
+Package microtype Info: Automatic font expansion enabled (level 2),
+(microtype)             stretch: 20, shrink: 20, step: 1, non-selected.
+Package microtype Info: Using default expansion set `alltext-nott'.
+Package microtype Info: Patching command `\showhyphens'.
+Package microtype Info: No adjustment of tracking.
+Package microtype Info: No adjustment of interword spacing.
+Package microtype Info: No adjustment of character kerning.
+
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-p
+tm.cfg
+File: mt-ptm.cfg 2006/04/20 v1.7 microtype config. file: Times (RS)
+)
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-c
+mr.cfg
+File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
+(RS)
+)
+LaTeX Font Info:    Trying to load font information for U+msa on input line 53.
 
 
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.
 fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 51.
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-m
+sa.cfg
+File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 53.
 
 
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.
 fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Underfull \hbox (badness 10000) in paragraph at lines 118--122
-[]\OT1/ptm/b/sc/10 QuantumStateDiscriminator\OT1/ptm/m/n/10 : a quantum-
- []
-
-LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 1
-29.
-
-(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1pcr.
-fd
-File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-m
+sb.cfg
+File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
-Underfull \hbox (badness 10000) in paragraph at lines 128--133
-[]\OT1/ptm/b/n/10 Cross-subject TL in-fras-truc-ture for
+Package microtype Info: Loading generic protrusion settings for font family
+(microtype)             `cmtt' (encoding: T1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+ [1
+
+
+{C:/Users/GregoireCATTAN/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/U
+sers/GregoireCATTAN/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}]
+
+Underfull \hbox (badness 1286) in paragraph at lines 129--134
+[]\T1/ptm/b/n/10 (+20) Cross-subject TL in-fras-truc-ture for MOABB\T1/ptm/m/n/
+10 (+20) : the \T1/cmtt/m/n/10 Adapter \T1/ptm/m/n/10 (+20) meta-estimator and
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 128--133
-\OT1/ptm/b/n/10 MOABB\OT1/ptm/m/n/10 : the \OT1/pcr/m/n/10 Adapter \OT1/ptm/m/n
-/10 meta-estimator and
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 128--133
-\OT1/pcr/m/n/10 TLCrossSubjectEvaluation \OT1/ptm/m/n/10 class en-able
- []
-
-
-Underfull \hbox (badness 2478) in paragraph at lines 128--133
-\OT1/ptm/m/n/10 seam-less in-te-gra-tion of pyrie-mann transfer-learning
- []
-
-
-Underfull \vbox (badness 1024) has occurred while \output is active []
-
-
-
-! Package xcolor Error: Undefined color `TODOCOLOR'.
-
-See the xcolor package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.144 
-      
-? 
-[1{C:/Users/GregoireCATTAN/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:
-/Users/GregoireCATTAN/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc
-}
-
-
-]
-Underfull \hbox (badness 10000) in paragraph at lines 202--207
-[]\OT1/ptm/m/n/10 The Quan-tum Ap-prox-i-mate Op-ti-miza-tion Al-go-rithm
- []
-
-
-Underfull \hbox (badness 2884) in paragraph at lines 202--207
-\OT1/ptm/m/n/10 (QAOA) [[]9[]] is a vari-a-tional quan-tum al-go-rithm of $\OML
-/cmm/m/it/10 p$
- []
-
-
-Overfull \hbox (19.80618pt too wide) in paragraph at lines 277--286
- [][] 
- []
-
-
-! Package xcolor Error: Undefined color `TODOCOLOR'.
-
-See the xcolor package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.286 \end{table}
-                 
-? 
 [2]
-Underfull \hbox (badness 10000) in paragraph at lines 288--292
-[]\OT1/ptm/m/n/10 Epochs are ex-tracted us-ing the
- []
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 1
+91.
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 288--292
-\OT1/pcr/m/n/10 RestingStateToP300Adapter \OT1/ptm/m/n/10 paradigm. For
- []
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-! Package xcolor Error: Undefined color `TODOCOLOR'.
-
-See the xcolor package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.438 \paragraph
-                {Regularization note.}
-? 
-[3
+(C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ts1ptm.
+fd
+File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
+) [3] [4
 pdfTeX warning (ext4): destination with the same identifier (name{table.1}) has
  been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.438 \paragraph
-                {Regularization note.}
+l.349 
+      ]
+Underfull \hbox (badness 5533) in paragraph at lines 390--393
+ []\T1/ptm/b/n/10 (+20) Predict.[] \T1/ptm/m/n/10 (+20) For a new epoch $\OML/c
+mm/m/it/10 X$\T1/ptm/m/n/10 (+20) , form the nor-mal-ized mea-sure-ment op-er-a
+-tor $\OML/cmm/m/it/10 M \OT1/cmr/m/n/10 =
+ []
+
+[5
 pdfTeX warning (ext4): destination with the same identifier (name{table.2}) has
  been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.438 \paragraph
-                {Regularization note.}]
-Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
-put line 446.
+l.441 
+      ]
 
-Underfull \hbox (badness 2376) in paragraph at lines 467--474
-\OT1/ptm/m/n/10 of QAOA-CV in-tro-duces cir-cu-lar en-tan-gle-ment be-tween
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<scatter_plot.png, id=253, 1110.0672pt x 617.9085pt>
+File: scatter_plot.png Graphic file (type png)
+<use scatter_plot.png>
+Package pdftex.def Info: scatter_plot.png  used on input line 523.
+(pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Underfull \hbox (badness 7649) in paragraph at lines 533--538
+\T1/ptm/m/n/10 (+20) Figure []2[] shows the pair-wise sta-tis-ti-cal com-par-i-
+son ma-trix pro-duced by MOABB's
  []
 
+<summary_plot.png, id=256, 1110.0672pt x 617.9085pt>
+File: summary_plot.png Graphic file (type png)
+<use summary_plot.png>
+Package pdftex.def Info: summary_plot.png  used on input line 541.
+(pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
 
-Underfull \hbox (badness 6658) in paragraph at lines 467--474
-\OT1/ptm/m/n/10 qumodes via beam-splitter gates ar-ranged in a ring
- []
+LaTeX Warning: `h' float specifier changed to `ht'.
 
-
-Underfull \hbox (badness 1859) in paragraph at lines 467--474
-\OT1/ptm/m/n/10 topol-ogy, al-ter-nat-ing with single-mode dis-place-ment and
- []
-
-
-Underfull \hbox (badness 5504) in paragraph at lines 467--474
-\OT1/ptm/m/n/10 phase-shift op-er-a-tors. The mixer is con-structed us-ing
- []
-
-
-Overfull \hbox (2.5pt too wide) in paragraph at lines 467--474
-\OT1/pcr/m/n/10 create_mixer_with_circular_entanglement(0)\OT1/ptm/m/n/10 .
- []
-
-
-Overfull \hbox (53.90057pt too wide) detected at line 507
-[][][]\OML/cmm/m/it/10 u\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 ^^X\OT1/cmr/m/n/10 ) 
-= [] \OML/cmm/m/it/10 ^^M[]w[] [] I[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 ^^X[]\OT
-1/cmr/m/n/10 )\OML/cmm/m/it/10 ;  I[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 ^^X[]\OT
-1/cmr/m/n/10 ) = [] \OML/cmm/m/it/10 G[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 ^^X[]
-; ^^P[]\OT1/cmr/m/n/10 ) \OML/cmm/m/it/10 ^^^[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/1
-0 ^^P[]\OT1/cmr/m/n/10 ) d\OML/cmm/m/it/10 ^^P[];
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 524--528
-[]\OT1/ptm/m/n/10 For raw EEG epochs $\OML/cmm/m/it/10 X \OMS/cmsy/m/n/10 2 \U/
-msb/m/n/10 R[]$ \OT1/ptm/m/n/10 we use
- []
-
-
-Underfull \hbox (badness 2856) in paragraph at lines 524--528
-\OT1/pcr/m/n/10 IGLTimeSeriesSklearnClassifier\OT1/ptm/m/n/10 , which de-parts
- []
-
-<igl_picture.png, id=268, 641.9985pt x 263.48438pt>
-File: igl_picture.png Graphic file (type png)
-<use igl_picture.png>
-Package pdftex.def Info: igl_picture.png  used on input line 564.
-(pdftex.def)             Requested size: 252.0pt x 103.42587pt.
-
-! Package xcolor Error: Undefined color `TODOCOLOR'.
-
-See the xcolor package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.575 \end{figure}
-                  
-? 
-[4
+[6
 pdfTeX warning (ext4): destination with the same identifier (name{table.3}) has
  been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.575 \end{figure}
-                  ]
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<scatter_plot.png, id=294, 1110.0672pt x 617.9085pt>
-File: scatter_plot.png Graphic file (type png)
-<use scatter_plot.png>
-Package pdftex.def Info: scatter_plot.png  used on input line 649.
-(pdftex.def)             Requested size: 252.0pt x 140.26797pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 659--667
-[]\OT1/ptm/m/n/10 Figure []3[] shows the pair-wise sta-tis-ti-cal
+l.563 
+      ]
+Underfull \hbox (badness 1057) in paragraph at lines 572--577
+\T1/ptm/m/n/10 (+20) with class-specific Cholesky mix-ing ma-tri-ces to in-tro-
+duce per-subject do-main off-sets (see
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 659--667
-\OT1/ptm/m/n/10 com-par-i-son ma-trix pro-duced by MOABB's
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 659--667
-\OT1/pcr/m/n/10 find_significant_differences \OT1/ptm/m/n/10 pro-ce-dure. Cells
-
- []
-
-
-Underfull \hbox (badness 1755) in paragraph at lines 659--667
-\OT1/ptm/m/n/10 re-port the stan-dard-ized ef-fect size and $\OML/cmm/m/it/10 p
-$\OT1/ptm/m/n/10 -value from a
- []
-
-
-Underfull \hbox (badness 4036) in paragraph at lines 659--667
-\OT1/ptm/m/n/10 Wilcoxon signed-rank test across datasets; green cells
- []
-
-<summary_plot.png, id=296, 1110.0672pt x 617.9085pt>
-File: summary_plot.png Graphic file (type png)
-<use summary_plot.png>
-Package pdftex.def Info: summary_plot.png  used on input line 670.
-(pdftex.def)             Requested size: 252.0pt x 140.26797pt.
-
-! Package xcolor Error: Undefined color `TODOCOLOR'.
-
-See the xcolor package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.682   \item \textbf
-                     {MDM+TL $>$ TS+LDA+TL} ($p=0.04$, SMD$=1.77$): after
-? 
-[5
-pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) ha
-s been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.682   \item \textbf
-                     {MDM+TL $>$ TS+LDA+TL} ($p=0.04$, SMD$=1.77$): after
+[7
 pdfTeX warning (ext4): destination with the same identifier (name{table.4}) has
  been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.682   \item \textbf
-                     {MDM+TL $>$ TS+LDA+TL} ($p=0.04$, SMD$=1.77$): after
-pdfTeX warning (ext4): destination with the same identifier (name{table.5}) has
- been already used, duplicate ignored
+l.578 F
+       igure~\ref{fig:ablation_tl} illustrates geometrically what RPA achieves
+pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) ha
+s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.682   \item \textbf
-                     {MDM+TL $>$ TS+LDA+TL} ($p=0.04$, SMD$=1.77$): after
+l.578 F
+       igure~\ref{fig:ablation_tl} illustrates geometrically what RPA achieves 
+<./scatter_plot.png>]
+<ablation_study_tl.png, id=272, 1011.78pt x 433.62pt>
+File: ablation_study_tl.png Graphic file (type png)
+<use ablation_study_tl.png>
+Package pdftex.def Info: ablation_study_tl.png  used on input line 595.
+(pdftex.def)             Requested size: 397.48499pt x 170.35501pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<ablation_study_nreps.png, id=274, 722.7pt x 289.08pt>
+File: ablation_study_nreps.png Graphic file (type png)
+<use ablation_study_nreps.png>
+Package pdftex.def Info: ablation_study_nreps.png  used on input line 625.
+(pdftex.def)             Requested size: 397.48499pt x 158.99448pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<ablation_study_qioce_optimizer.png, id=276, 1110.0672pt x 617.9085pt>
+File: ablation_study_qioce_optimizer.png Graphic file (type png)
+<use ablation_study_qioce_optimizer.png>
+Package pdftex.def Info: ablation_study_qioce_optimizer.png  used on input line
+ 643.
+(pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<ablation_study_qioce_optimizer_loss.png, id=277, 1110.0672pt x 617.9085pt>
+File: ablation_study_qioce_optimizer_loss.png Graphic file (type png)
+<use ablation_study_qioce_optimizer_loss.png>
+Package pdftex.def Info: ablation_study_qioce_optimizer_loss.png  used on input
+ line 652.
+(pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[8
 pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.682   \item \textbf
-                     {MDM+TL $>$ TS+LDA+TL} ($p=0.04$, SMD$=1.77$): after
+l.664   \item A
+               nderson (the Ulvi optimizer) achieves the \emph{lowest} AUC (...
+ <./summary_plot.png>]
+Underfull \vbox (badness 7576) has occurred while \output is active []
+
+ [9
 pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.682   \item \textbf
-                     {MDM+TL $>$ TS+LDA+TL} ($p=0.04$, SMD$=1.77$): after <./ig
-l_picture.png> <./scatter_plot.png> <./summary_plot.png>]
-<igl_vs_tslda.png, id=314, 1110.0672pt x 617.9085pt>
-File: igl_vs_tslda.png Graphic file (type png)
-<use igl_vs_tslda.png>
-Package pdftex.def Info: igl_vs_tslda.png  used on input line 697.
-(pdftex.def)             Requested size: 252.0pt x 140.26797pt.
-<mdm_ulvitl.png, id=315, 1110.0672pt x 617.9085pt>
-File: mdm_ulvitl.png Graphic file (type png)
-<use mdm_ulvitl.png>
-Package pdftex.def Info: mdm_ulvitl.png  used on input line 706.
-(pdftex.def)             Requested size: 252.0pt x 140.26797pt.
-<tslda_vs_naive.png, id=316, 1110.0672pt x 617.9085pt>
-File: tslda_vs_naive.png Graphic file (type png)
-<use tslda_vs_naive.png>
-Package pdftex.def Info: tslda_vs_naive.png  used on input line 715.
-(pdftex.def)             Requested size: 252.0pt x 140.26797pt.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-Underfull \hbox (badness 2027) in paragraph at lines 724--730
-\OT1/ptm/m/n/10 on MDM ($\OT1/cmr/m/n/10 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 613
- \OMS/cmsy/m/n/10 ! \OT1/cmr/m/n/10 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 595$\OT1
-/ptm/m/n/10 ; within noise) and leaves
- []
-
-
-Underfull \hbox (badness 4403) in paragraph at lines 739--744
-[]\OT1/ptm/m/n/10 To iso-late the ef-fect of RPA align-ment on NCH,
- []
-
-
-Underfull \hbox (badness 1577) in paragraph at lines 739--744
-\OT1/ptm/m/n/10 shift: 10 sim-u-lated sub-jects, 4 chan-nels, 50 time sam-
- []
-
-<ablation_study_tl.png, id=318, 1011.78pt x 433.62pt>
-File: ablation_study_tl.png Graphic file (type png)
-<use ablation_study_tl.png>
-Package pdftex.def Info: ablation_study_tl.png  used on input line 762.
-(pdftex.def)             Requested size: 252.0pt x 108.00111pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<ablation_study_nreps.png, id=320, 722.7pt x 289.08pt>
-File: ablation_study_nreps.png Graphic file (type png)
-<use ablation_study_nreps.png>
-Package pdftex.def Info: ablation_study_nreps.png  used on input line 792.
-(pdftex.def)             Requested size: 252.0pt x 100.80016pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 802--807
-[]\OT1/ptm/m/n/10 We com-pare six op-ti-miz-ers on QIOCE us-ing
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 802--807
-\OT1/ptm/m/n/10 a 60-sample, 4-feature toy clas-si-fi-ca-tion dataset
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 802--807
-\OT1/ptm/m/n/10 (\OT1/pcr/m/n/10 make_classification\OT1/ptm/m/n/10 ): L-BFGS-B
-, SLSQP,
- []
-
-
-! Package xcolor Error: Undefined color `TODOCOLOR'.
-
-See the xcolor package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.807 
+l.692 
       
-? 
-[6
 pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.807 
-      
+l.692 
+       <./ablation_study_tl.png> <./ablation_study_nreps.png>]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [10
 pdfTeX warning (ext4): destination with the same identifier (name{figure.5}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.807 
-      
+l.727 
+       <./ablation_study_qioce_optimizer.png>] (paper.bbl
+Underfull \vbox (badness 2253) has occurred while \output is active []
+
+ [11
 pdfTeX warning (ext4): destination with the same identifier (name{figure.6}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.807 
-       <./igl_vs_tslda.png> <./mdm_ulvitl.png> <./tslda_vs_naive.png>]
-<ablation_study_qioce_optimizer.png, id=335, 1110.0672pt x 617.9085pt>
-File: ablation_study_qioce_optimizer.png Graphic file (type png)
-<use ablation_study_qioce_optimizer.png>
-Package pdftex.def Info: ablation_study_qioce_optimizer.png  used on input line
- 810.
-(pdftex.def)             Requested size: 252.0pt x 140.26797pt.
-<ablation_study_qioce_optimizer_loss.png, id=336, 1110.0672pt x 617.9085pt>
-File: ablation_study_qioce_optimizer_loss.png Graphic file (type png)
-<use ablation_study_qioce_optimizer_loss.png>
-Package pdftex.def Info: ablation_study_qioce_optimizer_loss.png  used on input
- line 819.
-(pdftex.def)             Requested size: 252.0pt x 140.26797pt.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-! Package xcolor Error: Undefined color `TODOCOLOR'.
-
-See the xcolor package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.874 T
-       he ablation study (Section~\ref{sec:ablation_tl}) shows that RPA alig...
-
-? 
-[7
-pdfTeX warning (ext4): destination with the same identifier (name{figure.7}) ha
-s been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.874 T
-       he ablation study (Section~\ref{sec:ablation_tl}) shows that RPA alig...
-
-pdfTeX warning (ext4): destination with the same identifier (name{figure.8}) ha
-s been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.874 T
-       he ablation study (Section~\ref{sec:ablation_tl}) shows that RPA alig...
-
-pdfTeX warning (ext4): destination with the same identifier (name{figure.9}) ha
-s been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.874 T
-       he ablation study (Section~\ref{sec:ablation_tl}) shows that RPA alig...
-
-pdfTeX warning (ext4): destination with the same identifier (name{figure.10}) h
-as been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.874 T
-       he ablation study (Section~\ref{sec:ablation_tl}) shows that RPA alig...
- <./ablation_study_tl.png> <./ablation_study_nreps.png> <./ablation_study_qioce
-_optimizer.png> <./ablation_study_qioce_optimizer_loss.png>] (paper.bbl
-
-! Package xcolor Error: Undefined color `TODOCOLOR'.
-
-See the xcolor package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.123 \bibitem{golub2003separable}
-                                  
-? 
-[8])
-
-! Package xcolor Error: Undefined color `TODOCOLOR'.
-
-See the xcolor package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.950 \end{document}
-                    
-? 
-[9
-
-] (paper.aux)
+l.1 \begin{thebibliography}{19}
+                                <./ablation_study_qioce_optimizer_loss.png>])
+[12] (paper.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
 Package rerunfilecheck Info: File `paper.out' has not changed.
-(rerunfilecheck)             Checksum: 1AE992D9C0C4FEF6A4E02936DBA98C55;5280.
+(rerunfilecheck)             Checksum: 36A7C2DA47B64789E42184E253671889;4880.
  ) 
 Here is how much of TeX's memory you used:
- 12329 strings out of 467867
- 194780 string characters out of 5413979
- 633012 words of memory out of 5000000
- 40912 multiletter control sequences out of 15000+600000
- 677196 words of font info for 135 fonts, out of 8000000 for 9000
+ 14784 strings out of 467867
+ 231644 string characters out of 5413979
+ 684846 words of memory out of 5000000
+ 43100 multiletter control sequences out of 15000+600000
+ 677047 words of font info for 235 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,13n,79p,717b,588s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<C:/Users/GregoireCATTAN/AppData/Local/Programs/MiKTeX/fonts/type1/public/ams
-fonts/cm/cmbx10.pfb><C:/Users/GregoireCATTAN/AppData/Local/Programs/MiKTeX/font
-s/type1/public/amsfonts/cm/cmbx8.pfb><C:/Users/GregoireCATTAN/AppData/Local/Pro
-grams/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/GregoireCATTAN
-/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cmextra/cmex8.pfb><C
-:/Users/GregoireCATTAN/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfont
-s/cm/cmmi10.pfb><C:/Users/GregoireCATTAN/AppData/Local/Programs/MiKTeX/fonts/ty
-pe1/public/amsfonts/cm/cmmi5.pfb><C:/Users/GregoireCATTAN/AppData/Local/Program
-s/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/Users/GregoireCATTAN/AppD
-ata/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Users/Gr
-egoireCATTAN/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8
-.pfb><C:/Users/GregoireCATTAN/AppData/Local/Programs/MiKTeX/fonts/type1/public/
-amsfonts/cm/cmmi9.pfb><C:/Users/GregoireCATTAN/AppData/Local/Programs/MiKTeX/fo
-nts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/GregoireCATTAN/AppData/Local/P
-rograms/MiKTeX/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/Users/GregoireCATTAN
-/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/User
-s/GregoireCATTAN/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/c
-mr8.pfb><C:/Users/GregoireCATTAN/AppData/Local/Programs/MiKTeX/fonts/type1/publ
-ic/amsfonts/cm/cmsy10.pfb><C:/Users/GregoireCATTAN/AppData/Local/Programs/MiKTe
-X/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Users/GregoireCATTAN/AppData/Loc
-al/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/GregoireC
-ATTAN/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C
-:/Users/GregoireCATTAN/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfont
-s/symbols/msbm10.pfb><C:/Users/GregoireCATTAN/AppData/Local/Programs/MiKTeX/fon
-ts/type1/urw/courier/ucrr8a.pfb><C:/Users/GregoireCATTAN/AppData/Local/Programs
-/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users/GregoireCATTAN/AppData/Local
-/Programs/MiKTeX/fonts/type1/urw/times/utmbi8a.pfb><C:/Users/GregoireCATTAN/App
-Data/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/GregoireC
-ATTAN/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on paper.pdf (9 pages, 1150331 bytes).
+ 75i,13n,79p,1004b,530s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\GregoireCATTAN\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dp
+i600\ectt1000.pk><C:/Users/GregoireCATTAN/AppData/Local/Programs/MiKTeX/fonts/t
+ype1/public/amsfonts/cm/cmex10.pfb><C:/Users/GregoireCATTAN/AppData/Local/Progr
+ams/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/GregoireCATTAN/A
+ppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi5.pfb><C:/Users
+/GregoireCATTAN/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cm
+mi7.pfb><C:/Users/GregoireCATTAN/AppData/Local/Programs/MiKTeX/fonts/type1/publ
+ic/amsfonts/cm/cmr10.pfb><C:/Users/GregoireCATTAN/AppData/Local/Programs/MiKTeX
+/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/GregoireCATTAN/AppData/Local
+/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/GregoireCA
+TTAN/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:
+/Users/GregoireCATTAN/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts
+/symbols/msbm10.pfb><C:/Users/GregoireCATTAN/AppData/Local/Programs/MiKTeX/font
+s/type1/urw/times/utmb8a.pfb><C:/Users/GregoireCATTAN/AppData/Local/Programs/Mi
+KTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/GregoireCATTAN/AppData/Local/Pr
+ograms/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
+Output written on paper.pdf (12 pages, 835681 bytes).
 PDF statistics:
- 488 PDF objects out of 1000 (max. 8388607)
- 124 named destinations out of 1000 (max. 500000)
- 315 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 441 PDF objects out of 1000 (max. 8388607)
+ 103 named destinations out of 1000 (max. 500000)
+ 48399 words of extra memory for PDF output out of 51595 (max. 10000000)
 

@@ -1,7 +1,11 @@
-\documentclass[journal]{IEEEtran}
+\documentclass{article}
+
+% ---- Template ----
+\usepackage[final]{aaj2026}
 
 % ---- Packages ----
 \usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{graphicx}
 \usepackage{booktabs}
@@ -9,33 +13,39 @@
 \usepackage{xcolor}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
-\usepackage{cite}
 \usepackage{url}
 \usepackage{array}
+\usepackage{nicefrac}
+\usepackage{microtype}
 
 % Helpers
 \definecolor{todocolor}{rgb}{0.8,0,0}
-\newcommand{\todo}[1]{\textcolor{todocolor}{[\textbf{TODO:} #1]}}
+\newcommand{\todo}[1]{{\textcolor{todocolor}{[\textbf{TODO:} #1]}}}
 \newcommand{\tr}{\operatorname{tr}}
 \newcommand{\diag}{\operatorname{diag}}
 \DeclareMathOperator*{\argmax}{arg\,max}
 \DeclareMathOperator*{\argmin}{arg\,min}
 
 % ---- Title ----
-\title{Benchmarking Classical and Quantum Classifiers for\\
-Resting-State EEG: Pretty Good Measurement,\\
-QAOA-CV and Kernel Learning}
+\title{Benchmarking Quantum Classifiers for\\
+Resting-State EEG}
 
-\author{Gregoire Cattan, Alexandre Quemy, and Ulvi Movsum-zada%
-  \thanks{G.~Cattan is with IBM, Automation and AI, Krakow, Poland.}%
-  \thanks{A.~Quemy is with Hother, Krakow, Poland.}%
-  \thanks{U.~Movsum-zada is with the Faculty of Mathematics and Computer
-    Science and the Doctoral School of Exact and Natural Sciences,
-    Jagiellonian University, Prof.~Lojasiewicza~11, 31-007 Krakow, Poland.}%
+\author{%
+  Gregoire Cattan \\
+  IBM Automation and AI \\
+  AI/ML Center of Excellence \\
+  Krakow, Poland \\
+  \texttt{gcattan@ibm.com} \\
+  \And
+  Alexandre Quemy \\
+  Hother \\
+  Krakow, Poland \\
+  \And
+  Ulvi Movsum-zada \\
+  Faculty of Mathematics and Computer Science \\
+  Doctoral School of Exact and Natural Sciences \\
+  Jagiellonian University, Krakow, Poland \\
 }
-
-\markboth{IEEE Transactions on Neural Systems and Rehabilitation Engineering,~Vol.~XX, No.~X, \todo{Year}}%
-{Cattan \emph{et al.}: Benchmarking Classical and Quantum Classifiers for Resting-State EEG}
 
 \begin{document}
 
@@ -46,19 +56,18 @@ QAOA-CV and Kernel Learning}
 Quantum-inspired and quantum machine learning (QML) methods have attracted
 considerable interest in neurotechnology, yet their benefit over classical
 baselines on realistic brain--computer interface (BCI) data remains unclear.
-This paper benchmarks \textbf{fourteen} classical and quantum pipelines on
+This paper benchmarks \textbf{twelve} classical and quantum pipelines on
 three resting-state EEG datasets from the MOABB framework under a
 cross-subject evaluation protocol with grouped $k$-fold splitting.
-We introduce three contributions evaluated for the first time on resting-state
+We introduce two contributions evaluated for the first time on resting-state
 EEG data: (i)~\textsc{QuantumStateDiscriminator}, a novel quantum-inspired
 classifier that models mental states as density matrices, constructs a
 Positive Operator-Valued Measure (POVM) via the Pretty Good Measurement
 (PGM), and scores test trials using the Born rule---entirely bypassing
-the explicit covariance estimation step; (ii)~the \emph{Ulvi} optimizer
+the explicit covariance estimation step; and (ii)~the \emph{Ulvi} optimizer
 variant of Quantum Approximate Optimization with Continuous Variables
 (QAOA-CV) with circular entanglement for the Nearest Convex Hull (NCH)
-classifier; and (iii)~Intrinsic Green's Learning (IGL), a PDE-inspired
-kernel framework applied to raw EEG time series.
+classifier.
 Experiments show that \textsc{QuantumStateDiscriminator} and QIOCE achieve
 mean ROC AUC scores comparable to the best classical baseline (MDM: 0.613),
 reaching 0.628 and 0.625, respectively, while the
@@ -66,16 +75,11 @@ reaching 0.628 and 0.625, respectively, while the
 0.1~s mean training time.
 NCH-based quantum methods trail classical baselines but benefit from
 Riemannian transfer learning in synthetic domain-shift conditions.
-IGL underperforms on these datasets.
-These findings provide a rigorous first benchmark for the three proposed
+These findings provide a rigorous first benchmark for the two proposed
 methods and highlight the trade-off between quantum-algorithmic expressiveness
 and practical performance on near-term simulated quantum hardware.
 \end{abstract}
 
-\begin{IEEEkeywords}
-brain--computer interface, resting-state EEG, quantum machine learning,
-Pretty Good Measurement, QAOA, transfer learning, MOABB, Riemannian geometry
-\end{IEEEkeywords}
 
 
 % ============================================================
@@ -122,9 +126,6 @@ contributions:
   \item \textbf{NCH+QAOA-CV (Ulvi optimizer)}: first application of the Ulvi
     circular-entanglement QAOA-CV optimizer to EEG classification, and
     evaluation of the effect of transfer learning alignment on NCH.
-  \item \textbf{IGL on resting-state EEG}: first benchmark of Intrinsic
-    Green's Learning---a PDE-inspired adaptive kernel method---on EEG mental
-    state classification.
   \item \textbf{Cross-subject TL infrastructure for MOABB}: the
     \texttt{Adapter} meta-estimator and \texttt{TLCrossSubjectEvaluation}
     class enable seamless integration of pyriemann transfer-learning
@@ -448,111 +449,9 @@ All other hyperparameters match the NaiveQAOA baseline: $p=2$ layers,
 NFT optimizer (25 iterations), $n=6$ hull points per class,
 $\texttt{shots}=100$.
 
-\subsubsection{IGL: Intrinsic Green's Learning}
-
-IGL~\cite{igl2024} (Quemy, ICLR 2026) models the target function as the
-solution to a linear PDE $\mathcal{L}u = f$, where $\mathcal{L}$ is a
-differential operator chosen as an architectural inductive bias (e.g.\
-Laplacian for smooth fields, Helmholtz for localized features) and $f$
-is a \emph{learned source term}.  The solution is expressed via Green's
-function:
-\begin{equation}
-  u(\xi) = (\mathcal{L}^{-1}f)(\xi) = \int_{\mathcal{M}} G(\xi,\zeta)\,f(\zeta)\,\mathrm{d}\zeta.
-  \label{eq:igl_green}
-\end{equation}
-Rather than approximating $u$ directly, IGL learns $f$ and integrates it
-against $G$---integration is a stable operation (unlike differentiation)
-and makes $u$ linear in the source weights, enabling a near-convex Stage~2
-solve.
-
-\paragraph{Factorized integral.}
-Both the source and the kernel are parameterized as low-rank tensors.
-The source is a rank-$R$ CP decomposition and the Green's kernel is a
-rank-$K$ product of univariate kernels:
-\begin{align}
-  \hat{f}(\zeta) &= \sum_{r=1}^R w_r \prod_{j=1}^d \phi_{r,j}(\zeta^j), \\
-  G(\xi,\zeta)   &\approx \sum_{k=1}^K \gamma_k \prod_{j=1}^d G_{k,j}(\xi^j,\zeta^j).
-\end{align}
-By Fubini's theorem, the $d$-dimensional integral in~\eqref{eq:igl_green}
-factorizes into $d$ independent 1D integrals:
-\begin{equation}
-  u(\xi) = \sum_{k,r} \gamma_k w_r \prod_{j=1}^d
-  I_{k,r,j}(\xi^j),
-  \quad
-  I_{k,r,j}(\xi^j)=\int G_{k,j}(\xi^j,\zeta^j)\,\phi_{r,j}(\zeta^j)\,\mathrm{d}\zeta^j,
-\end{equation}
-at total cost $\mathcal{O}(DW^2 + KRd)$ per sample, where $D$ is the ambient
-dimension and $d \ll D$ is the intrinsic dimension.  This is $D$-independent
-at Stage~2, in contrast to $\mathcal{O}(N^2)$ for kernel methods or
-$\mathcal{O}(DW^2)$ for MLPs.  An encoder $\Psi:\mathbb{R}^D\to\mathbb{R}^d$
-discovers the coordinate chart $\xi=\Psi(x)$ where the source admits
-low-rank structure; learnable Group-Lasso gates on each coordinate dimension
-automatically discover the effective intrinsic dimension
-$d_\mathrm{eff} \leq d_\mathrm{max}$~\cite{louizos2018learning}.
-
-\paragraph{Time-series variant (our adaptation).}
-The original IGL operates on flat feature vectors $X \in \mathbb{R}^D$:
-an MLP encoder discovers a low-dimensional latent chart
-$\xi = \Psi(x) \in \mathbb{R}^d$ ($d \ll D$), Hard Concrete Gates
-select the effective intrinsic dimension $d_\mathrm{eff}$, and the
-Green's kernel integrates over $\xi$-space.
-
-For raw EEG epochs $X \in \mathbb{R}^{C \times T}$ we use
-\texttt{IGLTimeSeriesSklearnClassifier}, which departs from this in two
-fundamental ways:
-\begin{enumerate}
-  \item \textbf{Time is the fixed intrinsic coordinate.}  The PDE domain
-    is the 1D time axis $t \in [0,1]^T$, so $d = 1$ by construction.
-    No encoder or Hard Concrete Gates are needed: the intrinsic dimension
-    is known \emph{a priori} from the signal structure.
-  \item \textbf{Spatial filtering replaces the MLP encoder.}  A linear
-    map $W_s : \mathbb{R}^C \to \mathbb{R}^K$ acts as a spatial filter
-    bank (analogous to CSP), producing $K$ source signals
-    $f_k(t) = W_s x(t)$ from the $C$-channel EEG at each time point.
-\end{enumerate}
-The Green's kernel then integrates each source signal over time,
-evaluating the solution at the \emph{final} time point:
-$u_k = \sum_s G(T,s)\,f_k(s)$,
-where $G(T,s) = \Phi[-1]^\top\Phi[s]$.  With a Gaussian operator,
-$G(T,s)$ decays with temporal distance from $T$, so recent events
-are weighted more heavily than distant ones.
-The $K$-dimensional embedding $\mathbf{u}$ is mapped to class logits
-by a linear head $W$, and no covariance estimation is required.
-
-\paragraph{Two-stage (VP) training.}
-Variable Projection~\cite{golub2003separable} separates coordinate
-discovery from source fitting:
-\begin{itemize}
-  \item \textbf{Stage~1 (outer, nonlinear)}: gradient descent on the encoder
-    and kernel parameters.
-  \item \textbf{Stage~2 (inner, linear)}: $W \leftarrow \arg\min_W\|\Phi W - y\|^2$
-    (Tikhonov least-squares, solved analytically).
-\end{itemize}
-By the envelope theorem, solving Stage~2 to optimality at each outer step
-forces Stage~1 gradients to reflect coordinate quality alone, preventing the
-dimensional collapse ($d_\mathrm{eff} \to 0$) that occurs with joint gradient descent.
-
-We use Gaussian operator, $K=16$ spatial components, $R=64$ anchor points,
-3 scales, 500 epochs (100 warmup).
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\columnwidth]{igl_picture.png}
-  \caption{IGL pipeline as a two-stage algorithm (reproduced
-    from~\cite{igl2024}).
-    \textbf{Stage~1} (coordinate discovery): encoder $\Psi$ maps data
-    from the manifold $\mathcal{M} \subset \mathbb{R}^D$ to intrinsic
-    coordinates $\xi \in \mathbb{R}^d$ where the tensor source
-    $\hat{f}(\zeta)=\sum_r w_r\prod_j \phi_{r,j}(\zeta^j)$ decomposes.
-    Green's convolution $G*\hat{f}$ yields the solution $u(\xi)$.
-    \textbf{Stage~2} (source fitting): source weights $w_r$ are solved
-    via least squares ($\Phi\mathbf{w}=\mathbf{y}$).}
-  \label{fig:igl_pipeline}
-\end{figure}
-
 \subsection{Summary of Pipelines}
 
-Table~\ref{tab:pipelines} lists all 13 evaluated pipelines.
+Table~\ref{tab:pipelines} lists all 12 evaluated pipelines.
 
 \begin{table}[h]
   \caption{All evaluated pipelines.}
@@ -575,7 +474,6 @@ Table~\ref{tab:pipelines} lists all 13 evaluated pipelines.
     QIOCE                        & --  & Quantum \\
     QIOCE+TL                     & RPA & Quantum \\
     QuantumStateDiscriminator    & --  & Quantum-inspired \\
-    IGL                          & --  & Kernel \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -588,7 +486,7 @@ Table~\ref{tab:pipelines} lists all 13 evaluated pipelines.
 \subsection{Per-Pipeline AUC across All Datasets}
 
 Table~\ref{tab:auc} reports mean ROC AUC and mean training time (per fold,
-averaged across subjects and datasets) for all 14 pipelines, now including IGL.
+averaged across subjects and datasets) for all 12 pipelines.
 
 \begin{table}[h]
   \caption{Mean ROC AUC and training time across all three datasets.}
@@ -610,7 +508,6 @@ averaged across subjects and datasets) for all 14 pipelines, now including IGL.
     TS+LDA+TL                               & 0.542          & 80.6 \\
     NCH+NaiveQAOA                           & 0.539          & 1.0 \\
     NCH+NaiveQAOA+TL                        & 0.533          & 68.8 \\
-    IGL                                     & 0.522          & 94.9 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -618,7 +515,7 @@ averaged across subjects and datasets) for all 14 pipelines, now including IGL.
 Figure~\ref{fig:scatter} shows the distribution of per-subject AUC scores
 across all three datasets.  \textsc{QuantumStateDiscriminator} and QIOCE
 achieve the highest mean performance, followed by the classical MDM
-baseline.  IGL and NCH variants cluster near the lower end, with
+baseline.  NCH variants cluster near the lower end, with
 all pipelines remaining above chance level.
 
 \begin{figure}[h]
@@ -648,144 +545,17 @@ significance at $\alpha=0.05$.
   \label{fig:summary}
 \end{figure}
 
-Key statistically significant differences ($p < 0.05$):
-
-\paragraph{Classical baselines.}
-\begin{itemize}
-  \item \textbf{MDM $>$ NCH+NaiveQAOA} ($p=0.02$, SMD$=1.28$,
-    Fig.~\ref{fig:meta_mdm_naive}): MDM outperforms NaiveQAOA
-    consistently across all three datasets.
-  \item \textbf{MDM $>$ NCH+QAOACV(Ulvi)+TL} ($p=0.04$, SMD$=1.06$,
-    Fig.~\ref{fig:meta_mdm_ulvitl}): even the Ulvi circular-entanglement
-    variant with RPA alignment does not match the classical MDM baseline.
-  \item \textbf{MDM $>$ TS+LDA+TL} ($p=0.023$, SMD$=1.45$,
-    Fig.~\ref{fig:meta_tsldatl_mdm}): MDM without
-    transfer learning outperforms TS+LDA with full RPA alignment.
-  \item \textbf{MDM+TL $>$ TS+LDA+TL} ($p=0.043$, SMD$=1.77$,
-    Fig.~\ref{fig:meta_tsldatl_mdmtl}): after RPA
-    alignment, Riemannian nearest-mean significantly outperforms tangent-space
-    linear discriminant.
-\end{itemize}
-
-\paragraph{QIOCE.}
-\begin{itemize}
-  \item \textbf{QIOCE $>$ NCH+NaiveQAOA} ($p=0.02$, SMD$=1.40$,
-    Fig.~\ref{fig:meta_qioce_naive}): QIOCE substantially outperforms the
-    standard QAOA-CV hull classifier.
-  \item \textbf{QIOCE $>$ MDWM(0.5)} ($p=0.04$, SMD$=1.27$,
-    Fig.~\ref{fig:meta_mdwm_qioce}): QIOCE surpasses the domain-weighted
-    mean classifier.
-  \item \textbf{QIOCE $>$ TS+LDA} ($p=0.04$, SMD$=3.67$): the largest
-    observed effect size; QIOCE significantly outperforms the classical
-    tangent-space baseline.
-  \item \textbf{QIOCE $>$ QIOCE+TL} ($p=0.04$, Fig.~\ref{fig:meta_qioce_qiocetl}):
-    RPA transfer learning significantly \emph{hurts} QIOCE, confirming
-    that alignment is detrimental for this pipeline.
-\end{itemize}
-
-\paragraph{QuantumStateDiscriminator.}
-\begin{itemize}
-  \item \textbf{QSD $>$ NCH+NaiveQAOA} ($p=0.04$, SMD$=1.56$,
-    Fig.~\ref{fig:meta_qsd_naive}): \textsc{QuantumStateDiscriminator}
-    significantly outperforms the standard NCH QAOA-CV classifier.
-  \item \textbf{QSD $>$ QIOCE+TL} ($p=0.04$, SMD$=1.37$,
-    Fig.~\ref{fig:meta_qsd_qiocetl}): QSD outperforms QIOCE when TL
-    alignment is applied to the latter.
-\end{itemize}
-
-No statistically significant difference was detected between
-\textsc{QuantumStateDiscriminator} and MDM, between QIOCE and MDM,
-or between IGL and any other pipeline.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\columnwidth]{mdm_vs_naive.png}
-  \caption{Meta-analysis: MDM vs.\ NCH+NaiveQAOA ($p=0.023$).
-    Negative SMD indicates MDM is better across all datasets.}
-  \label{fig:meta_mdm_naive}
-\end{figure}
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\columnwidth]{mdm_vs_ulvitl.png}
-  \caption{Meta-analysis: MDM vs.\ NCH+QAOACV(Ulvi)+TL ($p=0.043$).
-    MDM outperforms the Ulvi variant with RPA alignment on all datasets.}
-  \label{fig:meta_mdm_ulvitl}
-\end{figure}
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\columnwidth]{qioce_vs_naive.png}
-  \caption{Meta-analysis: QIOCE vs.\ NCH+NaiveQAOA ($p=0.023$).
-    QIOCE consistently outperforms the standard NCH classifier.}
-  \label{fig:meta_qioce_naive}
-\end{figure}
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\columnwidth]{mdwm_vs_qioce.png}
-  \caption{Meta-analysis: QIOCE vs.\ MDWM(0.5) ($p=0.043$).
-    Positive SMD indicates QIOCE is better.}
-  \label{fig:meta_mdwm_qioce}
-\end{figure}
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\columnwidth]{qioce_vs_qiocetl.png}
-  \caption{Meta-analysis: QIOCE vs.\ QIOCE+TL ($p=0.043$).
-    Positive SMD indicates QIOCE (without TL) is better on all datasets,
-    demonstrating that RPA alignment significantly degrades QIOCE.}
-  \label{fig:meta_qioce_qiocetl}
-\end{figure}
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\columnwidth]{qsd_vs_naive.png}
-  \caption{Meta-analysis: \textsc{QuantumStateDiscriminator}
-    vs.\ NCH+NaiveQAOA ($p=0.043$).
-    QSD outperforms NaiveQAOA consistently across all datasets.}
-  \label{fig:meta_qsd_naive}
-\end{figure}
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\columnwidth]{qsd_vs_qiocetl.png}
-  \caption{Meta-analysis: \textsc{QuantumStateDiscriminator}
-    vs.\ QIOCE+TL ($p=0.043$).
-    QSD outperforms QIOCE when the latter is combined with RPA alignment.}
-  \label{fig:meta_qsd_qiocetl}
-\end{figure}
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\columnwidth]{tsldatl_vs_mdm.png}
-  \caption{Meta-analysis: MDM vs.\ TS+LDA+TL ($p=0.023$).
-    MDM without transfer learning consistently outperforms
-    TS+LDA with full RPA alignment across all datasets.}
-  \label{fig:meta_tsldatl_mdm}
-\end{figure}
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\columnwidth]{tsldatl_vs_mdmtl.png}
-  \caption{Meta-analysis: MDM+TL vs.\ TS+LDA+TL ($p=0.043$).
-    After RPA alignment, Riemannian nearest-mean significantly outperforms
-    the tangent-space linear discriminant.}
-  \label{fig:meta_tsldatl_mdmtl}
-\end{figure}
-
 \subsection{Effect of Transfer Learning}
 
 Transfer learning has a clearly detrimental effect on quantum pipelines.
 QIOCE suffers the most: the QIOCE $>$ QIOCE+TL difference is statistically
-significant ($p=0.043$, Fig.~\ref{fig:meta_qioce_qiocetl}), confirming
-that RPA alignment actively degrades this classifier across all datasets,
-not merely by chance.  NCH+NaiveQAOA similarly degrades with TL
-($0.539 \to 0.533$), and TS+LDA drops from $0.584$ to $0.542$.
+significant ($p=0.043$), confirming that RPA alignment actively degrades
+this classifier across all datasets, not merely by chance.
+NCH+NaiveQAOA similarly degrades with TL ($0.539 \to 0.533$), and
+TS+LDA drops from $0.584$ to $0.542$.
 By contrast, the two Riemannian classical baselines respond differently:
 MDM+TL is not significantly different from MDM, but MDM+TL $>$ TS+LDA+TL
-($p=0.043$, SMD$=1.77$, Fig.~\ref{fig:meta_tsldatl_mdmtl}) and
-MDM $>$ TS+LDA+TL ($p=0.023$, SMD$=1.45$, Fig.~\ref{fig:meta_tsldatl_mdm})
+($p=0.043$, SMD$=1.77$) and MDM $>$ TS+LDA+TL ($p=0.023$, SMD$=1.45$)
 confirm that after alignment MDM is the more robust classifier.
 The Ulvi NCH variant with TL also remains below MDM
 ($p=0.043$), suggesting that neither the quantum circuit improvements nor
@@ -907,279 +677,6 @@ operates on a different circuit topology and objective, and the Ulvi NCH
 variant outperforms NaiveQAOA by $+0.026$ mean AUC.
 
 
-\subsection{IGL Kernel Operator and Hyperparameter Ablation}
-\label{sec:ablation_igl}
-
-To investigate which Green kernel operator and hyperparameter settings are
-best suited to EEG time-series classification, we run a controlled ablation
-on synthetic EEG data generated as a mixture of sinusoids across five
-canonical frequency bands (delta~2~Hz, theta~6~Hz, alpha~10~Hz,
-beta~20~Hz, gamma~40~Hz) with a random spatial mixing matrix simulating
-volume conduction.  Class discrimination is encoded in band amplitude:
-class~0 has boosted alpha power, class~1 has boosted beta power.
-The dataset contains 60 trials ($16$ channels, $512$ time points, sampled
-at 256~Hz) and is evaluated with stratified 3-fold cross-validation.
-
-We perform a full grid search over 72 configurations:
-6 kernel operators (gaussian, helmholtz, cauchy, gabor, laplacian,
-mexican\_hat) $\times$ 2 Tikhonov regularization strengths
-($\lambda \in \{0.01, 0.1\}$) $\times$ 3 spatial filter ranks
-($K \in \{2, 4, 16\}$) $\times$ 2 temporal basis sizes ($R \in \{32, 64\}$),
-for a total of 216 fits.
-A \textbf{LinearHead} baseline---mean-pooling raw EEG over time followed by
-logistic regression ($Wx+b$, no kernel)---is evaluated in the same protocol
-to quantify the contribution of the Green kernel temporal integration.
-We additionally report the \emph{effective spatial dimension}~$K_{\text{eff}}$:
-the number of spatial filters whose combined contribution
-(filter norm~$\times$~output weight norm) exceeds 10\,\% of the maximum.
-
-\paragraph{Operator comparison.}
-Figure~\ref{fig:ablation_igl_operator} shows mean ROC AUC per operator
-averaged over all $(K, R, \lambda)$ combinations.
-\textbf{Laplacian} and \textbf{cauchy} kernels lead with mean AUC~$\approx 0.64$,
-while gabor and helmholtz trail at~$\approx 0.57$.
-The laplacian kernel's exponential decay ($e^{-r/\sigma}$) is well-matched
-to sharp spectral transitions in the temporal domain, penalising distant
-time-point correlations that do not carry discriminative power for alpha
-vs.\ beta band discrimination.
-Gabor, despite its theoretical advantage for frequency-localized bursts,
-underperforms on this stationary sinusoidal data: the Gaussian envelope
-is unnecessary when rhythms are sustained throughout the epoch.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\columnwidth]{igl_ablation_study_operator_comparison.png}
-  \caption{Kernel operator comparison on synthetic sinusoidal EEG
-    (averaged over $\lambda$, $K$, $R$; 3-fold CV, $n=60$ trials).
-    Dotted line: LinearHead baseline (mean AUC $= 0.567$).
-    Error bars: $\pm 1$ SD across folds.}
-  \label{fig:ablation_igl_operator}
-\end{figure}
-
-\paragraph{Effect of $\lambda$, $K$, and effective dimension.}
-Figure~\ref{fig:ablation_igl_heatmaps} (left) shows the operator~$\times$~$\lambda$
-interaction.  Notably, $\lambda$ has almost no effect for most operators:
-results for $\lambda=0.01$ and $\lambda=0.1$ are nearly identical at
-$K \in \{2,4\}$, with small differences only emerging at $K=16$ where the
-temporal basis becomes over-complete.  This confirms that the Variable
-Projection W\_out solve is well-conditioned at low rank and is not
-sensitive to the Tikhonov damping strength.
-
-Figure~\ref{fig:ablation_igl_heatmaps} (right) reveals a clear sweet
-spot at $K=4$ (mean AUC~$0.634$), outperforming both $K=2$ (0.612) and
-$K=16$ (0.582).  Too few filters cannot capture all discriminative channel
-combinations introduced by the mixing matrix; too many introduce redundant
-directions that dilute the signal and harm generalisation on this small
-dataset.  The number of temporal anchors $R$ has a secondary effect;
-$R=64$ is marginally preferable at $K=4$ (0.644 vs.\ 0.623).
-
-Figure~\ref{fig:ablation_igl_effdim} shows that $K_{\text{eff}}$ equals $K$
-exactly for $K \in \{2,4\}$---all filters are active---while for $K=16$
-approximately 13--14 filters remain active ($K_{\text{eff}} \approx 13.7$
-for cauchy).  The scatter plot confirms that configurations with small
-but fully active filter banks ($K_{\text{eff}} \in \{2,4\}$) cluster
-at higher AUC, whereas large-$K$ configurations with partially inactive
-filters are more dispersed and trend lower.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\columnwidth]{igl_ablation_study_lambda_K_R.png}
-  \caption{Hyperparameter heatmaps for IGL on synthetic EEG.
-    \emph{Left}: operator~$\times$~$\lambda$ (averaged over $K$, $R$).
-    \emph{Right}: spatial filters~$K$~$\times$~temporal anchors~$R$
-    (averaged over operator, $\lambda$).
-    All values are mean ROC AUC from 3-fold CV.}
-  \label{fig:ablation_igl_heatmaps}
-\end{figure}
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\columnwidth]{igl_ablation_study_eff_dim.png}
-  \caption{Effective spatial dimension $K_{\text{eff}}$ per operator
-    (left) and $K_{\text{eff}}$ vs.\ mean ROC AUC scatter (right).
-    Configs with fully active small filter banks ($K_{\text{eff}}\in\{2,4\}$)
-    achieve consistently higher AUC than over-parameterised configs.}
-  \label{fig:ablation_igl_effdim}
-\end{figure}
-
-\paragraph{Green kernel vs.\ linear head.}
-Figure~\ref{fig:ablation_igl_vs_linear} compares the best IGL configuration
-(laplacian, $\lambda=0.01$, $K=4$, $R=32$; AUC~$=0.687$) against the
-LinearHead baseline (AUC~$=0.567$).
-The best IGL configuration outperforms mean-pool logistic regression by
-$+0.12$ AUC, demonstrating that the Green kernel temporal integration
-captures discriminative temporal structure that simple mean-pooling discards.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\columnwidth]{igl_ablation_study_bestigl_vs_linearhead.png}
-  \caption{Best IGL configuration (laplacian, $\lambda=0.01$, $K=4$,
-    $R=32$) vs.\ LinearHead baseline (mean-pool $+$ logistic regression).
-    Strip: per-fold AUC scores.  Point: mean $\pm$ SD\@.
-    Dotted line: LinearHead mean (0.567).}
-  \label{fig:ablation_igl_vs_linear}
-\end{figure}
-
-Overall, the ablation suggests that (i)~kernels with local temporal decay
-(laplacian, cauchy) are well-matched to stationary oscillatory EEG;
-(ii)~Tikhonov regularization $\lambda$ has negligible impact at low rank,
-confirming that the VP solve is well-conditioned; (iii)~a moderate spatial
-filter bank ($K=4$) outperforms both under- and over-parameterised settings,
-with $K_{\text{eff}}=K$ indicating all filters are meaningfully used;
-and (iv)~the Green kernel temporal integration outperforms a linear baseline
-by $+0.12$ AUC, validating the temporal aggregation mechanism.
-
-
-\subsection{IGL Intrinsic Dimension Across EEG Paradigms}
-\label{sec:ablation_igl_dim}
-
-To characterise what IGL learns from different EEG paradigms, we measure
-the effective intrinsic dimension $d_{\text{eff}}$ discovered by the Hard
-Concrete gates of \texttt{IGLSklearnClassifier} across seven datasets
-spanning three paradigm types.  For each dataset, covariance matrices are
-estimated (ERPCovariances for P300, LWF covariances for MI and resting
-state) and projected to the Riemannian tangent space, yielding a flat
-feature vector of ambient dimension $D = C(C+1)/2$.  IGL's gates then
-select the intrinsically informative subspace.  Four operators (gaussian,
-cauchy, laplacian, mexican\_hat) are evaluated, with preprocessing fitted
-inside each cross-validation fold to avoid data leakage.
-
-\paragraph{Intrinsic dimension by paradigm.}
-Figure~\ref{fig:intrinsec_dim} shows a clear ordering across paradigm
-types.  P300 datasets (bi2012 and Cattan2019-VR) exhibit the lowest
-effective dimension ($d_{\text{eff}} \approx 13$, IQR~12--14),
-consistent with the ERP signal being spatially concentrated in a small
-number of components.  Motor Imagery datasets require substantially more
-dimensions ($d_{\text{eff}} \approx 20$--26), reflecting the distributed
-mu/beta desynchronisation across the scalp.  Resting-state datasets
-span the widest range ($d_{\text{eff}} \approx 14$--26 depending on the
-dataset), which we attribute to the heterogeneity of the paradigms
-(medication state, workload, open/closed eyes).
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\columnwidth]{intrinsec_dim_igl.png}
-  \caption{Effective dimension $d_{\text{eff}}$ per paradigm type,
-    aggregated across datasets, operators, and folds.
-    P300 is markedly lower-dimensional than MI and resting state.
-    Strip points show individual datasets.}
-  \label{fig:intrinsec_dim}
-\end{figure}
-
-Figure~\ref{fig:intrinsec_dim_per_dataset} shows the per-dataset breakdown.
-Within P300, both bi2012 and Cattan2019-VR give consistent $d_{\text{eff}}
-\approx 13$, suggesting robustness to recording context (screen vs.\
-virtual reality).  Within MI, AlexMI saturates at $d_{\text{eff}}\approx 26$
-while BNCI2014-001 plateaus at $\approx 20$, likely reflecting different
-electrode counts (16 vs.\ 22 channels).  Within resting state, PHMD and
-Rodrigues2017 saturate near the maximum ($\approx 25$--26), whereas
-Hinss2021 is lower ($\approx 17$), consistent with its shorter epoch
-windows (0--0.5~s) limiting temporal complexity.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\columnwidth]{intrinsec_dim_igl_per_dataset.png}
-  \caption{Per-dataset effective dimension.  Both P300 datasets
-    consistently yield $d_{\text{eff}}\approx 13$.  MI and RS datasets
-    saturate near the max\_dim ceiling (32), with Hinss2021 as a notable
-    exception ($d_{\text{eff}}\approx 17$) due to short epochs.}
-  \label{fig:intrinsec_dim_per_dataset}
-\end{figure}
-
-\paragraph{Compression ratio.}
-Figure~\ref{fig:intrinsec_compress} shows the compression ratio
-$d_{\text{eff}}/D$.  P300 achieves the most dramatic compression
-($d_{\text{eff}}/D \approx 0.01$): ERPCovariances augments the feature
-matrix to a large $D$, yet IGL uses only $\sim$13 of those dimensions.
-MI and RS datasets have higher compression ratios ($\approx 0.10$--0.20),
-indicating that the tangent-space geometry is less compressible for
-continuous-state paradigms.  Hinss2021 is a notable exception among
-resting-state datasets, with a ratio of $\approx 0.03$ owing to its
-32-channel montage that produces a large ambient $D = 528$, making it
-geometrically similar to the P300 setting despite the different paradigm.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\columnwidth]{intrinsec_compress_ratio_per_paradigm.png}
-  \caption{Compression ratio $d_{\text{eff}}/D$ by paradigm (left) and
-    per dataset (right).  P300 achieves the highest compression despite
-    using ERPCovariances, which yields a large ambient dimension $D$.}
-  \label{fig:intrinsec_compress}
-\end{figure}
-
-\paragraph{AUC vs.\ effective dimension.}
-Figure~\ref{fig:intrinsec_auc_dim} plots ROC AUC against $d_{\text{eff}}$
-for every fold and operator.  P300 (blue) occupies the low-$d_{\text{eff}}$
-region ($\approx 10$--17) while maintaining high AUC ($\approx 0.77$--0.89),
-illustrating that strong discrimination is achievable with few intrinsic
-dimensions.  The Hinss2021 resting-state dataset similarly achieves
-$\text{AUC}\approx 0.94$ at $d_{\text{eff}}\approx 14$--15.  In contrast,
-MI and the remaining resting-state datasets cluster at
-$d_{\text{eff}}\approx 25$--26 but show much wider AUC variance
-($0.29$--$0.77$), indicating that a high effective dimension does not
-guarantee discriminability.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\columnwidth]{intrinsec_dim_igl_auc.png}
-  \caption{ROC AUC vs.\ effective dimension $d_{\text{eff}}$ per fold and
-    operator, coloured by paradigm type.  P300 achieves high AUC at
-    low $d_{\text{eff}}$; resting-state datasets at high $d_{\text{eff}}$
-    show large AUC variance.}
-  \label{fig:intrinsec_auc_dim}
-\end{figure}
-
-\paragraph{Effect of operator.}
-Figure~\ref{fig:intrinsec_operator} shows that for P300, the gaussian
-operator yields the lowest and most consistent $d_{\text{eff}}$
-($\approx 12$--13), while the laplacian kernel produces the highest and most
-variable values ($\approx 14$--17).  Cauchy and mexican\_hat fall in between
-and are all tightly clustered.  For MI and RS, all four operators saturate
-near the ceiling, confirming that the dimensionality is determined by the
-data structure rather than the kernel choice.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\columnwidth]{intrinsec_dim_igl_operator.png}
-  \caption{Effective dimension per operator and paradigm type.  P300
-    shows operator sensitivity; MI and RS saturate regardless of kernel.}
-  \label{fig:intrinsec_operator}
-\end{figure}
-
-\paragraph{IGL vs.\ TS+LR baseline.}
-Figure~\ref{fig:intrinsec_vs_lda} plots the IGL AUC against the
-TS+LR (TangentSpace + LogisticRegression) baseline AUC for each dataset.
-Points above the diagonal indicate IGL outperforms the linear baseline.
-With logistic regression as the baseline, most points lie close to the
-diagonal, indicating that IGL and TS+LR reach comparable performance
-across paradigms.  IGL achieves a slight advantage on bi2012 ($+0.02$),
-Rodrigues2017 ($+0.08$), and PHMD ($+0.03$), while being essentially on
-par with TS+LR on Cattan2019-VR, BNCI2014-001, and Hinss2021
-($\Delta\approx 0$).  AlexMI is the only dataset where TS+LR leads IGL
-($-0.03$).  The near-diagonal alignment contrasts with the larger
-advantages observed when using LDA as a baseline, confirming that logistic
-regression already exploits the full ambient tangent-space dimension
-effectively.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\columnwidth]{intrinsec_igl_vs_tslr.png}
-  \caption{IGL AUC (mean $\pm$ std over operators and folds) vs.\ TS+LR
-    AUC per dataset.  Points near the dashed diagonal indicate comparable
-    performance.  IGL is generally competitive with the logistic regression
-    baseline across all paradigms.}
-  \label{fig:intrinsec_vs_lda}
-\end{figure}
-
-\paragraph{Summary.}
-The intrinsic dimension of EEG covariance data on the SPD manifold is
-strongly paradigm-dependent: P300 requires only $\approx 13$ dimensions
-(out of $D > 100$), while MI and most resting-state paradigms saturate
-near the max\_dim ceiling of 32.  Against a TS+LR baseline, IGL achieves
-comparable classification AUC across all paradigms, demonstrating that
-its Green's kernel integration captures the relevant discriminative
-structure while operating in a substantially compressed subspace.
-
 % ============================================================
 \section{Discussion}
 \label{sec:discussion}
@@ -1217,28 +714,6 @@ than in synthetic low-dimensional settings.
 The QAOA circuit depth ablation confirms $p=2$ layers is sufficient
 for NCH (performance saturates at 1.0 AUC on toy data for both variants).
 
-\subsection{IGL}
-
-IGL achieves a mean AUC of 0.522, below all classical baselines but without
-any statistically significant pairwise difference from other pipelines.
-The ablation study (Section~\ref{sec:ablation_igl}) guided the configuration
-to the laplacian kernel with $K=4$ spatial filters and $R=32$ temporal
-anchors---the best-performing setting on synthetic EEG data.  Despite this
-principled selection, the transfer to real cross-subject resting-state EEG
-is limited.
-
-Possible explanations include: (i)~the encoder gradient updates may not
-have converged on the relatively small EEG datasets available per fold
-(the Variable Projection output weights are solved exactly via Tikhonov
-least-squares, but the encoder representation may be suboptimal);
-(ii)~cross-subject variability may exceed the capacity of a single shared
-kernel trained on a small number of trials; (iii)~the laplacian operator
-emphasizes sharp temporal transients, which may not match the stationary
-rhythmic structure of resting-state EEG at the cross-subject level.
-Adapting \texttt{n\_components}, \texttt{n\_anchors}, and the training
-duration per dataset, or combining IGL with subject-specific fine-tuning,
-are natural directions for improvement.
-
 \subsection{Transfer Learning}
 
 Counter-intuitively, RPA alignment degrades performance for most quantum
@@ -1264,17 +739,15 @@ reproducibility would require fixed seed across runs.
 \section{Conclusion}
 \label{sec:conclusion}
 
-We have presented a systematic cross-subject benchmark of 14 classical and
-quantum EEG classifiers on three MOABB resting-state datasets.  Three new
+We have presented a systematic cross-subject benchmark of 12 classical and
+quantum EEG classifiers on three MOABB resting-state datasets.  Two new
 contributions were introduced and evaluated for the first time on real EEG:
 (i)~\textsc{QuantumStateDiscriminator}, which achieves the highest mean
 AUC (0.628) at negligible computational cost by applying the Pretty Good
-Measurement directly on EEG density matrices;
+Measurement directly on EEG density matrices; and
 (ii)~NCH+QAOA-CV with the Ulvi circular-entanglement optimizer, which
 outperforms the NaiveQAOA baseline while requiring significantly more work
-to match classical methods;
-(iii)~IGL, which currently underperforms classical baselines on resting-state
-data.
+to match classical methods.
 
 The best overall configuration is \textsc{QuantumStateDiscriminator} (AUC
 0.628, time 0.27~s), followed closely by QIOCE (0.626, $\approx$15~min) and
@@ -1288,7 +761,7 @@ Riemannian alignment.
 
 
 % ============================================================
-\bibliographystyle{IEEEtran}
+\bibliographystyle{plainnat}
 \bibliography{refs}
 
 \end{document}
