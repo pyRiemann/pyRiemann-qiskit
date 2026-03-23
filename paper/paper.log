@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.3.8)  23 MAR 2026 13:20
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.3.8)  23 MAR 2026 13:48
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -777,32 +777,38 @@ File: ablation_study_tl.png Graphic file (type png)
 <use ablation_study_tl.png>
 Package pdftex.def Info: ablation_study_tl.png  used on input line 595.
 (pdftex.def)             Requested size: 397.48499pt x 170.35501pt.
+<ablation_study_tl_per_class.png, id=273, 1011.78pt x 433.62pt>
+File: ablation_study_tl_per_class.png Graphic file (type png)
+<use ablation_study_tl_per_class.png>
+Package pdftex.def Info: ablation_study_tl_per_class.png  used on input line 59
+6.
+(pdftex.def)             Requested size: 397.48499pt x 170.35501pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<ablation_study_nreps.png, id=274, 722.7pt x 289.08pt>
+<ablation_study_nreps.png, id=275, 722.7pt x 289.08pt>
 File: ablation_study_nreps.png Graphic file (type png)
 <use ablation_study_nreps.png>
-Package pdftex.def Info: ablation_study_nreps.png  used on input line 625.
+Package pdftex.def Info: ablation_study_nreps.png  used on input line 626.
 (pdftex.def)             Requested size: 397.48499pt x 158.99448pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<ablation_study_qioce_optimizer.png, id=276, 1110.0672pt x 617.9085pt>
+<ablation_study_qioce_optimizer.png, id=277, 1110.0672pt x 617.9085pt>
 File: ablation_study_qioce_optimizer.png Graphic file (type png)
 <use ablation_study_qioce_optimizer.png>
 Package pdftex.def Info: ablation_study_qioce_optimizer.png  used on input line
- 643.
+ 644.
 (pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<ablation_study_qioce_optimizer_loss.png, id=277, 1110.0672pt x 617.9085pt>
+<ablation_study_qioce_optimizer_loss.png, id=278, 1110.0672pt x 617.9085pt>
 File: ablation_study_qioce_optimizer_loss.png Graphic file (type png)
 <use ablation_study_qioce_optimizer_loss.png>
 Package pdftex.def Info: ablation_study_qioce_optimizer_loss.png  used on input
- line 652.
+ line 653.
 (pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
@@ -812,43 +818,38 @@ pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.664   \item A
+l.665   \item A
                nderson (the Ulvi optimizer) achieves the \emph{lowest} AUC (...
- <./summary_plot.png>]
-Underfull \vbox (badness 7576) has occurred while \output is active []
-
- [9
+ <./summary_plot.png>] [9
 pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.692 
-      
+l.693 
+       <./ablation_study_tl.png> <./ablation_study_tl_per_class.png>]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [10
 pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.692 
-       <./ablation_study_tl.png> <./ablation_study_nreps.png>]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [10
+l.707 
+      
 pdfTeX warning (ext4): destination with the same identifier (name{figure.5}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.727 
-       <./ablation_study_qioce_optimizer.png>] (paper.bbl
-Underfull \vbox (badness 2253) has occurred while \output is active []
-
- [11
+l.707 
+       <./ablation_study_nreps.png> <./ablation_study_qioce_optimizer.png>]
+[11
 pdfTeX warning (ext4): destination with the same identifier (name{figure.6}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.1 \begin{thebibliography}{19}
-                                <./ablation_study_qioce_optimizer_loss.png>])
-[12] (paper.aux)
+l.752 
+       <./ablation_study_qioce_optimizer_loss.png>] (paper.bbl [12]) [13]
+(paper.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
@@ -857,13 +858,13 @@ Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: 36A7C2DA47B64789E42184E253671889;4880.
  ) 
 Here is how much of TeX's memory you used:
- 14784 strings out of 467867
- 231644 string characters out of 5413979
+ 14798 strings out of 467867
+ 231973 string characters out of 5413979
  684846 words of memory out of 5000000
- 43100 multiletter control sequences out of 15000+600000
- 677047 words of font info for 235 fonts, out of 8000000 for 9000
+ 43107 multiletter control sequences out of 15000+600000
+ 677497 words of font info for 239 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,13n,79p,1004b,530s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,13n,79p,1004b,596s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\GregoireCATTAN\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dp
 i600\ectt1000.pk><C:/Users/GregoireCATTAN/AppData/Local/Programs/MiKTeX/fonts/t
 ype1/public/amsfonts/cm/cmex10.pfb><C:/Users/GregoireCATTAN/AppData/Local/Progr
@@ -880,9 +881,9 @@ TTAN/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:
 s/type1/urw/times/utmb8a.pfb><C:/Users/GregoireCATTAN/AppData/Local/Programs/Mi
 KTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/GregoireCATTAN/AppData/Local/Pr
 ograms/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on paper.pdf (12 pages, 835681 bytes).
+Output written on paper.pdf (13 pages, 1013144 bytes).
 PDF statistics:
- 441 PDF objects out of 1000 (max. 8388607)
- 103 named destinations out of 1000 (max. 500000)
- 48399 words of extra memory for PDF output out of 51595 (max. 10000000)
+ 448 PDF objects out of 1000 (max. 8388607)
+ 104 named destinations out of 1000 (max. 500000)
+ 48404 words of extra memory for PDF output out of 51595 (max. 10000000)
 

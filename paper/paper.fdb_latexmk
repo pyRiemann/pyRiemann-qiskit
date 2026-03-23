@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex paper"] 1774268449.01045 "paper.aux" "paper.bbl" "paper" 1774268452.30814 0
+["bibtex paper"] 1774270084.59946 "paper.aux" "paper.bbl" "paper" 1774270096.53649 0
   "./refs.bib" 1772990698.05901 6465 6084449da567f46d121d4ea176887308 ""
   "C:/Users/GregoireCATTAN/AppData/Local/Programs/MiKTeX/bibtex/bst/natbib/plainnat.bst" 1284455456 26816 ffe5423d2019860bad9f54bc402fac15 ""
-  "paper.aux" 1774268451.10262 13421 4f4515c9b48ce96a5ec40cc35b701b43 "pdflatex"
+  "paper.aux" 1774270092.54524 13420 6f9aa95135abb4489c67b2e082b8aac9 "pdflatex"
   (generated)
   "paper.bbl"
   "paper.blg"
   (rewritten before read)
-["pdflatex"] 1774268449.37686 "paper.tex" "paper.pdf" "paper" 1774268452.31 0
+["pdflatex"] 1774270085.79097 "paper.tex" "paper.pdf" "paper" 1774270096.54222 0
   "C:/Users/GregoireCATTAN/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1774268437.08137 82507 a9eef8696c92627b87e9975edea03b2a ""
   "C:/Users/GregoireCATTAN/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/ectt1000.pk" 1774268444.24689 20028 19f0f00c3641ada8c0524841f04c7495 ""
   "C:/Users/GregoireCATTAN/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1772976623.4871 13338204 91e413b37f5cb11690a34ca9e0ee2631 ""
@@ -127,10 +127,11 @@
   "ablation_study_qioce_optimizer.png" 1772317529.25253 58873 db0563c6aae099987ed5e207120af402 ""
   "ablation_study_qioce_optimizer_loss.png" 1772317570.02541 89574 efb75977a21fd5d0d2b866515fddff96 ""
   "ablation_study_tl.png" 1772978149.98009 207076 efdd0acf66f1c1c45663f10e29b510b5 ""
-  "paper.aux" 1774268451.10262 13421 4f4515c9b48ce96a5ec40cc35b701b43 "pdflatex"
-  "paper.bbl" 1774268449.29448 5275 00571303e2bac87374c7b3dcf7dadff8 "bibtex paper"
-  "paper.out" 1774268451.12966 4880 36a7c2da47b64789e42184e253671889 "pdflatex"
-  "paper.tex" 1774262543.06169 35617 c5878e6481397a2ee2ff408f45d45ba1 ""
+  "ablation_study_tl_per_class.png" 1772978168.95267 201470 0f577f2be4d2402f8464f7cf91395f71 ""
+  "paper.aux" 1774270092.54524 13420 6f9aa95135abb4489c67b2e082b8aac9 "pdflatex"
+  "paper.bbl" 1774270085.49776 5275 00571303e2bac87374c7b3dcf7dadff8 "bibtex paper"
+  "paper.out" 1774270092.64427 4880 36a7c2da47b64789e42184e253671889 "pdflatex"
+  "paper.tex" 1774270032.4976 35690 01b77140a0ba5f79c54577cd6a3e3e37 ""
   "scatter_plot.png" 1774258171.30167 90768 59c16318519f2f9c456b07a421e38962 ""
   "summary_plot.png" 1774258221.45733 146029 30ed147f10062451fcec335f0139f79d ""
   (generated)

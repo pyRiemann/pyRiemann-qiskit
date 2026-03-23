@@ -593,12 +593,13 @@ precondition for QAOA-based NCH to function in cross-subject settings.
 \begin{figure}[h]
   \centering
   \includegraphics[width=\columnwidth]{ablation_study_tl.png}
+  \includegraphics[width=\columnwidth]{ablation_study_tl_per_class.png}
   \caption{Three-dimensional PCA projection of SPD covariance matrices on
     synthetic cross-subject EEG before and after Riemannian Procrustes
     Analysis (RPA).
-    \emph{Left}: points coloured by subject---RPA collapses each subject's
+    \emph{Top}: points coloured by subject---RPA collapses each subject's
     cluster into a shared region, removing between-subject variability.
-    \emph{Right}: points coloured by class---after alignment, the two
+    \emph{Bottom}: points coloured by class---after alignment, the two
     mental-state classes become linearly separable in the projected space.}
   \label{fig:ablation_tl}
 \end{figure}

@@ -1,11 +1,11 @@
 """
 ====================================================================
 Classification of resting-state datasets from MOABB using NCH, QIOCE,
-QuantumStateDiscriminator and IGL
+and QuantumStateDiscriminator
 ====================================================================
 
-Comparison of classical pipelines (MDM, TS+LDA) and quantum/kernel pipelines
-(NCH, QIOCE, QuantumStateDiscriminator, IGL) across three resting-state
+Comparison of classical pipelines (MDM, TS+LR) and quantum pipelines
+(NCH, QIOCE, QuantumStateDiscriminator) across three resting-state
 datasets: Hinss2021 (CrossSubject), Rodrigues2017 (CrossSubject), and
 Cattan2019_PHMD (CrossSubject). Both plain and transfer-learning (TL)
 variants are benchmarked where applicable. Results are aggregated and
@@ -14,16 +14,12 @@ analyzed with MOABB statistical tools.
 Notes:
 - QuantumStateDiscriminator operates directly on raw EEG epochs (no
   covariance estimation) and is evaluated without a TL variant.
-- IGL (IGLTimeSeriesSklearnClassifier) also operates on raw epochs.
-  Configuration selected from ablation study: laplacian kernel,
-  λ=0.01, K=4 spatial filters, R=32 temporal anchors, 1500 epochs VP.
 
 """
 # Author: Gregoire Cattan
 # Modified from noplot_nch_study.py
 # License: BSD (3-clause)
 
-import itertools
 import random
 import time
 
@@ -36,7 +32,7 @@ from moabb.analysis.meta_analysis import (
     compute_dataset_statistics,
     find_significant_differences,
 )
-from moabb.analysis.plotting import meta_analysis_plot, summary_plot
+from moabb.analysis.plotting import summary_plot
 from moabb.datasets import Cattan2019_PHMD, Hinss2021, Rodrigues2017
 from moabb.paradigms import RestingStateToP300Adapter
 from pyriemann.classification import MDM
@@ -45,17 +41,13 @@ from pyriemann.preprocessing import Whitening
 from pyriemann.tangentspace import TangentSpace
 from pyriemann.transfer import MDWM, TLCenter, TLClassifier, TLRotate, TLScale
 from qiskit_algorithms.optimizers import NFT
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.linear_model import LogisticRegression as LR
 from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import (
     ContinuousQIOCEClassifier,
     QuanticNCH,
     QuantumStateDiscriminator,
-)
-from pyriemann_qiskit.classification.igl_reference import (
-    IGLTimeSeriesSklearnClassifier,
-    VPConfig,
 )
 from pyriemann_qiskit.utils.hyper_params_factory import (
     create_mixer_with_circular_entanglement,
@@ -94,10 +86,10 @@ pipelines["MDM"] = make_pipeline(
     MDM(),
 )
 
-pipelines["TS+LDA"] = make_pipeline(
+pipelines["TS+LR"] = make_pipeline(
     sf,
     TangentSpace(metric="riemann"),
-    LDA(),
+    LR(),
 )
 
 pipelines["NCH+MIN_HULL_QAOACV(Ulvi)"] = make_pipeline(
@@ -149,7 +141,7 @@ pipelines["MDM+TL"] = Adapter(
     ),
 )
 
-pipelines["TS+LDA+TL"] = Adapter(
+pipelines["TS+LR+TL"] = Adapter(
     preprocessing=sf,
     estimator=make_pipeline(
         TLCenter(target_domain=None),
@@ -157,7 +149,7 @@ pipelines["TS+LDA+TL"] = Adapter(
         TLRotate(target_domain=None),
         TLClassifier(
             target_domain=None,
-            estimator=make_pipeline(TangentSpace(metric="riemann"), LDA()),
+            estimator=make_pipeline(TangentSpace(metric="riemann"), LR()),
             domain_weight=None,
         ),
     ),
@@ -214,26 +206,6 @@ pipelines["NCH+MIN_HULL_NAIVEQAOA+TL"] = Adapter(
     ),
 )
 
-# Best config from ablation study (noplot_igl_timeseries_ablation.py):
-# laplacian, λ=0.01, K=4, R=32, epochs=1500
-pipelines["IGL"] = make_pipeline(
-    IGLTimeSeriesSklearnClassifier(
-        n_components=4,
-        n_anchors=32,
-        n_scales=3,
-        operator="laplacian",
-        training="vp",
-        vp_config=VPConfig(
-            epochs=1500,
-            warmup_epochs=300,
-            source_l2=0.01,
-            log_every=1500,
-            verbose=False,
-        ),
-        random_state=seed,
-    ),
-)
-
 pipelines["QIOCE+TL"] = Adapter(
     preprocessing=sf,
     estimator=make_pipeline(
@@ -256,7 +228,7 @@ pipelines["QIOCE+TL"] = Adapter(
 
 print("Total pipelines to evaluate: ", len(pipelines))
 
-overwrite = True  # set to True if we want to overwrite cached results
+overwrite = False  # set to True if we want to overwrite cached results
 
 ##############################################################################
 # Evaluations
@@ -328,9 +300,8 @@ preferred_order = [
     "MDWM(0.5)",
     "MDM+TL",
     "MDM",
-    "TS+LDA",
-    "TS+LDA+TL",
-    "IGL",
+    "TS+LR",
+    "TS+LR+TL",
 ]
 active_pipelines = results["pipeline"].unique()
 print(active_pipelines)
@@ -386,14 +357,3 @@ fig_stat = summary_plot(P, T)
 plt.tight_layout()
 plt.show()
 
-##############################################################################
-# Plot Results: Meta-Analysis
-# ---------------------------
-#
-# Standardized effect sizes with confidence intervals across datasets,
-# one plot per pair of pipelines (alg1 is hypothesized to outperform alg2).
-
-for alg1, alg2 in itertools.combinations(order, 2):
-    fig_meta = meta_analysis_plot(stats, alg1, alg2)
-    plt.tight_layout()
-    plt.show()
