@@ -20,18 +20,13 @@ import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
 from moabb import set_log_level
-from moabb.analysis.meta_analysis import (
-    compute_dataset_statistics,
-    find_significant_differences,
-)
-from moabb.analysis.plotting import summary_plot
+import moabb.analysis.plotting as moabb_plt
 from moabb.datasets import Cattan2019_PHMD, Hinss2021, Rodrigues2017
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import RestingStateToP300Adapter
 from pyriemann.classification import MDM
 from pyriemann.estimation import Covariances
 from pyriemann.spatialfilters import CSP
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.pipeline import make_pipeline
 
 print(__doc__)
@@ -46,6 +41,81 @@ print(seed)
 
 random.seed(seed)
 np.random.seed(seed)
+
+##############################################################################
+# PSD per dataset (channel Cz)
+# ----------------------------
+#
+# Visualise the mean power spectrum per class for each dataset using
+# paradigm.psd() (Welch's method). No MOABB evaluation is involved.
+
+
+def _find_channel(dataset, target="fp1"):
+    """Return the ch_names entry that matches target case-insensitively."""
+    subject = dataset.subject_list[0]
+    sessions = dataset.get_data(subjects=[subject])
+    raw = list(list(list(sessions.values())[0].values())[0].values())[0]
+    for ch in raw.ch_names:
+        if ch.lower() == target.lower():
+            return ch
+    raise ValueError(f"'{target}' not found. Available: {raw.ch_names}")
+
+
+_cattan = Cattan2019_PHMD()
+_rodrigues = Rodrigues2017()
+_hinss = Hinss2021()
+
+psd_configs = [
+    (
+        "Cattan2019-PHMD",
+        _cattan,
+        RestingStateToP300Adapter(
+            events=["on", "off"], channels=[_find_channel(_cattan)]
+        ),
+        ["on", "off"],
+        1,
+    ),
+    (
+        "Rodrigues2017",
+        _rodrigues,
+        RestingStateToP300Adapter(
+            fmin=1,
+            fmax=35,
+            events=["closed", "open"], channels=[_find_channel(_rodrigues)]
+        ),
+        ["closed", "open"],
+        1,
+    ),
+    (
+        "Hinss2021",
+        _hinss,
+        RestingStateToP300Adapter(
+            events=["easy", "medium"],
+            tmin=0,
+            tmax=0.5,
+            channels=[_find_channel(_hinss)],
+        ),
+        ["easy", "medium"],
+        1,
+    ),
+]
+
+fig, axes = plt.subplots(1, 3, facecolor="white", figsize=[14, 4])
+
+for ax, (title, dataset, paradigm, events, subject) in zip(axes, psd_configs):
+    f, S, _, y = paradigm.psd(subject, dataset)
+    for event in events:
+        mean_power = np.mean(S[y == event], axis=0).flatten()
+        ax.plot(f, 10 * np.log10(mean_power), label=event)
+    ax.set_xlim(paradigm.fmin, paradigm.fmax)
+    ax.set_xlabel("Frequency (Hz)")
+    ax.set_ylabel("Power (dB)")
+    ax.set_title(title)
+    ax.legend()
+
+plt.tight_layout()
+plt.show()
+
 
 ##############################################################################
 # Create Pipelines
@@ -100,6 +170,7 @@ evaluation_rodrigues = WithinSessionEvaluation(
     n_splits=3,
 )
 results_rodrigues = evaluation_rodrigues.process(pipelines)
+results_rodrigues["score"] = 1 - results_rodrigues["score"]
 print("Rodrigues results:")
 print(results_rodrigues.groupby("pipeline")[["score", "time"]].mean())
 
@@ -132,32 +203,42 @@ print("Averaging the session performance:")
 print(results.groupby("pipeline")[["score", "time"]].mean())
 
 ##############################################################################
-# Plot Results: Raw Scores per Dataset
+# Plot Results: Per-Dataset Comparison
 # -------------------------------------
-#
-# Strip + point plot of per-subject scores, with dataset on x-axis.
 
-fig, ax = plt.subplots(facecolor="white", figsize=[8, 4])
+active_pipelines = results["pipeline"].unique().tolist()
+dodge = len(active_pipelines) > 1
+
+fig2, ax2 = plt.subplots(facecolor="white", figsize=[8, 4])
 
 sns.stripplot(
     data=results,
     y="score",
     x="dataset",
-    ax=ax,
+    hue="pipeline",
+    ax=ax2,
     jitter=True,
     alpha=0.5,
     zorder=1,
     palette="Set1",
+    hue_order=active_pipelines,
+    dodge=dodge,
 )
 sns.pointplot(
     data=results,
     y="score",
     x="dataset",
-    ax=ax,
+    hue="pipeline",
+    ax=ax2,
     palette="Set1",
+    hue_order=active_pipelines,
+    dodge=dodge,
 )
 
-ax.set_ylabel("ROC AUC")
+ax2.set_ylabel("ROC AUC")
+handles, labels = ax2.get_legend_handles_labels()
+ax2.legend(handles[: len(active_pipelines)], labels[: len(active_pipelines)], title="Pipeline")
 plt.xticks(rotation=45)
 plt.tight_layout()
 plt.show()
+

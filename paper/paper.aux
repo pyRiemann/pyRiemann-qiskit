@@ -30,7 +30,7 @@
 \citation{hausladen1994pretty}
 \citation{helstrom1976quantum}
 \citation{jayaram2018moabb}
-\@writefile{toc}{\contentsline {paragraph}{Tangent Space + LDA.}{3}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Tangent Space + LR.}{3}{section*.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Riemannian Transfer Learning}{3}{subsection.2.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3}QAOA and Continuous-Variable Extensions}{3}{subsection.2.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Pretty Good Measurement}{3}{subsection.2.4}\protected@file@percent }
@@ -42,75 +42,85 @@
 \citation{zanini2018transfer}
 \citation{rodrigues2019riemannian}
 \citation{quanticNCH2023}
-\citation{qioce2023}
-\citation{kerskens2022nonclassical}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.5}MOABB and Cross-Subject Evaluation}{4}{subsection.2.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {3}Methods}{4}{section.3}\protected@file@percent }
 \newlabel{sec:methods}{{3}{4}{Methods}{section.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Datasets}{4}{subsection.3.1}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Datasets used in the benchmark.}}{4}{table.1}\protected@file@percent }
 \newlabel{tab:datasets}{{1}{4}{Datasets used in the benchmark}{table.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Within-session baseline.}{4}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Label inversion in Rodrigues2017.}{4}{section*.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Evaluation Protocol}{4}{subsection.3.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Classical Baselines}{4}{subsection.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{MDM.}{4}{section*.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{TS+LDA.}{4}{section*.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{MDWM(0.5).}{4}{section*.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{MDM+TL / TS+LDA+TL.}{4}{section*.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Quantum Baselines}{4}{subsection.3.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{NCH+NaiveQAOA ($\pm $TL).}{4}{section*.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{QIOCE ($\pm $TL).}{4}{section*.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Novel Contributions}{4}{subsection.3.5}\protected@file@percent }
-\newlabel{sec:novel}{{3.5}{4}{Novel Contributions}{subsection.3.5}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.1}QuantumStateDiscriminator}{4}{subsubsection.3.5.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Scope and assumptions.}{4}{section*.9}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Intuition.}{5}{section*.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{MDM.}{4}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{TS+LR.}{4}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{MDWM(0.5).}{4}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{MDM+TL / TS+LR+TL.}{4}{section*.8}\protected@file@percent }
+\citation{qioce2023}
+\citation{kerskens2022nonclassical}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Within-session CSP+MDM ROC AUC per dataset (3-fold GroupKFold). Points are individual subjects; error bars show mean~$\pm $~95\%~CI. Outliers near 0 on Rodrigues2017 reflect label inversion due to insufficient samples per fold, corrected by $\text  {AUC} \leftarrow 1-\text  {AUC}$.}}{5}{figure.1}\protected@file@percent }
+\newlabel{fig:baseline_dataset}{{1}{5}{Within-session CSP+MDM ROC AUC per dataset (3-fold GroupKFold). Points are individual subjects; error bars show mean~$\pm $~95\%~CI. Outliers near 0 on Rodrigues2017 reflect label inversion due to insufficient samples per fold, corrected by $\text {AUC} \leftarrow 1-\text {AUC}$}{figure.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Quantum Baselines}{5}{subsection.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{NCH+NaiveQAOA ($\pm $TL).}{5}{section*.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{QIOCE ($\pm $TL).}{5}{section*.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Novel Contributions}{5}{subsection.3.5}\protected@file@percent }
+\newlabel{sec:novel}{{3.5}{5}{Novel Contributions}{subsection.3.5}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.1}QuantumStateDiscriminator}{5}{subsubsection.3.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Scope and assumptions.}{5}{section*.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Intuition.}{5}{section*.12}\protected@file@percent }
 \newlabel{eq:mental_state}{{5}{5}{Intuition}{equation.5}{}}
-\@writefile{toc}{\contentsline {paragraph}{Fit.}{5}{section*.11}\protected@file@percent }
-\newlabel{eq:tomography}{{6}{5}{Fit}{equation.6}{}}
-\newlabel{eq:povm}{{7}{5}{Fit}{equation.7}{}}
-\@writefile{toc}{\contentsline {paragraph}{Predict.}{5}{section*.12}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Comparison with MDM.}{5}{section*.13}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Comparison of MDM and \textsc  {QuantumStateDiscriminator}.}}{5}{table.2}\protected@file@percent }
-\newlabel{tab:qsd_vs_mdm}{{2}{5}{Comparison of MDM and \textsc {QuantumStateDiscriminator}}{table.2}{}}
-\@writefile{toc}{\contentsline {paragraph}{Classical implementation.}{5}{section*.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Fit.}{6}{section*.13}\protected@file@percent }
+\newlabel{eq:tomography}{{6}{6}{Fit}{equation.6}{}}
+\newlabel{eq:povm}{{7}{6}{Fit}{equation.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{Predict.}{6}{section*.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Comparison with MDM.}{6}{section*.15}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Comparison of MDM and \textsc  {QuantumStateDiscriminator}.}}{6}{table.2}\protected@file@percent }
+\newlabel{tab:qsd_vs_mdm}{{2}{6}{Comparison of MDM and \textsc {QuantumStateDiscriminator}}{table.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Classical implementation.}{6}{section*.16}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.2}NCH+QAOA-CV (Ulvi Optimizer)}{6}{subsubsection.3.5.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.6}Summary of Pipelines}{6}{subsection.3.6}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces All evaluated pipelines.}}{6}{table.3}\protected@file@percent }
-\newlabel{tab:pipelines}{{3}{6}{All evaluated pipelines}{table.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Results}{6}{section.4}\protected@file@percent }
-\newlabel{sec:results}{{4}{6}{Results}{section.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Per-Pipeline AUC across All Datasets}{6}{subsection.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Statistical Analysis}{6}{subsection.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Effect of Transfer Learning}{6}{subsection.4.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces All evaluated pipelines.}}{7}{table.3}\protected@file@percent }
+\newlabel{tab:pipelines}{{3}{7}{All evaluated pipelines}{table.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Results}{7}{section.4}\protected@file@percent }
+\newlabel{sec:results}{{4}{7}{Results}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Per-Pipeline AUC across All Datasets}{7}{subsection.4.1}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Mean ROC AUC and training time across all three datasets.}}{7}{table.4}\protected@file@percent }
 \newlabel{tab:auc}{{4}{7}{Mean ROC AUC and training time across all three datasets}{table.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces ROC AUC distributions across all subjects and datasets. Strip plot (individual subjects, $\alpha =0.5$) overlaid with mean $\pm $ 95\% CI (point plot). Pipelines ordered by the preferred display order from the benchmark script.}}{7}{figure.1}\protected@file@percent }
-\newlabel{fig:scatter}{{1}{7}{ROC AUC distributions across all subjects and datasets. Strip plot (individual subjects, $\alpha =0.5$) overlaid with mean $\pm $ 95\% CI (point plot). Pipelines ordered by the preferred display order from the benchmark script}{figure.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Ablation Studies}{7}{section.5}\protected@file@percent }
-\newlabel{sec:ablation}{{5}{7}{Ablation Studies}{section.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Transfer Learning Benefit for NCH}{7}{subsection.5.1}\protected@file@percent }
-\newlabel{sec:ablation_tl}{{5.1}{7}{Transfer Learning Benefit for NCH}{subsection.5.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Algorithm comparison matrix. Each cell shows the SMD and $p$-value for the row algorithm vs.\ the column algorithm. Green: row significantly better ($p<0.05$).}}{8}{figure.2}\protected@file@percent }
-\newlabel{fig:summary}{{2}{8}{Algorithm comparison matrix. Each cell shows the SMD and $p$-value for the row algorithm vs.\ the column algorithm. Green: row significantly better ($p<0.05$)}{figure.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}QAOA Circuit Depth}{8}{subsection.5.2}\protected@file@percent }
-\newlabel{sec:ablation_nreps}{{5.2}{8}{QAOA Circuit Depth}{subsection.5.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}QIOCE Optimizer Comparison}{8}{subsection.5.3}\protected@file@percent }
-\newlabel{sec:ablation_optimizer}{{5.3}{8}{QIOCE Optimizer Comparison}{subsection.5.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Three-dimensional PCA projection of SPD covariance matrices on synthetic cross-subject EEG before and after Riemannian Procrustes Analysis (RPA). \emph  {Top}: points coloured by subject---RPA collapses each subject's cluster into a shared region, removing between-subject variability. \emph  {Bottom}: points coloured by class---after alignment, the two mental-state classes become linearly separable in the projected space.}}{9}{figure.3}\protected@file@percent }
-\newlabel{fig:ablation_tl}{{3}{9}{Three-dimensional PCA projection of SPD covariance matrices on synthetic cross-subject EEG before and after Riemannian Procrustes Analysis (RPA). \emph {Top}: points coloured by subject---RPA collapses each subject's cluster into a shared region, removing between-subject variability. \emph {Bottom}: points coloured by class---after alignment, the two mental-state classes become linearly separable in the projected space}{figure.3}{}}
-\@writefile{toc}{\contentsline {paragraph}{Note on the Ulvi optimizer.}{9}{section*.15}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {6}Discussion}{9}{section.6}\protected@file@percent }
-\newlabel{sec:discussion}{{6}{9}{Discussion}{section.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}QuantumStateDiscriminator}{9}{subsection.6.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces QAOA circuit depth ($n\_\text  {reps}$) ablation. Left: ROC AUC. Right: training time. NCH variants (blue/orange) are stable across depths; QIOCE (green) degrades.}}{10}{figure.4}\protected@file@percent }
-\newlabel{fig:ablation_nreps}{{4}{10}{QAOA circuit depth ($n\_\text {reps}$) ablation. Left: ROC AUC. Right: training time. NCH variants (blue/orange) are stable across depths; QIOCE (green) degrades}{figure.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces QIOCE optimizer comparison. L-BFGS-B, SLSQP, COBYLA, SPSA, and NFT achieve similar AUC ($\approx 0.84$); Anderson achieves only 0.65 while consuming the most time (78~s) and evaluations (1{,}200).}}{10}{figure.5}\protected@file@percent }
-\newlabel{fig:ablation_optimizer}{{5}{10}{QIOCE optimizer comparison. L-BFGS-B, SLSQP, COBYLA, SPSA, and NFT achieve similar AUC ($\approx 0.84$); Anderson achieves only 0.65 while consuming the most time (78~s) and evaluations (1{,}200)}{figure.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Convergence curves (mean $\pm $ std across folds) for each optimizer. Gradient-based methods (L-BFGS-B, SLSQP) converge within 50 evaluations. Anderson converges slowly and exhibits high variance, never reaching the loss achieved by other methods.}}{11}{figure.6}\protected@file@percent }
-\newlabel{fig:ablation_optimizer_loss}{{6}{11}{Convergence curves (mean $\pm $ std across folds) for each optimizer. Gradient-based methods (L-BFGS-B, SLSQP) converge within 50 evaluations. Anderson converges slowly and exhibits high variance, never reaching the loss achieved by other methods}{figure.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}QAOA-CV Ulvi Optimizer and NCH}{11}{subsection.6.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Transfer Learning}{11}{subsection.6.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}Limitations}{11}{subsection.6.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Statistical Analysis}{7}{subsection.4.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Per-dataset ROC AUC for the three top-performing pipelines (MDM, \textsc  {QuantumStateDiscriminator}, QIOCE). Points are individual subjects; error bars show mean~$\pm $~95\%~CI. All three converge on Hinss2021 while QIOCE trails on Rodrigues2017.}}{8}{figure.2}\protected@file@percent }
+\newlabel{fig:roc_per_dataset}{{2}{8}{Per-dataset ROC AUC for the three top-performing pipelines (MDM, \textsc {QuantumStateDiscriminator}, QIOCE). Points are individual subjects; error bars show mean~$\pm $~95\%~CI. All three converge on Hinss2021 while QIOCE trails on Rodrigues2017}{figure.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Within-Session Baseline}{8}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Effect of Transfer Learning}{8}{subsection.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Ablation Studies}{8}{section.5}\protected@file@percent }
+\newlabel{sec:ablation}{{5}{8}{Ablation Studies}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Transfer Learning Benefit for NCH}{8}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:ablation_tl}{{5.1}{8}{Transfer Learning Benefit for NCH}{subsection.5.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces ROC AUC distributions across all subjects and datasets. Strip plot (individual subjects, $\alpha =0.5$) overlaid with mean $\pm $ 95\% CI (point plot). Pipelines ordered by the preferred display order from the benchmark script.}}{9}{figure.3}\protected@file@percent }
+\newlabel{fig:scatter}{{3}{9}{ROC AUC distributions across all subjects and datasets. Strip plot (individual subjects, $\alpha =0.5$) overlaid with mean $\pm $ 95\% CI (point plot). Pipelines ordered by the preferred display order from the benchmark script}{figure.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Aggregated mean ROC AUC and mean training time (seconds) per pipeline across all three datasets. IGL denotes the Intrinsic Green's Learning classifier evaluated under the same cross-subject protocol.}}{9}{figure.4}\protected@file@percent }
+\newlabel{fig:results_log}{{4}{9}{Aggregated mean ROC AUC and mean training time (seconds) per pipeline across all three datasets. IGL denotes the Intrinsic Green's Learning classifier evaluated under the same cross-subject protocol}{figure.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Algorithm comparison matrix. Each cell shows the SMD and $p$-value for the row algorithm vs.\ the column algorithm. Green: row significantly better ($p<0.05$).}}{10}{figure.5}\protected@file@percent }
+\newlabel{fig:summary}{{5}{10}{Algorithm comparison matrix. Each cell shows the SMD and $p$-value for the row algorithm vs.\ the column algorithm. Green: row significantly better ($p<0.05$)}{figure.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}QAOA Circuit Depth}{10}{subsection.5.2}\protected@file@percent }
+\newlabel{sec:ablation_nreps}{{5.2}{10}{QAOA Circuit Depth}{subsection.5.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}QIOCE Optimizer Comparison}{10}{subsection.5.3}\protected@file@percent }
+\newlabel{sec:ablation_optimizer}{{5.3}{10}{QIOCE Optimizer Comparison}{subsection.5.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Note on the Ulvi optimizer.}{10}{section*.17}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Three-dimensional PCA projection of SPD covariance matrices on synthetic cross-subject EEG before and after Riemannian Procrustes Analysis (RPA). \emph  {Top}: points coloured by subject---RPA collapses each subject's cluster into a shared region, removing between-subject variability. \emph  {Bottom}: points coloured by class---after alignment, the two mental-state classes become linearly separable in the projected space.}}{11}{figure.6}\protected@file@percent }
+\newlabel{fig:ablation_tl}{{6}{11}{Three-dimensional PCA projection of SPD covariance matrices on synthetic cross-subject EEG before and after Riemannian Procrustes Analysis (RPA). \emph {Top}: points coloured by subject---RPA collapses each subject's cluster into a shared region, removing between-subject variability. \emph {Bottom}: points coloured by class---after alignment, the two mental-state classes become linearly separable in the projected space}{figure.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Discussion}{11}{section.6}\protected@file@percent }
+\newlabel{sec:discussion}{{6}{11}{Discussion}{section.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}QuantumStateDiscriminator}{11}{subsection.6.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces QAOA circuit depth ($n\_\text  {reps}$) ablation. Left: ROC AUC. Right: training time. NCH variants (blue/orange) are stable across depths; QIOCE (green) degrades.}}{12}{figure.7}\protected@file@percent }
+\newlabel{fig:ablation_nreps}{{7}{12}{QAOA circuit depth ($n\_\text {reps}$) ablation. Left: ROC AUC. Right: training time. NCH variants (blue/orange) are stable across depths; QIOCE (green) degrades}{figure.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces QIOCE optimizer comparison. L-BFGS-B, SLSQP, COBYLA, SPSA, and NFT achieve similar AUC ($\approx 0.84$); Anderson achieves only 0.65 while consuming the most time (78~s) and evaluations (1{,}200).}}{12}{figure.8}\protected@file@percent }
+\newlabel{fig:ablation_optimizer}{{8}{12}{QIOCE optimizer comparison. L-BFGS-B, SLSQP, COBYLA, SPSA, and NFT achieve similar AUC ($\approx 0.84$); Anderson achieves only 0.65 while consuming the most time (78~s) and evaluations (1{,}200)}{figure.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}QAOA-CV Ulvi Optimizer and NCH}{12}{subsection.6.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Convergence curves (mean $\pm $ std across folds) for each optimizer. Gradient-based methods (L-BFGS-B, SLSQP) converge within 50 evaluations. Anderson converges slowly and exhibits high variance, never reaching the loss achieved by other methods.}}{13}{figure.9}\protected@file@percent }
+\newlabel{fig:ablation_optimizer_loss}{{9}{13}{Convergence curves (mean $\pm $ std across folds) for each optimizer. Gradient-based methods (L-BFGS-B, SLSQP) converge within 50 evaluations. Anderson converges slowly and exhibits high variance, never reaching the loss achieved by other methods}{figure.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Transfer Learning}{13}{subsection.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}Within-Session Gap}{13}{subsection.6.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.5}Limitations}{13}{subsection.6.5}\protected@file@percent }
 \bibstyle{plainnat}
 \bibdata{refs}
 \bibcite{qioce2023}{{1}{2023}{{qio}}{{}}}
@@ -127,11 +137,11 @@
 \bibcite{lloyd2018quantum}{{12}{2018}{{Lloyd and Weedbrook}}{{}}}
 \bibcite{lotte2018review}{{13}{2018}{{Lotte et~al.}}{{}}}
 \bibcite{luna2025qaoacv}{{14}{2025}{{Luna et~al.}}{{Luna, Patare, Aksoy, and Cattan}}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{14}{section.7}\protected@file@percent }
+\newlabel{sec:conclusion}{{7}{14}{Conclusion}{section.7}{}}
 \bibcite{Rodrigues2017}{{15}{2019{}}{{Rodrigues et~al.}}{{Rodrigues, Jutten, and Congedo}}}
 \bibcite{rodrigues2019riemannian}{{16}{2019{}}{{Rodrigues et~al.}}{{}}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{12}{section.7}\protected@file@percent }
-\newlabel{sec:conclusion}{{7}{12}{Conclusion}{section.7}{}}
 \bibcite{schuld2019quantum}{{17}{2019}{{Schuld and Killoran}}{{}}}
 \bibcite{yger2017riemannian}{{18}{2017}{{Yger et~al.}}{{Yger, Berar, and Lotte}}}
 \bibcite{zanini2018transfer}{{19}{2018}{{Zanini et~al.}}{{}}}
-\gdef \@abspage@last{13}
+\gdef \@abspage@last{15}

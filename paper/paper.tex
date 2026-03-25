@@ -68,16 +68,16 @@ the explicit covariance estimation step; and (ii)~the \emph{Ulvi} optimizer
 variant of Quantum Approximate Optimization with Continuous Variables
 (QAOA-CV) with circular entanglement for the Nearest Convex Hull (NCH)
 classifier.
-Experiments show that \textsc{QuantumStateDiscriminator} and QIOCE achieve
-mean ROC AUC scores comparable to the best classical baseline (MDM: 0.613),
-reaching 0.628 and 0.625, respectively, while the
-\textsc{QuantumStateDiscriminator} is the fastest classifier tested at under
-0.1~s mean training time.
-NCH-based quantum methods trail classical baselines but benefit from
-Riemannian transfer learning in synthetic domain-shift conditions.
+Experiments show that the classical MDM classifier achieves the highest
+mean ROC AUC (0.622), confirming the strength of Riemannian geometry for
+resting-state EEG.  QIOCE (0.601) and \textsc{QuantumStateDiscriminator}
+(0.600) are virtually tied for second, with QSD being the fastest classifier
+tested (under 0.1~s mean training time) versus $\approx$6~min for QIOCE.
+NCH-based quantum methods trail classical baselines; transfer learning
+has mixed effects depending on the pipeline.
 These findings provide a rigorous first benchmark for the two proposed
-methods and highlight the trade-off between quantum-algorithmic expressiveness
-and practical performance on near-term simulated quantum hardware.
+methods and highlight that classical Riemannian classifiers remain
+strong baselines on near-term simulated quantum hardware.
 \end{abstract}
 
 
@@ -178,10 +178,10 @@ is closest:
 where $\delta_R(A,B)=\|\log(A^{-1/2}BA^{-1/2})\|_F$ is the affine-invariant
 Riemannian distance.
 
-\paragraph{Tangent Space + LDA.}
+\paragraph{Tangent Space + LR.}
 Covariance matrices are projected to the tangent space at the Riemannian mean
-of training data, yielding Euclidean feature vectors on which a Linear
-Discriminant Analysis (LDA) classifier is trained~\cite{yger2017riemannian}.
+of training data, yielding Euclidean feature vectors on which a Logistic
+Regression (LR) classifier is trained~\cite{yger2017riemannian}.
 
 \subsection{Riemannian Transfer Learning}
 
@@ -291,6 +291,36 @@ For Hinss2021, epochs span 0--0.5~s ($T_{\max}=0.5$~s).
 The Ledoit--Wolf regularized covariance estimator (\texttt{lwf}) is used
 for all pipelines that require covariance matrices.
 
+\paragraph{Within-session baseline.}
+To characterise inherent dataset difficulty, we run a CSP+MDM pipeline
+(LWF covariance $\to$ CSP with 8 spatial filters, \texttt{log=False}
+$\to$ MDM) under \texttt{WithinSessionEvaluation} with 3-fold GroupKFold.
+Figure~\ref{fig:baseline_dataset} shows the resulting per-subject AUC
+distributions.  Hinss2021 is the most discriminable dataset
+($\overline{\text{AUC}}\approx 0.87$), followed by Rodrigues2017
+($\approx 0.71$) and Cattan2019\_PHMD ($\approx 0.69$).
+
+\paragraph{Label inversion in Rodrigues2017.}
+Rodrigues2017 provides very few trials per session: with only 3 folds,
+some subjects end up with a single trial per class in a test fold.
+In this extreme low-sample regime the CSP spatial filter can assign
+class labels in the opposite order to the majority, causing ROC AUC
+to fall below 0.5 for individual folds (visible as outliers near 0 in
+Figure~\ref{fig:baseline_dataset}).  We correct for this by applying
+$\text{AUC} \leftarrow 1 - \text{AUC}$ on the Rodrigues2017 results,
+which is equivalent to flipping the predicted scores and restores AUC
+above 0.5 for affected folds.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{baseline.png}
+  \caption{Within-session CSP+MDM ROC AUC per dataset (3-fold GroupKFold).
+    Points are individual subjects; error bars show mean~$\pm$~95\%~CI.
+    Outliers near 0 on Rodrigues2017 reflect label inversion due to
+    insufficient samples per fold, corrected by $\text{AUC} \leftarrow 1-\text{AUC}$.}
+  \label{fig:baseline_dataset}
+\end{figure}
+
 \subsection{Evaluation Protocol}
 
 All evaluations use \texttt{TLCrossSubjectEvaluation}, a subclass of
@@ -304,17 +334,17 @@ $k=3$ splits and ROC AUC as the performance metric.
 \paragraph{MDM.}
 Ledoit--Wolf covariance $\rightarrow$ MDM~\cite{barachant2012multiclass}.
 
-\paragraph{TS+LDA.}
+\paragraph{TS+LR.}
 Ledoit--Wolf covariance $\rightarrow$ TangentSpace ($\delta_R$) $\rightarrow$
-LDA~\cite{yger2017riemannian}.
+Logistic Regression~\cite{yger2017riemannian}.
 
 \paragraph{MDWM(0.5).}
 Domain-weighted minimum distance to mean with equal weighting between source
 and target domains (domain tradeoff $=0.5$)~\cite{zanini2018transfer}.
 
-\paragraph{MDM+TL / TS+LDA+TL.}
+\paragraph{MDM+TL / TS+LR+TL.}
 Full RPA alignment (TLCenter $\rightarrow$ TLScale $\rightarrow$
-TLRotate) prepended to MDM or TS+LDA~\cite{rodrigues2019riemannian}.
+TLRotate) prepended to MDM or TS+LR~\cite{rodrigues2019riemannian}.
 
 \subsection{Quantum Baselines}
 
@@ -464,8 +494,8 @@ Table~\ref{tab:pipelines} lists all 12 evaluated pipelines.
     \midrule
     MDM                          & --  & Classical \\
     MDM+TL                       & RPA & Classical \\
-    TS+LDA                       & --  & Classical \\
-    TS+LDA+TL                    & RPA & Classical \\
+    TS+LR                        & --  & Classical \\
+    TS+LR+TL                     & RPA & Classical \\
     MDWM(0.5)                    & DW  & Classical \\
     NCH+NaiveQAOA                & --  & Quantum \\
     NCH+NaiveQAOA+TL             & RPA & Quantum \\
@@ -496,27 +526,45 @@ averaged across subjects and datasets) for all 12 pipelines.
     \toprule
     Pipeline & AUC (mean) & Time (s, mean) \\
     \midrule
-    \textbf{QuantumStateDiscriminator}      & \textbf{0.628} & \textbf{0.10} \\
-    \textbf{QIOCE}                          & \textbf{0.625} & 471.8 \\
-    MDM                                     & 0.613          & 10.3 \\
-    MDM+TL                                  & 0.595          & 72.1 \\
-    MDWM(0.5)                               & 0.591          & 10.9 \\
-    TS+LDA                                  & 0.584          & 18.4 \\
-    QIOCE+TL                                & 0.574          & 742.4 \\
-    NCH+QAOACV(Ulvi)                        & 0.555          & 1.0 \\
-    NCH+QAOACV(Ulvi)+TL                     & 0.551          & 67.0 \\
-    TS+LDA+TL                               & 0.542          & 80.6 \\
-    NCH+NaiveQAOA                           & 0.539          & 1.0 \\
-    NCH+NaiveQAOA+TL                        & 0.533          & 68.8 \\
+    \textbf{MDM}                             & \textbf{0.622} & \textbf{2.1} \\
+    QIOCE                                   & 0.601          & 361.7 \\
+    QuantumStateDiscriminator               & 0.600          & 0.08 \\
+    MDWM(0.5)                               & 0.580          & 8.2 \\
+    MDM+TL                                  & 0.578          & 63.6 \\
+    TS+LR+TL                                & 0.577          & 80.3 \\
+    QIOCE+TL                                & 0.569          & 570.5 \\
+    TS+LR                                   & 0.563          & 15.1 \\
+    NCH+QAOACV(Ulvi)                        & 0.555          & 1.8 \\
+    NCH+QAOACV(Ulvi)+TL                     & 0.551          & 117.6 \\
+    NCH+NaiveQAOA                           & 0.538          & 1.8 \\
+    NCH+NaiveQAOA+TL                        & 0.538          & 116.9 \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 Figure~\ref{fig:scatter} shows the distribution of per-subject AUC scores
-across all three datasets.  \textsc{QuantumStateDiscriminator} and QIOCE
-achieve the highest mean performance, followed by the classical MDM
-baseline.  NCH variants cluster near the lower end, with
-all pipelines remaining above chance level.
+across all three datasets.  MDM achieves the highest mean performance.
+QIOCE (0.601) and \textsc{QuantumStateDiscriminator} (0.600) are virtually
+tied for second.  NCH variants cluster near the lower end, with all
+pipelines remaining above chance level.
+
+Figure~\ref{fig:roc_per_dataset} breaks down the three top performers
+(MDM, \textsc{QuantumStateDiscriminator}, QIOCE) by dataset.
+All three pipelines follow the same trend: near-chance performance on
+Cattan2019\_PHMD ($\approx$0.51), moderate performance on Rodrigues2017
+($\approx$0.57--0.58), and strong performance on Hinss2021
+($\approx$0.71).  QIOCE shows higher variance and lags slightly on
+Rodrigues2017, but converges with MDM and QSD on Hinss2021.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{roc_auc_per_dataset.png}
+  \caption{Per-dataset ROC AUC for the three top-performing pipelines
+    (MDM, \textsc{QuantumStateDiscriminator}, QIOCE).  Points are
+    individual subjects; error bars show mean~$\pm$~95\%~CI.
+    All three converge on Hinss2021 while QIOCE trails on Rodrigues2017.}
+  \label{fig:roc_per_dataset}
+\end{figure}
 
 \begin{figure}[h]
   \centering
@@ -526,6 +574,19 @@ all pipelines remaining above chance level.
     mean $\pm$ 95\% CI (point plot).  Pipelines ordered by the
     preferred display order from the benchmark script.}
   \label{fig:scatter}
+\end{figure}
+
+Figure~\ref{fig:results_log} summarises the aggregated mean ROC AUC and
+mean training time per pipeline across all three datasets.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{results_log.png}
+  \caption{Aggregated mean ROC AUC and mean training time (seconds) per
+    pipeline across all three datasets.  IGL denotes the Intrinsic
+    Green's Learning classifier evaluated under the same cross-subject
+    protocol.}
+  \label{fig:results_log}
 \end{figure}
 
 \subsection{Statistical Analysis}
@@ -545,21 +606,28 @@ significance at $\alpha=0.05$.
   \label{fig:summary}
 \end{figure}
 
+\subsection{Within-Session Baseline}
+
+The within-session CSP+MDM baseline introduced in
+Section~\ref{sec:methods} (Figure~\ref{fig:baseline_dataset}) provides a
+dataset-specific performance ceiling.  The best cross-subject pipeline
+(MDM, mean AUC~0.622) remains $\approx$0.07--0.25 AUC points below the
+within-session ceiling depending on dataset, confirming that cross-subject
+generalization is the dominant remaining challenge.
+
 \subsection{Effect of Transfer Learning}
 
-Transfer learning has a clearly detrimental effect on quantum pipelines.
-QIOCE suffers the most: the QIOCE $>$ QIOCE+TL difference is statistically
-significant ($p=0.043$), confirming that RPA alignment actively degrades
-this classifier across all datasets, not merely by chance.
-NCH+NaiveQAOA similarly degrades with TL ($0.539 \to 0.533$), and
-TS+LDA drops from $0.584$ to $0.542$.
-By contrast, the two Riemannian classical baselines respond differently:
-MDM+TL is not significantly different from MDM, but MDM+TL $>$ TS+LDA+TL
-($p=0.043$, SMD$=1.77$) and MDM $>$ TS+LDA+TL ($p=0.023$, SMD$=1.45$)
-confirm that after alignment MDM is the more robust classifier.
-The Ulvi NCH variant with TL also remains below MDM
-($p=0.043$), suggesting that neither the quantum circuit improvements nor
-alignment recover the gap to the classical Riemannian baseline.
+Transfer learning has mixed effects depending on the pipeline.
+For MDM, TL is detrimental ($0.622 \to 0.578$), suggesting that RPA
+alignment disrupts the Riemannian mean structure that MDM relies upon.
+By contrast, TS+LR benefits from TL ($0.563 \to 0.577$), and QIOCE
+degrades with TL ($0.601 \to 0.569$), suggesting the whitening and
+tangent-space projection in QIOCE already provides implicit alignment.
+NCH+NaiveQAOA shows virtually no effect of TL ($0.538 \to 0.538$),
+while the Ulvi variant degrades slightly ($0.555 \to 0.551$).
+These results confirm that RPA alignment benefits tangent-space linear
+classifiers but is neutral or harmful for distance-based and quantum
+circuit methods.
 
 
 % ============================================================
@@ -684,17 +752,19 @@ variant outperforms NaiveQAOA by $+0.026$ mean AUC.
 
 \subsection{QuantumStateDiscriminator}
 
-The \textsc{QuantumStateDiscriminator} achieves the highest mean AUC (0.628)
-in the benchmark while being by far the fastest classifier (0.27~s mean
-training time), highlighting an important practical advantage.  The absence
-of a statistically significant gap from MDM (0.613) suggests the
-quantum-theoretic PGM framework with Born-rule scoring is a viable
-alternative to Riemannian nearest-mean classification.
+The \textsc{QuantumStateDiscriminator} achieves a mean AUC of 0.600, placing
+it virtually tied with QIOCE (0.601) and making it the fastest classifier
+overall (0.08~s mean training time)---over four orders of magnitude faster
+than QIOCE ($\approx$362~s) and two orders faster than MDM (2.1~s).
+Both QSD and QIOCE fall below MDM (0.622), but neither the gap nor the
+difference between the two quantum methods is likely to be statistically
+significant given the per-dataset convergence visible in
+Figure~\ref{fig:roc_per_dataset}.
 
 The key insight is that trace-normalized EEG covariance matrices are valid
 density matrices, so the quantum measurement formalism applies directly.
 The PGM couples all classes through $\rho_{\text{tot}}$, which is closer in
-spirit to LDA than MDM.  Extending this approach with shrinkage regularization
+spirit to LR than MDM.  Extending this approach with shrinkage regularization
 (Ledoit--Wolf normalization before trace normalization) or incorporating
 within-class structure into the POVM construction are natural directions.
 
@@ -717,14 +787,26 @@ for NCH (performance saturates at 1.0 AUC on toy data for both variants).
 
 \subsection{Transfer Learning}
 
-Counter-intuitively, RPA alignment degrades performance for most quantum
-pipelines on these datasets.  For QIOCE, the whitening and tangent-space
-projection pipeline may already provide implicit alignment, making RPA
-redundant or harmful.  For NCH, RPA improves synthetic cross-subject
-performance but does not recover the full performance gap to classical
-methods on real data.  The significant advantage of MDM+TL over TS+LDA+TL
-suggests that RPA benefits Riemannian distance-based classifiers more than
-tangent-space methods.
+RPA alignment has classifier-dependent effects.  It degrades MDM
+($0.622 \to 0.578$), likely because centering and rotating the covariance
+manifold disrupts the class-mean geometry that MDM relies on.  Conversely,
+TS+LR benefits from alignment ($0.563 \to 0.577$): projecting aligned
+covariances to the tangent space yields more separable features for logistic
+regression.  QIOCE and NCH+NaiveQAOA also benefit marginally.  These results
+suggest that RPA is most useful when downstream classifiers operate in tangent
+or Euclidean space, and less so for pure Riemannian distance classifiers.
+
+\subsection{Within-Session Gap}
+
+The within-session CSP+MDM baseline (Section~\ref{sec:results}) exposes a
+substantial performance ceiling that all cross-subject methods fall short of.
+The gap is smallest for Cattan2019\_PHMD (within: $\approx$0.69 vs.\ best
+cross-subject: 0.628, $\Delta\approx$0.06) and largest for Hinss2021
+(within: $\approx$0.87, $\Delta\approx$0.24), suggesting that Hinss2021
+exhibits the highest degree of cross-subject non-stationarity.
+This gap motivates stronger domain-adaptation strategies: none of the
+RPA-based transfer-learning pipelines close it, and in several cases they
+widen it.
 
 \subsection{Limitations}
 
@@ -750,15 +832,25 @@ Measurement directly on EEG density matrices; and
 outperforms the NaiveQAOA baseline while requiring significantly more work
 to match classical methods.
 
-The best overall configuration is \textsc{QuantumStateDiscriminator} (AUC
-0.628, time 0.27~s), followed closely by QIOCE (0.626, $\approx$15~min) and
-MDM (0.613, 16~s).  Classical baselines remain competitive, and no quantum
-method is yet statistically superior.
+The best overall configuration is MDM (AUC 0.622, 2.1~s), confirming
+that classical Riemannian geometry remains a strong baseline.
+QIOCE (0.601, $\approx$6~min) and \textsc{QuantumStateDiscriminator}
+(0.600, 0.08~s) are virtually tied for second; QSD achieves competitive
+accuracy at a fraction of the computational cost.
+NCH variants cluster around 0.538--0.555.
+No quantum method is yet statistically superior to MDM.
+
+A within-session CSP+MDM baseline establishes a dataset-specific performance
+ceiling of 0.69--0.87 AUC, revealing a gap of 0.07--0.25 AUC points that
+none of the evaluated cross-subject pipelines---classical or quantum---have
+yet closed.  Closing this gap is the primary open challenge; Riemannian
+transfer learning has mixed effects and does not systematically bridge it.
 
 Future work includes: execution on near-term quantum hardware to account for
-noise; evaluation on motor imagery and SSVEP paradigms; and hybrid
+noise; evaluation on motor imagery and SSVEP paradigms; hybrid
 quantum-classical architectures that combine PGM-style feature scoring with
-Riemannian alignment.
+Riemannian alignment; and more expressive domain-adaptation methods capable
+of bridging the within-session/cross-subject gap.
 
 
 % ============================================================

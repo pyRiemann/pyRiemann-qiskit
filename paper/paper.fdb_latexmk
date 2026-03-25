@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex paper"] 1774270084.59946 "paper.aux" "paper.bbl" "paper" 1774270096.53649 0
+["bibtex paper"] 1774376402.50621 "paper.aux" "paper.bbl" "paper" 1774376406.48811 0
   "./refs.bib" 1772990698.05901 6465 6084449da567f46d121d4ea176887308 ""
   "C:/Users/GregoireCATTAN/AppData/Local/Programs/MiKTeX/bibtex/bst/natbib/plainnat.bst" 1284455456 26816 ffe5423d2019860bad9f54bc402fac15 ""
-  "paper.aux" 1774270092.54524 13420 6f9aa95135abb4489c67b2e082b8aac9 "pdflatex"
+  "paper.aux" 1774376405.27563 15855 5238f1ffcc90b0a049fe7e7804bc7c2e "pdflatex"
   (generated)
   "paper.bbl"
   "paper.blg"
   (rewritten before read)
-["pdflatex"] 1774270085.79097 "paper.tex" "paper.pdf" "paper" 1774270096.54222 0
+["pdflatex"] 1774376403.00701 "paper.tex" "paper.pdf" "paper" 1774376406.48983 0
   "C:/Users/GregoireCATTAN/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1774268437.08137 82507 a9eef8696c92627b87e9975edea03b2a ""
   "C:/Users/GregoireCATTAN/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/ectt1000.pk" 1774268444.24689 20028 19f0f00c3641ada8c0524841f04c7495 ""
   "C:/Users/GregoireCATTAN/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1772976623.4871 13338204 91e413b37f5cb11690a34ca9e0ee2631 ""
@@ -128,12 +128,15 @@
   "ablation_study_qioce_optimizer_loss.png" 1772317570.02541 89574 efb75977a21fd5d0d2b866515fddff96 ""
   "ablation_study_tl.png" 1772978149.98009 207076 efdd0acf66f1c1c45663f10e29b510b5 ""
   "ablation_study_tl_per_class.png" 1772978168.95267 201470 0f577f2be4d2402f8464f7cf91395f71 ""
-  "paper.aux" 1774270092.54524 13420 6f9aa95135abb4489c67b2e082b8aac9 "pdflatex"
-  "paper.bbl" 1774270085.49776 5275 00571303e2bac87374c7b3dcf7dadff8 "bibtex paper"
-  "paper.out" 1774270092.64427 4880 36a7c2da47b64789e42184e253671889 "pdflatex"
-  "paper.tex" 1774270032.4976 35690 01b77140a0ba5f79c54577cd6a3e3e37 ""
-  "scatter_plot.png" 1774258171.30167 90768 59c16318519f2f9c456b07a421e38962 ""
-  "summary_plot.png" 1774258221.45733 146029 30ed147f10062451fcec335f0139f79d ""
+  "baseline.png" 1774275018.24034 37025 ddc5aaa514ba984a98c16f6a7534f0a6 ""
+  "paper.aux" 1774376405.27563 15855 5238f1ffcc90b0a049fe7e7804bc7c2e "pdflatex"
+  "paper.bbl" 1774376402.90415 5275 00571303e2bac87374c7b3dcf7dadff8 "bibtex paper"
+  "paper.out" 1774376405.306 5207 b7432a841a03dcfbaf2b02f2a945649d "pdflatex"
+  "paper.tex" 1774376108.66478 40434 ac3cc9e5219a8ca827467b40f4f78007 ""
+  "results_log.png" 1774375770.07746 85647 20179dde7dba101b37d3765bd2848248 ""
+  "roc_auc_per_dataset.png" 1774375664.87739 69078 5cb993597ac90d1e83e6b1e65c20aaa3 ""
+  "scatter_plot.png" 1774375588.51933 89453 0dabca4df6ece6ef9cdedd0fc5d7ef7b ""
+  "summary_plot.png" 1774375716.47976 118644 e2fb07c1b6265fce561a4827eb47e739 ""
   (generated)
   "paper.aux"
   "paper.log"

@@ -37,6 +37,7 @@ from moabb.datasets import Cattan2019_PHMD, Hinss2021, Rodrigues2017
 from moabb.paradigms import RestingStateToP300Adapter
 from pyriemann.classification import MDM
 from pyriemann.estimation import Covariances
+from pyriemann.spatialfilters import CSP
 from pyriemann.preprocessing import Whitening
 from pyriemann.tangentspace import TangentSpace
 from pyriemann.transfer import MDWM, TLCenter, TLClassifier, TLRotate, TLScale
@@ -83,6 +84,7 @@ pipelines = {}
 
 pipelines["MDM"] = make_pipeline(
     sf,
+    CSP(nfilter=8, log=False),
     MDM(),
 )
 
@@ -338,6 +340,49 @@ sns.pointplot(
 )
 
 ax.set_ylabel("ROC AUC")
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+##############################################################################
+# Plot Results: Per-Dataset Comparison (Top 3 Pipelines)
+# -------------------------------------------------------
+#
+# Strip + point plot of per-subject scores per dataset for the three
+# main performers: MDM, QuantumStateDiscriminator, and QIOCE.
+
+top3 = ["MDM", "QuantumStateDiscriminator", "QIOCE"]
+results_top3 = results[results["pipeline"].isin(top3)]
+
+fig2, ax2 = plt.subplots(facecolor="white", figsize=[8, 4])
+
+sns.stripplot(
+    data=results_top3,
+    y="score",
+    x="dataset",
+    hue="pipeline",
+    ax=ax2,
+    jitter=True,
+    alpha=0.5,
+    zorder=1,
+    palette="Set1",
+    hue_order=top3,
+    dodge=True,
+)
+sns.pointplot(
+    data=results_top3,
+    y="score",
+    x="dataset",
+    hue="pipeline",
+    ax=ax2,
+    palette="Set1",
+    hue_order=top3,
+    dodge=True,
+)
+
+ax2.set_ylabel("ROC AUC")
+handles, labels = ax2.get_legend_handles_labels()
+ax2.legend(handles[: len(top3)], labels[: len(top3)], title="Pipeline")
 plt.xticks(rotation=45)
 plt.tight_layout()
 plt.show()

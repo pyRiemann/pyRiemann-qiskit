@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.3.8)  23 MAR 2026 13:48
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.3.8)  24 MAR 2026 19:20
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -701,170 +701,228 @@ LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 1
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ts1ptm.
 fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-) [3] [4
+) [3]
+Underfull \hbox (badness 2486) in paragraph at lines 295--302
+\T1/ptm/m/n/10 (+20) pipeline (LWF co-vari-ance $\OMS/cmsy/m/n/10 !$ \T1/ptm/m/
+n/10 (+20) CSP with 8 spa-tial fil-ters, \T1/cmtt/m/n/10 log=False $\OMS/cmsy/m
+/n/10 !$ \T1/ptm/m/n/10 (+20) MDM) un-der
+ []
+
+<baseline.png, id=222, 1110.0672pt x 617.9085pt>
+File: baseline.png Graphic file (type png)
+<use baseline.png>
+Package pdftex.def Info: baseline.png  used on input line 316.
+(pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[4
 pdfTeX warning (ext4): destination with the same identifier (name{table.1}) has
  been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.349 
-      ]
-Underfull \hbox (badness 5533) in paragraph at lines 390--393
+l.356 \paragraph
+                {QIOCE ($\pm$TL).}] [5
+pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) ha
+s been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.403 \paragraph
+                {Fit.} <./baseline.png>]
+Underfull \hbox (badness 5533) in paragraph at lines 420--423
  []\T1/ptm/b/n/10 (+20) Predict.[] \T1/ptm/m/n/10 (+20) For a new epoch $\OML/c
 mm/m/it/10 X$\T1/ptm/m/n/10 (+20) , form the nor-mal-ized mea-sure-ment op-er-a
 -tor $\OML/cmm/m/it/10 M \OT1/cmr/m/n/10 =
  []
 
-[5
-pdfTeX warning (ext4): destination with the same identifier (name{table.2}) has
- been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.441 
-      ]
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<scatter_plot.png, id=253, 1110.0672pt x 617.9085pt>
-File: scatter_plot.png Graphic file (type png)
-<use scatter_plot.png>
-Package pdftex.def Info: scatter_plot.png  used on input line 523.
-(pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-Underfull \hbox (badness 7649) in paragraph at lines 533--538
-\T1/ptm/m/n/10 (+20) Figure []2[] shows the pair-wise sta-tis-ti-cal com-par-i-
-son ma-trix pro-duced by MOABB's
- []
-
-<summary_plot.png, id=256, 1110.0672pt x 617.9085pt>
-File: summary_plot.png Graphic file (type png)
-<use summary_plot.png>
-Package pdftex.def Info: summary_plot.png  used on input line 541.
-(pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [6
+pdfTeX warning (ext4): destination with the same identifier (name{table.2}) has
+ been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.543 \end{table}
+                 ]
+<roc_auc_per_dataset.png, id=275, 1110.0672pt x 617.9085pt>
+File: roc_auc_per_dataset.png Graphic file (type png)
+<use roc_auc_per_dataset.png>
+Package pdftex.def Info: roc_auc_per_dataset.png  used on input line 561.
+(pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<scatter_plot.png, id=276, 1110.0672pt x 617.9085pt>
+File: scatter_plot.png Graphic file (type png)
+<use scatter_plot.png>
+Package pdftex.def Info: scatter_plot.png  used on input line 571.
+(pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<results_log.png, id=278, 347.79938pt x 176.76038pt>
+File: results_log.png Graphic file (type png)
+<use results_log.png>
+Package pdftex.def Info: results_log.png  used on input line 584.
+(pdftex.def)             Requested size: 397.48499pt x 202.02136pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Underfull \hbox (badness 7649) in paragraph at lines 594--599
+\T1/ptm/m/n/10 (+20) Figure []5[] shows the pair-wise sta-tis-ti-cal com-par-i-
+son ma-trix pro-duced by MOABB's
+ []
+
+<summary_plot.png, id=280, 1110.0672pt x 617.9085pt>
+File: summary_plot.png Graphic file (type png)
+<use summary_plot.png>
+Package pdftex.def Info: summary_plot.png  used on input line 602.
+(pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
+[7
 pdfTeX warning (ext4): destination with the same identifier (name{table.3}) has
  been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.563 
-      ]
-Underfull \hbox (badness 1057) in paragraph at lines 572--577
-\T1/ptm/m/n/10 (+20) with class-specific Cholesky mix-ing ma-tri-ces to in-tro-
-duce per-subject do-main off-sets (see
- []
-
-[7
+l.607 \end{figure}
+                  
 pdfTeX warning (ext4): destination with the same identifier (name{table.4}) has
  been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.578 F
-       igure~\ref{fig:ablation_tl} illustrates geometrically what RPA achieves
-pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) ha
-s been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.578 F
-       igure~\ref{fig:ablation_tl} illustrates geometrically what RPA achieves 
-<./scatter_plot.png>]
-<ablation_study_tl.png, id=272, 1011.78pt x 433.62pt>
-File: ablation_study_tl.png Graphic file (type png)
-<use ablation_study_tl.png>
-Package pdftex.def Info: ablation_study_tl.png  used on input line 595.
-(pdftex.def)             Requested size: 397.48499pt x 170.35501pt.
-<ablation_study_tl_per_class.png, id=273, 1011.78pt x 433.62pt>
-File: ablation_study_tl_per_class.png Graphic file (type png)
-<use ablation_study_tl_per_class.png>
-Package pdftex.def Info: ablation_study_tl_per_class.png  used on input line 59
-6.
-(pdftex.def)             Requested size: 397.48499pt x 170.35501pt.
-
+l.607 \end{figure}
+                  ]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<ablation_study_nreps.png, id=275, 722.7pt x 289.08pt>
-File: ablation_study_nreps.png Graphic file (type png)
-<use ablation_study_nreps.png>
-Package pdftex.def Info: ablation_study_nreps.png  used on input line 626.
-(pdftex.def)             Requested size: 397.48499pt x 158.99448pt.
 
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<ablation_study_qioce_optimizer.png, id=277, 1110.0672pt x 617.9085pt>
-File: ablation_study_qioce_optimizer.png Graphic file (type png)
-<use ablation_study_qioce_optimizer.png>
-Package pdftex.def Info: ablation_study_qioce_optimizer.png  used on input line
- 644.
-(pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<ablation_study_qioce_optimizer_loss.png, id=278, 1110.0672pt x 617.9085pt>
-File: ablation_study_qioce_optimizer_loss.png Graphic file (type png)
-<use ablation_study_qioce_optimizer_loss.png>
-Package pdftex.def Info: ablation_study_qioce_optimizer_loss.png  used on input
- line 653.
-(pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
+Underfull \hbox (badness 1057) in paragraph at lines 640--645
+\T1/ptm/m/n/10 (+20) with class-specific Cholesky mix-ing ma-tri-ces to in-tro-
+duce per-subject do-main off-sets (see
+ []
 
 [8
 pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.665   \item A
-               nderson (the Ulvi optimizer) achieves the \emph{lowest} AUC (...
- <./summary_plot.png>] [9
+l.654 
+       <./roc_auc_per_dataset.png>]
+<ablation_study_tl.png, id=299, 1011.78pt x 433.62pt>
+File: ablation_study_tl.png Graphic file (type png)
+<use ablation_study_tl.png>
+Package pdftex.def Info: ablation_study_tl.png  used on input line 663.
+(pdftex.def)             Requested size: 397.48499pt x 170.35501pt.
+<ablation_study_tl_per_class.png, id=300, 1011.78pt x 433.62pt>
+File: ablation_study_tl_per_class.png Graphic file (type png)
+<use ablation_study_tl_per_class.png>
+Package pdftex.def Info: ablation_study_tl_per_class.png  used on input line 66
+4.
+(pdftex.def)             Requested size: 397.48499pt x 170.35501pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [9
 pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.693 
-       <./ablation_study_tl.png> <./ablation_study_tl_per_class.png>]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [10
+l.673 \end{figure}
+                  
 pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.707 
-      
+l.673 \end{figure}
+                   <./scatter_plot.png> <./results_log.png>]
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<ablation_study_nreps.png, id=308, 722.7pt x 289.08pt>
+File: ablation_study_nreps.png Graphic file (type png)
+<use ablation_study_nreps.png>
+Package pdftex.def Info: ablation_study_nreps.png  used on input line 694.
+(pdftex.def)             Requested size: 397.48499pt x 158.99448pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<ablation_study_qioce_optimizer.png, id=310, 1110.0672pt x 617.9085pt>
+File: ablation_study_qioce_optimizer.png Graphic file (type png)
+<use ablation_study_qioce_optimizer.png>
+Package pdftex.def Info: ablation_study_qioce_optimizer.png  used on input line
+ 712.
+(pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<ablation_study_qioce_optimizer_loss.png, id=311, 1110.0672pt x 617.9085pt>
+File: ablation_study_qioce_optimizer_loss.png Graphic file (type png)
+<use ablation_study_qioce_optimizer_loss.png>
+Package pdftex.def Info: ablation_study_qioce_optimizer_loss.png  used on input
+ line 721.
+(pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[10
 pdfTeX warning (ext4): destination with the same identifier (name{figure.5}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.707 
-       <./ablation_study_nreps.png> <./ablation_study_qioce_optimizer.png>]
-[11
+l.750 \section
+              {Discussion} <./summary_plot.png>]
+Underfull \vbox (badness 1817) has occurred while \output is active []
+
+ [11
 pdfTeX warning (ext4): destination with the same identifier (name{figure.6}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.752 
-       <./ablation_study_qioce_optimizer_loss.png>] (paper.bbl [12]) [13]
+l.777 
+       <./ablation_study_tl.png> <./ablation_study_tl_per_class.png>]
+Underfull \vbox (badness 7238) has occurred while \output is active []
+
+ [12
+pdfTeX warning (ext4): destination with the same identifier (name{figure.7}) ha
+s been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.788 \subsection
+                 {Transfer Learning}
+pdfTeX warning (ext4): destination with the same identifier (name{figure.8}) ha
+s been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.788 \subsection
+                 {Transfer Learning} <./ablation_study_nreps.png> <./ablation_s
+tudy_qioce_optimizer.png>]
+Underfull \vbox (badness 7433) has occurred while \output is active []
+
+ [13
+pdfTeX warning (ext4): destination with the same identifier (name{figure.9}) ha
+s been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.834 
+       <./ablation_study_qioce_optimizer_loss.png>] (paper.bbl [14]) [15]
 (paper.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
 Package rerunfilecheck Info: File `paper.out' has not changed.
-(rerunfilecheck)             Checksum: 36A7C2DA47B64789E42184E253671889;4880.
+(rerunfilecheck)             Checksum: B7432A841A03DCFBAF2B02F2A945649D;5207.
  ) 
 Here is how much of TeX's memory you used:
- 14798 strings out of 467867
- 231973 string characters out of 5413979
- 684846 words of memory out of 5000000
- 43107 multiletter control sequences out of 15000+600000
- 677497 words of font info for 239 fonts, out of 8000000 for 9000
+ 14845 strings out of 467867
+ 232759 string characters out of 5413979
+ 689605 words of memory out of 5000000
+ 43133 multiletter control sequences out of 15000+600000
+ 678196 words of font info for 248 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,13n,79p,1004b,596s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,13n,79p,1004b,592s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\GregoireCATTAN\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dp
 i600\ectt1000.pk><C:/Users/GregoireCATTAN/AppData/Local/Programs/MiKTeX/fonts/t
 ype1/public/amsfonts/cm/cmex10.pfb><C:/Users/GregoireCATTAN/AppData/Local/Progr
@@ -881,9 +939,9 @@ TTAN/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:
 s/type1/urw/times/utmb8a.pfb><C:/Users/GregoireCATTAN/AppData/Local/Programs/Mi
 KTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/GregoireCATTAN/AppData/Local/Pr
 ograms/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on paper.pdf (13 pages, 1013144 bytes).
+Output written on paper.pdf (15 pages, 1131182 bytes).
 PDF statistics:
- 448 PDF objects out of 1000 (max. 8388607)
- 104 named destinations out of 1000 (max. 500000)
- 48404 words of extra memory for PDF output out of 51595 (max. 10000000)
+ 488 PDF objects out of 1000 (max. 8388607)
+ 113 named destinations out of 1000 (max. 500000)
+ 48435 words of extra memory for PDF output out of 51595 (max. 10000000)
 
