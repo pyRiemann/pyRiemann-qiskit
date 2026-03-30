@@ -58,7 +58,7 @@ considerable interest in neurotechnology, yet their benefit over classical
 baselines on realistic brain--computer interface (BCI) data remains unclear.
 This paper benchmarks \textbf{twelve} classical and quantum pipelines on
 three resting-state EEG datasets from the MOABB framework under a
-cross-subject evaluation protocol with grouped $k$-fold splitting.
+cross-subject evaluation protocol with leave-one-subject-out (LOSO) splitting.
 We introduce two contributions evaluated for the first time on resting-state
 EEG data: (i)~\textsc{QuantumStateDiscriminator}, a novel quantum-inspired
 classifier that models mental states as density matrices, constructs a
@@ -69,12 +69,12 @@ variant of Quantum Approximate Optimization with Continuous Variables
 (QAOA-CV) with circular entanglement for the Nearest Convex Hull (NCH)
 classifier.
 Experiments show that the classical MDM classifier achieves the highest
-mean ROC AUC (0.622), confirming the strength of Riemannian geometry for
-resting-state EEG.  QIOCE (0.601) and \textsc{QuantumStateDiscriminator}
-(0.600) are virtually tied for second, with QSD being the fastest classifier
-tested (under 0.1~s mean training time) versus $\approx$6~min for QIOCE.
-NCH-based quantum methods trail classical baselines; transfer learning
-has mixed effects depending on the pipeline.
+mean ROC AUC (0.692), confirming the strength of Riemannian geometry for
+resting-state EEG.  \textsc{QuantumStateDiscriminator} (0.671) ranks second,
+followed by MDWM(0.5) (0.666) and TS+LR (0.644).  QSD is the fastest
+classifier tested ($\approx$0.2~s mean training time) versus $\approx$15~min
+for QIOCE (0.622).  NCH-based quantum methods trail classical baselines;
+transfer learning is detrimental across all pipeline families under LOSO.
 These findings provide a rigorous first benchmark for the two proposed
 methods and highlight that classical Riemannian classifiers remain
 strong baselines on near-term simulated quantum hardware.
@@ -258,9 +258,9 @@ bound~\cite{helstrom1976quantum}.
 
 The Mother of All BCI Benchmarks (MOABB)~\cite{jayaram2018moabb} provides a
 standardized framework for reproducible EEG decoding experiments.  We use the
-\texttt{CrossSubjectEvaluation} protocol extended with grouped $k$-fold
-splitting, where each fold uses a disjoint set of source subjects for
-training and a held-out subject for testing.
+\texttt{CrossSubjectEvaluation} protocol extended with leave-one-subject-out
+(LOSO) splitting, where each fold holds out one subject for testing and
+trains on all remaining subjects.
 
 
 % ============================================================
@@ -326,8 +326,8 @@ above 0.5 for affected folds.
 All evaluations use \texttt{TLCrossSubjectEvaluation}, a subclass of
 \texttt{CrossSubjectEvaluation} that: (i)~passes group labels (subject IDs)
 to transfer-learning pipelines; and (ii)~sets the alignment target domain to
-the first training subject in each fold.  Evaluation uses GroupKFold with
-$k=3$ splits and ROC AUC as the performance metric.
+the first training subject in each fold.  Evaluation uses leave-one-subject-out
+(LOSO) splitting and ROC AUC as the performance metric.
 
 \subsection{Classical Baselines}
 
@@ -526,27 +526,27 @@ averaged across subjects and datasets) for all 12 pipelines.
     \toprule
     Pipeline & AUC (mean) & Time (s, mean) \\
     \midrule
-    \textbf{MDM}                             & \textbf{0.622} & \textbf{2.1} \\
-    QIOCE                                   & 0.601          & 361.7 \\
-    QuantumStateDiscriminator               & 0.600          & 0.08 \\
-    MDWM(0.5)                               & 0.580          & 8.2 \\
-    MDM+TL                                  & 0.578          & 63.6 \\
-    TS+LR+TL                                & 0.577          & 80.3 \\
-    QIOCE+TL                                & 0.569          & 570.5 \\
-    TS+LR                                   & 0.563          & 15.1 \\
-    NCH+QAOACV(Ulvi)                        & 0.555          & 1.8 \\
-    NCH+QAOACV(Ulvi)+TL                     & 0.551          & 117.6 \\
-    NCH+NaiveQAOA                           & 0.538          & 1.8 \\
-    NCH+NaiveQAOA+TL                        & 0.538          & 116.9 \\
+    \textbf{MDM}                             & \textbf{0.692} & \textbf{1.9} \\
+    QuantumStateDiscriminator               & 0.671          & 0.18 \\
+    MDWM(0.5)                               & 0.666          & 18.4 \\
+    TS+LR                                   & 0.644          & 19.6 \\
+    MDM+TL                                  & 0.631          & 133.9 \\
+    QIOCE                                   & 0.622          & 887.5 \\
+    QIOCE+TL                                & 0.619          & 985.7 \\
+    NCH+QAOACV(Ulvi)                        & 0.596          & 1.7 \\
+    TS+LR+TL                                & 0.577          & 136.0 \\
+    NCH+NaiveQAOA                           & 0.554          & 1.8 \\
+    NCH+QAOACV(Ulvi)+TL                     & 0.543          & 128.5 \\
+    NCH+NaiveQAOA+TL                        & 0.522          & 130.2 \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 Figure~\ref{fig:scatter} shows the distribution of per-subject AUC scores
-across all three datasets.  MDM achieves the highest mean performance.
-QIOCE (0.601) and \textsc{QuantumStateDiscriminator} (0.600) are virtually
-tied for second.  NCH variants cluster near the lower end, with all
-pipelines remaining above chance level.
+across all three datasets.  MDM achieves the highest mean performance (0.692).
+\textsc{QuantumStateDiscriminator} (0.671) ranks second, closely followed by
+MDWM(0.5) (0.666) and TS+LR (0.644).  NCH variants cluster near the lower end,
+with all pipelines remaining above chance level.
 
 Figure~\ref{fig:roc_per_dataset} breaks down the three top performers
 (MDM, \textsc{QuantumStateDiscriminator}, QIOCE) by dataset.
@@ -558,7 +558,7 @@ Rodrigues2017, but converges with MDM and QSD on Hinss2021.
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=\columnwidth]{roc_auc_per_dataset.png}
+  \includegraphics[width=\columnwidth]{olo_roc_auc_per_dataset.png}
   \caption{Per-dataset ROC AUC for the three top-performing pipelines
     (MDM, \textsc{QuantumStateDiscriminator}, QIOCE).  Points are
     individual subjects; error bars show mean~$\pm$~95\%~CI.
@@ -568,7 +568,7 @@ Rodrigues2017, but converges with MDM and QSD on Hinss2021.
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=\columnwidth]{scatter_plot.png}
+  \includegraphics[width=\columnwidth]{olo_scatter_plot.png}
   \caption{ROC AUC distributions across all subjects and datasets.
     Strip plot (individual subjects, $\alpha=0.5$) overlaid with
     mean $\pm$ 95\% CI (point plot).  Pipelines ordered by the
@@ -581,7 +581,7 @@ mean training time per pipeline across all three datasets.
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=\columnwidth]{results_log.png}
+  \includegraphics[width=\columnwidth]{olo_results_log.png}
   \caption{Aggregated mean ROC AUC and mean training time (seconds) per
     pipeline across all three datasets.  IGL denotes the Intrinsic
     Green's Learning classifier evaluated under the same cross-subject
@@ -599,7 +599,7 @@ significance at $\alpha=0.05$.
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=\columnwidth]{summary_plot.png}
+  \includegraphics[width=\columnwidth]{olo_summary_plot.png}
   \caption{Algorithm comparison matrix.  Each cell shows the SMD and
     $p$-value for the row algorithm vs.\ the column algorithm.
     Green: row significantly better ($p<0.05$).}
@@ -617,17 +617,18 @@ generalization is the dominant remaining challenge.
 
 \subsection{Effect of Transfer Learning}
 
-Transfer learning has mixed effects depending on the pipeline.
-For MDM, TL is detrimental ($0.622 \to 0.578$), suggesting that RPA
-alignment disrupts the Riemannian mean structure that MDM relies upon.
-By contrast, TS+LR benefits from TL ($0.563 \to 0.577$), and QIOCE
-degrades with TL ($0.601 \to 0.569$), suggesting the whitening and
-tangent-space projection in QIOCE already provides implicit alignment.
-NCH+NaiveQAOA shows virtually no effect of TL ($0.538 \to 0.538$),
-while the Ulvi variant degrades slightly ($0.555 \to 0.551$).
-These results confirm that RPA alignment benefits tangent-space linear
-classifiers but is neutral or harmful for distance-based and quantum
-circuit methods.
+Under LOSO evaluation, transfer learning is consistently detrimental across
+all pipeline families.
+MDM degrades from $0.692 \to 0.631$, suggesting that RPA alignment disrupts
+the Riemannian mean structure that MDM relies upon.
+TS+LR also degrades ($0.644 \to 0.577$), reversing the modest benefit
+seen under $k$-fold splitting.  QIOCE degrades slightly ($0.622 \to 0.619$),
+consistent with its whitening and tangent-space projection providing implicit
+alignment.  NCH+NaiveQAOA degrades ($0.554 \to 0.522$) and the Ulvi variant
+degrades more markedly ($0.596 \to 0.543$).
+These results suggest that under LOSO---where each test subject is entirely
+absent from training---RPA alignment computed on the training fold does not
+generalize and may overfit to source-subject geometry.
 
 
 % ============================================================
@@ -752,13 +753,12 @@ variant outperforms NaiveQAOA by $+0.026$ mean AUC.
 
 \subsection{QuantumStateDiscriminator}
 
-The \textsc{QuantumStateDiscriminator} achieves a mean AUC of 0.600, placing
-it virtually tied with QIOCE (0.601) and making it the fastest classifier
-overall (0.08~s mean training time)---over four orders of magnitude faster
-than QIOCE ($\approx$362~s) and two orders faster than MDM (2.1~s).
-Both QSD and QIOCE fall below MDM (0.622), but neither the gap nor the
-difference between the two quantum methods is likely to be statistically
-significant given the per-dataset convergence visible in
+The \textsc{QuantumStateDiscriminator} achieves a mean AUC of 0.671, placing
+it second overall behind MDM (0.692) and well above QIOCE (0.622).  QSD
+remains the fastest classifier (0.18~s mean training time)---over three orders
+of magnitude faster than QIOCE ($\approx$888~s) and one order faster than
+MDM (1.9~s).  The gap between QSD and MDM is modest ($\Delta=0.021$) and
+may not be statistically significant given the per-dataset variance visible in
 Figure~\ref{fig:roc_per_dataset}.
 
 The key insight is that trace-normalized EEG covariance matrices are valid
@@ -771,9 +771,9 @@ within-class structure into the POVM construction are natural directions.
 \subsection{QAOA-CV Ulvi Optimizer and NCH}
 
 The Ulvi circular-entanglement NCH variant consistently outperforms NaiveQAOA
-by approximately 0.016 mean AUC points, with no significant increase in
-training time.  However, both variants remain significantly below classical
-baselines (MDM $>$ NaiveQAOA, $p=0.02$; MDM $>$ Ulvi+TL, $p=0.04$).
+by approximately 0.042 mean AUC points (0.596 vs.\ 0.554), with no significant
+increase in training time.  However, both variants remain significantly below
+classical baselines (MDM $>$ NaiveQAOA, $p=0.02$; MDM $>$ Ulvi+TL, $p=0.04$).
 
 The ablation study (Section~\ref{sec:ablation_tl}) shows that RPA alignment
 is \emph{necessary} for NCH to be reliable in cross-subject settings: without
@@ -787,14 +787,13 @@ for NCH (performance saturates at 1.0 AUC on toy data for both variants).
 
 \subsection{Transfer Learning}
 
-RPA alignment has classifier-dependent effects.  It degrades MDM
-($0.622 \to 0.578$), likely because centering and rotating the covariance
-manifold disrupts the class-mean geometry that MDM relies on.  Conversely,
-TS+LR benefits from alignment ($0.563 \to 0.577$): projecting aligned
-covariances to the tangent space yields more separable features for logistic
-regression.  QIOCE and NCH+NaiveQAOA also benefit marginally.  These results
-suggest that RPA is most useful when downstream classifiers operate in tangent
-or Euclidean space, and less so for pure Riemannian distance classifiers.
+Under LOSO evaluation, RPA alignment is uniformly detrimental.  MDM degrades
+($0.692 \to 0.631$), TS+LR degrades ($0.644 \to 0.577$), QIOCE degrades
+slightly ($0.622 \to 0.619$), and both NCH variants degrade (NaiveQAOA:
+$0.554 \to 0.522$; Ulvi: $0.596 \to 0.543$).  The likely explanation is that
+LOSO exposes each test subject without any of its own data in training: RPA
+alignment is computed entirely from source subjects and may overfit to their
+geometry, introducing additional domain shift rather than removing it.
 
 \subsection{Within-Session Gap}
 
@@ -823,28 +822,29 @@ reproducibility would require fixed seed across runs.
 \label{sec:conclusion}
 
 We have presented a systematic cross-subject benchmark of 12 classical and
-quantum EEG classifiers on three MOABB resting-state datasets.  Two new
-contributions were introduced and evaluated for the first time on real EEG:
-(i)~\textsc{QuantumStateDiscriminator}, which achieves the highest mean
-AUC (0.628) at negligible computational cost by applying the Pretty Good
+quantum EEG classifiers on three MOABB resting-state datasets under a
+leave-one-subject-out (LOSO) protocol.  Two new contributions were introduced
+and evaluated for the first time on real EEG:
+(i)~\textsc{QuantumStateDiscriminator}, which ranks second overall (AUC 0.671)
+at negligible computational cost (0.18~s) by applying the Pretty Good
 Measurement directly on EEG density matrices; and
 (ii)~NCH+QAOA-CV with the Ulvi circular-entanglement optimizer, which
-outperforms the NaiveQAOA baseline while requiring significantly more work
-to match classical methods.
+outperforms the NaiveQAOA baseline by $+0.042$ mean AUC while requiring
+significantly more work to match classical methods.
 
-The best overall configuration is MDM (AUC 0.622, 2.1~s), confirming
+The best overall configuration is MDM (AUC 0.692, 1.9~s), confirming
 that classical Riemannian geometry remains a strong baseline.
-QIOCE (0.601, $\approx$6~min) and \textsc{QuantumStateDiscriminator}
-(0.600, 0.08~s) are virtually tied for second; QSD achieves competitive
-accuracy at a fraction of the computational cost.
-NCH variants cluster around 0.538--0.555.
+\textsc{QuantumStateDiscriminator} (0.671, 0.18~s) ranks second, followed by
+MDWM(0.5) (0.666) and TS+LR (0.644).  QIOCE (0.622, $\approx$15~min) is
+competitive but far slower.
+NCH variants cluster around 0.522--0.596.
 No quantum method is yet statistically superior to MDM.
 
 A within-session CSP+MDM baseline establishes a dataset-specific performance
 ceiling of 0.69--0.87 AUC, revealing a gap of 0.07--0.25 AUC points that
 none of the evaluated cross-subject pipelines---classical or quantum---have
-yet closed.  Closing this gap is the primary open challenge; Riemannian
-transfer learning has mixed effects and does not systematically bridge it.
+yet closed.  Closing this gap is the primary open challenge; under LOSO,
+Riemannian transfer learning is uniformly harmful and does not bridge it.
 
 Future work includes: execution on near-term quantum hardware to account for
 noise; evaluation on motor imagery and SSVEP paradigms; hybrid

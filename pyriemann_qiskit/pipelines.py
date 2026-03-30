@@ -24,7 +24,7 @@ from .utils.hyper_params_factory import gen_two_local, gen_x_feature_map, get_sp
 from .utils.utils import is_qfunction
 
 
-class BasePipeline(BaseEstimator, ClassifierMixin, TransformerMixin):
+class BasePipeline(ClassifierMixin, TransformerMixin, BaseEstimator):
 
     """Base class for quantum classifiers with Riemannian pipeline.
 

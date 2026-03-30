@@ -9,7 +9,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from .utils import union_of_diff
 
 
-class JudgeClassifier(BaseEstimator, ClassifierMixin):
+class JudgeClassifier(ClassifierMixin, BaseEstimator):
 
     """Judge classifier
 

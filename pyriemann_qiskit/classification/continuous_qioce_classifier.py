@@ -10,13 +10,13 @@ import time
 import numpy as np
 from qiskit.quantum_info import Statevector
 from qiskit_algorithms.optimizers import L_BFGS_B
-from sklearn.base import ClassifierMixin
+from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import check_random_state
 
 from ..utils.docplex import QAOACVAngleOptimizer, create_mixer_rotational_X_gates
 
 
-class ContinuousQIOCEClassifier(QAOACVAngleOptimizer, ClassifierMixin):
+class ContinuousQIOCEClassifier(ClassifierMixin, QAOACVAngleOptimizer, BaseEstimator):
     """QAOA classifier with batch training using angle encoding.
 
     This classifier inherits from QAOACVAngleOptimizer and trains a single

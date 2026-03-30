@@ -31,7 +31,7 @@ from .algorithms import CpMDM, NearestConvexHull
 logging.basicConfig(level=logging.WARNING)
 
 
-class QuanticClassifierBase(BaseEstimator, ClassifierMixin):
+class QuanticClassifierBase(ClassifierMixin, BaseEstimator):
 
     """Quantum classifier
 

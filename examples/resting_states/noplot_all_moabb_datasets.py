@@ -231,7 +231,7 @@ pipelines["QIOCE+TL"] = Adapter(
 print("Total pipelines to evaluate: ", len(pipelines))
 
 overwrite = False  # set to True if we want to overwrite cached results
-
+N_SPLITS = None
 ##############################################################################
 # Evaluations
 # -----------
@@ -246,7 +246,7 @@ evaluation_cattan = TLCrossSubjectEvaluation(
     datasets=[Cattan2019_PHMD()],
     suffix="nch_study_cattan",
     overwrite=overwrite,
-    n_splits=3,
+    n_splits=N_SPLITS,
     random_state=seed,
 )
 results_cattan = evaluation_cattan.process(pipelines)
@@ -259,7 +259,7 @@ evaluation_rodrigues = TLCrossSubjectEvaluation(
     datasets=[Rodrigues2017()],
     suffix="nch_study_rodrigues",
     overwrite=overwrite,
-    n_splits=3,
+    n_splits=N_SPLITS,
     random_state=seed,
 )
 results_rodrigues = evaluation_rodrigues.process(pipelines)
@@ -273,7 +273,7 @@ evaluation_hinss_cs = TLCrossSubjectEvaluation(
     datasets=[Hinss2021()],
     suffix="nch_study_hinss_cs",
     overwrite=overwrite,
-    n_splits=3,
+    n_splits=N_SPLITS,
     random_state=seed,
 )
 results_hinss_cs = evaluation_hinss_cs.process(pipelines)

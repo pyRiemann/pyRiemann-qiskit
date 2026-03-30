@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.3.8)  24 MAR 2026 19:20
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.3.8)  30 MAR 2026 08:10
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -745,28 +745,28 @@ pdfTeX warning (ext4): destination with the same identifier (name{table.2}) has
                                                   \__shipout_drop_firstpage_...
 l.543 \end{table}
                  ]
-<roc_auc_per_dataset.png, id=275, 1110.0672pt x 617.9085pt>
-File: roc_auc_per_dataset.png Graphic file (type png)
-<use roc_auc_per_dataset.png>
-Package pdftex.def Info: roc_auc_per_dataset.png  used on input line 561.
-(pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
+<olo_roc_auc_per_dataset.png, id=275, 1110.0672pt x 617.6676pt>
+File: olo_roc_auc_per_dataset.png Graphic file (type png)
+<use olo_roc_auc_per_dataset.png>
+Package pdftex.def Info: olo_roc_auc_per_dataset.png  used on input line 561.
+(pdftex.def)             Requested size: 397.48499pt x 221.16321pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<scatter_plot.png, id=276, 1110.0672pt x 617.9085pt>
-File: scatter_plot.png Graphic file (type png)
-<use scatter_plot.png>
-Package pdftex.def Info: scatter_plot.png  used on input line 571.
-(pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
+<olo_scatter_plot.png, id=276, 1110.0672pt x 617.6676pt>
+File: olo_scatter_plot.png Graphic file (type png)
+<use olo_scatter_plot.png>
+Package pdftex.def Info: olo_scatter_plot.png  used on input line 571.
+(pdftex.def)             Requested size: 397.48499pt x 221.16321pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<results_log.png, id=278, 347.79938pt x 176.76038pt>
-File: results_log.png Graphic file (type png)
-<use results_log.png>
-Package pdftex.def Info: results_log.png  used on input line 584.
-(pdftex.def)             Requested size: 397.48499pt x 202.02136pt.
+<olo_results_log.png, id=278, 373.395pt x 189.70876pt>
+File: olo_results_log.png Graphic file (type png)
+<use olo_results_log.png>
+Package pdftex.def Info: olo_results_log.png  used on input line 584.
+(pdftex.def)             Requested size: 397.48499pt x 201.95583pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
@@ -776,11 +776,11 @@ Underfull \hbox (badness 7649) in paragraph at lines 594--599
 son ma-trix pro-duced by MOABB's
  []
 
-<summary_plot.png, id=280, 1110.0672pt x 617.9085pt>
-File: summary_plot.png Graphic file (type png)
-<use summary_plot.png>
-Package pdftex.def Info: summary_plot.png  used on input line 602.
-(pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
+<olo_summary_plot.png, id=280, 1110.0672pt x 617.6676pt>
+File: olo_summary_plot.png Graphic file (type png)
+<use olo_summary_plot.png>
+Package pdftex.def Info: olo_summary_plot.png  used on input line 602.
+(pdftex.def)             Requested size: 397.48499pt x 221.16321pt.
 [7
 pdfTeX warning (ext4): destination with the same identifier (name{table.3}) has
  been already used, duplicate ignored
@@ -798,7 +798,7 @@ l.607 \end{figure}
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-Underfull \hbox (badness 1057) in paragraph at lines 640--645
+Underfull \hbox (badness 1057) in paragraph at lines 641--646
 \T1/ptm/m/n/10 (+20) with class-specific Cholesky mix-ing ma-tri-ces to in-tro-
 duce per-subject do-main off-sets (see
  []
@@ -808,18 +808,18 @@ pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.654 
-       <./roc_auc_per_dataset.png>]
+l.655 
+       <./olo_roc_auc_per_dataset.png>]
 <ablation_study_tl.png, id=299, 1011.78pt x 433.62pt>
 File: ablation_study_tl.png Graphic file (type png)
 <use ablation_study_tl.png>
-Package pdftex.def Info: ablation_study_tl.png  used on input line 663.
+Package pdftex.def Info: ablation_study_tl.png  used on input line 664.
 (pdftex.def)             Requested size: 397.48499pt x 170.35501pt.
 <ablation_study_tl_per_class.png, id=300, 1011.78pt x 433.62pt>
 File: ablation_study_tl_per_class.png Graphic file (type png)
 <use ablation_study_tl_per_class.png>
 Package pdftex.def Info: ablation_study_tl_per_class.png  used on input line 66
-4.
+5.
 (pdftex.def)             Requested size: 397.48499pt x 170.35501pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
@@ -829,21 +829,21 @@ pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.673 \end{figure}
+l.674 \end{figure}
                   
 pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.673 \end{figure}
-                   <./scatter_plot.png> <./results_log.png>]
+l.674 \end{figure}
+                   <./olo_scatter_plot.png> <./olo_results_log.png>]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 <ablation_study_nreps.png, id=308, 722.7pt x 289.08pt>
 File: ablation_study_nreps.png Graphic file (type png)
 <use ablation_study_nreps.png>
-Package pdftex.def Info: ablation_study_nreps.png  used on input line 694.
+Package pdftex.def Info: ablation_study_nreps.png  used on input line 695.
 (pdftex.def)             Requested size: 397.48499pt x 158.99448pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
@@ -852,7 +852,7 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 File: ablation_study_qioce_optimizer.png Graphic file (type png)
 <use ablation_study_qioce_optimizer.png>
 Package pdftex.def Info: ablation_study_qioce_optimizer.png  used on input line
- 712.
+ 713.
 (pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
@@ -861,7 +861,7 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 File: ablation_study_qioce_optimizer_loss.png Graphic file (type png)
 <use ablation_study_qioce_optimizer_loss.png>
 Package pdftex.def Info: ablation_study_qioce_optimizer_loss.png  used on input
- line 721.
+ line 722.
 (pdftex.def)             Requested size: 397.48499pt x 221.24947pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
@@ -871,8 +871,8 @@ pdfTeX warning (ext4): destination with the same identifier (name{figure.5}) ha
 s been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.750 \section
-              {Discussion} <./summary_plot.png>]
+l.751 \section
+              {Discussion} <./olo_summary_plot.png>]
 Underfull \vbox (badness 1817) has occurred while \output is active []
 
  [11
@@ -916,11 +916,11 @@ Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: B7432A841A03DCFBAF2B02F2A945649D;5207.
  ) 
 Here is how much of TeX's memory you used:
- 14845 strings out of 467867
- 232759 string characters out of 5413979
+ 14854 strings out of 467867
+ 232946 string characters out of 5413979
  689605 words of memory out of 5000000
  43133 multiletter control sequences out of 15000+600000
- 678196 words of font info for 248 fonts, out of 8000000 for 9000
+ 678583 words of font info for 254 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  75i,13n,79p,1004b,592s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\GregoireCATTAN\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dp
@@ -939,7 +939,7 @@ TTAN/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:
 s/type1/urw/times/utmb8a.pfb><C:/Users/GregoireCATTAN/AppData/Local/Programs/Mi
 KTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/GregoireCATTAN/AppData/Local/Pr
 ograms/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on paper.pdf (15 pages, 1131182 bytes).
+Output written on paper.pdf (15 pages, 1514959 bytes).
 PDF statistics:
  488 PDF objects out of 1000 (max. 8388607)
  113 named destinations out of 1000 (max. 500000)
