@@ -27,6 +27,7 @@ collusion.
 Because this method works on a small number of components, it is also compatible
 with quantum computing.
 """
+
 # Authors: Gregoire Cattan, Filipe Barroso
 # License: BSD (3-clause)
 

@@ -28,7 +28,7 @@ class FirebaseConnector:
 
     ``
     datasets: {
-    bi2012: {
+    BI2012: {
     subject_01: {
     pipeline1: {
     true_labels: [...],

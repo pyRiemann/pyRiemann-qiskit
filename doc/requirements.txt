@@ -7,10 +7,10 @@ numpydoc
 cython
 filelock
 mne==1.11.0
-mne-bids==0.16.0
+mne-bids==0.18.0
 mne[data]>=0.24
 seaborn>=0.12.1
-scikit-learn==1.5.2
+scikit-learn==1.8.0
 imbalanced-learn==0.14.1
 joblib
 pandas
@@ -22,8 +22,8 @@ qiskit_ibm_runtime==0.44.0
 qiskit-optimization==0.7.0
 qiskit-aer==0.17.0
 scipy==1.13.1
-moabb==1.4.0
-pyriemann==0.9
+moabb==1.5.0
+pyriemann==0.10
 docplex==2.31.254
 hashable_list
 qiskit-symb==0.2.0

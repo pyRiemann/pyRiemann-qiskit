@@ -7,6 +7,7 @@ Comparison of NCH with different optimization methods,
 in a "hard" dataset (classical methods don't provide results).
 
 """
+
 # Author: Gregoire Cattan, Quentin Barthelemy
 # Modified from noplot_classify_P300_nch.py
 # License: BSD (3-clause)

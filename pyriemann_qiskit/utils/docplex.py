@@ -5,6 +5,7 @@ It is for example suitable for:
 - MDM optimization problem;
 - computation of matrices mean.
 """
+
 import math
 import time
 import warnings
@@ -167,7 +168,6 @@ def square_bin_mat_var(prob, channels, name="bin_spdmat"):
 
 
 class pyQiskitOptimizer:
-
     """Wrapper for Qiskit optimizer.
 
     This class is an abstract class which provides an interface
@@ -300,7 +300,6 @@ class pyQiskitOptimizer:
 
 
 class ClassicalOptimizer(pyQiskitOptimizer):
-
     """Wrapper for the classical Cobyla optimizer.
 
     Attributes
@@ -421,7 +420,6 @@ def _get_quantum_instance(self):
 
 
 class NaiveQAOAOptimizer(pyQiskitOptimizer):
-
     """Wrapper for the quantum optimizer QAOA.
 
     Parameters
@@ -590,7 +588,6 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
 
 
 class QAOACVAngleOptimizer(pyQiskitOptimizer):
-
     """QAOA with continuous variables encoded in state vector angles.
 
     This optimizer encodes continuous variables directly in the angles/phases
@@ -895,7 +892,6 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
 
 
 class QAOACVOptimizer(pyQiskitOptimizer):
-
     """QAOA with continuous variables.
 
     Parameters

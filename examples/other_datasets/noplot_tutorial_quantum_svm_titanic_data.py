@@ -7,6 +7,7 @@ Practical application of quantum-enhanced SVM to the titanic dataset:
 https://www.kaggle.com/c/titanic/data
 
 """
+
 # Author: Adrien Veres
 # License: BSD (3-clause)
 

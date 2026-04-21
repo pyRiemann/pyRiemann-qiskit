@@ -25,7 +25,6 @@ except ImportError:
 
 
 class SymbFidelityStatevectorKernel:
-
     """Symbolic Statevector kernel
 
     An implementation of the quantum kernel for classically simulated

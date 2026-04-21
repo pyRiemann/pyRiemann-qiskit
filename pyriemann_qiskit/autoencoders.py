@@ -42,7 +42,6 @@ def _auto_encoder_circuit(num_latent, num_trash):
 
 
 class BasicQnnAutoencoder(TransformerMixin):
-
     """Quantum denoising
 
     This class implements a quantum auto encoder.

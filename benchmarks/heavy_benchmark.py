@@ -14,6 +14,7 @@ Automatically changes the first transformers from XDawnCovariances() to Covarian
 when switching from P300 to MI.
 
 """
+
 # Author: Anton Andreev
 
 import warnings
