@@ -28,7 +28,7 @@ repos:
         exclude: ^(.github/|.devcontainer/|doc/_static/|doc/conf.py|pyriemann_qiskit/_version.py|setup.py)
 
   - repo: https://github.com/pycqa/flake8
-    rev: 6.0.0
+    rev: 7.0.0
     hooks:
       - id: flake8
         exclude: ^(.github/|.devcontainer/|doc/_static/|doc/conf.py|pyriemann_qiskit/_version.py|setup.py)
