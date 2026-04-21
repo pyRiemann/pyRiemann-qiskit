@@ -1369,7 +1369,7 @@ def train_vp_timeseries(
 # ============================================================================
 
 
-class IGLSklearnClassifier(BaseEstimator, ClassifierMixin):
+class IGLSklearnClassifier(ClassifierMixin, BaseEstimator):
     """Sklearn-compatible wrapper around IGLClassifier + train_vp/train_joint.
 
     input_dim and n_classes are inferred from data at fit() time, so this
@@ -1470,7 +1470,7 @@ class IGLSklearnClassifier(BaseEstimator, ClassifierMixin):
         return self.model_.get_active_dims()
 
 
-class IGLTimeSeriesSklearnClassifier(BaseEstimator, ClassifierMixin):
+class IGLTimeSeriesSklearnClassifier(ClassifierMixin, BaseEstimator):
     """Sklearn-compatible wrapper for TimeIGLClassifier.
 
     Accepts raw EEG epochs in MOABB/pyriemann format [N, C, T].
@@ -1587,6 +1587,150 @@ class IGLTimeSeriesSklearnClassifier(BaseEstimator, ClassifierMixin):
         contrib = filter_norms * wout_norms
         return int((contrib > threshold * contrib.max()).sum().item())
 
+class IGLMatryoshkaClassifier(ClassifierMixin, BaseEstimator):
+    """Sklearn wrapper for IGL with Matryoshka training.
+
+    Drops into any sklearn Pipeline. input_dim and n_classes are inferred
+    from data at fit() time.
+
+    Args:
+        max_dim: Maximum latent dimension d (Matryoshka truncates to 1..d)
+        n_anchors: R, number of source anchors
+        n_scales: K, number of kernel scales
+        operator: Kernel name (e.g. 'gaussian', 'cauchy', 'laplacian')
+        hidden: MLP encoder hidden width
+        encoder: 'mlp' or 'linear'
+        epochs: Training epochs
+        batch_size: Mini-batch size
+        source_l2: Tikhonov regularization for lstsq
+        val_fraction: Fraction of training data held out for validation
+        random_state: Random seed
+    """
+
+    def __init__(
+        self,
+        max_dim: int = 16,
+        n_anchors: int = 64,
+        n_scales: int = 4,
+        operator: str = "gaussian",
+        hidden: int = 128,
+        encoder: str = "mlp",
+        epochs: int = 1000,
+        batch_size: int = 256,
+        source_l2: float = 1e-3,
+        val_fraction: float = 0.2,
+        random_state: int | None = None,
+    ):
+        self.max_dim = max_dim
+        self.n_anchors = n_anchors
+        self.n_scales = n_scales
+        self.operator = operator
+        self.hidden = hidden
+        self.encoder = encoder
+        self.epochs = epochs
+        self.batch_size = batch_size
+        self.source_l2 = source_l2
+        self.val_fraction = val_fraction
+        self.random_state = random_state
+
+    def fit(self, X, y):
+        if self.random_state is not None:
+            torch.manual_seed(self.random_state)
+            np.random.seed(self.random_state)
+
+        self.classes_ = np.unique(y)
+        n_classes = len(self.classes_)
+        label_map = {c: i for i, c in enumerate(self.classes_)}
+        y_idx = np.array([label_map[c] for c in y])
+
+        # Create model
+        self.model_ = IGLClassifier(
+            input_dim=X.shape[1],
+            max_dim=self.max_dim,
+            n_classes=n_classes,
+            n_anchors=self.n_anchors,
+            n_scales=self.n_scales,
+            operator=self.operator,
+            hidden=self.hidden,
+            encoder=self.encoder,
+        )
+
+        X_t = torch.tensor(X, dtype=torch.float32)
+        y_t = torch.tensor(y_idx, dtype=torch.long)
+
+        # Train/val split
+        N = len(X_t)
+        n_val = max(1, int(N * self.val_fraction))
+        perm = torch.randperm(N)
+        val_idx, train_idx = perm[:n_val], perm[n_val:]
+
+        config = MatryoshkaConfig(
+            epochs=self.epochs,
+            batch_size=self.batch_size,
+            source_l2=self.source_l2,
+            log_every=self.epochs,  # log only at end
+            verbose=False,
+        )
+
+        self.history_ = train_matryoshka_vp(
+            self.model_,
+            X_t[train_idx], y_t[train_idx],
+            X_t[val_idx], y_t[val_idx],
+            config=config,
+        )
+
+        # Post-training dimension discovery
+        curve = eval_dimension_curve(
+            self.model_, X_t[val_idx], y_t[val_idx],
+            source_l2=self.source_l2,
+        )
+        self.d_eff_ = detect_elbow(curve)
+        self.dimension_curve_ = curve
+
+        return self
+
+    def predict(self, X):
+        device = next(self.model_.parameters()).device
+        self.model_.eval()
+        with torch.no_grad():
+            X_t = torch.tensor(X, dtype=torch.float32).to(device)
+            idx = self.model_.predict(X_t).cpu().numpy()
+        return self.classes_[idx]
+
+    def predict_proba(self, X):
+        device = next(self.model_.parameters()).device
+        self.model_.eval()
+        with torch.no_grad():
+            X_t = torch.tensor(X, dtype=torch.float32).to(device)
+            proba = self.model_.predict_proba(X_t).cpu().numpy()
+        return proba
+
+    def effective_dimension(self) -> int:
+        """Return d_eff discovered by Matryoshka after fitting."""
+        return self.d_eff_
+
+
+# ============================================================================
+# Section 2: d_eff logging wrapper
+# ============================================================================
+
+_eff_dim_log: list[int] = []
+_tangent_dim_log: list[int] = []
+
+
+class _IGLWithLogging(IGLMatryoshkaClassifier):
+    """Subclass that logs d_eff after each fit() call.
+
+    MOABB doesn't expose fitted estimators, so we capture d_eff via
+    module-level logs appended inside fit().
+    """
+
+    def fit(self, X, y):
+        super().fit(X, y)
+        _eff_dim_log.append(self.effective_dimension())
+        _tangent_dim_log.append(X.shape[1])
+        return self
+
 
 # ============================================================================
 # Section 10: Exports
@@ -1621,4 +1765,6 @@ __all__ = [
     "train_vp_timeseries",
     # Utilities
     "_get_device",
+    "IGLMatryoshkaClassifier",
+    "_IGLWithLogging"
 ]
