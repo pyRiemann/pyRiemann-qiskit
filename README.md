@@ -2,7 +2,7 @@
 [![PyPI version](https://badge.fury.io/py/pyriemann-qiskit.svg)](https://badge.fury.io/py/pyriemann-qiskit)
 [![Documentation Status](https://readthedocs.org/projects/pyriemann-qiskit/badge/?version=latest)](https://pyriemann-qiskit.readthedocs.io/)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[![Python 3.10-3.12](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/downloads/)
+[![Python 3.11-3.12](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)](https://www.python.org/downloads/)
 
 # pyRiemann-qiskit
 
