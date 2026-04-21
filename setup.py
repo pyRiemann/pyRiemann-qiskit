@@ -31,7 +31,7 @@ setup(name='pyriemann-qiskit',
           'Tracker': 'https://github.com/pyRiemann/pyRiemann-qiskit/issues/',
       },
       platforms='any',
-      python_requires=">=3.10",
+      python_requires=">=3.11",
       install_requires=[
                         'numpy<2.3',
                         'cython',
