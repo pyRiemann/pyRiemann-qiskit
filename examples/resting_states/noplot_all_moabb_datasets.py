@@ -37,8 +37,8 @@ from moabb.datasets import Cattan2019_PHMD, Hinss2021, Rodrigues2017
 from moabb.paradigms import RestingStateToP300Adapter
 from pyriemann.classification import MDM
 from pyriemann.estimation import Covariances
-from pyriemann.spatialfilters import CSP
 from pyriemann.preprocessing import Whitening
+from pyriemann.spatialfilters import CSP
 from pyriemann.tangentspace import TangentSpace
 from pyriemann.transfer import MDWM, TLCenter, TLClassifier, TLRotate, TLScale
 from qiskit_algorithms.optimizers import NFT
@@ -401,4 +401,3 @@ P, T = find_significant_differences(stats)
 fig_stat = summary_plot(P, T)
 plt.tight_layout()
 plt.show()
-
