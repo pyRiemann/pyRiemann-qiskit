@@ -15,12 +15,12 @@ No transfer learning is applied.
 import random
 import time
 
+import moabb.analysis.plotting as moabb_plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
 from moabb import set_log_level
-import moabb.analysis.plotting as moabb_plt
 from moabb.datasets import Cattan2019_PHMD, Hinss2021, Rodrigues2017
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import RestingStateToP300Adapter
@@ -241,4 +241,3 @@ ax2.legend(handles[: len(active_pipelines)], labels[: len(active_pipelines)], ti
 plt.xticks(rotation=45)
 plt.tight_layout()
 plt.show()
-

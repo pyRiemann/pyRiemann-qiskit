@@ -1,6 +1,9 @@
 ---
 name: transfer-learning
-description: Guide for implementing cross-subject transfer learning in pyriemann-qiskit with MOABB. Use when the user asks about Adapter, TLCrossSubjectEvaluation, domain adaptation, Riemannian alignment, or cross-subject generalization.
+description:
+  Guide for implementing cross-subject transfer learning in pyriemann-qiskit with MOABB.
+  Use when the user asks about Adapter, TLCrossSubjectEvaluation, domain adaptation,
+  Riemannian alignment, or cross-subject generalization.
 argument-hint: [question or task]
 ---
 
@@ -8,14 +11,14 @@ argument-hint: [question or task]
 
 ## The Core Problem
 
-MOABB's `CrossSubjectEvaluation` calls `pipeline.fit(X_train, y_train)` with plain
-class labels only. Subject IDs live in a `metadata` DataFrame inside the evaluation
-loop but are never forwarded to the pipeline — they are only used by the CV splitter
+MOABB's `CrossSubjectEvaluation` calls `pipeline.fit(X_train, y_train)` with plain class
+labels only. Subject IDs live in a `metadata` DataFrame inside the evaluation loop but are
+never forwarded to the pipeline — they are only used by the CV splitter
 (`LeaveOneGroupOut` or `GroupKFold`).
 
-`TLCenter` from pyriemann requires `y_enc`, an array of strings encoding both domain
-and class: `"subject_01/0"`, produced by `encode_domains(X, y, domains)`. There is no
-way to pass this through MOABB's standard pipeline interface without modification.
+`TLCenter` from pyriemann requires `y_enc`, an array of strings encoding both domain and
+class: `"subject_01/0"`, produced by `encode_domains(X, y, domains)`. There is no way to
+pass this through MOABB's standard pipeline interface without modification.
 
 ## The Solution: Adapter + TLCrossSubjectEvaluation
 
@@ -23,20 +26,20 @@ Both classes live in `pyriemann_qiskit/utils/transfer.py`.
 
 ### pyriemann `target_domain` Convention (Critical)
 
-`target_domain` = the **first training subject** (the domain everything aligns TO),
-NOT the test subject. This is because the test subject has no data in the training
-fold, so TLRotate cannot compute its rotation.
+`target_domain` = the **first training subject** (the domain everything aligns TO), NOT
+the test subject. This is because the test subject has no data in the training fold, so
+TLRotate cannot compute its rotation.
 
-- `TLCenter(target_domain="subj_1")` → aligns all domains so "subj_1"'s mean is
-  the reference (identity). All other source domains get recentered to match.
-- At `transform()` time, the reference domain's stored statistics are applied to
-  the test data.
+- `TLCenter(target_domain="subj_1")` → aligns all domains so "subj_1"'s mean is the
+  reference (identity). All other source domains get recentered to match.
+- At `transform()` time, the reference domain's stored statistics are applied to the test
+  data.
 
 ### Adapter
 
 A meta-estimator that wraps preprocessing + a plain pyriemann TL estimator.
-`target_domain=None` is used as a placeholder at construction time; the actual
-value is injected via `set_params` inside `Adapter.fit()`.
+`target_domain=None` is used as a placeholder at construction time; the actual value is
+injected via `set_params` inside `Adapter.fit()`.
 
 ```python
 from pyriemann_qiskit.utils.transfer import Adapter
@@ -58,6 +61,7 @@ pipelines["MDWM(0.5)"] = Adapter(
 ```
 
 `Adapter.fit(X, y, groups, target_domain)`:
+
 1. `preprocessing.fit_transform(X)` → covariance matrices
 2. `encode_domains(X_cov, y, groups)` → `y_enc` with all subject IDs
 3. `deepcopy(estimator)` → fresh copy
@@ -65,14 +69,14 @@ pipelines["MDWM(0.5)"] = Adapter(
    `step.set_params(target_domain=target_domain)` on any step that has the attribute
 5. `estimator_.fit(X_cov, y_enc)` → fits in one shot
 
-Because the inner estimators (`MDM()`, `TangentSpace()+LDA()`, etc.) are fully
-visible in `repr(adapter.get_params())`, MOABB assigns distinct digests to each
-pipeline automatically — no digest collision risk.
+Because the inner estimators (`MDM()`, `TangentSpace()+LDA()`, etc.) are fully visible in
+`repr(adapter.get_params())`, MOABB assigns distinct digests to each pipeline
+automatically — no digest collision risk.
 
 ### TLClassifier and sample_weight (pyriemann patch)
 
-`TLClassifier` always passes `sample_weight` to the wrapped estimator, but some
-estimators (e.g. LDA) do not accept it. The installed pyriemann has been patched at:
+`TLClassifier` always passes `sample_weight` to the wrapped estimator, but some estimators
+(e.g. LDA) do not accept it. The installed pyriemann has been patched at:
 
 `miniforge3/envs/quantum-layout/Lib/site-packages/pyriemann/transfer/_estimators.py`
 
@@ -98,8 +102,8 @@ This should be upstreamed to pyriemann as a PR.
 
 ### TLCrossSubjectEvaluation
 
-Subclass of `CrossSubjectEvaluation` that forwards `groups` and `target_domain`
-to pipelines whose `fit()` declares them:
+Subclass of `CrossSubjectEvaluation` that forwards `groups` and `target_domain` to
+pipelines whose `fit()` declares them:
 
 ```python
 evaluation = TLCrossSubjectEvaluation(
@@ -113,11 +117,11 @@ evaluation = TLCrossSubjectEvaluation(
 results = evaluation.process(pipelines)
 ```
 
-- `target_domain = str(groups[train[0]])` — first training subject, guaranteed to
-  be in the training fold (test subject is NOT used as target_domain).
+- `target_domain = str(groups[train[0]])` — first training subject, guaranteed to be in
+  the training fold (test subject is NOT used as target_domain).
 - Both TL and non-TL pipelines can be mixed in the same `pipelines` dict.
-- Fitting and scoring errors are caught per-pipeline and printed without crashing
-  the full evaluation.
+- Fitting and scoring errors are caught per-pipeline and printed without crashing the full
+  evaluation.
 
 ## CrossSubject CV: LeaveOneOut vs GroupKFold
 
@@ -132,4 +136,5 @@ evaluation = TLCrossSubjectEvaluation(..., n_splits=None)  # LOSO
 
 - Implementation: `pyriemann_qiskit/utils/transfer.py`
 - Example usage: `examples/resting_states/noplot_nch_study.py`
-- pyriemann patch: `miniforge3/envs/quantum-layout/Lib/site-packages/pyriemann/transfer/_estimators.py`
+- pyriemann patch:
+  `miniforge3/envs/quantum-layout/Lib/site-packages/pyriemann/transfer/_estimators.py`

@@ -1,6 +1,11 @@
 ---
 name: igl
-description: Guide for Intrinsic Green's Learning (IGL) — a PDE-inspired kernel learning framework with automatic intrinsic dimension discovery. Use when the user asks about IGLClassifier, IGLSklearnClassifier, IGLTimeSeriesSklearnClassifier, TimeIGLClassifier, Variable Projection training, Hard Concrete Gates, GreenKernel, intrinsic dimension, ResIGL, train_vp_timeseries, or igl_reference.py.
+description:
+  Guide for Intrinsic Green's Learning (IGL) — a PDE-inspired kernel learning framework
+  with automatic intrinsic dimension discovery. Use when the user asks about
+  IGLClassifier, IGLSklearnClassifier, IGLTimeSeriesSklearnClassifier, TimeIGLClassifier,
+  Variable Projection training, Hard Concrete Gates, GreenKernel, intrinsic dimension,
+  ResIGL, train_vp_timeseries, or igl_reference.py.
 argument-hint: [question or task]
 ---
 
@@ -15,9 +20,9 @@ source term integrated against a Green's kernel:
 u(x) = ∫ G(x,y) f(y) dy
 ```
 
-The key insight: assuming `f` and `G` factorize over a **low-dimensional latent coordinate**
-`z = enc(x) ∈ R^d`, the d-dimensional integral collapses (via Fubini) into d independent
-1D integrals at cost O(KRd) — far cheaper than the ambient O(D).
+The key insight: assuming `f` and `G` factorize over a **low-dimensional latent
+coordinate** `z = enc(x) ∈ R^d`, the d-dimensional integral collapses (via Fubini) into d
+independent 1D integrals at cost O(KRd) — far cheaper than the ambient O(D).
 
 ## File Location
 
@@ -25,9 +30,9 @@ The key insight: assuming `f` and `G` factorize over a **low-dimensional latent 
 
 ## Two Variants
 
-| Variant | Input | Use case |
-|---------|-------|----------|
-| `IGLSklearnClassifier` | `[N, D]` flat vectors | Post-covariance / TangentSpace features |
+| Variant                          | Input                  | Use case                                      |
+| -------------------------------- | ---------------------- | --------------------------------------------- |
+| `IGLSklearnClassifier`           | `[N, D]` flat vectors  | Post-covariance / TangentSpace features       |
 | `IGLTimeSeriesSklearnClassifier` | `[N, C, T]` raw epochs | EEG time series, preserves temporal structure |
 
 ---
@@ -35,6 +40,7 @@ The key insight: assuming `f` and `G` factorize over a **low-dimensional latent 
 ## Variant 1: Feature-Vector IGL
 
 **Architecture:**
+
 ```
 x ∈ R^D → Encoder → z_raw ∈ R^d → HardConcreteGates → z ∈ R^d
         → GreenKernel → Φ ∈ [N,R] → Φ@W + bias → logits
@@ -84,6 +90,7 @@ d_eff = clf.effective_dimension()  # calls model_.get_active_dims()
 ```
 
 **In MOABB pipeline** (after TangentSpace):
+
 ```python
 pipelines["TS+IGL"] = make_pipeline(
     Covariances(estimator="lwf"),
@@ -99,10 +106,11 @@ pipelines["TS+IGL"] = make_pipeline(
 
 ## Variant 2: Time-Series IGL (`TimeIGLClassifier`)
 
-Operates directly on raw EEG epochs — **no covariance, no TangentSpace**.
-Time is the PDE domain: `u_k(T) = Σ_s G(T,s) · f_k(x(s))`
+Operates directly on raw EEG epochs — **no covariance, no TangentSpace**. Time is the PDE
+domain: `u_k(T) = Σ_s G(T,s) · f_k(x(s))`
 
 **Architecture:**
+
 ```
 x[n,t,:] ∈ R^C  →  source_enc (Linear(C,K))  →  f[n,t,:] ∈ R^K
 t_grid ∈ [0,1]^T  →  GreenKernel  →  Φ ∈ [T, R]
@@ -112,9 +120,10 @@ logits   = emb @ W_out + bias         →  [N, n_classes]
 ```
 
 **Key design decisions:**
+
 - `source_enc`: `Linear(C, K)` — K spatial filters (like CSP), no bias
-- `G(T,s) = Φ[-1]·Φ[s]`: endpoint query evaluates solution at the final time.
-  With Gaussian kernel → recent events weighted more; Helmholtz → oscillatory weighting.
+- `G(T,s) = Φ[-1]·Φ[s]`: endpoint query evaluates solution at the final time. With
+  Gaussian kernel → recent events weighted more; Helmholtz → oscillatory weighting.
 - No attention mechanism: the kernel IS the temporal weighting
 - Anchors initialized uniformly in [0,1] (the normalized time range)
 
@@ -140,6 +149,7 @@ clf.fit(X_train, y_train)   # X_train: [N, C, T]
 ```
 
 **In MOABB pipeline** (raw epochs, no preprocessing):
+
 ```python
 pipelines["IGL"] = make_pipeline(
     IGLTimeSeriesSklearnClassifier(
@@ -153,8 +163,8 @@ pipelines["IGL"] = make_pipeline(
 
 ### `train_vp_timeseries`
 
-Called internally by `IGLTimeSeriesSklearnClassifier` when `training="vp"`.
-Can also be called directly on a `TimeIGLClassifier` instance.
+Called internally by `IGLTimeSeriesSklearnClassifier` when `training="vp"`. Can also be
+called directly on a `TimeIGLClassifier` instance.
 
 ```python
 from pyriemann_qiskit.classification.igl_reference import (
@@ -171,8 +181,10 @@ history = train_vp_timeseries(model, X_t, y_t, config=VPConfig(epochs=500))
 ```
 
 VP phase for time-series:
+
 - **Warmup**: joint gradient on all params (source_enc + GreenKernel + W_out)
-- **VP phase**: Stage 1 = gradient on `source_enc + GreenKernel`; Stage 2 = Tikhonov lstsq for `W_out ∈ [K, n_classes]` from embeddings `∈ [N, K]`
+- **VP phase**: Stage 1 = gradient on `source_enc + GreenKernel`; Stage 2 = Tikhonov lstsq
+  for `W_out ∈ [K, n_classes]` from embeddings `∈ [N, K]`
 
 ---
 
@@ -191,25 +203,23 @@ Phi = kernel.compute_design_matrix(z)  # z: [N, d] → Phi: [N, R]
 # NOTE: n_scales are accumulated internally → output is [N, R], not [N, R*n_scales]
 ```
 
-**Anchor positions** are learnable `[R, d]`, initialized `randn * 0.5`.
-For `TimeIGLClassifier`: anchors are re-initialized to `Uniform(0, 1)` after construction.
+**Anchor positions** are learnable `[R, d]`, initialized `randn * 0.5`. For
+`TimeIGLClassifier`: anchors are re-initialized to `Uniform(0, 1)` after construction.
 
-**Available operators:**
-| Operator | Kernel | EEG inductive bias |
-|----------|--------|--------------------|
-| `"gaussian"` | `exp(-r²/(2σ²))` | Smooth states, recent-time emphasis at endpoint |
-| `"helmholtz"` | `cos(ω·r)` | Oscillatory rhythms (alpha, beta) |
-| `"cauchy"` | `1/(1+r²/σ²)` | Robust to outlier time points |
-| `"gabor"` | `cos(ω·r)·exp(-r²/(2σ²))` | Frequency-localized bursts |
-| `"laplacian"` | `exp(-r/σ)` | Sharp transients |
-| `"mexican_hat"` | `(1-r²/σ²)·exp(-r²/(2σ²))` | Band-pass, edge detection |
+**Available operators:** | Operator | Kernel | EEG inductive bias |
+|----------|--------|--------------------| | `"gaussian"` | `exp(-r²/(2σ²))` | Smooth
+states, recent-time emphasis at endpoint | | `"helmholtz"` | `cos(ω·r)` | Oscillatory
+rhythms (alpha, beta) | | `"cauchy"` | `1/(1+r²/σ²)` | Robust to outlier time points | |
+`"gabor"` | `cos(ω·r)·exp(-r²/(2σ²))` | Frequency-localized bursts | | `"laplacian"` |
+`exp(-r/σ)` | Sharp transients | | `"mexican_hat"` | `(1-r²/σ²)·exp(-r²/(2σ²))` |
+Band-pass, edge detection |
 
 ---
 
 ## `HardConcreteGates` (feature-vector IGL only)
 
-L0 regularization for automatic intrinsic dimension discovery.
-Stochastic in training, deterministic at eval.
+L0 regularization for automatic intrinsic dimension discovery. Stochastic in training,
+deterministic at eval.
 
 ```python
 from pyriemann_qiskit.classification.igl_reference import HardConcreteGates
@@ -223,7 +233,8 @@ d_eff     = gates.effective_dimension()   # count active gates (P(g>0) > 0.5)
 Gate probability: `P(g_j > 0) = σ(log_α_j - β·log(-γ/ζ))`.
 
 **Not used in `TimeIGLClassifier`**: time is inherently 1D, no dimension selection needed.
-The temporal structure is captured by the Green's kernel and the `n_components` spatial filters.
+The temporal structure is captured by the Green's kernel and the `n_components` spatial
+filters.
 
 ---
 
@@ -274,8 +285,8 @@ VP phase:
 ```
 
 **Why VP prevents collapse**: `W_out` is always optimal for current encoder → gradient
-signal on the encoder reflects coordinate quality only (envelope theorem).
-Joint training collapses `d_eff → 0` because `W_out` absorbs all variance.
+signal on the encoder reflects coordinate quality only (envelope theorem). Joint training
+collapses `d_eff → 0` because `W_out` absorbs all variance.
 
 ### Joint (ablation only)
 
@@ -297,24 +308,20 @@ Phase 2: freeze IGL, train MLP residual: output = IGL(x) + MLP(x)
 
 ## Hyperparameter Guide
 
-**Feature-vector IGL** (`IGLSklearnClassifier`):
-| Param | Range | Effect |
-|-------|-------|--------|
-| `max_dim` | 16–100 | Upper bound on discoverable dims |
-| `n_anchors` | 64–512 | Expressivity |
-| `gate_weight` (in VPConfig) | 0.005–0.05 | Gate sparsity |
-| `n_scales` | 2–5 | Multi-resolution coverage |
-| `source_l2` | 1e-4–1e-2 | lstsq regularization |
+**Feature-vector IGL** (`IGLSklearnClassifier`): | Param | Range | Effect |
+|-------|-------|--------| | `max_dim` | 16–100 | Upper bound on discoverable dims | |
+`n_anchors` | 64–512 | Expressivity | | `gate_weight` (in VPConfig) | 0.005–0.05 | Gate
+sparsity | | `n_scales` | 2–5 | Multi-resolution coverage | | `source_l2` | 1e-4–1e-2 |
+lstsq regularization |
 
-**Time-series IGL** (`IGLTimeSeriesSklearnClassifier`):
-| Param | Range | Effect |
-|-------|-------|--------|
-| `n_components` | 4–32 | Spatial filter bank width (like CSP rank) |
-| `n_anchors` | 32–128 | Temporal basis expressivity |
-| `operator` | `"gaussian"` | Default; `"helmholtz"` for oscillatory EEG |
-| `n_scales` | 2–4 | Temporal multi-resolution |
+**Time-series IGL** (`IGLTimeSeriesSklearnClassifier`): | Param | Range | Effect |
+|-------|-------|--------| | `n_components` | 4–32 | Spatial filter bank width (like CSP
+rank) | | `n_anchors` | 32–128 | Temporal basis expressivity | | `operator` | `"gaussian"`
+| Default; `"helmholtz"` for oscillatory EEG | | `n_scales` | 2–4 | Temporal
+multi-resolution |
 
 **Tuning time-series:**
+
 1. Start: `n_components=16, n_anchors=64, operator="gaussian", training="vp"`
 2. If underfitting → increase `n_components` or `n_anchors`
 3. For rhythmic EEG (alpha/beta tasks) → try `operator="helmholtz"`
@@ -323,12 +330,12 @@ Phase 2: freeze IGL, train MLP residual: output = IGL(x) + MLP(x)
 
 ## Experimental Results
 
-| Dataset | Model | Accuracy | d_eff |
-|---------|-------|----------|-------|
-| WiC/BERT (R^768) | IGL-Gaussian | 62.6% ± 0.6% | ~18-21 |
-| WiC/BERT | Random Forest | 67.2% | n/a |
-| MNIST | IGL | ~97% | ~12 |
-| Swiss Roll (D=100, d=2) | IGL | R²=0.998 | 2 (exact) |
+| Dataset                 | Model         | Accuracy     | d_eff     |
+| ----------------------- | ------------- | ------------ | --------- |
+| WiC/BERT (R^768)        | IGL-Gaussian  | 62.6% ± 0.6% | ~18-21    |
+| WiC/BERT                | Random Forest | 67.2%        | n/a       |
+| MNIST                   | IGL           | ~97%         | ~12       |
+| Swiss Roll (D=100, d=2) | IGL           | R²=0.998     | 2 (exact) |
 
 Only 2-2.7% of 768 BERT dims used. Permutation test confirms gates reflect task structure.
 
@@ -338,8 +345,9 @@ Only 2-2.7% of 768 BERT dims used. Permutation test confirms gates reflect task 
 
 - **Separability barrier**: Cannot model `f(x,y) = g(x·y)` from 1D integrals alone.
 - **Complexity**: O(DW² + KRd); Stage 2 lstsq adds O(KRd) only.
-- **Envelope theorem**: At `W`-optimum `∂L/∂W=0`, so `∇_θ L_red` reflects coordinate quality.
+- **Envelope theorem**: At `W`-optimum `∂L/∂W=0`, so `∇_θ L_red` reflects coordinate
+  quality.
 - **`direct_solve_weights()`**: Tikhonov lstsq forced to CPU (MPS instability bug).
-- **`TimeIGLClassifier`**: `G(T,s) = Φ[-1]·Φ[s]` — the factorized Green's function at
-  the endpoint query is the inner product of the two basis vectors. The kernel operator
+- **`TimeIGLClassifier`**: `G(T,s) = Φ[-1]·Φ[s]` — the factorized Green's function at the
+  endpoint query is the inner product of the two basis vectors. The kernel operator
   determines how temporal distance from `T` is weighted.

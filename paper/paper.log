@@ -437,7 +437,7 @@ Package: ifthen 2024/03/16 v1.1e Standard LaTeX ifthen package (DPC)
 )
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/algorithmicx\a
 lgpseudocode.sty
-Package: algpseudocode 
+Package: algpseudocode
 
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/algorithmicx\a
 lgorithmicx.sty
@@ -540,7 +540,7 @@ LaTeX Font Info:    ... okay on input line 50.
 * paper: letterpaper
 * layout: <same size as paper>
 * layoutoffset:(h,v)=(0.0pt,0.0pt)
-* modes: 
+* modes:
 * h-part:(L,W,R)=(92.14519pt, 430.00462pt, 92.14519pt)
 * v-part:(T,H,B)=(95.39737pt, 556.47656pt, 143.09605pt)
 * \paperwidth=614.295pt
@@ -572,7 +572,7 @@ LaTeX Font Info:    ... okay on input line 50.
 * paper: letterpaper
 * layout: <same size as paper>
 * layoutoffset:(h,v)=(0.0pt,0.0pt)
-* modes: 
+* modes:
 * h-part:(L,W,R)=(108.405pt, 397.48499pt, 108.40501pt)
 * v-part:(T,H,B)=(72.26999pt, 650.43pt, 72.27pt)
 * \paperwidth=614.295pt
@@ -654,7 +654,7 @@ File: mt-ptm.cfg 2006/04/20 v1.7 microtype config. file: Times (RS)
 )
 (C:\Users\GregoireCATTAN\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-c
 mr.cfg
-File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
+File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman
 (RS)
 )
 LaTeX Font Info:    Trying to load font information for U+msa on input line 53.
@@ -719,13 +719,13 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 [4
 pdfTeX warning (ext4): destination with the same identifier (name{table.1}) has
  been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
+<argument> ...shipout:D \box_use:N \l_shipout_box
                                                   \__shipout_drop_firstpage_...
 l.356 \paragraph
                 {QIOCE ($\pm$TL).}] [5
 pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) ha
 s been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
+<argument> ...shipout:D \box_use:N \l_shipout_box
                                                   \__shipout_drop_firstpage_...
 l.403 \paragraph
                 {Fit.} <./baseline.png>]
@@ -741,7 +741,7 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 [6
 pdfTeX warning (ext4): destination with the same identifier (name{table.2}) has
  been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
+<argument> ...shipout:D \box_use:N \l_shipout_box
                                                   \__shipout_drop_firstpage_...
 l.543 \end{table}
                  ]
@@ -784,13 +784,13 @@ Package pdftex.def Info: olo_summary_plot.png  used on input line 602.
 [7
 pdfTeX warning (ext4): destination with the same identifier (name{table.3}) has
  been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
+<argument> ...shipout:D \box_use:N \l_shipout_box
                                                   \__shipout_drop_firstpage_...
 l.607 \end{figure}
-                  
+
 pdfTeX warning (ext4): destination with the same identifier (name{table.4}) has
  been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
+<argument> ...shipout:D \box_use:N \l_shipout_box
                                                   \__shipout_drop_firstpage_...
 l.607 \end{figure}
                   ]
@@ -806,9 +806,9 @@ duce per-subject do-main off-sets (see
 [8
 pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) ha
 s been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
+<argument> ...shipout:D \box_use:N \l_shipout_box
                                                   \__shipout_drop_firstpage_...
-l.655 
+l.655
        <./olo_roc_auc_per_dataset.png>]
 <ablation_study_tl.png, id=299, 1011.78pt x 433.62pt>
 File: ablation_study_tl.png Graphic file (type png)
@@ -827,13 +827,13 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
  [9
 pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) ha
 s been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
+<argument> ...shipout:D \box_use:N \l_shipout_box
                                                   \__shipout_drop_firstpage_...
 l.674 \end{figure}
-                  
+
 pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) ha
 s been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
+<argument> ...shipout:D \box_use:N \l_shipout_box
                                                   \__shipout_drop_firstpage_...
 l.674 \end{figure}
                    <./olo_scatter_plot.png> <./olo_results_log.png>]
@@ -869,7 +869,7 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 [10
 pdfTeX warning (ext4): destination with the same identifier (name{figure.5}) ha
 s been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
+<argument> ...shipout:D \box_use:N \l_shipout_box
                                                   \__shipout_drop_firstpage_...
 l.751 \section
               {Discussion} <./olo_summary_plot.png>]
@@ -878,22 +878,22 @@ Underfull \vbox (badness 1817) has occurred while \output is active []
  [11
 pdfTeX warning (ext4): destination with the same identifier (name{figure.6}) ha
 s been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
+<argument> ...shipout:D \box_use:N \l_shipout_box
                                                   \__shipout_drop_firstpage_...
-l.777 
+l.777
        <./ablation_study_tl.png> <./ablation_study_tl_per_class.png>]
 Underfull \vbox (badness 7238) has occurred while \output is active []
 
  [12
 pdfTeX warning (ext4): destination with the same identifier (name{figure.7}) ha
 s been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
+<argument> ...shipout:D \box_use:N \l_shipout_box
                                                   \__shipout_drop_firstpage_...
 l.788 \subsection
                  {Transfer Learning}
 pdfTeX warning (ext4): destination with the same identifier (name{figure.8}) ha
 s been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
+<argument> ...shipout:D \box_use:N \l_shipout_box
                                                   \__shipout_drop_firstpage_...
 l.788 \subsection
                  {Transfer Learning} <./ablation_study_nreps.png> <./ablation_s
@@ -903,9 +903,9 @@ Underfull \vbox (badness 7433) has occurred while \output is active []
  [13
 pdfTeX warning (ext4): destination with the same identifier (name{figure.9}) ha
 s been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
+<argument> ...shipout:D \box_use:N \l_shipout_box
                                                   \__shipout_drop_firstpage_...
-l.834 
+l.834
        <./ablation_study_qioce_optimizer_loss.png>] (paper.bbl [14]) [15]
 (paper.aux)
  ***********
@@ -914,7 +914,7 @@ L3 programming layer <2026-01-19>
  ***********
 Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: B7432A841A03DCFBAF2B02F2A945649D;5207.
- ) 
+ )
 Here is how much of TeX's memory you used:
  14854 strings out of 467867
  232946 string characters out of 5413979
@@ -944,4 +944,3 @@ PDF statistics:
  488 PDF objects out of 1000 (max. 8388607)
  113 named destinations out of 1000 (max. 500000)
  48435 words of extra memory for PDF output out of 51595 (max. 10000000)
-

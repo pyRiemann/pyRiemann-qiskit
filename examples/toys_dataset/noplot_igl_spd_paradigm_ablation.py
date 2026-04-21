@@ -57,13 +57,13 @@ from matplotlib import pyplot as plt
 from moabb.datasets import (
     BNCI2014_001,
     BNCI2014_009,
+    MAMEM3,
     AlexMI,
     CastillosCVEP40,
     Cattan2019_PHMD,
     Cattan2019_VR,
     Hinss2021,
     Lee2019_SSVEP,
-    MAMEM3,
     PhysionetMI,
     Rodrigues2017,
     Thielen2015,
@@ -71,7 +71,7 @@ from moabb.datasets import (
     Wang2016,
     bi2012,
 )
-from moabb.paradigms import CVEP, MotorImagery, P300, RestingStateToP300Adapter, SSVEP
+from moabb.paradigms import CVEP, P300, SSVEP, MotorImagery, RestingStateToP300Adapter
 from pyriemann.estimation import Covariances, ERPCovariances
 from pyriemann.tangentspace import TangentSpace
 from pyriemann.transfer import TLCenter, TLClassifier, TLScale
@@ -79,12 +79,8 @@ from sklearn.base import clone
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 
+from pyriemann_qiskit.classification.igl_reference import IGLSklearnClassifier, VPConfig
 from pyriemann_qiskit.utils.transfer import Adapter, TLCrossSubjectEvaluation
-
-from pyriemann_qiskit.classification.igl_reference import (
-    IGLSklearnClassifier,
-    VPConfig,
-)
 
 warnings.filterwarnings("ignore")
 

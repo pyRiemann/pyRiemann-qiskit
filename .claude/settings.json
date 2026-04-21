@@ -1,7 +1,5 @@
 {
   "permissions": {
-    "allow": [
-      "Bash(dir:*)"
-    ]
+    "allow": ["Bash(dir:*)"]
   }
 }
