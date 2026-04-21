@@ -18,6 +18,7 @@ of qubits supported by the real quantum computer you are going to use.
 A list of real quantum  computers is available in your IBM quantum account.
 
 """
+
 # Author: Anton Andreev
 # Modified from plot_classify_EEG_tangentspace.py of pyRiemann
 # License: BSD (3-clause)
@@ -27,7 +28,7 @@ A list of real quantum  computers is available in your IBM quantum account.
 import seaborn as sns
 from matplotlib import pyplot as plt
 from moabb import set_log_level
-from moabb.datasets import bi2012
+from moabb.datasets import BI2012
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
 from pyriemann.estimation import XdawnCovariances
@@ -63,7 +64,7 @@ labels_dict = {"Target": 1, "NonTarget": 0}
 
 paradigm = P300(resample=128)
 
-datasets = [bi2012()]  # MOABB provides several other P300 datasets
+datasets = [BI2012()]  # MOABB provides several other P300 datasets
 
 # reduce the number of subjects, the Quantum pipeline takes a lot of time
 # if executed on the entire dataset

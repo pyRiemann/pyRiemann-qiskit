@@ -9,6 +9,7 @@ We will be comparing the performance of VQC vs Quantum SVM vs
 Classical SVM vs Quantum MDM vs MDM.
 Execution takes approximately 1h.
 """
+
 # Author: Gregoire Cattan
 # Modified from plot_classify_EEG_quantum_svm
 # License: BSD (3-clause)

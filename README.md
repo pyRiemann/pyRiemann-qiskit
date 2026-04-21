@@ -2,7 +2,7 @@
 [![PyPI version](https://badge.fury.io/py/pyriemann-qiskit.svg)](https://badge.fury.io/py/pyriemann-qiskit)
 [![Documentation Status](https://readthedocs.org/projects/pyriemann-qiskit/badge/?version=latest)](https://pyriemann-qiskit.readthedocs.io/)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[![Python 3.10-3.12](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/downloads/)
+[![Python 3.11-3.12](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)](https://www.python.org/downloads/)
 
 # pyRiemann-qiskit
 
@@ -214,7 +214,7 @@ They are pushed to the registry on each release.
 Here's a sketch example using P300 EEG data from MOABB:
 
 ```python
-from moabb.datasets import bi2012
+from moabb.datasets import BI2012
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
 from sklearn.pipeline import make_pipeline
@@ -227,7 +227,7 @@ from pyriemann_qiskit.pipelines import QuantumClassifierWithDefaultRiemannianPip
 
 # Load P300 dataset
 paradigm = P300(resample=128)
-dataset = bi2012()
+dataset = BI2012()
 dataset.subject_list = dataset.subject_list[0:2]  # Use 2 subjects for demo
 
 # Create pipelines

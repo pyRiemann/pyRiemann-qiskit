@@ -7,6 +7,7 @@ This benchmark is a non-regression performance test, intended
 to run on Ci with each PRs.
 
 """
+
 # Author: Gregoire Cattan
 # Modified from plot_classify_P300_bi.py of pyRiemann
 # License: BSD (3-clause)

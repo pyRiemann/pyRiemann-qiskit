@@ -3,6 +3,7 @@
 This module contains quantum-enhanced classification algorithms that can run
 in both quantum and classical modes, on simulated or real quantum computers.
 """
+
 import logging
 import random
 from warnings import warn
@@ -24,7 +25,6 @@ logging.basicConfig(level=logging.WARNING)
 
 
 class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
-
     """Classification by Nearest Convex Hull (NCH).
 
     In Nearest Convex Hull (NCH) classifier [1]_, each class is modelized by
@@ -248,7 +248,6 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
 
 
 class CpMDM(MDM):
-
     """Quantum-enhanced MDM classifier
 
     This class is a constraint programming (CP) implementation of the

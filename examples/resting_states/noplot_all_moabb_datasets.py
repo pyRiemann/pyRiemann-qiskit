@@ -1,25 +1,26 @@
 """
 ====================================================================
-Classification of resting-state datasets from MOABB using NCH, QIOCE
+Classification of resting-state datasets from MOABB using NCH, QIOCE,
 and QuantumStateDiscriminator
 ====================================================================
 
-Comparison of classical pipelines (MDM, TS+LDA) and quantum pipelines
-(NCH, QIOCE, QuantumStateDiscriminator) across three resting-state datasets: Hinss2021
-(CrossSubject & CrossSession), Rodrigues2017 (CrossSubject), and
+Comparison of classical pipelines (MDM, TS+LR) and quantum pipelines
+(NCH, QIOCE, QuantumStateDiscriminator) across three resting-state
+datasets: Hinss2021 (CrossSubject), Rodrigues2017 (CrossSubject), and
 Cattan2019_PHMD (CrossSubject). Both plain and transfer-learning (TL)
 variants are benchmarked where applicable. Results are aggregated and
 analyzed with MOABB statistical tools.
 
-Note: QuantumStateDiscriminator operates directly on raw EEG epochs (no covariance
-estimation) and is therefore evaluated without a TL variant.
+Notes:
+- QuantumStateDiscriminator operates directly on raw EEG epochs (no
+  covariance estimation) and is evaluated without a TL variant.
 
 """
+
 # Author: Gregoire Cattan
 # Modified from noplot_nch_study.py
 # License: BSD (3-clause)
 
-import itertools
 import random
 import time
 
@@ -32,16 +33,17 @@ from moabb.analysis.meta_analysis import (
     compute_dataset_statistics,
     find_significant_differences,
 )
-from moabb.analysis.plotting import meta_analysis_plot, summary_plot
+from moabb.analysis.plotting import summary_plot
 from moabb.datasets import Cattan2019_PHMD, Hinss2021, Rodrigues2017
 from moabb.paradigms import RestingStateToP300Adapter
 from pyriemann.classification import MDM
 from pyriemann.estimation import Covariances
 from pyriemann.preprocessing import Whitening
+from pyriemann.spatialfilters import CSP
 from pyriemann.tangentspace import TangentSpace
 from pyriemann.transfer import MDWM, TLCenter, TLClassifier, TLRotate, TLScale
 from qiskit_algorithms.optimizers import NFT
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.linear_model import LogisticRegression as LR
 from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import (
@@ -83,13 +85,14 @@ pipelines = {}
 
 pipelines["MDM"] = make_pipeline(
     sf,
+    CSP(nfilter=8, log=False),
     MDM(),
 )
 
-pipelines["TS+LDA"] = make_pipeline(
+pipelines["TS+LR"] = make_pipeline(
     sf,
     TangentSpace(metric="riemann"),
-    LDA(),
+    LR(),
 )
 
 pipelines["NCH+MIN_HULL_QAOACV(Ulvi)"] = make_pipeline(
@@ -141,7 +144,7 @@ pipelines["MDM+TL"] = Adapter(
     ),
 )
 
-pipelines["TS+LDA+TL"] = Adapter(
+pipelines["TS+LR+TL"] = Adapter(
     preprocessing=sf,
     estimator=make_pipeline(
         TLCenter(target_domain=None),
@@ -149,7 +152,7 @@ pipelines["TS+LDA+TL"] = Adapter(
         TLRotate(target_domain=None),
         TLClassifier(
             target_domain=None,
-            estimator=make_pipeline(TangentSpace(metric="riemann"), LDA()),
+            estimator=make_pipeline(TangentSpace(metric="riemann"), LR()),
             domain_weight=None,
         ),
     ),
@@ -228,8 +231,8 @@ pipelines["QIOCE+TL"] = Adapter(
 
 print("Total pipelines to evaluate: ", len(pipelines))
 
-overwrite = True  # set to True if we want to overwrite cached results
-
+overwrite = False  # set to True if we want to overwrite cached results
+N_SPLITS = None
 ##############################################################################
 # Evaluations
 # -----------
@@ -244,7 +247,7 @@ evaluation_cattan = TLCrossSubjectEvaluation(
     datasets=[Cattan2019_PHMD()],
     suffix="nch_study_cattan",
     overwrite=overwrite,
-    n_splits=3,
+    n_splits=N_SPLITS,
     random_state=seed,
 )
 results_cattan = evaluation_cattan.process(pipelines)
@@ -257,7 +260,7 @@ evaluation_rodrigues = TLCrossSubjectEvaluation(
     datasets=[Rodrigues2017()],
     suffix="nch_study_rodrigues",
     overwrite=overwrite,
-    n_splits=3,
+    n_splits=N_SPLITS,
     random_state=seed,
 )
 results_rodrigues = evaluation_rodrigues.process(pipelines)
@@ -271,7 +274,7 @@ evaluation_hinss_cs = TLCrossSubjectEvaluation(
     datasets=[Hinss2021()],
     suffix="nch_study_hinss_cs",
     overwrite=overwrite,
-    n_splits=3,
+    n_splits=N_SPLITS,
     random_state=seed,
 )
 results_hinss_cs = evaluation_hinss_cs.process(pipelines)
@@ -300,8 +303,8 @@ preferred_order = [
     "MDWM(0.5)",
     "MDM+TL",
     "MDM",
-    "TS+LDA",
-    "TS+LDA+TL",
+    "TS+LR",
+    "TS+LR+TL",
 ]
 active_pipelines = results["pipeline"].unique()
 print(active_pipelines)
@@ -343,6 +346,49 @@ plt.tight_layout()
 plt.show()
 
 ##############################################################################
+# Plot Results: Per-Dataset Comparison (Top 3 Pipelines)
+# -------------------------------------------------------
+#
+# Strip + point plot of per-subject scores per dataset for the three
+# main performers: MDM, QuantumStateDiscriminator, and QIOCE.
+
+top3 = ["MDM", "QuantumStateDiscriminator", "QIOCE"]
+results_top3 = results[results["pipeline"].isin(top3)]
+
+fig2, ax2 = plt.subplots(facecolor="white", figsize=[8, 4])
+
+sns.stripplot(
+    data=results_top3,
+    y="score",
+    x="dataset",
+    hue="pipeline",
+    ax=ax2,
+    jitter=True,
+    alpha=0.5,
+    zorder=1,
+    palette="Set1",
+    hue_order=top3,
+    dodge=True,
+)
+sns.pointplot(
+    data=results_top3,
+    y="score",
+    x="dataset",
+    hue="pipeline",
+    ax=ax2,
+    palette="Set1",
+    hue_order=top3,
+    dodge=True,
+)
+
+ax2.set_ylabel("ROC AUC")
+handles, labels = ax2.get_legend_handles_labels()
+ax2.legend(handles[: len(top3)], labels[: len(top3)], title="Pipeline")
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+##############################################################################
 # Plot Results: Statistical Analysis
 # ------------------------------------
 #
@@ -356,15 +402,3 @@ P, T = find_significant_differences(stats)
 fig_stat = summary_plot(P, T)
 plt.tight_layout()
 plt.show()
-
-##############################################################################
-# Plot Results: Meta-Analysis
-# ---------------------------
-#
-# Standardized effect sizes with confidence intervals across datasets,
-# one plot per pair of pipelines (alg1 is hypothesized to outperform alg2).
-
-for alg1, alg2 in itertools.combinations(order, 2):
-    fig_meta = meta_analysis_plot(stats, alg1, alg2)
-    plt.tight_layout()
-    plt.show()
