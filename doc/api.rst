@@ -19,6 +19,9 @@ Classification
     QuanticMDM
     QuanticNCH
     NearestConvexHull
+    ContinuousQIOCEClassifier
+    QuantumStateDiscriminator
+    CpMDM
 
 
 Autoencoders
@@ -75,6 +78,7 @@ Utils
     :toctree: generated/
 
     is_qfunction
+    get_docplex_optimizer_from_params_bag
 
 Hyper-parameters generation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -94,6 +98,8 @@ Hyper-parameters generation
     create_mixer_rotational_XY_gates
     create_mixer_rotational_XZ_gates
     create_mixer_qiskit_default
+    create_mixer_with_circular_entanglement
+    create_mixer_identity
 
 Preprocessing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -155,6 +161,7 @@ Docplex
     pyQiskitOptimizer
     ClassicalOptimizer
     NaiveQAOAOptimizer
+    QAOACVAngleOptimizer
     QAOACVOptimizer
     set_global_optimizer
     get_global_optimizer
@@ -208,10 +215,35 @@ Quantum Provider
 .. autosummary::
     :toctree: generated/
 
+    SymbFidelityStatevectorKernel
     get_provider
     get_device
     get_simulator
     get_quantum_kernel
+
+
+Anderson Optimizer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _anderson_optimizer_api:
+.. currentmodule:: pyriemann_qiskit.utils.anderson_optimizer
+
+.. autosummary::
+    :toctree: generated/
+    :template: class.rst
+
+    AndersonAccelerationOptimizer
+
+Transfer Learning
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _transfer_api:
+.. currentmodule:: pyriemann_qiskit.utils.transfer
+
+.. autosummary::
+    :toctree: generated/
+    :template: class.rst
+
+    Adapter
+    TLCrossSubjectEvaluation
 
 
 Visualization
