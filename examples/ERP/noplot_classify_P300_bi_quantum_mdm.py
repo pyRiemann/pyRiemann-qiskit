@@ -19,6 +19,7 @@ pip install qiskit-aer-gpu
 pip install moabb==0.5.0
 
 """
+
 # Author: Anton Andreev
 # Modified from plot_classify_EEG_tangentspace.py of pyRiemann
 # License: BSD (3-clause)

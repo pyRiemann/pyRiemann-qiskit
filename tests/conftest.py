@@ -1,6 +1,7 @@
 """
 Contains helper methods and classes to manage the tests.
 """
+
 from functools import partial
 from operator import itemgetter
 

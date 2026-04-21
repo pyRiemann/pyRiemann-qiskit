@@ -45,7 +45,7 @@ def _score_trial(X_i, povm, classes):
     return np.array([np.sum(povm[c] * M) for c in classes])
 
 
-class QuantumStateDiscriminator(BaseEstimator, ClassifierMixin):
+class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
     """Quantum state classifier using the Pretty Good Measurement (PGM).
 
     The mental state of the user (class A or B) is modeled as a mixed

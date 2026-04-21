@@ -18,6 +18,7 @@ Metrics: ROC AUC + training time per fold — so the accuracy/cost trade-off
 is visible.
 
 """
+
 # Author: Gregoire Cattan
 # License: BSD (3-clause)
 
@@ -100,7 +101,7 @@ n_reps_range = [2, 3, 4, 5]
 
 def make_pipelines(n_reps, seed):
     return {
-        "NCH (Naive QAOA)": make_pipeline(
+        "NCH+NaiveQAOA": make_pipeline(
             Covariances(estimator="lwf"),
             QuanticNCH(
                 quantum=True,
@@ -112,7 +113,7 @@ def make_pipelines(n_reps, seed):
                 seed=seed,
             ),
         ),
-        "NCH (Ulvi)": make_pipeline(
+        "NCH+QIOCE": make_pipeline(
             Covariances(estimator="lwf"),
             QuanticNCH(
                 quantum=True,
@@ -181,7 +182,7 @@ print(results.groupby(["pipeline", "n_reps"])[["auc"]].mean().round(3))
 fig, axes = plt.subplots(1, 2, figsize=(10, 4), facecolor="white")
 fig.suptitle("QAOA circuit depth ablation (n_reps) — quantum simulation", fontsize=13)
 
-pipeline_names = ["NCH (Naive QAOA)", "NCH (Ulvi)", "QIOCE"]
+pipeline_names = ["NCH+NaiveQAOA", "NCH+QIOCE", "QIOCE"]
 colors = ["#4C72B0", "#DD8452", "#55A868"]
 
 for ax_idx, (metric, ylabel, title) in enumerate(

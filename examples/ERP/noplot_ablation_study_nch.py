@@ -7,9 +7,10 @@ This example is an ablation study of the NCH.
 Two subsampling strategies (min and random) are benchmarked,
 varying the number of hull and samples.
 
-We used the dataset bi2012 for this study.
+We used the dataset BI2012 for this study.
 
 """
+
 # Author: Gregoire Cattan, Quentin Barthelemy
 # License: BSD (3-clause)
 
@@ -22,7 +23,7 @@ from matplotlib import cm
 from matplotlib import pyplot as plt
 from matplotlib.ticker import FuncFormatter
 from moabb import set_log_level
-from moabb.datasets import bi2012
+from moabb.datasets import BI2012
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
 from pyriemann.estimation import XdawnCovariances
@@ -76,7 +77,7 @@ max_subjects = -1 if strategy == "min" else 5
 events = ["on", "off"]
 paradigm = P300()
 
-datasets = [bi2012()]
+datasets = [BI2012()]
 
 for dataset in datasets:
     dataset.subject_list = dataset.subject_list[0:max_subjects]

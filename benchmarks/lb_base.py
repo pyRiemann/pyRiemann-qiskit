@@ -6,6 +6,7 @@ Light Benchmark
 Common script to run light benchmarks
 
 """
+
 # Author: Gregoire Cattan
 # Modified from plot_classify_P300_bi.py of pyRiemann
 # License: BSD (3-clause)
@@ -14,7 +15,7 @@ import sys
 import warnings
 
 from moabb import set_log_level
-from moabb.datasets import bi2012
+from moabb.datasets import BI2012
 from moabb.paradigms import P300
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.model_selection import train_test_split
@@ -45,7 +46,7 @@ def _set_output(key: str, value: str):
 def run(pipelines):
     paradigm = P300(resample=128)
 
-    dataset = bi2012()  # MOABB provides several other P300 datasets
+    dataset = BI2012()  # MOABB provides several other P300 datasets
 
     X, y, _ = paradigm.get_data(dataset, subjects=[1])
 

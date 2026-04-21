@@ -9,3 +9,4 @@
 /pyriemann_qiskit.egg-info/*
 *-e
 /build/lib/*
+**/C-/

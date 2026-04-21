@@ -47,7 +47,7 @@ def _set_target_domain(estimator, target_domain):
         estimator.set_params(target_domain=target_domain)
 
 
-class Adapter(BaseEstimator, ClassifierMixin):
+class Adapter(ClassifierMixin, BaseEstimator):
     """Meta-estimator bridging MOABB's evaluation interface with pyriemann TL pipelines.
 
     Handles preprocessing (raw → covariances), domain encoding, and
@@ -70,7 +70,7 @@ class Adapter(BaseEstimator, ClassifierMixin):
 
     def fit(self, X, y, groups=None, target_domain=None):
         self.preprocessing_ = deepcopy(self.preprocessing)
-        X_cov = self.preprocessing_.fit_transform(X)
+        X_cov = self.preprocessing_.fit_transform(X, y)
         _, y_enc = encode_domains(X_cov, y, groups)
         self.estimator_ = deepcopy(self.estimator)
         _set_target_domain(self.estimator_, target_domain)
@@ -78,11 +78,20 @@ class Adapter(BaseEstimator, ClassifierMixin):
         self.classes_ = np.unique(y)
         return self
 
+    def _apply_preprocessing(self, X):
+        # Iterate steps directly to avoid Pipeline.transform's check_is_fitted
+        # guard, which fails for stateless transformers (e.g. pyriemann's
+        # Covariances) that set no fitted attributes in fit().
+        result = X
+        for _, step in self.preprocessing_.steps:
+            result = step.transform(result)
+        return result
+
     def predict(self, X):
-        return self.estimator_.predict(self.preprocessing_.transform(X))
+        return self.estimator_.predict(self._apply_preprocessing(X))
 
     def predict_proba(self, X):
-        return self.estimator_.predict_proba(self.preprocessing_.transform(X))
+        return self.estimator_.predict_proba(self._apply_preprocessing(X))
 
 
 if HAS_MOABB:
@@ -99,6 +108,12 @@ if HAS_MOABB:
         **kwargs
             Forwarded to CrossSubjectEvaluation.__init__().
         """
+
+        def _create_splitter(self):
+            # Force the legacy path so our evaluate() override is called.
+            # The new parallel path calls a module-level _evaluate_fold() that
+            # cannot pass groups/target_domain to Adapter.fit().
+            return None
 
         # flake8: noqa: C901
         def evaluate(
