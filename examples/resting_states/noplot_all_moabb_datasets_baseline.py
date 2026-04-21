@@ -3,7 +3,7 @@
 Baseline classification of resting-state datasets from MOABB using CSP and MDM
 ====================================================================
 
-Within-session evaluation of CSP+LDA and MDM pipelines across three
+Within-session evaluation of the CSP+MDM pipeline across three
 resting-state datasets: Hinss2021, Rodrigues2017, and Cattan2019_PHMD.
 No transfer learning is applied.
 
