@@ -15,7 +15,6 @@ No transfer learning is applied.
 import random
 import time
 
-import moabb.analysis.plotting as moabb_plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -237,7 +236,11 @@ sns.pointplot(
 
 ax2.set_ylabel("ROC AUC")
 handles, labels = ax2.get_legend_handles_labels()
-ax2.legend(handles[: len(active_pipelines)], labels[: len(active_pipelines)], title="Pipeline")
+ax2.legend(
+    handles[: len(active_pipelines)],
+    labels[: len(active_pipelines)],
+    title="Pipeline"
+)
 plt.xticks(rotation=45)
 plt.tight_layout()
 plt.show()
