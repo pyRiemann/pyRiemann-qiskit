@@ -23,6 +23,7 @@ A convergence curve (loss vs. function evaluation) is also shown,
 averaged across folds.
 
 """
+
 # Author: Gregoire Cattan
 # License: BSD (3-clause)
 

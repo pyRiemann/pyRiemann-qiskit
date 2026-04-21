@@ -16,6 +16,7 @@ Notes:
   covariance estimation) and is evaluated without a TL variant.
 
 """
+
 # Author: Gregoire Cattan
 # Modified from noplot_nch_study.py
 # License: BSD (3-clause)

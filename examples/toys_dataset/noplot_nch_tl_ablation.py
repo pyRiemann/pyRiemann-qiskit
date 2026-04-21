@@ -15,6 +15,7 @@ Ten synthetic subjects are generated with subject-specific channel mixing
 script runnable in seconds for documentation, CI, and quick sanity checks.
 
 """
+
 # Author: Gregoire Cattan
 # License: BSD (3-clause)
 

@@ -6,6 +6,7 @@ Light Benchmark
 Common script to run light benchmarks
 
 """
+
 # Author: Gregoire Cattan
 # Modified from plot_classify_P300_bi.py of pyRiemann
 # License: BSD (3-clause)

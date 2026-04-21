@@ -10,6 +10,7 @@ varying the number of hull and samples.
 We used the dataset BI2012 for this study.
 
 """
+
 # Author: Gregoire Cattan, Quentin Barthelemy
 # License: BSD (3-clause)
 

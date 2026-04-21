@@ -8,6 +8,7 @@ This example demonstrates how to use quantum pipeline on a MI dataset.
 pip install moabb==0.5.0
 
 """
+
 # Author: Gregoire Cattan
 # Modified from ERP/classify_P300_bi_quantum_mdm.py
 # License: BSD (3-clause)

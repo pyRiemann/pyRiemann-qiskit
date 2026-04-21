@@ -8,6 +8,7 @@ all the subjects from Brain Invaders, having an AUC <= 0.7.
 
 Different pipelines (quantum and classical) are benchmarked.
 """
+
 # Author: Gregoire Cattan
 # License: BSD (3-clause)
 

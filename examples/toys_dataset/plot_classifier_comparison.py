@@ -7,6 +7,7 @@ Comparison of classification using quantum versus classical SVM
 classifiers on toys datasets.
 
 """
+
 # Code source:
 # https://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html
 # Modified for pyRiemann-qiskit by Gregoire Cattan

@@ -18,6 +18,7 @@ of qubits supported by the real quantum computer you are going to use.
 A list of real quantum  computers is available in your IBM quantum account.
 
 """
+
 # Author: Anton Andreev
 # Modified from plot_classify_EEG_tangentspace.py of pyRiemann
 # License: BSD (3-clause)

@@ -1,4 +1,5 @@
 """Module for mathematical helpers"""
+
 import numpy as np
 from qiskit.quantum_info import Pauli, SparsePauliOp
 

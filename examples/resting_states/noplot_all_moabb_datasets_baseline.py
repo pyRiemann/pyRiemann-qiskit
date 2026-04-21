@@ -8,6 +8,7 @@ resting-state datasets: Hinss2021, Rodrigues2017, and Cattan2019_PHMD.
 No transfer learning is applied.
 
 """
+
 # Author: Gregoire Cattan
 # Modified from noplot_all_moabb_datasets.py
 # License: BSD (3-clause)
@@ -80,7 +81,8 @@ psd_configs = [
         RestingStateToP300Adapter(
             fmin=1,
             fmax=35,
-            events=["closed", "open"], channels=[_find_channel(_rodrigues)]
+            events=["closed", "open"],
+            channels=[_find_channel(_rodrigues)],
         ),
         ["closed", "open"],
         1,
@@ -237,9 +239,7 @@ sns.pointplot(
 ax2.set_ylabel("ROC AUC")
 handles, labels = ax2.get_legend_handles_labels()
 ax2.legend(
-    handles[: len(active_pipelines)],
-    labels[: len(active_pipelines)],
-    title="Pipeline"
+    handles[: len(active_pipelines)], labels[: len(active_pipelines)], title="Pipeline"
 )
 plt.xticks(rotation=45)
 plt.tight_layout()

@@ -4,6 +4,7 @@ Contains the base class for all quantum classifiers and several quantum
 classifiers that can run in quantum/classical modes and on simulated/real
 quantum computers.
 """
+
 import logging
 from datetime import datetime
 
@@ -32,7 +33,6 @@ logging.basicConfig(level=logging.WARNING)
 
 
 class QuanticClassifierBase(ClassifierMixin, BaseEstimator):
-
     """Quantum classifier
 
     This class implements a scikit-learn wrapper around Qiskit library [1]_.
@@ -290,7 +290,6 @@ class QuanticClassifierBase(ClassifierMixin, BaseEstimator):
 
 
 class QuanticSVM(QuanticClassifierBase):
-
     """Quantum-enhanced SVM classifier
 
     This class implements a support-vector machine (SVM) classifier [1]_,
@@ -470,7 +469,6 @@ class QuanticSVM(QuanticClassifierBase):
 
 
 class QuanticVQC(QuanticClassifierBase):
-
     """Variational quantum classifier
 
     This class implements a variational quantum classifier (VQC).
@@ -620,7 +618,6 @@ class QuanticVQC(QuanticClassifierBase):
 
 
 class QuanticMDM(QuanticClassifierBase):
-
     """Quantum-enhanced MDM classifier
 
     This class is a quantic implementation of the Minimum Distance to Mean
@@ -795,7 +792,6 @@ class QuanticMDM(QuanticClassifierBase):
 
 
 class QuanticNCH(QuanticClassifierBase):
-
     """A Quantum wrapper around the NCH algorithm.
 
     It allows both classical and Quantum versions to be executed.

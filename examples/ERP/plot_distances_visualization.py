@@ -7,6 +7,7 @@ Demonstrates how to use the visualization module,
 to plot the distances between the classes.
 
 """
+
 # Author: Gregoire Cattan
 # License: BSD (3-clause)
 

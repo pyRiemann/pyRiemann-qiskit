@@ -9,6 +9,7 @@ then projected in the tangent space and classified with a quantum SVM
 classifier. It is compared to the classical SVM on binary classification.
 
 """
+
 # Author: Gregoire Cattan
 # Modified from plot_classify_EEG_tangentspace.py of pyRiemann
 # License: BSD (3-clause)
