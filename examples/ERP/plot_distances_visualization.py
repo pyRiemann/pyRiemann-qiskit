@@ -14,7 +14,7 @@ to plot the distances between the classes.
 
 from matplotlib import pyplot as plt
 from moabb import set_log_level
-from moabb.datasets import bi2012
+from moabb.datasets import BI2012
 from moabb.paradigms import P300
 from pyriemann.classification import MDM
 from pyriemann.estimation import XdawnCovariances
@@ -46,7 +46,7 @@ set_log_level("info")
 
 paradigm = P300(resample=128)
 
-ds = bi2012()
+ds = BI2012()
 
 # Change this to use NCH instead of MDM estimator for the distances
 USE_MDM = True
@@ -92,7 +92,7 @@ cov2x2 = make_pipeline(
 # Data
 # ----------------
 #
-# Retrieve data from bi2012
+# Retrieve data from BI2012
 
 
 X, y, _ = paradigm.get_data(ds, subjects=[1])

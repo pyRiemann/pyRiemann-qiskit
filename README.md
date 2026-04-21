@@ -214,7 +214,7 @@ They are pushed to the registry on each release.
 Here's a sketch example using P300 EEG data from MOABB:
 
 ```python
-from moabb.datasets import bi2012
+from moabb.datasets import BI2012
 from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import P300
 from sklearn.pipeline import make_pipeline
@@ -227,7 +227,7 @@ from pyriemann_qiskit.pipelines import QuantumClassifierWithDefaultRiemannianPip
 
 # Load P300 dataset
 paradigm = P300(resample=128)
-dataset = bi2012()
+dataset = BI2012()
 dataset.subject_list = dataset.subject_list[0:2]  # Use 2 subjects for demo
 
 # Create pipelines
