@@ -9,6 +9,19 @@ What's new in the package
 Develop branch
 ----------------
 
+v0.5.0
+------
+
+- Improve sphinx documentation and readme
+- Improve automation with pytest/tesmon
+- Bump qiskit-machine-learning, qiskit-optimization
+- Bump mne, mne-bids, sklearn, moabb and pyriemann
+- Add QIOCE algorithm, Anderson optimization and Quantum state discriminator for EEG
+
+Details:
+
+https://github.com/pyRiemann/pyRiemann-qiskit/releases/tag/v0.5.0
+
 v0.4.2
 ------
 
