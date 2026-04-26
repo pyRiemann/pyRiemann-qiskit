@@ -10,6 +10,7 @@ from datetime import datetime
 
 import numpy as np
 from qiskit.primitives import BackendSamplerV2
+from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 from qiskit_algorithms.optimizers import SLSQP
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
@@ -571,6 +572,11 @@ class QuanticVQC(QuanticClassifierBase):
         def _callback(_weights, value):
             self.evaluated_values_.append(value)
 
+        pass_manager = None
+        if hasattr(self, "_quantum_instance") and self._quantum_instance is not None:
+            pass_manager = generate_preset_pass_manager(
+                optimization_level=1, backend=self._quantum_instance.backend
+            )
         vqc = VQC(
             optimizer=self.optimizer,
             feature_map=self._feature_map,
@@ -578,6 +584,7 @@ class QuanticVQC(QuanticClassifierBase):
             sampler=self._quantum_instance,
             num_qubits=n_features,
             callback=_callback,
+            pass_manager=pass_manager,
         )
         return vqc
 
