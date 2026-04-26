@@ -16,8 +16,8 @@ from pyriemann.utils.covariance import normalize
 from qiskit.circuit import Parameter, QuantumCircuit
 from qiskit.circuit.library import QAOAAnsatz
 from qiskit.primitives import BackendSamplerV2
-from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 from qiskit.quantum_info import Statevector, partial_trace
+from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 from qiskit_algorithms import QAOA
 from qiskit_algorithms.optimizers import L_BFGS_B, SLSQP, SPSA
 from qiskit_optimization.algorithms import CobylaOptimizer, MinimumEigenOptimizer
