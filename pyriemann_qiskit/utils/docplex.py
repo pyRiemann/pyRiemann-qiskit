@@ -16,6 +16,7 @@ from pyriemann.utils.covariance import normalize
 from qiskit.circuit import Parameter, QuantumCircuit
 from qiskit.circuit.library import QAOAAnsatz
 from qiskit.primitives import BackendSamplerV2
+from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 from qiskit.quantum_info import Statevector, partial_trace
 from qiskit_algorithms import QAOA
 from qiskit_algorithms.optimizers import L_BFGS_B, SLSQP, SPSA
@@ -1068,6 +1069,10 @@ class QAOACVOptimizer(pyQiskitOptimizer):
             mixer_operator=mixer,
         ).decompose()
         ansatz.measure_all()
+        pm = generate_preset_pass_manager(
+            optimization_level=1, backend=quantum_instance.backend
+        )
+        ansatz = pm.run(ansatz)
 
         def prob(job, i):
             counts = job.result()[0].data.meas.get_counts()
