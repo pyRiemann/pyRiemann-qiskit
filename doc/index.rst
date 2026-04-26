@@ -118,14 +118,14 @@ Featured Examples
       Classify EEG signals using quantum support vector machines.
 
    .. grid-item-card::
-      :link: auto_examples/ERP/plot_classify_P300_bi
+      :link: auto_examples/ERP/plot_distances_visualization
       :link-type: doc
-      :img-top: _images/sphx_glr_plot_classify_P300_bi_thumb.png
+      :img-top: _images/sphx_glr_plot_distances_visualization_thumb.png
       :class-card: sd-border-0 sd-shadow-md
 
-      **P300 Classification**
+      **Distance Visualization**
       ^^^
-      Binary classification of P300 event-related potentials.
+      Visualize distances between classes using MDM and NCH estimators.
 
    .. grid-item-card::
       :link: auto_examples/toys_dataset/plot_classifier_comparison

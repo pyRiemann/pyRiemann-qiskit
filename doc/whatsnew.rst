@@ -7,7 +7,7 @@ What's new in the package
 
 
 Develop branch
---------------
+----------------
 
 - Migrate to Qiskit 2.x (qiskit==2.4.1) — major breaking changes resolved:
 
