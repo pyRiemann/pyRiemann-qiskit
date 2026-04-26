@@ -545,11 +545,15 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         def _callback(_eval_count, _weights, value, _meta):
             self.evaluated_values_.append(value)
 
+        pm = generate_preset_pass_manager(
+            optimization_level=1, backend=quantum_instance.backend
+        )
         qaoa_mes = QAOA(
             sampler=quantum_instance,
             optimizer=self.optimizer,
             initial_point=self.initial_points,
             callback=_callback,
+            transpiler=pm,
         )
         qaoa = MinimumEigenOptimizer(qaoa_mes)
         result = conv.interpret(qaoa.solve(qubo))
