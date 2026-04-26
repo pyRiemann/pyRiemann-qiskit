@@ -77,6 +77,8 @@ class QuanticClassifierBase(ClassifierMixin, BaseEstimator):
         Add seed parameter
     .. versionchanged:: 0.3.0
         Switch from IBMProvider to QiskitRuntimeService.
+    .. versionchanged:: 0.6.0
+        Migrate to Qiskit 2.x: replace ``BackendSampler`` with ``BackendSamplerV2``.
 
     Attributes
     ----------
@@ -516,6 +518,8 @@ class QuanticVQC(QuanticClassifierBase):
         Add seed parameter
     .. versionchanged:: 0.3.0
         Add `evaluated_values_` attribute.
+    .. versionchanged:: 0.6.0
+        Pass ``pass_manager`` to ``VQC`` for Qiskit 2.x transpilation.
 
     See Also
     --------
