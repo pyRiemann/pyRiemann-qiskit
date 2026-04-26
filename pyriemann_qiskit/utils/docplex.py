@@ -1070,12 +1070,13 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         ansatz.measure_all()
 
         def prob(job, i):
-            quasi_dists = job.result().quasi_dists[0]
-            p = 0
-            for key in quasi_dists:
-                if key & 2 ** (n_var - 1 - i):
-                    p += quasi_dists[key]
-
+            counts = job.result()[0].data.meas.get_counts()
+            total = sum(counts.values())
+            p = sum(
+                count / total
+                for key, count in counts.items()
+                if int(key, 2) & 2 ** (n_var - 1 - i)
+            )
             # p is in the range [0, 1].
             # We now need to scale it in the definition
             # range of the continuous variables
@@ -1087,7 +1088,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         self.y_ = []
 
         def loss(params):
-            job = quantum_instance.run(ansatz, params)
+            job = quantum_instance.run([(ansatz, params)])
             var_hat = [prob(job, i) for i in range(n_var)]
             cost = objective_expr.evaluate(var_hat)
             self.x_.append(len(self.x_))
@@ -1106,7 +1107,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         self.optim_params_ = result.x
 
         # running QAOA circuit with optimal parameters
-        job = quantum_instance.run(ansatz, self.optim_params_)
+        job = quantum_instance.run([(ansatz, self.optim_params_)])
         solution = np.array([prob(job, i) for i in range(n_var)])
         self.minimum_ = objective_expr.evaluate(solution)
 
