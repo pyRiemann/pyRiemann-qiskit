@@ -573,7 +573,10 @@ class QuanticVQC(QuanticClassifierBase):
         var_form = self.gen_var_form(n_features)
         self.evaluated_values_ = []
 
-        def _callback(_weights, value):
+        def _callback(*args):
+            # qiskit-algorithms >= 0.4.0 with SPSA: (nfev, x, fx, dx, accept)
+            # earlier / other optimizers: (weights, value)
+            value = args[2] if len(args) == 5 else args[-1]
             self.evaluated_values_.append(value)
 
         pass_manager = None

@@ -19,7 +19,7 @@ CONFIGS = [
     (gen_func, reps, n_qubits)
     for gen_func in [gen_x_feature_map, gen_z_feature_map, gen_zz_feature_map]
     for reps in [2, 3]
-    for n_qubits in [2, 3, 4, 5, 6, 7, 8, 9]
+    for n_qubits in [2, 3, 4, 5, 6, 7, 8]
 ]
 
 DIR = "symb_statevectors"
