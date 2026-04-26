@@ -5,7 +5,7 @@ git+https://github.com/pyRiemann/pyRiemann#egg=pyriemann
 qiskit==2.4.1
 qiskit_algorithms==0.4.0
 qiskit_machine_learning==0.9.0
-qiskit-ibm-provider==0.11.0
+qiskit_ibm_runtime==0.46.1
 qiskit-optimization==0.7.0
 qiskit-aer==0.17.2
 cvxpy==1.6.5
