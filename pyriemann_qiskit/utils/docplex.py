@@ -15,7 +15,7 @@ from docplex.mp.vartype import BinaryVarType, ContinuousVarType, IntegerVarType
 from pyriemann.utils.covariance import normalize
 from qiskit.circuit import Parameter, QuantumCircuit
 from qiskit.circuit.library import QAOAAnsatz
-from qiskit.primitives import BackendSampler
+from qiskit.primitives import BackendSamplerV2
 from qiskit.quantum_info import Statevector, partial_trace
 from qiskit_algorithms import QAOA
 from qiskit_algorithms.optimizers import L_BFGS_B, SLSQP, SPSA
@@ -410,10 +410,9 @@ def _get_quantum_instance(self):
         backend = get_simulator()
         seed = 42
         shots = 1024
-        quantum_instance = BackendSampler(
-            backend, options={"shots": shots, "seed_simulator": seed}
+        quantum_instance = BackendSamplerV2(
+            backend, options={"default_shots": shots, "seed_simulator": seed}
         )
-        quantum_instance.transpile_options["seed_transpiler"] = seed
     else:
         quantum_instance = self.quantum_instance
     return quantum_instance

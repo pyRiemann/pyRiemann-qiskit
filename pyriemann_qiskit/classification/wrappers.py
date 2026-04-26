@@ -9,7 +9,7 @@ import logging
 from datetime import datetime
 
 import numpy as np
-from qiskit.primitives import BackendSampler
+from qiskit.primitives import BackendSamplerV2
 from qiskit_algorithms.optimizers import SLSQP
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
@@ -200,11 +200,10 @@ class QuanticClassifierBase(ClassifierMixin, BaseEstimator):
                 self._backend = get_device(self._provider, n_features)
             self._log("Quantum backend = ", self._backend)
             self._log("seed = ", self.seed)
-            self._quantum_instance = BackendSampler(
+            self._quantum_instance = BackendSamplerV2(
                 self._backend,
-                options={"shots": self.shots, "seed_simulator": self.seed},
+                options={"default_shots": self.shots, "seed_simulator": self.seed},
             )
-            self._quantum_instance.transpile_options["seed_transpiler"] = self.seed
         self._classifier = self._init_algo(n_features)
         self._train(X, y)
         return self

@@ -262,7 +262,7 @@ def get_quantum_kernel(
         Add support for qiskit-symb
     """
     if use_fidelity_state_vector_kernel and isinstance(
-        quantum_instance._backend, AerSimulator
+        quantum_instance.backend, AerSimulator
     ):
         # For simulation:
         if QISKIT_SYMB and feature_map.num_qubits <= 9 and use_qiskit_symb:
@@ -283,7 +283,7 @@ def get_quantum_kernel(
             kernel = FidelityStatevectorKernel(
                 feature_map=feature_map,
                 statevector_type=AerStatevector,
-                shots=quantum_instance.options["shots"],
+                shots=quantum_instance.options.default_shots,
             )
             logging.log(
                 logging.WARN,
