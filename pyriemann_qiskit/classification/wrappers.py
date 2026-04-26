@@ -201,7 +201,7 @@ class QuanticClassifierBase(ClassifierMixin, BaseEstimator):
             self._log("Quantum backend = ", self._backend)
             self._log("seed = ", self.seed)
             self._quantum_instance = BackendSamplerV2(
-                self._backend,
+                backend=self._backend,
                 options={"default_shots": self.shots, "seed_simulator": self.seed},
             )
         self._classifier = self._init_algo(n_features)

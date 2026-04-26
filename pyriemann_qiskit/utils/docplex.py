@@ -411,7 +411,7 @@ def _get_quantum_instance(self):
         seed = 42
         shots = 1024
         quantum_instance = BackendSamplerV2(
-            backend, options={"default_shots": shots, "seed_simulator": seed}
+            backend=backend, options={"default_shots": shots, "seed_simulator": seed}
         )
     else:
         quantum_instance = self.quantum_instance
