@@ -12,7 +12,7 @@ from qiskit.circuit.library import RealAmplitudes
 from qiskit.quantum_info import Statevector
 from qiskit_algorithms.optimizers import SPSA
 from qiskit_algorithms.utils import algorithm_globals
-from qiskit_machine_learning.circuit.library import RawFeatureVector
+from qiskit_machine_learning.circuit.library import raw_feature_vector
 from qiskit_machine_learning.neural_networks import SamplerQNN
 from sklearn.base import TransformerMixin
 
@@ -167,7 +167,7 @@ class BasicQnnAutoencoder(TransformerMixin):
         )
         assert 2**self.n_qubits == n_features
 
-        self._feature_map = RawFeatureVector(2**self.n_qubits)
+        self._feature_map = raw_feature_vector(2**self.n_qubits)
 
         self._auto_encoder = _auto_encoder_circuit(self.num_latent, self.num_trash)
 
