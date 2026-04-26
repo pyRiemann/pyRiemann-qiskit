@@ -65,7 +65,9 @@ class SymbFidelityStatevectorKernel:
         if not os.path.isdir(dir_name):
             os.mkdir(dir_name)
 
-        cached_file = os.path.join(dir_name, f"{feature_map.name}-{feature_map.reps}")
+        cached_file = os.path.join(
+            dir_name, f"{feature_map.name}-{feature_map.reps}-{feature_map.num_qubits}"
+        )
 
         if os.path.isfile(cached_file):
             print("Loading symbolic Statevector from cache")

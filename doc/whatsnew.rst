@@ -7,7 +7,20 @@ What's new in the package
 
 
 Develop branch
-----------------
+--------------
+
+- Migrate to Qiskit 2.x (qiskit==2.4.1) — major breaking changes resolved:
+
+  - ``BackendSampler`` removed; replaced with ``BackendSamplerV2`` (keyword-only ``backend`` argument, ``default_shots`` option)
+  - ``RawFeatureVector`` class removed; replaced with ``raw_feature_vector()`` function
+  - ``ProviderV1`` removed from ``qiskit.providers``
+  - Circuits must be pre-transpiled (ISA) before passing to ``BackendSamplerV2``; ``generate_preset_pass_manager`` added in ``docplex.py`` and ``wrappers.py``
+  - ``VQC`` now receives a ``pass_manager`` to handle ``SamplerQNN`` transpilation
+  - Sampler V2 ``run()`` API: ``run([(circuit, params)])`` replaces ``run(circuit, params)``; results use ``BitArray`` instead of ``quasi_dists``
+
+- Bump qiskit-machine-learning to 0.9.0, qiskit-algorithms to 0.4.0, qiskit-ibm-runtime to 0.46.1, qiskit-aer to 0.17.2, qiskit-symb to 0.6.0
+- Fix ``SymbFidelityStatevectorKernel`` cache key collision: ``num_qubits`` is now included in the cache filename
+- Add ``regenerate_symb_cache.py`` utility script to rebuild the symb_statevectors cache
 
 v0.5.0
 ------
