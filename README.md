@@ -102,7 +102,7 @@ iterations for reliable results.
 
 ### Prerequisites
 
-- Python 3.10 - 3.12
+- Python 3.11 - 3.12
 - [Anaconda](https://www.anaconda.com/) (recommended)
 
 ### Basic Installation

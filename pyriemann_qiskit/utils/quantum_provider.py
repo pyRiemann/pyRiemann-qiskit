@@ -65,7 +65,9 @@ class SymbFidelityStatevectorKernel:
         if not os.path.isdir(dir_name):
             os.mkdir(dir_name)
 
-        cached_file = os.path.join(dir_name, f"{feature_map.name}-{feature_map.reps}")
+        cached_file = os.path.join(
+            dir_name, f"{feature_map.name}-{feature_map.reps}-{feature_map.num_qubits}"
+        )
 
         if os.path.isfile(cached_file):
             print("Loading symbolic Statevector from cache")
@@ -113,9 +115,9 @@ class SymbFidelityStatevectorKernel:
                     y = y_vec[j]
                     if isinstance(x, np.float64):
                         # Pegagos implementation
-                        fidelity = abs(self.function(x, y)[0, 0]) ** 2
+                        fidelity = abs(self.function(x, y).flat[0]) ** 2
                     else:
-                        fidelity = abs(self.function(*x, *y)[0, 0]) ** 2
+                        fidelity = abs(self.function(*x, *y).flat[0]) ** 2
 
                     kernel_matrix[i, j] = fidelity
                     if is_sim:
@@ -262,7 +264,7 @@ def get_quantum_kernel(
         Add support for qiskit-symb
     """
     if use_fidelity_state_vector_kernel and isinstance(
-        quantum_instance._backend, AerSimulator
+        quantum_instance.backend, AerSimulator
     ):
         # For simulation:
         if QISKIT_SYMB and feature_map.num_qubits <= 9 and use_qiskit_symb:
@@ -283,7 +285,7 @@ def get_quantum_kernel(
             kernel = FidelityStatevectorKernel(
                 feature_map=feature_map,
                 statevector_type=AerStatevector,
-                shots=quantum_instance.options["shots"],
+                shots=quantum_instance.options.default_shots,
             )
             logging.log(
                 logging.WARN,

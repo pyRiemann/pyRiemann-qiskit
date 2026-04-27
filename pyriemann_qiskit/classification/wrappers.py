@@ -9,7 +9,8 @@ import logging
 from datetime import datetime
 
 import numpy as np
-from qiskit.primitives import BackendSampler
+from qiskit.primitives import BackendSamplerV2
+from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 from qiskit_algorithms.optimizers import SLSQP
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit_machine_learning.algorithms import QSVC, VQC, PegasosQSVC
@@ -76,6 +77,8 @@ class QuanticClassifierBase(ClassifierMixin, BaseEstimator):
         Add seed parameter
     .. versionchanged:: 0.3.0
         Switch from IBMProvider to QiskitRuntimeService.
+    .. versionchanged:: 0.6.0
+        Migrate to Qiskit 2.x: replace ``BackendSampler`` with ``BackendSamplerV2``.
 
     Attributes
     ----------
@@ -200,11 +203,10 @@ class QuanticClassifierBase(ClassifierMixin, BaseEstimator):
                 self._backend = get_device(self._provider, n_features)
             self._log("Quantum backend = ", self._backend)
             self._log("seed = ", self.seed)
-            self._quantum_instance = BackendSampler(
-                self._backend,
-                options={"shots": self.shots, "seed_simulator": self.seed},
+            self._quantum_instance = BackendSamplerV2(
+                backend=self._backend,
+                options={"default_shots": self.shots, "seed_simulator": self.seed},
             )
-            self._quantum_instance.transpile_options["seed_transpiler"] = self.seed
         self._classifier = self._init_algo(n_features)
         self._train(X, y)
         return self
@@ -516,6 +518,8 @@ class QuanticVQC(QuanticClassifierBase):
         Add seed parameter
     .. versionchanged:: 0.3.0
         Add `evaluated_values_` attribute.
+    .. versionchanged:: 0.6.0
+        Pass ``pass_manager`` to ``VQC`` for Qiskit 2.x transpilation.
 
     See Also
     --------
@@ -569,9 +573,17 @@ class QuanticVQC(QuanticClassifierBase):
         var_form = self.gen_var_form(n_features)
         self.evaluated_values_ = []
 
-        def _callback(_weights, value):
+        def _callback(*args):
+            # qiskit-algorithms >= 0.4.0 with SPSA: (nfev, x, fx, dx, accept)
+            # earlier / other optimizers: (weights, value)
+            value = args[2] if len(args) == 5 else args[-1]
             self.evaluated_values_.append(value)
 
+        pass_manager = None
+        if hasattr(self, "_quantum_instance") and self._quantum_instance is not None:
+            pass_manager = generate_preset_pass_manager(
+                optimization_level=1, backend=self._quantum_instance.backend
+            )
         vqc = VQC(
             optimizer=self.optimizer,
             feature_map=self._feature_map,
@@ -579,6 +591,7 @@ class QuanticVQC(QuanticClassifierBase):
             sampler=self._quantum_instance,
             num_qubits=n_features,
             callback=_callback,
+            pass_manager=pass_manager,
         )
         return vqc
 

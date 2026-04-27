@@ -15,8 +15,9 @@ from docplex.mp.vartype import BinaryVarType, ContinuousVarType, IntegerVarType
 from pyriemann.utils.covariance import normalize
 from qiskit.circuit import Parameter, QuantumCircuit
 from qiskit.circuit.library import QAOAAnsatz
-from qiskit.primitives import BackendSampler
+from qiskit.primitives import BackendSamplerV2
 from qiskit.quantum_info import Statevector, partial_trace
+from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 from qiskit_algorithms import QAOA
 from qiskit_algorithms.optimizers import L_BFGS_B, SLSQP, SPSA
 from qiskit_optimization.algorithms import CobylaOptimizer, MinimumEigenOptimizer
@@ -410,10 +411,9 @@ def _get_quantum_instance(self):
         backend = get_simulator()
         seed = 42
         shots = 1024
-        quantum_instance = BackendSampler(
-            backend, options={"shots": shots, "seed_simulator": seed}
+        quantum_instance = BackendSamplerV2(
+            backend=backend, options={"default_shots": shots, "seed_simulator": seed}
         )
-        quantum_instance.transpile_options["seed_transpiler"] = seed
     else:
         quantum_instance = self.quantum_instance
     return quantum_instance
@@ -545,11 +545,15 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         def _callback(_eval_count, _weights, value, _meta):
             self.evaluated_values_.append(value)
 
+        pm = generate_preset_pass_manager(
+            optimization_level=1, backend=quantum_instance.backend
+        )
         qaoa_mes = QAOA(
             sampler=quantum_instance,
             optimizer=self.optimizer,
             initial_point=self.initial_points,
             callback=_callback,
+            transpiler=pm,
         )
         qaoa = MinimumEigenOptimizer(qaoa_mes)
         result = conv.interpret(qaoa.solve(qubo))
@@ -1069,14 +1073,19 @@ class QAOACVOptimizer(pyQiskitOptimizer):
             mixer_operator=mixer,
         ).decompose()
         ansatz.measure_all()
+        pm = generate_preset_pass_manager(
+            optimization_level=1, backend=quantum_instance.backend
+        )
+        ansatz = pm.run(ansatz)
 
         def prob(job, i):
-            quasi_dists = job.result().quasi_dists[0]
-            p = 0
-            for key in quasi_dists:
-                if key & 2 ** (n_var - 1 - i):
-                    p += quasi_dists[key]
-
+            counts = job.result()[0].data.meas.get_counts()
+            total = sum(counts.values())
+            p = sum(
+                count / total
+                for key, count in counts.items()
+                if int(key, 2) & 2 ** (n_var - 1 - i)
+            )
             # p is in the range [0, 1].
             # We now need to scale it in the definition
             # range of the continuous variables
@@ -1088,7 +1097,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         self.y_ = []
 
         def loss(params):
-            job = quantum_instance.run(ansatz, params)
+            job = quantum_instance.run([(ansatz, params)])
             var_hat = [prob(job, i) for i in range(n_var)]
             cost = objective_expr.evaluate(var_hat)
             self.x_.append(len(self.x_))
@@ -1107,7 +1116,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         self.optim_params_ = result.x
 
         # running QAOA circuit with optimal parameters
-        job = quantum_instance.run(ansatz, self.optim_params_)
+        job = quantum_instance.run([(ansatz, self.optim_params_)])
         solution = np.array([prob(job, i) for i in range(n_var)])
         self.minimum_ = objective_expr.evaluate(solution)
 
