@@ -740,11 +740,11 @@ class QuanticMDM(QuanticClassifierBase):
         seed=None,
         upper_bound=7,
         regularization=None,
-        classical_optimizer=CobylaOptimizer(rhobeg=2.1, rhoend=0.000001),
-        qaoa_optimizer=SLSQP(),
+        classical_optimizer=None,
+        qaoa_optimizer=None,
         create_mixer=None,
         n_reps=3,
-        qaoa_initial_points=[0.0, 0.0],
+        qaoa_initial_points=None,
         qaoacv_implementation=None,
     ):
         QuanticClassifierBase.__init__(
@@ -753,11 +753,17 @@ class QuanticMDM(QuanticClassifierBase):
         self.metric = metric
         self.upper_bound = upper_bound
         self.regularization = regularization
-        self.classical_optimizer = classical_optimizer
-        self.qaoa_optimizer = qaoa_optimizer
+        self.classical_optimizer = (
+            classical_optimizer
+            if classical_optimizer is not None
+            else CobylaOptimizer(rhobeg=2.1, rhoend=0.000001)
+        )
+        self.qaoa_optimizer = qaoa_optimizer if qaoa_optimizer is not None else SLSQP()
         self.create_mixer = create_mixer
         self.n_reps = n_reps
-        self.qaoa_initial_points = qaoa_initial_points
+        self.qaoa_initial_points = (
+            qaoa_initial_points if qaoa_initial_points is not None else [0.0, 0.0]
+        )
         self.qaoacv_implementation = qaoacv_implementation
 
     def _init_algo(self, n_features):
@@ -891,14 +897,14 @@ class QuanticNCH(QuanticClassifierBase):
         upper_bound=7,
         regularization=None,
         n_jobs=6,
-        classical_optimizer=SlsqpOptimizer(),  # set here new default optimizer
+        classical_optimizer=None,
         n_hulls_per_class=3,
         n_samples_per_hull=10,
         subsampling="min",
-        qaoa_optimizer=SLSQP(),
+        qaoa_optimizer=None,
         create_mixer=None,
         n_reps=3,
-        qaoa_initial_points=[0.0, 0.0],
+        qaoa_initial_points=None,
         qaoacv_implementation=None,
     ):
         QuanticClassifierBase.__init__(
@@ -906,15 +912,19 @@ class QuanticNCH(QuanticClassifierBase):
         )
         self.upper_bound = upper_bound
         self.regularization = regularization
-        self.classical_optimizer = classical_optimizer
+        self.classical_optimizer = (
+            classical_optimizer if classical_optimizer is not None else SlsqpOptimizer()
+        )
         self.n_hulls_per_class = n_hulls_per_class
         self.n_samples_per_hull = n_samples_per_hull
         self.n_jobs = n_jobs
         self.subsampling = subsampling
-        self.qaoa_optimizer = qaoa_optimizer
+        self.qaoa_optimizer = qaoa_optimizer if qaoa_optimizer is not None else SLSQP()
         self.create_mixer = create_mixer
         self.n_reps = n_reps
-        self.qaoa_initial_points = qaoa_initial_points
+        self.qaoa_initial_points = (
+            qaoa_initial_points if qaoa_initial_points is not None else [0.0, 0.0]
+        )
         self.qaoacv_implementation = qaoacv_implementation
 
     def _init_algo(self, n_features):

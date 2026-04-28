@@ -12,7 +12,6 @@ from .wrappers import (
 __all__ = [
     "CpMDM",
     "NearestConvexHull",
-    "QAOABatchClassifier",
     "QuanticMDM",
     "QuanticNCH",
     "QuanticSVM",

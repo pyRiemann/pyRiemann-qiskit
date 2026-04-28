@@ -8,6 +8,7 @@ from operator import itemgetter
 import numpy as np
 import pytest
 from pyriemann.datasets import make_matrices
+from sklearn.base import ClassifierMixin
 
 from pyriemann_qiskit.datasets import get_mne_sample
 
@@ -152,6 +153,27 @@ def get_pauli_z_linear_entangl_idx():
         return [indices for _ in range(reps)]
 
     return _get_pauli_z_linear_entangl_idx
+
+
+class FixedPredClassifier(ClassifierMixin):
+    """Stub classifier that always returns the predictions given at construction.
+
+    Supports both ``predict`` and ``predict_proba`` so it can be used in
+    ensemble tests that exercise either method.
+    """
+
+    def __init__(self, y_pred):
+        self.y_pred = y_pred
+
+    def fit(self, _X, _y):
+        return self
+
+    def predict(self, _X):
+        return np.array(self.y_pred)
+
+    def predict_proba(self, X):
+        n = len(X)
+        return np.column_stack([np.ones(n) * 0.6, np.ones(n) * 0.4])
 
 
 class BinaryTest:

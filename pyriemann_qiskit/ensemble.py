@@ -73,6 +73,7 @@ class JudgeClassifier(ClassifierMixin, BaseEstimator):
             self.judge.fit(X, y)
         else:
             self.judge.fit(X[mask], y[mask])
+        return self
 
     def predict(self, X):
         """Predict class labels for samples in X.
@@ -121,7 +122,7 @@ class JudgeClassifier(ClassifierMixin, BaseEstimator):
         ys = [clf.predict_proba(X) for clf in self.clfs]
         predict_proba = sum(ys) / len(ys)
         mask = union_of_diff(*ys)
-        if not mask.all():
+        if not mask.any():
             return predict_proba
         predict_proba[mask] = self.judge.predict_proba(X[mask])
         return predict_proba

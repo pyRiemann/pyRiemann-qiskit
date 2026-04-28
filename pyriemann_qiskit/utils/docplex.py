@@ -591,6 +591,52 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         return w
 
 
+def build_qaoa_ansatz(create_mixer, n_reps, n_var):
+    """Build a QAOA ansatz circuit with angle encoding for *n_var* qubits.
+
+    Parameters
+    ----------
+    create_mixer : callable
+        Function ``(n_qubits, use_params) -> QuantumCircuit`` that creates the
+        mixer operator.
+    n_reps : int
+        Number of QAOA repetitions.
+    n_var : int
+        Number of qubits / decision variables.
+
+    Returns
+    -------
+    ansatz_0 : QuantumCircuit
+        Decomposed QAOA ansatz containing both θ (input) and γ (cost/mixer)
+        parameters.
+    continuous_input_params : list of Parameter
+        The θ parameters that encode the input features (one per qubit).
+    """
+    cost = QuantumCircuit(n_var)
+    for i in range(n_var):
+        cost.rx(Parameter(f"γ_rx_{i}"), i)
+        cost.ry(Parameter(f"γ_ry_{i}"), i)
+        cost.rz(Parameter(f"γ_rz_{i}"), i)
+
+    mixer = create_mixer(cost.num_qubits, use_params=False)
+
+    initial_state = QuantumCircuit(n_var)
+    continuous_input_params = []
+    for i in range(n_var):
+        param_input = Parameter(f"θ_{i}")
+        continuous_input_params.append(param_input)
+        initial_state.ry(param_input, i)
+
+    ansatz_0 = QAOAAnsatz(
+        cost_operator=cost,
+        reps=n_reps,
+        initial_state=initial_state,
+        mixer_operator=mixer,
+    ).decompose()
+
+    return ansatz_0, continuous_input_params
+
+
 class QAOACVAngleOptimizer(pyQiskitOptimizer):
     """QAOA with continuous variables encoded in state vector angles.
 
@@ -645,15 +691,21 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
 
     def __init__(
         self,
-        create_mixer=create_mixer_rotational_X_gates(0),
+        create_mixer=None,
         n_reps=3,
         quantum_instance=None,
-        optimizer=L_BFGS_B(maxiter=100, maxfun=200),
+        optimizer=None,
     ):
         self.n_reps = n_reps
-        self.create_mixer = create_mixer
+        self.create_mixer = (
+            create_mixer
+            if create_mixer is not None
+            else create_mixer_rotational_X_gates(0)
+        )
         self.quantum_instance = quantum_instance
-        self.optimizer = optimizer
+        self.optimizer = (
+            optimizer if optimizer is not None else L_BFGS_B(maxiter=100, maxfun=200)
+        )
         warnings.warn("QAOACVAngleOptimizer only supports simulation")
 
     @staticmethod
@@ -729,53 +781,8 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
         return ClassicalOptimizer.get_weights(self, prob, classes)
 
     def _build_ansatz(self, n_var):
-        """Build QAOA ansatz circuit with angle encoding for *n_var* qubits.
-
-        Extracts the circuit construction that is shared between
-        :meth:`_solve_qp` and subclasses such as ``QAOABatchClassifier``.
-
-        Parameters
-        ----------
-        n_var : int
-            Number of qubits / decision variables.
-
-        Returns
-        -------
-        ansatz_0 : QuantumCircuit
-            Decomposed QAOA ansatz circuit containing both the θ (input) and
-            γ (cost/mixer) parameters.
-        continuous_input_params : list of Parameter
-            The θ parameters that encode the input features (one per qubit).
-        """
-        cost = QuantumCircuit(n_var)
-        for i in range(n_var):
-            param_rx = Parameter(f"γ_rx_{i}")
-            cost.rx(param_rx, i)
-
-            param_ry = Parameter(f"γ_ry_{i}")
-            cost.ry(param_ry, i)
-
-            param_rz = Parameter(f"γ_rz_{i}")
-            cost.rz(param_rz, i)
-
-        cost_op_has_no_parameter = False
-        mixer = self.create_mixer(cost.num_qubits, use_params=cost_op_has_no_parameter)
-
-        initial_state = QuantumCircuit(n_var)
-        continuous_input_params = []
-        for i in range(n_var):
-            param_input = Parameter(f"θ_{i}")
-            continuous_input_params.append(param_input)
-            initial_state.ry(param_input, i)
-
-        ansatz_0 = QAOAAnsatz(
-            cost_operator=cost,
-            reps=self.n_reps,
-            initial_state=initial_state,
-            mixer_operator=mixer,
-        ).decompose()
-
-        return ansatz_0, continuous_input_params
+        """Build QAOA ansatz circuit with angle encoding for *n_var* qubits."""
+        return build_qaoa_ansatz(self.create_mixer, self.n_reps, n_var)
 
     def _solve_qp(self, qp, reshape=True):
         n_var = qp.get_num_vars()
