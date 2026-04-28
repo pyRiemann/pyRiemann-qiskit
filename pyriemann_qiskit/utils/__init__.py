@@ -10,14 +10,6 @@ from . import (
     transfer,
     utils,
 )
-from .firebase_connector import (
-    Cache,
-    FirebaseConnector,
-    add_moabb_dataframe_results_to_caches,
-    convert_caches_to_dataframes,
-    filter_subjects_by_incomplete_results,
-    generate_caches,
-)
 from .math import union_of_diff
 
 __all__ = [
@@ -30,12 +22,6 @@ __all__ = [
     "docplex",
     "distance",
     "mean",
-    "FirebaseConnector",
-    "Cache",
-    "generate_caches",
-    "filter_subjects_by_incomplete_results",
-    "add_moabb_dataframe_results_to_caches",
-    "convert_caches_to_dataframes",
     "transfer",
     "utils",
 ]

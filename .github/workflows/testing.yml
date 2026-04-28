@@ -53,8 +53,6 @@ jobs:
 
     - name: Test with pytest (all tests on main branch)
       if: github.ref == 'refs/heads/main'
-      env:
-        FIREBASE_CERTIFICATE: ${{ secrets.FIREBASE_CERTIFICATE }}
       run: |
         pytest -v
 

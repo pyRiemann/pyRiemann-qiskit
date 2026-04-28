@@ -178,21 +178,6 @@ Math
     to_xyz
     is_pauli_identity
 
-Firebase
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. _firebase_api:
-.. currentmodule:: pyriemann_qiskit.utils.firebase_connector
-
-.. autosummary::
-    :toctree: generated/
-
-    FirebaseConnector
-    Cache
-    generate_caches
-    filter_subjects_by_incomplete_results
-    add_moabb_dataframe_results_to_caches
-    convert_caches_to_dataframes
-
 Datasets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. _datasets_api:

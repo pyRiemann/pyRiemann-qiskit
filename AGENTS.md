@@ -207,12 +207,6 @@ benchmarks/              # Performance benchmarks
 
 ## Integration Points
 
-### Firebase Integration
-
-- `pyriemann_qiskit/utils/firebase_connector.py`: Firebase integration for remote storage
-- `pyriemann_qiskit/utils/firebase_cert.py`: Certificate handling
-- Used for storing/retrieving experiment results
-
 ### Quantum Providers
 
 - `pyriemann_qiskit/utils/quantum_provider.py`: Abstraction for quantum backends
