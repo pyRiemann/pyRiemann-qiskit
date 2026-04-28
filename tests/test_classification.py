@@ -18,7 +18,7 @@ from pyriemann_qiskit.classification.continuous_qioce_classifier import (
     ContinuousQIOCEClassifier,
 )
 from pyriemann_qiskit.datasets import get_mne_sample
-from pyriemann_qiskit.utils.docplex import QAOACVAngleOptimizer, build_qaoa_ansatz
+from pyriemann_qiskit.utils.docplex import build_qaoa_ansatz
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
 from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_rotational_X_gates
 
