@@ -1,5 +1,4 @@
-from .algorithms import CpMDM, NearestConvexHull
-from .continuous_qioce_classifier import ContinuousQIOCEClassifier
+from .algorithms import CpMDM, NearestConvexHull, ContinuousQIOCEClassifier
 from .quantum_state_discriminator import QuantumStateDiscriminator
 from .wrappers import (
     QuanticClassifierBase,
