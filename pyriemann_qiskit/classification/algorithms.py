@@ -84,7 +84,7 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         n_samples_per_hull=10,
         subsampling="min",
         seed=None,
-        optimizer=ClassicalOptimizer(),
+        optimizer=None,
     ):
         self.n_jobs = n_jobs
         self.n_samples_per_hull = n_samples_per_hull
@@ -92,7 +92,7 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
         self.matrices_per_class_ = {}
         self.subsampling = subsampling
         self.seed = seed
-        self.optimizer = optimizer
+        self.optimizer = optimizer if optimizer is not None else ClassicalOptimizer()
 
         if subsampling not in ["min", "random", "full"]:
             raise ValueError(f"Unknown subsampling type {subsampling}.")

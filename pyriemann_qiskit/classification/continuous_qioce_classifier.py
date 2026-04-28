@@ -83,14 +83,14 @@ class ContinuousQIOCEClassifier(ClassifierMixin, BaseEstimator):
     def __init__(
         self,
         n_reps=3,
-        optimizer=L_BFGS_B(maxiter=100, maxfun=200),
+        optimizer=None,
         create_mixer=None,
         max_features=10,
         quantum_instance=None,
         random_state=None,
     ):
         self.n_reps = n_reps
-        self.optimizer = optimizer
+        self.optimizer = optimizer if optimizer is not None else L_BFGS_B(maxiter=100, maxfun=200)
         self.create_mixer = (
             create_mixer if create_mixer is not None else create_mixer_rotational_X_gates(0)
         )

@@ -691,15 +691,17 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
 
     def __init__(
         self,
-        create_mixer=create_mixer_rotational_X_gates(0),
+        create_mixer=None,
         n_reps=3,
         quantum_instance=None,
-        optimizer=L_BFGS_B(maxiter=100, maxfun=200),
+        optimizer=None,
     ):
         self.n_reps = n_reps
-        self.create_mixer = create_mixer
+        self.create_mixer = (
+            create_mixer if create_mixer is not None else create_mixer_rotational_X_gates(0)
+        )
         self.quantum_instance = quantum_instance
-        self.optimizer = optimizer
+        self.optimizer = optimizer if optimizer is not None else L_BFGS_B(maxiter=100, maxfun=200)
         warnings.warn("QAOACVAngleOptimizer only supports simulation")
 
     @staticmethod
