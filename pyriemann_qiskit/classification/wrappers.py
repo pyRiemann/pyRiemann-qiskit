@@ -744,7 +744,7 @@ class QuanticMDM(QuanticClassifierBase):
         qaoa_optimizer=None,
         create_mixer=None,
         n_reps=3,
-        qaoa_initial_points=[0.0, 0.0],
+        qaoa_initial_points=None,
         qaoacv_implementation=None,
     ):
         QuanticClassifierBase.__init__(
@@ -761,7 +761,9 @@ class QuanticMDM(QuanticClassifierBase):
         self.qaoa_optimizer = qaoa_optimizer if qaoa_optimizer is not None else SLSQP()
         self.create_mixer = create_mixer
         self.n_reps = n_reps
-        self.qaoa_initial_points = qaoa_initial_points
+        self.qaoa_initial_points = (
+            qaoa_initial_points if qaoa_initial_points is not None else [0.0, 0.0]
+        )
         self.qaoacv_implementation = qaoacv_implementation
 
     def _init_algo(self, n_features):
@@ -902,7 +904,7 @@ class QuanticNCH(QuanticClassifierBase):
         qaoa_optimizer=None,
         create_mixer=None,
         n_reps=3,
-        qaoa_initial_points=[0.0, 0.0],
+        qaoa_initial_points=None,
         qaoacv_implementation=None,
     ):
         QuanticClassifierBase.__init__(
@@ -920,7 +922,9 @@ class QuanticNCH(QuanticClassifierBase):
         self.qaoa_optimizer = qaoa_optimizer if qaoa_optimizer is not None else SLSQP()
         self.create_mixer = create_mixer
         self.n_reps = n_reps
-        self.qaoa_initial_points = qaoa_initial_points
+        self.qaoa_initial_points = (
+            qaoa_initial_points if qaoa_initial_points is not None else [0.0, 0.0]
+        )
         self.qaoacv_implementation = qaoacv_implementation
 
     def _init_algo(self, n_features):
