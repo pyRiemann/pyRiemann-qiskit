@@ -2,10 +2,16 @@
 
 import logging
 
+from .continuous_qioce_classifier import ContinuousQIOCEClassifier
 from .cp_mdm import CpMDM
 from .nearest_convex_hull import NearestConvexHull
-from .continuous_qioce_classifier import ContinuousQIOCEClassifier
+from .quantum_state_discriminator import QuantumStateDiscriminator
 
 logging.basicConfig(level=logging.WARNING)
 
-__all__ = ["CpMDM", "NearestConvexHull", "ContinuousQIOCEClassifier"]
+__all__ = [
+    "ContinuousQIOCEClassifier",
+    "CpMDM",
+    "NearestConvexHull",
+    "QuantumStateDiscriminator",
+]

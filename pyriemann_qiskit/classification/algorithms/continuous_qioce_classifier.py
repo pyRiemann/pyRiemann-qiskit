@@ -71,6 +71,8 @@ class ContinuousQIOCEClassifier(ClassifierMixin, BaseEstimator):
     Notes
     -----
     .. versionadded:: 0.5.0
+    .. versionchanged:: 0.6.0
+        Moved to algorithms sub-package
 
     Examples
     --------

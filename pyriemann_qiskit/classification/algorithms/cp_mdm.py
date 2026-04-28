@@ -27,6 +27,8 @@ class CpMDM(MDM):
     Notes
     -----
     .. versionadded:: 0.4.2
+    .. versionchanged:: 0.6.0
+        Moved to algorithms sub-package
 
     See Also
     --------
