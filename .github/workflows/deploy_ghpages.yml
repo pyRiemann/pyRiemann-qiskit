@@ -24,7 +24,6 @@ jobs:
           key: deploy_ghpages.yml
       - name: Generate HTML docs
         env:
-          FIREBASE_CERTIFICATE: ${{ secrets.FIREBASE_CERTIFICATE }}
           PIP_NO_BUILD_ISOLATION: "1"
         uses: gcattan/sphinx-action@master
         with:
