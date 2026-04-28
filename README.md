@@ -36,7 +36,6 @@ optimization.
 - 📊 **BCI/EEG Focus**: Optimized for covariance matrix classification
 - 🔗 **Scikit-learn Compatible**: Follows scikit-learn API conventions
 - 🎨 **Visualization Tools**: Quantum art and manifold visualization
-- 🔥 **Firebase Integration**: Remote storage for experiment results
 
 ## Overview
 
