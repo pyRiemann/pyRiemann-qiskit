@@ -13,10 +13,10 @@ from qiskit_algorithms.optimizers import L_BFGS_B
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import check_random_state
 
-from ..utils.docplex import QAOACVAngleOptimizer, create_mixer_rotational_X_gates
+from ..utils.docplex import build_qaoa_ansatz, create_mixer_rotational_X_gates
 
 
-class ContinuousQIOCEClassifier(ClassifierMixin, QAOACVAngleOptimizer, BaseEstimator):
+class ContinuousQIOCEClassifier(ClassifierMixin, BaseEstimator):
     """QAOA classifier with batch training using angle encoding.
 
     This classifier inherits from QAOACVAngleOptimizer and trains a single
@@ -89,17 +89,12 @@ class ContinuousQIOCEClassifier(ClassifierMixin, QAOACVAngleOptimizer, BaseEstim
         quantum_instance=None,
         random_state=None,
     ):
-        # Initialize parent QAOACVAngleOptimizer
-        super().__init__(
-            create_mixer=(
-                create_mixer
-                if create_mixer is not None
-                else create_mixer_rotational_X_gates(0)
-            ),
-            n_reps=n_reps,
-            quantum_instance=quantum_instance,
-            optimizer=optimizer,
+        self.n_reps = n_reps
+        self.optimizer = optimizer
+        self.create_mixer = (
+            create_mixer if create_mixer is not None else create_mixer_rotational_X_gates(0)
         )
+        self.quantum_instance = quantum_instance
         self.max_features = max_features
         self.random_state = random_state
 
@@ -184,8 +179,10 @@ class ContinuousQIOCEClassifier(ClassifierMixin, QAOACVAngleOptimizer, BaseEstim
         n_samples = self.X_train_.shape[0]
         n_var = self.n_features_
 
-        # Build QAOA circuit using shared parent helper
-        ansatz_0, continuous_input_params = self._build_ansatz(n_var)
+        # Build QAOA circuit
+        ansatz_0, continuous_input_params = build_qaoa_ansatz(
+            self.create_mixer, self.n_reps, n_var
+        )
 
         # Store ansatz and input params for prediction
         self._ansatz = ansatz_0
