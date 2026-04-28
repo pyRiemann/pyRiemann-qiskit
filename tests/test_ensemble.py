@@ -1,9 +1,10 @@
-import numpy as np
 from unittest.mock import patch
+
+import numpy as np
+from conftest import FixedPredClassifier
 from sklearn.base import ClassifierMixin
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.svm import SVC
-from conftest import FixedPredClassifier
 
 from pyriemann_qiskit.ensemble import JudgeClassifier
 
