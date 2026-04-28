@@ -73,6 +73,7 @@ class JudgeClassifier(ClassifierMixin, BaseEstimator):
             self.judge.fit(X, y)
         else:
             self.judge.fit(X[mask], y[mask])
+        return self
 
     def predict(self, X):
         """Predict class labels for samples in X.
