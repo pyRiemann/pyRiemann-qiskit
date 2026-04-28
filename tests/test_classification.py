@@ -1,4 +1,5 @@
 import warnings
+
 import numpy as np
 import pytest
 from conftest import BinaryFVT, BinaryTest, MultiClassFVT, MultiClassTest
@@ -375,6 +376,7 @@ def test_continuous_qioce_optimizer_not_shared():
 # ---------------------------------------------------------------------------
 # Regression: ContinuousQIOCEClassifier uses composition, not inheritance
 # ---------------------------------------------------------------------------
+
 
 def test_build_qaoa_ansatz_circuit_shape():
     mixer = create_mixer_rotational_X_gates(0)
