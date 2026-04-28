@@ -121,7 +121,7 @@ class JudgeClassifier(ClassifierMixin, BaseEstimator):
         ys = [clf.predict_proba(X) for clf in self.clfs]
         predict_proba = sum(ys) / len(ys)
         mask = union_of_diff(*ys)
-        if not mask.all():
+        if not mask.any():
             return predict_proba
         predict_proba[mask] = self.judge.predict_proba(X[mask])
         return predict_proba
