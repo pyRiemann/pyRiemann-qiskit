@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 import pytest
 from conftest import BinaryFVT, BinaryTest, MultiClassFVT, MultiClassTest
@@ -13,8 +14,13 @@ from pyriemann_qiskit.classification import (
     QuanticVQC,
 )
 from pyriemann_qiskit.classification.algorithms import NearestConvexHull
+from pyriemann_qiskit.classification.continuous_qioce_classifier import (
+    ContinuousQIOCEClassifier,
+)
 from pyriemann_qiskit.datasets import get_mne_sample
+from pyriemann_qiskit.utils.docplex import QAOACVAngleOptimizer, build_qaoa_ansatz
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
+from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_rotational_X_gates
 
 
 @pytest.mark.parametrize(
@@ -316,3 +322,70 @@ class TestNCHClassical(BinaryFVT):
         assert len(np.unique(self.prediction)) == len(np.unique(self.labels))
         # Check if the proba for each classes are returned
         assert self.predict_proba.shape[1] == len(np.unique(self.labels))
+
+
+# ---------------------------------------------------------------------------
+# Regression: qaoa_initial_points mutable list default not shared
+# ---------------------------------------------------------------------------
+
+
+def test_quantic_mdm_initial_points_not_shared():
+    a, b = QuanticMDM(quantum=False), QuanticMDM(quantum=False)
+    assert a.qaoa_initial_points is not b.qaoa_initial_points
+
+
+def test_quantic_nch_initial_points_not_shared():
+    a, b = QuanticNCH(quantum=False), QuanticNCH(quantum=False)
+    assert a.qaoa_initial_points is not b.qaoa_initial_points
+
+
+def test_quantic_mdm_mutating_initial_points_does_not_affect_other():
+    a, b = QuanticMDM(quantum=False), QuanticMDM(quantum=False)
+    a.qaoa_initial_points.append(99.0)
+    assert 99.0 not in b.qaoa_initial_points
+
+
+# ---------------------------------------------------------------------------
+# Regression: optimizer instances not shared between instances
+# ---------------------------------------------------------------------------
+
+
+def test_quantic_mdm_optimizers_not_shared():
+    a, b = QuanticMDM(quantum=False), QuanticMDM(quantum=False)
+    assert a.classical_optimizer is not b.classical_optimizer
+    assert a.qaoa_optimizer is not b.qaoa_optimizer
+
+
+def test_quantic_nch_optimizers_not_shared():
+    a, b = QuanticNCH(quantum=False), QuanticNCH(quantum=False)
+    assert a.classical_optimizer is not b.classical_optimizer
+    assert a.qaoa_optimizer is not b.qaoa_optimizer
+
+
+def test_nch_optimizer_not_shared():
+    a, b = NearestConvexHull(), NearestConvexHull()
+    assert a.optimizer is not b.optimizer
+
+
+def test_continuous_qioce_optimizer_not_shared():
+    a, b = ContinuousQIOCEClassifier(), ContinuousQIOCEClassifier()
+    assert a.optimizer is not b.optimizer
+
+
+# ---------------------------------------------------------------------------
+# Regression: ContinuousQIOCEClassifier uses composition, not inheritance
+# ---------------------------------------------------------------------------
+
+def test_build_qaoa_ansatz_circuit_shape():
+    mixer = create_mixer_rotational_X_gates(0)
+    ansatz, input_params = build_qaoa_ansatz(mixer, n_reps=1, n_var=2)
+    assert ansatz is not None
+    assert len(input_params) == 2
+
+
+def test_continuous_qioce_no_simulation_warning_on_init():
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        ContinuousQIOCEClassifier()
+    messages = [str(w.message) for w in caught]
+    assert not any("only supports simulation" in m for m in messages)
