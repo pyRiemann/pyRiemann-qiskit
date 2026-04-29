@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pyriemann_qiskit.classification.continuous_qioce_classifier import (
+from pyriemann_qiskit.classification import (
     ContinuousQIOCEClassifier,
 )
 
