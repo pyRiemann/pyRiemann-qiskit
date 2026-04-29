@@ -1,9 +1,7 @@
 import numpy as np
 import pytest
 
-from pyriemann_qiskit.classification import (
-    ContinuousQIOCEClassifier,
-)
+from pyriemann_qiskit.classification import ContinuousQIOCEClassifier
 
 # ---------------------------------------------------------------------------
 # Fixtures
