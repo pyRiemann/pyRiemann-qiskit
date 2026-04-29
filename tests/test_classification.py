@@ -14,10 +14,7 @@ from pyriemann_qiskit.classification import (
     QuanticSVM,
     QuanticVQC,
 )
-from pyriemann_qiskit.classification.algorithms import NearestConvexHull
-from pyriemann_qiskit.classification.continuous_qioce_classifier import (
-    ContinuousQIOCEClassifier,
-)
+from pyriemann_qiskit.classification import NearestConvexHull, ContinuousQIOCEClassifier,
 from pyriemann_qiskit.datasets import get_mne_sample
 from pyriemann_qiskit.utils.docplex import build_qaoa_ansatz
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
