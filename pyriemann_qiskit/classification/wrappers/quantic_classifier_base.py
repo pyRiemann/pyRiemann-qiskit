@@ -61,7 +61,8 @@ class QuanticClassifierBase(ClassifierMixin, BaseEstimator):
         Switch from IBMProvider to QiskitRuntimeService.
     .. versionchanged:: 0.6.0
         Migrate to Qiskit 2.x: replace ``BackendSampler`` with ``BackendSamplerV2``.
-        Moved to :mod:`pyriemann_qiskit.classification.wrappers.quantic_classifier_base`.
+        Moved to \
+            :mod:`pyriemann_qiskit.classification.wrappers.quantic_classifier_base`.
 
     Attributes
     ----------
