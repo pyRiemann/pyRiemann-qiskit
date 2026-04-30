@@ -13,7 +13,7 @@ from qiskit_algorithms.optimizers import L_BFGS_B
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import check_random_state
 
-from ..utils.docplex import build_qaoa_ansatz, create_mixer_rotational_X_gates
+from ...utils.docplex import build_qaoa_ansatz, create_mixer_rotational_X_gates
 
 
 class ContinuousQIOCEClassifier(ClassifierMixin, BaseEstimator):
@@ -71,6 +71,8 @@ class ContinuousQIOCEClassifier(ClassifierMixin, BaseEstimator):
     Notes
     -----
     .. versionadded:: 0.5.0
+    .. versionchanged:: 0.6.0
+        Moved to algorithms sub-package
 
     Examples
     --------
@@ -376,6 +378,3 @@ class ContinuousQIOCEClassifier(ClassifierMixin, BaseEstimator):
         """
         y_pred = self.predict(X)
         return np.mean(y_pred == y)
-
-
-# Made with Bob
