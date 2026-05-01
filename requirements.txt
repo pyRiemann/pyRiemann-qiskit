@@ -9,7 +9,7 @@ qiskit_ibm_runtime==0.46.1
 qiskit-optimization==0.7.0
 qiskit-aer==0.17.2
 cvxpy==1.6.5
-scipy==1.13.1
+scipy==1.17.1
 docplex>=2.21.207
 tqdm
 pandas
