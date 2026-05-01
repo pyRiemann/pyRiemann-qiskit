@@ -10,6 +10,6 @@ qiskit-optimization==0.7.0
 qiskit-aer==0.17.2
 cvxpy==1.6.5
 scipy==1.13.1
-docplex>=2.21.207
+docplex>=2.32.264
 tqdm
 pandas
