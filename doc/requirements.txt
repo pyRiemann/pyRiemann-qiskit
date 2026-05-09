@@ -24,7 +24,7 @@ qiskit-aer==0.17.2
 scipy==1.13.1
 moabb==1.5.0
 pyriemann==0.10
-docplex==2.31.254
+docplex==2.32.264
 hashable_list
 qiskit-symb==0.6.0
 symengine==0.14.1
