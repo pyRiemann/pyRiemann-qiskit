@@ -33,7 +33,7 @@ setup(name='pyriemann-qiskit',
       platforms='any',
       python_requires=">=3.11",
       install_requires=[
-                        'numpy<2.3',
+                        'numpy<2.5',
                         'cython',
                         'filelock',
                         'pyriemann==0.10',
