@@ -66,14 +66,14 @@ class CpMDM(MDM):
             The CpMDM instance.
         """
 
-        self.metric_mean, self.metric_dist = check_metric(self.metric)
-        if is_qfunction(self.metric_mean):
+        self._metric_mean, self._metric_dist = check_metric(self.metric)
+        if is_qfunction(self._metric_mean):
             self.classes_ = np.unique(y)
 
             if sample_weight is None:
                 sample_weight = np.ones(X.shape[0])
 
-            mean_func = mean_functions[self.metric_mean]
+            mean_func = mean_functions[self._metric_mean]
 
             self.covmeans_ = Parallel(n_jobs=self.n_jobs)(
                 delayed(mean_func)(
@@ -91,10 +91,10 @@ class CpMDM(MDM):
             return super().fit(X, y, sample_weight)
 
     def _predict_distances(self, X):
-        if is_qfunction(self.metric_dist):
-            distance = distance_functions[self.metric_dist]
+        if is_qfunction(self._metric_dist):
+            distance = distance_functions[self._metric_dist]
 
-            if "hull" in self.metric_dist:
+            if "hull" in self._metric_dist:
                 warn("qdistances to hull should not be use inside MDM")
                 weights = [distance(self.covmeans_, x, self.optimizer) for x in X]
             else:
