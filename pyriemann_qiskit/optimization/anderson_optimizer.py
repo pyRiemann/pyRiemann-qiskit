@@ -20,6 +20,12 @@ The algorithm follows equations 41-44 from the mesh-free IGL formulation:
 where differences are computed in the tangent space and r_k is the
 Riemannian gradient-based residual.
 
+Notes
+-----
+.. versionchanged:: 0.6.0
+    Moved from ``pyriemann_qiskit.utils.anderson_optimizer`` to
+    ``pyriemann_qiskit.optimization.anderson_optimizer``.
+
 References
 ----------
 .. [1] Toth, A., & Kelley, C. T. (2015). Convergence analysis for Anderson
@@ -91,7 +97,7 @@ class AndersonAccelerationOptimizer(Optimizer):
 
     Examples
     --------
-    >>> from pyriemann_qiskit.utils.anderson_optimizer import (
+    >>> from pyriemann_qiskit.optimization.anderson_optimizer import (
     ...     AndersonAccelerationOptimizer
     ... )
     >>> optimizer = AndersonAccelerationOptimizer(maxiter=25, m=5)

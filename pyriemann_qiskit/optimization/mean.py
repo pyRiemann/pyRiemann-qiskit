@@ -1,3 +1,12 @@
+"""Quantum mean estimators for SPD matrices.
+
+Notes
+-----
+.. versionchanged:: 0.6.0
+    Moved from ``pyriemann_qiskit.utils.mean`` to
+    ``pyriemann_qiskit.optimization.mean``.
+"""
+
 from docplex.mp.model import Model
 from pyriemann.utils.base import expm, logm
 from pyriemann.utils.mean import mean_functions
@@ -20,7 +29,7 @@ def qmean_euclid(X, sample_weight=None, optimizer=ClassicalOptimizer()):
         Weights for each matrix. Never used in practice.
         It is kept only for standardization with pyRiemann.
     optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
-        An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
+        An instance of :class:`pyriemann_qiskit.optimization.docplex.pyQiskitOptimizer`.
 
     Returns
     -------
@@ -79,7 +88,7 @@ def qmean_logeuclid(
         Weights for each matrix. Never used in practice.
         It is kept only for standardization with pyRiemann.
     optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
-        An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
+        An instance of :class:`pyriemann_qiskit.optimization.docplex.pyQiskitOptimizer`.
 
     Returns
     -------

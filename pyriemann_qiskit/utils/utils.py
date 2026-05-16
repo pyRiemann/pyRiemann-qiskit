@@ -1,12 +1,12 @@
-from pyriemann_qiskit.utils.docplex import (
+from pyriemann_qiskit.optimization.docplex import (
     ClassicalOptimizer,
     NaiveQAOAOptimizer,
     QAOACVAngleOptimizer,
     QAOACVOptimizer,
 )
 
-from .distance import distance_functions
-from .mean import mean_functions
+from ..optimization.distance import distance_functions
+from ..optimization.mean import mean_functions
 
 
 def is_qfunction(string):

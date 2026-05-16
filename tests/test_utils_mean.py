@@ -8,10 +8,10 @@ from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import QuanticMDM
 from pyriemann_qiskit.datasets import get_mne_sample
-from pyriemann_qiskit.utils.docplex import (  # NaiveQAOAOptimizer,; QAOACVOptimizer,
+from pyriemann_qiskit.optimization.docplex import (  # NaiveQAOAOptimizer,; QAOACVOptimizer,
     ClassicalOptimizer,
 )
-from pyriemann_qiskit.utils.mean import qmean_euclid, qmean_logeuclid
+from pyriemann_qiskit.optimization.mean import qmean_euclid, qmean_logeuclid
 
 
 @pytest.mark.parametrize(

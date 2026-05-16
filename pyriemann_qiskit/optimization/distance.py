@@ -1,3 +1,12 @@
+"""Quantum distance metrics for SPD matrices.
+
+Notes
+-----
+.. versionchanged:: 0.6.0
+    Moved from ``pyriemann_qiskit.utils.distance`` to
+    ``pyriemann_qiskit.optimization.distance``.
+"""
+
 import numpy as np
 from docplex.mp.model import Model
 from pyriemann.utils.base import logm
@@ -26,7 +35,7 @@ def qdistance_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
         SPD matrix.
     optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
         An instance of
-        :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
+        :class:`pyriemann_qiskit.optimization.docplex.pyQiskitOptimizer`.
 
     Returns
     -------
@@ -43,7 +52,7 @@ def qdistance_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
     ----------
     .. [1] \
         K. Zhao, A. Wiliem, S. Chen, and B. C. Lovell,
-        ‘Convex Class Model on Symmetric Positive Definite Manifolds’,
+        'Convex Class Model on Symmetric Positive Definite Manifolds',
         Image and Vision Computing, 2019.
     .. [2] \
         http://ibmdecisionoptimization.github.io/docplex-doc/cp/creating_model.html
@@ -72,7 +81,7 @@ def weights_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
         SPD matrix.
     optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
         An instance of
-        :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
+        :class:`pyriemann_qiskit.optimization.docplex.pyQiskitOptimizer`.
 
     Returns
     -------
@@ -92,7 +101,7 @@ def weights_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
     ----------
     .. [1] \
         K. Zhao, A. Wiliem, S. Chen, and B. C. Lovell,
-        ‘Convex Class Model on Symmetric Positive Definite Manifolds’,
+        'Convex Class Model on Symmetric Positive Definite Manifolds',
         Image and Vision Computing, 2019.
     .. [2] \
         http://ibmdecisionoptimization.github.io/docplex-doc/cp/creating_model.html
@@ -140,7 +149,8 @@ def _weights_distance(
     distance : Callable[[ndarray, ndarray], float]
         One of the pyRiemann distance.
     optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
-        An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
+        An instance of
+        :class:`pyriemann_qiskit.optimization.docplex.pyQiskitOptimizer`.
 
     Returns
     -------

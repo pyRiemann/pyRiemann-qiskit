@@ -4,6 +4,12 @@ constraints (in the form of docplex model) to be run on a quantum computer.
 It is for example suitable for:
 - MDM optimization problem;
 - computation of matrices mean.
+
+Notes
+-----
+.. versionchanged:: 0.6.0
+    Moved from ``pyriemann_qiskit.utils.docplex`` to
+    ``pyriemann_qiskit.optimization.docplex``.
 """
 
 import math
@@ -27,9 +33,9 @@ from qiskit_optimization.translators import from_docplex_mp
 from sklearn.preprocessing import MinMaxScaler
 from typing_extensions import deprecated
 
-from .hyper_params_factory import create_mixer_rotational_X_gates
-from .math import is_pauli_identity
-from .quantum_provider import get_simulator
+from ..utils.hyper_params_factory import create_mixer_rotational_X_gates
+from ..utils.math import is_pauli_identity
+from ..utils.quantum_provider import get_simulator
 
 
 @deprecated("set_global_optimizer is deprecated and will be removed in 0.6.0; ")

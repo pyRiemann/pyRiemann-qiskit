@@ -6,8 +6,8 @@ from pyriemann.utils.distance import distance
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.utils.extmath import softmax
 
-from ...utils.distance import qdistance_logeuclid_to_convex_hull
-from ...utils.docplex import ClassicalOptimizer
+from ...optimization.distance import qdistance_logeuclid_to_convex_hull
+from ...optimization.docplex import ClassicalOptimizer
 
 
 class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
@@ -51,7 +51,7 @@ class NearestConvexHull(ClassifierMixin, TransformerMixin, BaseEstimator):
     seed : float, default=None
         Optional random seed to use when subsampling is set to "random".
     optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
-        An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
+        An instance of :class:`pyriemann_qiskit.optimization.docplex.pyQiskitOptimizer`.
 
     References
     ----------

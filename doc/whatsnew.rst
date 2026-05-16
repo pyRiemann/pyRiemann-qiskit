@@ -9,6 +9,11 @@ What's new in the package
 Develop branch
 ----------------
 
+- Move ``docplex``, ``distance``, ``mean``, and ``anderson_optimizer`` modules
+  from ``pyriemann_qiskit.utils`` to the new ``pyriemann_qiskit.optimization``
+  subpackage. All imports must be updated accordingly (e.g.
+  ``from pyriemann_qiskit.optimization.docplex import ClassicalOptimizer``).
+
 - Migrate to Qiskit 2.x (qiskit==2.4.1) — major breaking changes resolved:
 
   - ``BackendSampler`` removed; replaced with ``BackendSamplerV2`` (keyword-only ``backend`` argument, ``default_shots`` option)
