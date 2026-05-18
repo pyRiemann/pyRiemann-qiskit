@@ -31,7 +31,6 @@ from qiskit_optimization.converters import IntegerToBinary, LinearEqualityToPena
 from qiskit_optimization.problems import VarType
 from qiskit_optimization.translators import from_docplex_mp
 from sklearn.preprocessing import MinMaxScaler
-from typing_extensions import deprecated
 
 from ..utils.hyper_params_factory import create_mixer_rotational_X_gates
 from ..utils.math import is_pauli_identity

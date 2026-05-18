@@ -230,10 +230,17 @@ class MockDataset:
     .. versionadded:: 0.0.3
     .. versionchanged:: 0.6.0
         Moved to utils module.
+    .. deprecated:: 0.7.0
+        ``MockDataset`` will be removed in 0.8.0.
 
     """
 
     def __init__(self, dataset_gen, n_subjects: int):
+        warn(
+            "MockDataset is deprecated and will be removed in 0.8.0.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self.code_ = "MockDataset"
         self.subjects_ = range(n_subjects)
         self.data_ = {}
