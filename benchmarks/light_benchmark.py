@@ -29,7 +29,7 @@ from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
     QuantumMDMWithRiemannianPipeline,
 )
-from pyriemann_qiskit.utils import distance, mean  # noqa
+from pyriemann_qiskit.optimization import distance, mean  # noqa
 
 print(__doc__)
 
