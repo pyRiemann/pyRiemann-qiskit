@@ -40,6 +40,7 @@ The ablation factors are:
 The key metric is **effective dimension** (d_eff): the number of Hard
 Concrete gates with activation probability > 0.5.
 """
+
 # Author: Gregoire Cattan
 # License: BSD (3-clause)
 
@@ -55,6 +56,7 @@ import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
 from moabb.datasets import (
+    BI2012,
     BNCI2014_001,
     BNCI2014_009,
     MAMEM3,
@@ -69,7 +71,6 @@ from moabb.datasets import (
     Thielen2015,
     Thielen2021,
     Wang2016,
-    BI2012,
 )
 from moabb.paradigms import CVEP, P300, SSVEP, MotorImagery, RestingStateToP300Adapter
 from pyriemann.estimation import Covariances, ERPCovariances
@@ -186,25 +187,91 @@ def make_dataset(cls, n):
 
 PARADIGMS = [
     # P300 (3)
-    ("P300",         "P300 (BI2012)",        paradigm_p300,         cov_erp, make_dataset(BI2012, n_subjects)),
-    ("P300",         "P300 (Cattan2019-VR)", paradigm_p300,         cov_erp, make_dataset(Cattan2019_VR, n_subjects)),
-    ("P300",         "P300 (BNCI2014-009)",  paradigm_p300,         cov_erp, make_dataset(BNCI2014_009, n_subjects)),
+    ("P300", "P300 (BI2012)", paradigm_p300, cov_erp, make_dataset(BI2012, n_subjects)),
+    (
+        "P300",
+        "P300 (Cattan2019-VR)",
+        paradigm_p300,
+        cov_erp,
+        make_dataset(Cattan2019_VR, n_subjects),
+    ),
+    (
+        "P300",
+        "P300 (BNCI2014-009)",
+        paradigm_p300,
+        cov_erp,
+        make_dataset(BNCI2014_009, n_subjects),
+    ),
     # Motor Imagery (3)
-    ("MotorImagery", "MI (AlexMI)",          paradigm_mi,           cov_lwf, make_dataset(AlexMI, n_subjects)),
-    ("MotorImagery", "MI (BNCI2014-001)",    paradigm_mi,           cov_lwf, make_dataset(BNCI2014_001, n_subjects)),
-    ("MotorImagery", "MI (PhysionetMI)",     paradigm_mi,           cov_lwf, make_dataset(PhysionetMI, n_subjects)),
+    (
+        "MotorImagery",
+        "MI (AlexMI)",
+        paradigm_mi,
+        cov_lwf,
+        make_dataset(AlexMI, n_subjects),
+    ),
+    (
+        "MotorImagery",
+        "MI (BNCI2014-001)",
+        paradigm_mi,
+        cov_lwf,
+        make_dataset(BNCI2014_001, n_subjects),
+    ),
+    (
+        "MotorImagery",
+        "MI (PhysionetMI)",
+        paradigm_mi,
+        cov_lwf,
+        make_dataset(PhysionetMI, n_subjects),
+    ),
     # Resting State (3) — each uses a different paradigm object
-    ("RestingState", "RS (PHMD)",            paradigm_rs_cattan,    cov_lwf, make_dataset(Cattan2019_PHMD, n_subjects)),
-    ("RestingState", "RS (Rodrigues2017)",   paradigm_rs_rodrigues, cov_lwf, make_dataset(Rodrigues2017, n_subjects)),
-    ("RestingState", "RS (Hinss2021)",       paradigm_rs_hinss,     cov_lwf, make_dataset(Hinss2021, n_subjects)),
+    (
+        "RestingState",
+        "RS (PHMD)",
+        paradigm_rs_cattan,
+        cov_lwf,
+        make_dataset(Cattan2019_PHMD, n_subjects),
+    ),
+    (
+        "RestingState",
+        "RS (Rodrigues2017)",
+        paradigm_rs_rodrigues,
+        cov_lwf,
+        make_dataset(Rodrigues2017, n_subjects),
+    ),
+    (
+        "RestingState",
+        "RS (Hinss2021)",
+        paradigm_rs_hinss,
+        cov_lwf,
+        make_dataset(Hinss2021, n_subjects),
+    ),
     # SSVEP (3)
-    ("SSVEP",        "SSVEP (Lee2019)",      paradigm_ssvep,        cov_lwf, make_dataset(Lee2019_SSVEP, n_subjects)),
-    ("SSVEP",        "SSVEP (Wang2016)",     paradigm_ssvep,        cov_lwf, make_dataset(Wang2016, n_subjects)),
-    ("SSVEP",        "SSVEP (MAMEM3)",       paradigm_ssvep,        cov_lwf, make_dataset(MAMEM3, n_subjects)),
+    (
+        "SSVEP",
+        "SSVEP (Lee2019)",
+        paradigm_ssvep,
+        cov_lwf,
+        make_dataset(Lee2019_SSVEP, n_subjects),
+    ),
+    (
+        "SSVEP",
+        "SSVEP (Wang2016)",
+        paradigm_ssvep,
+        cov_lwf,
+        make_dataset(Wang2016, n_subjects),
+    ),
+    (
+        "SSVEP",
+        "SSVEP (MAMEM3)",
+        paradigm_ssvep,
+        cov_lwf,
+        make_dataset(MAMEM3, n_subjects),
+    ),
     # CVEP (3)
     # ("CVEP",         "CVEP (Thielen2021)",   paradigm_cvep,         cov_lwf, make_dataset(Thielen2021, n_subjects)),
-    #("CVEP",         "CVEP (Thielen2015)",   paradigm_cvep,         cov_lwf, make_dataset(Thielen2015, n_subjects)),
-    #("CVEP",         "CVEP (Castillos40)",   paradigm_cvep,         cov_lwf, make_dataset(CastillosCVEP40, n_subjects)),
+    # ("CVEP",         "CVEP (Thielen2015)",   paradigm_cvep,         cov_lwf, make_dataset(Thielen2015, n_subjects)),
+    # ("CVEP",         "CVEP (Castillos40)",   paradigm_cvep,         cov_lwf, make_dataset(CastillosCVEP40, n_subjects)),
 ]
 
 ##############################################################################
@@ -348,11 +415,9 @@ df = pd.concat(all_results, ignore_index=True)
 df.drop(columns=["dataset"], inplace=True, errors="ignore")
 df.rename(columns={"score": "auc", "display_name": "dataset"}, inplace=True)
 
-df["model"] = df["pipeline"].apply(
-    lambda p: "IGL" if p.startswith("IGL-") else p
-)
+df["model"] = df["pipeline"].apply(lambda p: "IGL" if p.startswith("IGL-") else p)
 df["operator"] = df["pipeline"].apply(
-    lambda p: p[len("IGL-"):] if p.startswith("IGL-") else None
+    lambda p: p[len("IGL-") :] if p.startswith("IGL-") else None
 )
 df["compression_ratio"] = df["eff_dim"] / df["tangent_dim"]
 
@@ -372,34 +437,37 @@ print(
 )
 
 print("\n=== TS+LR baseline (mean over folds) ===")
-print(
-    df_lr.groupby(["paradigm_type", "dataset"])[["auc"]]
-    .mean()
-    .round(3)
-    .to_string()
-)
+print(df_lr.groupby(["paradigm_type", "dataset"])[["auc"]].mean().round(3).to_string())
 
 ##############################################################################
 # Plot 1: Effective dimension by paradigm type
 # ---------------------------------------------
 
 PALETTE = {
-    "P300":         "tab:blue",
+    "P300": "tab:blue",
     "MotorImagery": "tab:orange",
     "RestingState": "tab:green",
-    "SSVEP":        "tab:purple",
-    "CVEP":         "tab:red",
+    "SSVEP": "tab:purple",
+    "CVEP": "tab:red",
 }
 
 fig, ax = plt.subplots(facecolor="white", figsize=(7, 4))
 sns.boxplot(data=df_igl, x="paradigm_type", y="eff_dim", palette=PALETTE, ax=ax)
 sns.stripplot(
-    data=df_igl, x="paradigm_type", y="eff_dim",
-    hue="dataset", dodge=False, alpha=0.5, jitter=True, ax=ax,
+    data=df_igl,
+    x="paradigm_type",
+    y="eff_dim",
+    hue="dataset",
+    dodge=False,
+    alpha=0.5,
+    jitter=True,
+    ax=ax,
 )
 ax.set_ylabel("Effective dimension $d_{\\mathrm{eff}}$")
 ax.set_xlabel("Paradigm")
-ax.set_title("Intrinsic dimension discovered by IGL per EEG paradigm (5 paradigms × 3 datasets)")
+ax.set_title(
+    "Intrinsic dimension discovered by IGL per EEG paradigm (5 paradigms × 3 datasets)"
+)
 ax.legend(title="Dataset", fontsize=7, bbox_to_anchor=(1.01, 1), loc="upper left")
 plt.tight_layout()
 plt.savefig("intrinsec_dim_igl.png", dpi=150, bbox_inches="tight")
@@ -412,7 +480,12 @@ plt.show()
 # Each point is one dataset; error bars = std over folds and operators.
 
 agg_igl = df_igl.groupby("dataset")["auc"].agg(["mean", "std"]).reset_index()
-agg_lda = df_lr.groupby("dataset")["auc"].mean().reset_index().rename(columns={"auc": "lr_auc"})
+agg_lda = (
+    df_lr.groupby("dataset")["auc"]
+    .mean()
+    .reset_index()
+    .rename(columns={"auc": "lr_auc"})
+)
 agg = agg_igl.merge(agg_lda, on="dataset")
 ptype_map = {d: t for t, d, *_ in PARADIGMS}
 agg["paradigm_type"] = agg["dataset"].map(ptype_map)
@@ -420,15 +493,21 @@ agg["paradigm_type"] = agg["dataset"].map(ptype_map)
 fig, ax = plt.subplots(facecolor="white", figsize=(6, 5))
 for ptype, grp in agg.groupby("paradigm_type"):
     ax.errorbar(
-        grp["lr_auc"], grp["mean"],
-        yerr=grp["std"], fmt="o", label=ptype,
-        color=PALETTE.get(ptype), capsize=4,
+        grp["lr_auc"],
+        grp["mean"],
+        yerr=grp["std"],
+        fmt="o",
+        label=ptype,
+        color=PALETTE.get(ptype),
+        capsize=4,
     )
     for _, row in grp.iterrows():
         ax.annotate(
             row["dataset"].split("(")[-1].rstrip(")"),
             (row["lr_auc"], row["mean"]),
-            fontsize=6, ha="left", va="bottom",
+            fontsize=6,
+            ha="left",
+            va="bottom",
         )
 lims = [
     min(ax.get_xlim()[0], ax.get_ylim()[0]),
@@ -449,8 +528,9 @@ plt.show()
 
 fig, ax = plt.subplots(facecolor="white", figsize=(6, 4))
 for ptype, grp in df_igl.groupby("paradigm_type"):
-    ax.scatter(grp["eff_dim"], grp["auc"], label=ptype,
-               alpha=0.5, color=PALETTE.get(ptype))
+    ax.scatter(
+        grp["eff_dim"], grp["auc"], label=ptype, alpha=0.5, color=PALETTE.get(ptype)
+    )
 ax.axhline(0.5, ls="--", color="grey", lw=0.8, label="Chance")
 ax.set_xlabel("Effective dimension $d_{\\mathrm{eff}}$")
 ax.set_ylabel("ROC AUC")
@@ -467,10 +547,15 @@ plt.show()
 fig, ax = plt.subplots(facecolor="white", figsize=(16, 4))
 dataset_order = [d for _, d, *_ in PARADIGMS]
 sns.boxplot(
-    data=df_igl, x="dataset", y="eff_dim",
-    hue="paradigm_type", order=dataset_order,
+    data=df_igl,
+    x="dataset",
+    y="eff_dim",
+    hue="paradigm_type",
+    order=dataset_order,
     hue_order=["P300", "MotorImagery", "RestingState", "SSVEP", "CVEP"],
-    palette=PALETTE, ax=ax, dodge=False,
+    palette=PALETTE,
+    ax=ax,
+    dodge=False,
 )
 ax.set_ylabel("Effective dimension $d_{\\mathrm{eff}}$")
 ax.set_xlabel("")
@@ -494,12 +579,21 @@ fig, axes = plt.subplots(1, 2, facecolor="white", figsize=(12, 4))
 
 # Left: boxplot per paradigm type (aggregated across datasets)
 sns.boxplot(
-    data=df_igl, x="paradigm_type", y="compression_ratio",
-    palette=PALETTE, ax=axes[0],
+    data=df_igl,
+    x="paradigm_type",
+    y="compression_ratio",
+    palette=PALETTE,
+    ax=axes[0],
 )
 sns.stripplot(
-    data=df_igl, x="paradigm_type", y="compression_ratio",
-    hue="dataset", dodge=False, alpha=0.4, jitter=True, ax=axes[0],
+    data=df_igl,
+    x="paradigm_type",
+    y="compression_ratio",
+    hue="dataset",
+    dodge=False,
+    alpha=0.4,
+    jitter=True,
+    ax=axes[0],
 )
 axes[0].set_ylabel("$d_{\\mathrm{eff}}$ / $D$")
 axes[0].set_xlabel("Paradigm")
@@ -515,8 +609,12 @@ agg_ratio = (
 )
 ptype_colors = [PALETTE[ptype_map[d]] for d in dataset_order if d in ptype_map]
 axes[1].barh(
-    agg_ratio["dataset"], agg_ratio["mean"],
-    xerr=agg_ratio["std"], color=ptype_colors, alpha=0.8, capsize=3,
+    agg_ratio["dataset"],
+    agg_ratio["mean"],
+    xerr=agg_ratio["std"],
+    color=ptype_colors,
+    alpha=0.8,
+    capsize=3,
 )
 axes[1].set_xlabel("$d_{\\mathrm{eff}}$ / $D$")
 axes[1].set_ylabel("")
@@ -535,22 +633,33 @@ plt.show()
 # separately for each EEG paradigm type.
 
 g = sns.FacetGrid(
-    df_igl, col="paradigm_type", height=4, aspect=0.9,
-    sharey=True, col_order=["P300", "MotorImagery", "RestingState", "SSVEP", "CVEP"],
+    df_igl,
+    col="paradigm_type",
+    height=4,
+    aspect=0.9,
+    sharey=True,
+    col_order=["P300", "MotorImagery", "RestingState", "SSVEP", "CVEP"],
 )
 g.map_dataframe(
-    sns.boxplot, x="operator", y="eff_dim",
-    order=operators, palette="Set2",
+    sns.boxplot,
+    x="operator",
+    y="eff_dim",
+    order=operators,
+    palette="Set2",
 )
 g.map_dataframe(
-    sns.stripplot, x="operator", y="eff_dim",
-    order=operators, color="black", alpha=0.4, jitter=True, size=3,
+    sns.stripplot,
+    x="operator",
+    y="eff_dim",
+    order=operators,
+    color="black",
+    alpha=0.4,
+    jitter=True,
+    size=3,
 )
 g.set_axis_labels("Kernel operator", "Effective dimension $d_{\\mathrm{eff}}$")
 g.set_titles(col_template="{col_name}")
-g.figure.suptitle(
-    "Intrinsic dimension by kernel operator and EEG paradigm", y=1.02
-)
+g.figure.suptitle("Intrinsic dimension by kernel operator and EEG paradigm", y=1.02)
 for ax in g.axes.flat:
     ax.set_xticklabels(ax.get_xticklabels(), rotation=25, ha="right")
 plt.tight_layout()
