@@ -6,7 +6,6 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import QuanticMDM
-from pyriemann_qiskit.utils.dataset import get_mne_sample
 from pyriemann_qiskit.optimization.distance import (
     qdistance_logeuclid_to_convex_hull,
     weights_logeuclid_to_convex_hull,
@@ -14,6 +13,7 @@ from pyriemann_qiskit.optimization.distance import (
 from pyriemann_qiskit.optimization.docplex import (
     ClassicalOptimizer,
 )
+from pyriemann_qiskit.utils.dataset import get_mne_sample
 
 
 @pytest.mark.parametrize(

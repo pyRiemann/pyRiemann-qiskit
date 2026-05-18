@@ -16,8 +16,8 @@ from pyriemann_qiskit.classification import (
     QuanticSVM,
     QuanticVQC,
 )
-from pyriemann_qiskit.utils.dataset import get_mne_sample
 from pyriemann_qiskit.optimization.docplex import build_qaoa_ansatz
+from pyriemann_qiskit.utils.dataset import get_mne_sample
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
 from pyriemann_qiskit.utils.hyper_params_factory import create_mixer_rotational_X_gates
 
