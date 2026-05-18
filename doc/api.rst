@@ -198,7 +198,7 @@ Math
 Datasets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. _datasets_api:
-.. currentmodule:: pyriemann_qiskit.datasets.utils
+.. currentmodule:: pyriemann_qiskit.utils.dataset
 
 .. autosummary::
     :toctree: generated/
