@@ -1,4 +1,5 @@
 from . import (
+    dataset,
     filtering,
     hyper_params_factory,
     math,
@@ -10,6 +11,7 @@ from . import (
 from .math import union_of_diff
 
 __all__ = [
+    "dataset",
     "hyper_params_factory",
     "filtering",
     "math",

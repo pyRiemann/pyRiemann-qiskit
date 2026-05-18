@@ -10,7 +10,7 @@ import pytest
 from pyriemann.datasets import make_matrices
 from sklearn.base import ClassifierMixin
 
-from pyriemann_qiskit.datasets import get_mne_sample
+from pyriemann_qiskit.utils.dataset import get_mne_sample
 
 
 def requires_module(function, name, call=None):

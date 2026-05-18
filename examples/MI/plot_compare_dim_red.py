@@ -22,7 +22,7 @@ entanglement or the number of shots.
 from sklearn.decomposition import PCA
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
 
-from pyriemann_qiskit.datasets import get_mne_sample
+from pyriemann_qiskit.utils.dataset import get_mne_sample
 from pyriemann_qiskit.pipelines import QuantumClassifierWithDefaultRiemannianPipeline
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
 

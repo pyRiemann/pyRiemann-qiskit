@@ -8,7 +8,7 @@ from qiskit.primitives import BackendSamplerV2
 from scipy.special import softmax
 from sklearn.base import BaseEstimator, ClassifierMixin
 
-from ...datasets import get_feature_dimension
+from ...utils.dataset import get_feature_dimension
 from ...utils.hyper_params_factory import gen_zz_feature_map
 from ...utils.quantum_provider import get_device, get_provider, get_simulator
 

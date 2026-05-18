@@ -23,7 +23,7 @@ from sklearn.metrics import (
 )
 from sklearn.model_selection import train_test_split
 
-from pyriemann_qiskit.datasets import get_mne_sample
+from pyriemann_qiskit.utils.dataset import get_mne_sample
 from pyriemann_qiskit.pipelines import (
     QuantumClassifierWithDefaultRiemannianPipeline,
     QuantumMDMWithRiemannianPipeline,
