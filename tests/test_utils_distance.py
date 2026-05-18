@@ -11,7 +11,7 @@ from pyriemann_qiskit.optimization.distance import (
     qdistance_logeuclid_to_convex_hull,
     weights_logeuclid_to_convex_hull,
 )
-from pyriemann_qiskit.optimization.docplex import (  # NaiveQAOAOptimizer,; QAOACVOptimizer,
+from pyriemann_qiskit.optimization.docplex import (
     ClassicalOptimizer,
 )
 
