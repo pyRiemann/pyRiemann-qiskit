@@ -19,8 +19,8 @@ from pyriemann_qiskit.utils.dataset import (  # noqa: F401, E402
 
 __all__ = [
     "get_mne_sample",
-    "generate_qiskit_dataset",
     "generate_linearly_separable_dataset",
+    "generate_qiskit_dataset",
     "get_feature_dimension",
     "MockDataset",
 ]
