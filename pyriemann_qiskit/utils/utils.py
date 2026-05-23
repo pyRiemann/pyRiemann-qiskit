@@ -95,8 +95,6 @@ def get_docplex_optimizer_from_params_bag(
         - If "ulvi" in qaoacv_implementation: returns QAOACVAngleOptimizer
         - Otherwise: returns QAOACVOptimizer
 
-    Notes
-    -----
     .. versionadded:: 0.4.1
     .. versionchanged:: 0.5.0
             add qaoacv_implementation parameter
