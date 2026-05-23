@@ -107,8 +107,6 @@ Docplex
     NaiveQAOAOptimizer
     QAOACVAngleOptimizer
     QAOACVOptimizer
-    set_global_optimizer
-    get_global_optimizer
 
 Anderson Optimizer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
