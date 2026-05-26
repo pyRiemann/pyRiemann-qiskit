@@ -24,7 +24,7 @@ from sklearn.svm import SVC
 # uncomment to run comparison with QuanticVQC (disabled for CI/CD)
 # from pyriemann_qiskit.classification import QuanticVQC
 from pyriemann_qiskit.classification import QuanticSVM
-from pyriemann_qiskit.datasets import (
+from pyriemann_qiskit.utils.dataset import (
     generate_linearly_separable_dataset,
     generate_qiskit_dataset,
 )

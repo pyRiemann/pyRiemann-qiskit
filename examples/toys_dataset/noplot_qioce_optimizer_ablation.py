@@ -38,7 +38,9 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler
 
 from pyriemann_qiskit.classification import ContinuousQIOCEClassifier
-from pyriemann_qiskit.utils.anderson_optimizer import AndersonAccelerationOptimizer
+from pyriemann_qiskit.optimization.anderson_optimizer import (
+    AndersonAccelerationOptimizer,
+)
 
 print(__doc__)
 

@@ -26,7 +26,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import QuanticSVM
-from pyriemann_qiskit.datasets import get_mne_sample
+from pyriemann_qiskit.utils.dataset import get_mne_sample
 from pyriemann_qiskit.utils.filtering import NaiveDimRed
 
 print(__doc__)

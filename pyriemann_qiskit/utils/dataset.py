@@ -1,6 +1,4 @@
-"""
-Contains helper methods and classes to manage datasets.
-"""
+"""Helper methods and classes to manage datasets."""
 
 from warnings import warn
 
@@ -15,41 +13,32 @@ from sklearn.datasets import make_classification
 
 
 def get_mne_sample(n_trials=10, include_auditory=False):
-    """Return sample data from the MNE dataset.
+    """Return sample data from the MNE dataset [1]_.
 
-    ``
-    In this experiment, checkerboard patterns were presented to the subject
-    into the left and right visual field, interspersed by tones to the
-    left or right ear. The interval between the stimuli was 750 ms.
-    Occasionally a smiley face was presented at the center of the visual field.
-    The subject was asked to press a key with the right index finger
-    as soon as possible after the appearance of the face.
-    `` [1]_
-
-    The samples returned by this method are epochs of duration 1s.
-    Only visual left and right trials are selected.
-    Data are returned filtered.
+    Epochs of duration 1s from a checkerboard/tone experiment.
+    Only visual left and right trials are selected, returned filtered.
 
     Parameters
     ----------
     n_trials : int (default:10)
-        Number of trials to return.
-        If -1, then all trials are returned.
-    include_auditory : boolean (default:False)
-        If True, it returns also the auditory stimulation in the MNE dataset.
+        Number of trials to return. If -1, all trials are returned.
+    include_auditory : bool (default:False)
+        If True, also return auditory stimulation trials.
 
     Returns
     -------
     X : ndarray, shape (n_trials, n_channels, n_times)
-        ndarray of trials.
+        Array of trials.
     y : ndarray, shape (n_trials,)
-        Predicted target vector relative to X.
+        Target vector relative to X.
 
     Notes
     -----
     .. versionadded:: 0.0.1
     .. versionchanged:: 0.1.0
-        Possibility to include auditory stimulation.
+        Added `include_auditory` parameter.
+    .. versionchanged:: 0.6.0
+        Moved to utils module.
 
     References
     ----------
@@ -99,27 +88,28 @@ def get_mne_sample(n_trials=10, include_auditory=False):
 
 
 def generate_qiskit_dataset(n_samples=30):
-    """Return qiskit dataset.
+    """Return a Qiskit ad-hoc dataset.
+
+    Parameters
+    ----------
+    n_samples : int (default: 30)
+        Number of samples per class.
+
+    Returns
+    -------
+    X : ndarray, shape (n_samples, n_features)
+        Feature matrix.
+    y : ndarray, shape (n_samples,)
+        Target vector.
 
     Notes
     -----
     .. versionadded:: 0.0.1
     .. versionchanged:: 0.1.0
         Added `n_samples` parameter.
-        Rename from `get_qiskit_dataset` to `generate_qiskit_dataset`.
-
-    Parameters
-    ----------
-    n_samples : int (default: 30)
-        Number of trials to return.
-
-    Returns
-    -------
-    X : ndarray, shape (n_samples, n_features)
-        Input vector, where `n_samples` is the number of samples and
-        `n_features` is the number of features.
-    y: ndarray, shape (n_samples,)
-        Predicted target vector relative to X.
+        Renamed from `get_qiskit_dataset`.
+    .. versionchanged:: 0.6.0
+        Moved to utils module.
 
     """
 
@@ -136,26 +126,26 @@ def generate_qiskit_dataset(n_samples=30):
 def generate_linearly_separable_dataset(n_samples=100):
     """Return a linearly separable dataset.
 
+    Parameters
+    ----------
+    n_samples : int (default: 100)
+        Number of samples.
+
+    Returns
+    -------
+    X : ndarray, shape (n_samples, n_features)
+        Feature matrix.
+    y : ndarray, shape (n_samples,)
+        Target vector.
+
     Notes
     -----
     .. versionadded:: 0.0.1
     .. versionchanged:: 0.1.0
         Added `n_samples` parameter.
-        Rename from `get_linearly_separable_dataset` to
-        `generate_linearly_separable_dataset`.
-
-    Parameters
-    ----------
-    n_samples : int (default: 100)
-        Number of trials to return.
-
-    Returns
-    -------
-    X : ndarray, shape (n_samples, n_features)
-        Input vector, where `n_samples` is the number of samples and
-        `n_features` is the number of features.
-    y: ndarray, shape (n_samples,)
-        Predicted target vector relative to X.
+        Renamed from `get_linearly_separable_dataset`.
+    .. versionchanged:: 0.6.0
+        Moved to utils module.
 
     """
     X, y = make_classification(
@@ -173,39 +163,30 @@ def generate_linearly_separable_dataset(n_samples=100):
 
 
 def get_feature_dimension(dataset):
-    # This code is part of Qiskit.
-    #
-    # (C) Copyright IBM 2018, 2021.
-    #
-    # This code is licensed under the Apache License, Version 2.0. You may
-    # obtain a copy of this license in the LICENSE.txt file
-    # in the root directory of this source tree or at
-    # http://www.apache.org/licenses/LICENSE-2.0.
-    #
-    # Any modifications or derivative works of this code must retain this
-    # copyright notice, and modified files need to carry a notice indicating
-    # that they have been altered from the originals.
-    """
-    Return the feature dimension of a given dataset.
+    """Return the feature dimension of a dataset.
+
+    Based on code from Qiskit, (C) Copyright IBM 2018, 2021, Apache License 2.0.
 
     Parameters
     ----------
     dataset : dict
-        key is the class name and value is the data.
+        Keys are class names, values are data arrays.
 
     Returns
     -------
-        n_features : int
-            The feature dimension, -1 denotes no data in the dataset.
+    n_features : int
+        Feature dimension, or -1 if the dataset is empty.
+
+    Raises
+    ------
+    TypeError
+        If `dataset` is not a dict.
 
     Notes
     -----
     .. versionadded:: 0.0.2
-
-    Raises
-    -------
-    TypeError
-        invalid data set
+    .. versionchanged:: 0.6.0
+        Moved to utils module.
 
     """
     if not isinstance(dataset, dict):
@@ -247,10 +228,19 @@ class MockDataset:
     Notes
     -----
     .. versionadded:: 0.0.3
+    .. versionchanged:: 0.6.0
+        Moved to utils module.
+    .. deprecated:: 0.7.0
+        ``MockDataset`` will be removed in 0.8.0.
 
     """
 
     def __init__(self, dataset_gen, n_subjects: int):
+        warn(
+            "MockDataset is deprecated and will be removed in 0.8.0.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self.code_ = "MockDataset"
         self.subjects_ = range(n_subjects)
         self.data_ = {}
@@ -258,21 +248,24 @@ class MockDataset:
             self.data_[subject] = dataset_gen()
 
     def get_data(self, subject):
-        """
-        Returns the data of a subject.
+        """Return the data of a subject.
 
         Parameters
         ----------
         subject : int
-            A subject in the list of subjects `subjects_`.
+            A subject in `subjects_`.
 
         Returns
         -------
-        data : the subject's data.
+        data : tuple
+            The subject's (samples, labels) data.
 
         Notes
         -----
         .. versionadded:: 0.0.3
+        .. versionchanged:: 0.6.0
+            Moved to utils module.
+
         """
         return self.data_[subject]
 

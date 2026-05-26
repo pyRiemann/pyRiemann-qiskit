@@ -5,9 +5,9 @@ from joblib import Parallel, delayed
 from pyriemann.classification import MDM
 from pyriemann.utils.utils import check_metric
 
-from ...utils.distance import distance_functions
-from ...utils.docplex import ClassicalOptimizer
-from ...utils.mean import mean_functions
+from ...optimization.distance import distance_functions
+from ...optimization.docplex import ClassicalOptimizer
+from ...optimization.mean import mean_functions
 from ...utils.utils import is_qfunction
 
 
@@ -22,7 +22,7 @@ class CpMDM(MDM):
     Parameters
     ----------
     optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
-        An instance of :class:`pyriemann_qiskit.utils.docplex.pyQiskitOptimizer`.
+        An instance of :class:`pyriemann_qiskit.optimization.docplex.pyQiskitOptimizer`.
 
     Notes
     -----

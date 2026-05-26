@@ -1,10 +1,8 @@
 from . import (
-    anderson_optimizer,
-    distance,
-    docplex,
+    dataset,
     filtering,
     hyper_params_factory,
-    mean,
+    math,
     preprocessing,
     quantum_provider,
     transfer,
@@ -13,15 +11,13 @@ from . import (
 from .math import union_of_diff
 
 __all__ = [
-    "anderson_optimizer",
+    "dataset",
     "hyper_params_factory",
     "filtering",
+    "math",
     "preprocessing",
     "quantum_provider",
     "union_of_diff",
-    "docplex",
-    "distance",
-    "mean",
     "transfer",
     "utils",
 ]

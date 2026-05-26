@@ -20,7 +20,7 @@ from pyriemann.estimation import XdawnCovariances
 from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import QuanticNCH
-from pyriemann_qiskit.utils import distance, mean  # noqa
+from pyriemann_qiskit.optimization import distance, mean  # noqa
 
 print(__doc__)
 

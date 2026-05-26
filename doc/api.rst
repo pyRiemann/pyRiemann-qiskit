@@ -64,6 +64,62 @@ Ensemble
     JudgeClassifier
 
 
+Optimization
+-------------
+
+Optimization contains quantum and classical optimizers and supporting mathematical utilities.
+
+Distance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _distance_api:
+.. currentmodule:: pyriemann_qiskit.optimization.distance
+
+.. autosummary::
+    :toctree: generated/
+
+    qdistance_logeuclid_to_convex_hull
+    weights_logeuclid_to_convex_hull
+
+Mean
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _mean_api:
+.. currentmodule:: pyriemann_qiskit.optimization.mean
+
+.. autosummary::
+    :toctree: generated/
+
+    qmean_euclid
+    qmean_logeuclid
+
+Docplex
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _docplex_api:
+.. currentmodule:: pyriemann_qiskit.optimization.docplex
+
+.. autosummary::
+    :toctree: generated/
+
+    square_cont_mat_var
+    square_int_mat_var
+    square_bin_mat_var
+    pyQiskitOptimizer
+    ClassicalOptimizer
+    NaiveQAOAOptimizer
+    QAOACVAngleOptimizer
+    QAOACVOptimizer
+
+Anderson Optimizer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _anderson_optimizer_api:
+.. currentmodule:: pyriemann_qiskit.optimization.anderson_optimizer
+
+.. autosummary::
+    :toctree: generated/
+    :template: class.rst
+
+    AndersonAccelerationOptimizer
+
+
 Utils functions
 ----------------
 
@@ -125,47 +181,6 @@ Filtering
     NaiveDimRed
     ChannelSelection
 
-Mean
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. _mean_api:
-.. currentmodule:: pyriemann_qiskit.utils.mean
-
-.. autosummary::
-    :toctree: generated/
-
-    qmean_euclid
-    qmean_logeuclid
-
-Distance
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. _distance_api:
-.. currentmodule:: pyriemann_qiskit.utils.distance
-
-.. autosummary::
-    :toctree: generated/
-
-    qdistance_logeuclid_to_convex_hull
-    weights_logeuclid_to_convex_hull
-
-Docplex
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. _docplex_api:
-.. currentmodule:: pyriemann_qiskit.utils.docplex
-
-.. autosummary::
-    :toctree: generated/
-
-    square_cont_mat_var
-    square_int_mat_var
-    square_bin_mat_var
-    pyQiskitOptimizer
-    ClassicalOptimizer
-    NaiveQAOAOptimizer
-    QAOACVAngleOptimizer
-    QAOACVOptimizer
-    set_global_optimizer
-    get_global_optimizer
-
 Math
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. _math_api:
@@ -181,7 +196,7 @@ Math
 Datasets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. _datasets_api:
-.. currentmodule:: pyriemann_qiskit.datasets.utils
+.. currentmodule:: pyriemann_qiskit.utils.dataset
 
 .. autosummary::
     :toctree: generated/
@@ -206,17 +221,6 @@ Quantum Provider
     get_simulator
     get_quantum_kernel
 
-
-Anderson Optimizer
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. _anderson_optimizer_api:
-.. currentmodule:: pyriemann_qiskit.utils.anderson_optimizer
-
-.. autosummary::
-    :toctree: generated/
-    :template: class.rst
-
-    AndersonAccelerationOptimizer
 
 Transfer Learning
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1,6 +1,8 @@
 import numpy as np
 
-from pyriemann_qiskit.utils.anderson_optimizer import AndersonAccelerationOptimizer
+from pyriemann_qiskit.optimization.anderson_optimizer import (
+    AndersonAccelerationOptimizer,
+)
 
 
 def quadratic(x):

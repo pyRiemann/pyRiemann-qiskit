@@ -1,6 +1,6 @@
 import pytest
 
-from pyriemann_qiskit.datasets import get_feature_dimension
+from pyriemann_qiskit.utils.dataset import get_feature_dimension
 
 
 def test_get_feature_dimension_fvt(get_dataset):

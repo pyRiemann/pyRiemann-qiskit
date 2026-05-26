@@ -2,7 +2,7 @@ import pytest
 from docplex.mp.model import Model
 from docplex.mp.vartype import BinaryVarType, ContinuousVarType, IntegerVarType
 
-from pyriemann_qiskit.utils.docplex import (
+from pyriemann_qiskit.optimization.docplex import (
     ClassicalOptimizer,
     NaiveQAOAOptimizer,
     QAOACVOptimizer,

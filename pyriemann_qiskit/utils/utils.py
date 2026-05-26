@@ -1,12 +1,12 @@
-from pyriemann_qiskit.utils.docplex import (
+from pyriemann_qiskit.optimization.docplex import (
     ClassicalOptimizer,
     NaiveQAOAOptimizer,
     QAOACVAngleOptimizer,
     QAOACVOptimizer,
 )
 
-from .distance import distance_functions
-from .mean import mean_functions
+from ..optimization.distance import distance_functions
+from ..optimization.mean import mean_functions
 
 
 def is_qfunction(string):
@@ -95,8 +95,6 @@ def get_docplex_optimizer_from_params_bag(
         - If "ulvi" in qaoacv_implementation: returns QAOACVAngleOptimizer
         - Otherwise: returns QAOACVOptimizer
 
-    Notes
-    -----
     .. versionadded:: 0.4.1
     .. versionchanged:: 0.5.0
             add qaoacv_implementation parameter
