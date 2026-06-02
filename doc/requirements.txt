@@ -7,7 +7,7 @@ numpydoc
 cython
 filelock
 mne==1.11.0
-mne-bids==0.18.0
+mne-bids==0.19.0
 mne[data]>=0.24
 seaborn>=0.13.2
 scikit-learn==1.8.0
