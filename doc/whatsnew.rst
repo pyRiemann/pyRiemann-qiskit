@@ -6,7 +6,7 @@ What's new in the package
 =========================
 
 
-Develop branch
+v0.6.0
 ----------------
 
 - Move ``docplex``, ``distance``, ``mean``, and ``anderson_optimizer`` modules
