@@ -39,7 +39,11 @@ print(__doc__)
 seed = 42
 random.seed(seed)
 np.random.seed(seed)
-qiskit_algorithms.utils.algorithm_globals.random_seed
+# Reseed the RNG that qiskit-machine-learning draws VQC's random initial
+# ansatz parameters from (algorithm_globals.random), so VQC training is
+# reproducible across runs. Previously this line only read the attribute
+# without assigning it, so the seed was silently never applied.
+qiskit_algorithms.utils.algorithm_globals.random_seed = seed
 
 ##############################################################################
 # getting rid of the warnings about the future
