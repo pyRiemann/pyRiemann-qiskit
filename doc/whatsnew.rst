@@ -6,6 +6,13 @@ What's new in the package
 =========================
 
 
+v0.7.0
+------
+
+- Add ``RiemannianAdamOptimizer`` in ``pyriemann_qiskit.optimization.riemannian_adam``:
+  Adam optimizer with manifold-aware retraction (periodic wrap / bound clipping) for
+  variational quantum circuit parameters, complementing ``AndersonAccelerationOptimizer``.
+
 v0.6.0
 ----------------
 

@@ -75,7 +75,7 @@ class RiemannianAdamOptimizer(Optimizer):
 
     Notes
     -----
-    .. versionadded:: 0.6.0
+    .. versionadded:: 0.7.0
     """
 
     def __init__(
