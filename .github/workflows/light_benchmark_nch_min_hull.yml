@@ -13,9 +13,9 @@ jobs:
   light_benchmark_nch_min_hull:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Cache dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.cache/pip
           key: light_benchmark_nch_min_hull.yml
@@ -28,7 +28,7 @@ jobs:
         id: run-benchmark-pr
         run: |
           python benchmarks/light_benchmark_nch_min_hull.py pr
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: 'main'
       - name: Install dependencies
