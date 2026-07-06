@@ -119,6 +119,17 @@ Anderson Optimizer
 
     AndersonAccelerationOptimizer
 
+Riemannian Adam Optimizer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _riemannian_adam_api:
+.. currentmodule:: pyriemann_qiskit.optimization.riemannian_adam
+
+.. autosummary::
+    :toctree: generated/
+    :template: class.rst
+
+    RiemannianAdamOptimizer
+
 
 Utils functions
 ----------------
