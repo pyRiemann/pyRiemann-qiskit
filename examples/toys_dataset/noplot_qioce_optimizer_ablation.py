@@ -42,9 +42,7 @@ from pyriemann_qiskit.classification import ContinuousQIOCEClassifier
 from pyriemann_qiskit.optimization.anderson_optimizer import (
     AndersonAccelerationOptimizer,
 )
-from pyriemann_qiskit.optimization.riemannian_adam import (
-    RiemannianAdamOptimizer,
-)
+from pyriemann_qiskit.optimization.riemannian_adam import RiemannianAdamOptimizer
 
 print(__doc__)
 

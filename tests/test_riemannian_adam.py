@@ -1,8 +1,6 @@
 import numpy as np
 
-from pyriemann_qiskit.optimization.riemannian_adam import (
-    RiemannianAdamOptimizer,
-)
+from pyriemann_qiskit.optimization.riemannian_adam import RiemannianAdamOptimizer
 
 
 def quadratic(x):
