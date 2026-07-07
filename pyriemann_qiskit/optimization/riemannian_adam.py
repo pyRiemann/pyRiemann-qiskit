@@ -37,7 +37,8 @@ from qiskit_algorithms.optimizers import (
 
 
 class RiemannianAdamOptimizer(Optimizer):
-    """Adam optimizer with manifold-aware retraction for VQC parameters.
+    """Adam optimizer with manifold-aware retraction for VQC parameters,
+    inspired by [1]_.
 
     Parameters
     ----------
@@ -76,6 +77,11 @@ class RiemannianAdamOptimizer(Optimizer):
     Notes
     -----
     .. versionadded:: 0.7.0
+
+    References
+    ----------
+    .. [1] Becigneul, G., & Ganea, O. E. (2019). Riemannian adaptive
+           optimization methods. ICLR.
     """
 
     def __init__(
