@@ -3,7 +3,7 @@
 Optimizer ablation study for ContinuousQIOCEClassifier
 ====================================================================
 
-Comparison of seven optimizers for training ContinuousQIOCEClassifier
+Comparison of several optimizers for training ContinuousQIOCEClassifier
 on a toy binary classification dataset:
 
 - **L-BFGS-B**: quasi-Newton gradient method with bounds (default)
