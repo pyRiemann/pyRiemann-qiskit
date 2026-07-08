@@ -108,16 +108,17 @@ Docplex
     QAOACVAngleOptimizer
     QAOACVOptimizer
 
-Anderson Optimizer
+Optimizers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. _anderson_optimizer_api:
-.. currentmodule:: pyriemann_qiskit.optimization.anderson_optimizer
+.. _optimizers_api:
+.. currentmodule:: pyriemann_qiskit.optimization
 
 .. autosummary::
     :toctree: generated/
     :template: class.rst
 
-    AndersonAccelerationOptimizer
+    anderson_optimizer.AndersonAccelerationOptimizer
+    riemannian_adam.RiemannianAdamOptimizer
 
 
 Utils functions

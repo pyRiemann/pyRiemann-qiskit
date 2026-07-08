@@ -3,7 +3,7 @@
 Optimizer ablation study for ContinuousQIOCEClassifier
 ====================================================================
 
-Comparison of six optimizers for training ContinuousQIOCEClassifier
+Comparison of several optimizers for training ContinuousQIOCEClassifier
 on a toy binary classification dataset:
 
 - **L-BFGS-B**: quasi-Newton gradient method with bounds (default)
@@ -12,6 +12,7 @@ on a toy binary classification dataset:
 - **SPSA**: stochastic perturbation gradient approximation
 - **NFT**: Nakanishi-Fujii-Todo, quantum-native parameter-shift method
 - **Anderson**: Anderson acceleration on the Riemannian manifold
+- **RiemannianAdam**: Adam with manifold-aware retraction (wrap/clip)
 
 Three metrics are reported across cross-validation folds:
 
@@ -41,6 +42,7 @@ from pyriemann_qiskit.classification import ContinuousQIOCEClassifier
 from pyriemann_qiskit.optimization.anderson_optimizer import (
     AndersonAccelerationOptimizer,
 )
+from pyriemann_qiskit.optimization.riemannian_adam import RiemannianAdamOptimizer
 
 print(__doc__)
 
@@ -71,9 +73,9 @@ X = StandardScaler().fit_transform(X)
 # ----------
 #
 # All optimizers are given a comparable budget.
-# Anderson, SPSA and NFT run for 25 iterations; L-BFGS-B, SLSQP and COBYLA
-# are capped at 100 iterations / 200 function evaluations to match their
-# typical usage in the main study.
+# Anderson, RiemannianAdam, SPSA and NFT run for 25 iterations; L-BFGS-B,
+# SLSQP and COBYLA are capped at 100 iterations / 200 function evaluations
+# to match their typical usage in the main study.
 # SLSQP and L-BFGS-B both handle bounds natively and compute numerical
 # gradients when jac=None. NFT uses the parameter-shift rule, making it
 # quantum-native without requiring an explicit gradient function.
@@ -85,6 +87,7 @@ optimizer_configs = [
     ("SPSA", SPSA(maxiter=25)),
     ("NFT", NFT(maxiter=25)),
     ("Anderson", AndersonAccelerationOptimizer(maxiter=25)),
+    ("RiemannianAdam", RiemannianAdamOptimizer(maxiter=25)),
 ]
 
 ###############################################################################
@@ -135,7 +138,15 @@ for name, opt in optimizer_configs:
 # -----
 
 names = [name for name, _ in optimizer_configs]
-colors = ["#4C72B0", "#9467BD", "#DD8452", "#55A868", "#8C564B", "#C44E52"]
+colors = [
+    "#4C72B0",
+    "#9467BD",
+    "#DD8452",
+    "#55A868",
+    "#8C564B",
+    "#C44E52",
+    "#64B5CD",
+]
 x_pos = np.arange(len(names))
 width = 0.5
 
