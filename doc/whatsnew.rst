@@ -13,6 +13,24 @@ v0.7.0
   Adam optimizer with manifold-aware retraction (periodic wrap / bound clipping) for
   variational quantum circuit parameters, complementing ``AndersonAccelerationOptimizer``.
 
+- Replace the archived ``qiskit-optimization`` dependency with the actively maintained
+  ``qiskit-addon-opt-mapper`` for problem modeling and conversion (``OptimizationProblem``,
+  ``IntegerToBinary``, ``EqualityToPenalty``, ``from_docplex_mp``). ``NaiveQAOAOptimizer``'s
+  use of ``MinimumEigenOptimizer`` is replaced by directly decoding the ``best_measurement``
+  bitstring of ``QAOA.compute_minimum_eigenvalue``.
+
+- Add ``CobylaOptimizer`` in the new ``pyriemann_qiskit.optimization.cobyla_optimizer``
+  module: a ``qiskit_algorithms.optimizers.Optimizer`` wrapping
+  ``scipy.optimize.minimize`` (method="COBYLA") that also enforces variable bounds
+  (translated internally into inequality constraints, since COBYLA has no native
+  `bounds` support), replacing ``qiskit_optimization.algorithms.CobylaOptimizer``.
+  ``ClassicalOptimizer`` and ``QuanticMDM``/``QuanticNCH``'s ``classical_optimizer``
+  parameter now take a ``qiskit_algorithms.optimizers.SciPyOptimizer`` instance (e.g.
+  ``CobylaOptimizer()``, ``SLSQP()``) instead of a
+  ``qiskit_optimization.algorithms.OptimizationAlgorithm``. Support for ``ADMMOptimizer``
+  in ``qmean_logeuclid`` has been dropped, as it had no equivalent in the new dependency;
+  ``ClassicalOptimizer()`` (COBYLA-based) is now the sole default.
+
 v0.6.0
 ----------------
 
