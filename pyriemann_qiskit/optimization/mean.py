@@ -10,7 +10,6 @@ Notes
 from docplex.mp.model import Model
 from pyriemann.utils.base import expm, logm
 from pyriemann.utils.mean import mean_functions
-from qiskit_optimization.algorithms import ADMMOptimizer
 
 from .docplex import ClassicalOptimizer
 
@@ -72,9 +71,7 @@ def qmean_euclid(X, sample_weight=None, optimizer=ClassicalOptimizer()):
     return result
 
 
-def qmean_logeuclid(
-    X, sample_weight=None, optimizer=ClassicalOptimizer(optimizer=ADMMOptimizer())
-):
+def qmean_logeuclid(X, sample_weight=None, optimizer=ClassicalOptimizer()):
     """Log-Euclidean mean with Constraint Programming Model.
 
     Constraint Programming Model (CPM) [2]_ formulation of the mean
