@@ -2,7 +2,6 @@ import numpy as np
 import pytest
 from pyriemann.estimation import Shrinkage, XdawnCovariances
 from pyriemann.utils.mean import mean_euclid, mean_logeuclid
-from qiskit_optimization.algorithms import ADMMOptimizer
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.pipeline import make_pipeline
 
@@ -58,7 +57,7 @@ def test_mean_cpm_shape(get_covmats, mean):
 @pytest.mark.parametrize(
     "optimizer",
     [
-        ClassicalOptimizer(optimizer=ADMMOptimizer()),
+        ClassicalOptimizer(),
         #  NaiveQAOAOptimizer(),
         # QAOACVOptimizer(),
     ],
@@ -76,7 +75,7 @@ def test_mean_cpm_all_zeros(optimizer, mean):
 @pytest.mark.parametrize(
     "optimizer",
     [
-        ClassicalOptimizer(optimizer=ADMMOptimizer()),
+        ClassicalOptimizer(),
         # NaiveQAOAOptimizer(),
         # QAOACVOptimizer(),
     ],
@@ -94,7 +93,7 @@ def test_mean_cpm_all_ones(optimizer, mean):
 @pytest.mark.parametrize(
     "optimizer",
     [
-        ClassicalOptimizer(optimizer=ADMMOptimizer()),
+        ClassicalOptimizer(),
         # NaiveQAOAOptimizer(),
         # QAOACVOptimizer(),
     ],
@@ -112,7 +111,7 @@ def test_mean_cpm_all_equals(optimizer, mean):
 @pytest.mark.parametrize(
     "optimizer",
     [
-        ClassicalOptimizer(optimizer=ADMMOptimizer()),
+        ClassicalOptimizer(),
         # NaiveQAOAOptimizer(),
         # QAOACVOptimizer(),
     ],

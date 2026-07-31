@@ -1,7 +1,6 @@
 """Quantum wrapper around the NCH algorithm."""
 
 from qiskit_algorithms.optimizers import SLSQP
-from qiskit_optimization.algorithms import SlsqpOptimizer
 
 from ...utils.utils import get_docplex_optimizer_from_params_bag
 from ..algorithms import NearestConvexHull
@@ -26,6 +25,10 @@ class QuanticNCH(QuanticClassifierBase):
         Add the qaoacv_implementation parameter.
     .. versionchanged:: 0.6.0
         Moved to :mod:`pyriemann_qiskit.classification.wrappers.quantic_nch`.
+    .. versionchanged:: 0.7.0
+        `classical_optimizer` is now a
+        :class:`qiskit_algorithms.optimizers.SciPyOptimizer` instead of a
+        `qiskit_optimization.algorithms.OptimizationAlgorithm`.
 
     Parameters
     ----------
@@ -50,8 +53,8 @@ class QuanticNCH(QuanticClassifierBase):
         The maximum integer value for matrix normalization.
     regularization : MixinTransformer | None, default=None
         Additional post-processing to regularize means.
-    classical_optimizer : OptimizationAlgorithm, default=SlsqpOptimizer()
-        An instance of OptimizationAlgorithm [1]_.
+    classical_optimizer : SciPyOptimizer, default=SLSQP()
+        An instance of a scipy optimizer [1]_, e.g. SLSQP or COBYLA.
     n_jobs : int, default=6
         The number of jobs to use for the computation. This works by computing
         each of the hulls in parallel.
@@ -84,7 +87,7 @@ class QuanticNCH(QuanticClassifierBase):
     References
     ----------
     .. [1] \
-        https://qiskit-community.github.io/qiskit-optimization/stubs/qiskit_optimization.algorithms.OptimizationAlgorithm.html#optimizationalgorithm
+        https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.optimizers.SciPyOptimizer.html
     """
 
     def __init__(
@@ -113,7 +116,7 @@ class QuanticNCH(QuanticClassifierBase):
         self.upper_bound = upper_bound
         self.regularization = regularization
         self.classical_optimizer = (
-            classical_optimizer if classical_optimizer is not None else SlsqpOptimizer()
+            classical_optimizer if classical_optimizer is not None else SLSQP()
         )
         self.n_hulls_per_class = n_hulls_per_class
         self.n_samples_per_hull = n_samples_per_hull

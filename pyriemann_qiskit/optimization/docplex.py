@@ -24,17 +24,18 @@ from qiskit.circuit.library import QAOAAnsatz
 from qiskit.primitives import BackendSamplerV2
 from qiskit.quantum_info import Statevector, partial_trace
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
+from qiskit_addon_opt_mapper import INFINITY
+from qiskit_addon_opt_mapper.converters import EqualityToPenalty, IntegerToBinary
+from qiskit_addon_opt_mapper.problems import VarType
+from qiskit_addon_opt_mapper.translators import from_docplex_mp
 from qiskit_algorithms import QAOA
 from qiskit_algorithms.optimizers import L_BFGS_B, SLSQP, SPSA
-from qiskit_optimization.algorithms import CobylaOptimizer, MinimumEigenOptimizer
-from qiskit_optimization.converters import IntegerToBinary, LinearEqualityToPenalty
-from qiskit_optimization.problems import VarType
-from qiskit_optimization.translators import from_docplex_mp
 from sklearn.preprocessing import MinMaxScaler
 
 from ..utils.hyper_params_factory import create_mixer_rotational_X_gates
 from ..utils.math import is_pauli_identity
 from ..utils.quantum_provider import get_simulator
+from .cobyla_optimizer import CobylaOptimizer
 
 
 def square_cont_mat_var(prob, channels, name="cont_spdmat"):
@@ -161,6 +162,86 @@ def square_bin_mat_var(prob, channels, name="bin_spdmat"):
     """
     BinaryVarType.one_letter_symbol = lambda _: "B"
     return prob.binary_var_matrix(keys1=channels, keys2=channels, name=name)
+
+
+def _linear_constraints_as_constraints(linear_constraints):
+    """Translate docplex linear constraints into scipy.optimize.minimize constraints.
+
+    Generic across optimizer choice (e.g. CobylaOptimizer, SLSQP): the
+    equality-as-two-inequalities encoding is required by COBYLA (which does
+    not support the 'eq' constraint type) and is harmless for optimizers that
+    do support 'eq' natively.
+
+    Parameters
+    ----------
+    linear_constraints : list of LinearConstraint
+        The linear constraints of an OptimizationProblem.
+
+    Returns
+    -------
+    constraints : list of dict
+        scipy.optimize.minimize-style equality/inequality constraints.
+    """
+    constraints = []
+    for constraint in linear_constraints:
+        rhs = constraint.rhs
+        if constraint.sense == constraint.Sense.EQ:
+            constraints.append(
+                {
+                    "type": "ineq",
+                    "fun": lambda x, c=constraint, rhs=rhs: c.evaluate(x) - rhs,
+                }
+            )
+            constraints.append(
+                {
+                    "type": "ineq",
+                    "fun": lambda x, c=constraint, rhs=rhs: rhs - c.evaluate(x),
+                }
+            )
+        elif constraint.sense == constraint.Sense.LE:
+            constraints.append(
+                {
+                    "type": "ineq",
+                    "fun": lambda x, c=constraint, rhs=rhs: rhs - c.evaluate(x),
+                }
+            )
+        else:
+            constraints.append(
+                {
+                    "type": "ineq",
+                    "fun": lambda x, c=constraint, rhs=rhs: c.evaluate(x) - rhs,
+                }
+            )
+    return constraints
+
+
+def _with_constraints(optimizer, constraints):
+    """Return a copy of a SciPyOptimizer configured with the given constraints.
+
+    The `constraints` kwarg of scipy.optimize.minimize cannot be set on
+    `optimizer` directly, because it depends on the docplex model being
+    solved, which is only known at solve time, whereas `optimizer` is
+    typically instantiated upfront (e.g. as a default argument). Works
+    generically for any optimizer type (e.g. CobylaOptimizer, SLSQP) whose
+    `settings` property round-trips through its constructor.
+
+    Parameters
+    ----------
+    optimizer : SciPyOptimizer
+        The base optimizer instance (e.g. CobylaOptimizer, SLSQP), holding
+        all other settings (rhobeg, tol, maxiter, ...).
+    constraints : list of dict
+        scipy.optimize.minimize-style constraints to add.
+
+    Returns
+    -------
+    optimizer : SciPyOptimizer
+        A new instance of the same optimizer class, with `constraints` added
+        to its settings.
+    """
+    settings = optimizer.settings
+    settings["constraints"] = constraints
+    return type(optimizer)(**settings)
 
 
 class pyQiskitOptimizer:
@@ -300,8 +381,8 @@ class ClassicalOptimizer(pyQiskitOptimizer):
 
     Attributes
     ----------
-    optimizer : OptimizationAlgorithm
-        An instance of OptimizationAlgorithm [1]_
+    optimizer : SciPyOptimizer
+        An instance of SciPyOptimizer [1]_, e.g. CobylaOptimizer or SLSQP.
 
     Notes
     -----
@@ -309,6 +390,14 @@ class ClassicalOptimizer(pyQiskitOptimizer):
     .. versionchanged:: 0.0.4
     .. versionchanged:: 0.2.0
         Add attribute `optimizer`.
+    .. versionchanged:: 0.7.0
+        `optimizer` is now a :class:`qiskit_algorithms.optimizers.SciPyOptimizer`
+        (e.g. :class:`~pyriemann_qiskit.optimization.cobyla_optimizer.CobylaOptimizer`,
+        SLSQP) instead of a
+        `qiskit_optimization.algorithms.OptimizationAlgorithm`, following the
+        migration away from the archived ``qiskit-optimization`` package.
+        Variable bounds and linear constraints of the docplex model are now
+        translated into `scipy.optimize.minimize` constraints internally.
 
     See Also
     --------
@@ -317,11 +406,11 @@ class ClassicalOptimizer(pyQiskitOptimizer):
     References
     ----------
     .. [1] \
-        https://qiskit-community.github.io/qiskit-optimization/stubs/qiskit_optimization.algorithms.OptimizationAlgorithm.html#optimizationalgorithm
+        https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.optimizers.SciPyOptimizer.html
 
     """
 
-    def __init__(self, optimizer=CobylaOptimizer(rhobeg=2.1, rhoend=0.000001)):
+    def __init__(self, optimizer=CobylaOptimizer(rhobeg=2.1, tol=0.000001)):
         pyQiskitOptimizer.__init__(self)
         self.optimizer = optimizer
 
@@ -365,7 +454,18 @@ class ClassicalOptimizer(pyQiskitOptimizer):
         return square_cont_mat_var(prob, channels, name)
 
     def _solve_qp(self, qp, reshape=True):
-        result = self.optimizer.solve(qp).x
+        bounds = [(v.lowerbound, v.upperbound) for v in qp.variables]
+
+        constraints = _linear_constraints_as_constraints(qp.linear_constraints)
+        optimizer = _with_constraints(self.optimizer, constraints)
+
+        x0 = np.zeros(len(bounds))
+        scipy_bounds = [
+            (None if lb <= -INFINITY else lb, None if ub >= INFINITY else ub)
+            for lb, ub in bounds
+        ]
+        result = optimizer.minimize(qp.objective.evaluate, x0, bounds=scipy_bounds).x
+
         if reshape:
             n_channels = int(math.sqrt(result.shape[0]))
             return np.reshape(result, (n_channels, n_channels))
@@ -550,8 +650,14 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
             callback=_callback,
             transpiler=pm,
         )
-        qaoa = MinimumEigenOptimizer(qaoa_mes)
-        result = conv.interpret(qaoa.solve(qubo))
+        operator, _offset = qubo.to_ising()
+        eigen_result = qaoa_mes.compute_minimum_eigenvalue(operator)
+        # Qiskit orders bitstrings with qubit 0 as the rightmost character,
+        # while `to_ising` maps the i-th variable to qubit (n - 1 - i); reversing
+        # the bitstring realigns it with variable order.
+        bitstring = eigen_result.best_measurement["bitstring"][::-1]
+        x = np.array([int(bit) for bit in bitstring], dtype=float)
+        result = conv.interpret(x)
         if reshape:
             n_channels = int(math.sqrt(result.shape[0]))
             return np.reshape(result, (n_channels, n_channels))
@@ -967,7 +1073,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
                 v.vartype = VarType.BINARY
                 v.lowerbound = 0
                 v.upperbound = 1
-        conv = LinearEqualityToPenalty()
+        conv = EqualityToPenalty()
         qp = conv.convert(qp)
 
         return qp, scalers
