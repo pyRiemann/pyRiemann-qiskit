@@ -32,10 +32,10 @@ from qiskit_algorithms import QAOA
 from qiskit_algorithms.optimizers import L_BFGS_B, SLSQP, SPSA
 from sklearn.preprocessing import MinMaxScaler
 
-from .cobyla_optimizer import CobylaOptimizer
 from ..utils.hyper_params_factory import create_mixer_rotational_X_gates
 from ..utils.math import is_pauli_identity
 from ..utils.quantum_provider import get_simulator
+from .cobyla_optimizer import CobylaOptimizer
 
 
 def square_cont_mat_var(prob, channels, name="cont_spdmat"):
@@ -187,18 +187,30 @@ def _linear_constraints_as_constraints(linear_constraints):
         rhs = constraint.rhs
         if constraint.sense == constraint.Sense.EQ:
             constraints.append(
-                {"type": "ineq", "fun": lambda x, c=constraint, rhs=rhs: c.evaluate(x) - rhs}
+                {
+                    "type": "ineq",
+                    "fun": lambda x, c=constraint, rhs=rhs: c.evaluate(x) - rhs,
+                }
             )
             constraints.append(
-                {"type": "ineq", "fun": lambda x, c=constraint, rhs=rhs: rhs - c.evaluate(x)}
+                {
+                    "type": "ineq",
+                    "fun": lambda x, c=constraint, rhs=rhs: rhs - c.evaluate(x),
+                }
             )
         elif constraint.sense == constraint.Sense.LE:
             constraints.append(
-                {"type": "ineq", "fun": lambda x, c=constraint, rhs=rhs: rhs - c.evaluate(x)}
+                {
+                    "type": "ineq",
+                    "fun": lambda x, c=constraint, rhs=rhs: rhs - c.evaluate(x),
+                }
             )
         else:
             constraints.append(
-                {"type": "ineq", "fun": lambda x, c=constraint, rhs=rhs: c.evaluate(x) - rhs}
+                {
+                    "type": "ineq",
+                    "fun": lambda x, c=constraint, rhs=rhs: c.evaluate(x) - rhs,
+                }
             )
     return constraints
 

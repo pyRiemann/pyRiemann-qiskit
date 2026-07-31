@@ -12,8 +12,12 @@ Notes
     were natively supported.
 """
 
-from qiskit_algorithms.optimizers import Optimizer, OptimizerResult, OptimizerSupportLevel
 from qiskit_addon_opt_mapper import INFINITY
+from qiskit_algorithms.optimizers import (
+    Optimizer,
+    OptimizerResult,
+    OptimizerSupportLevel,
+)
 from scipy.optimize import minimize as scipy_minimize
 
 
@@ -69,7 +73,9 @@ class CobylaOptimizer(Optimizer):
     .. versionadded:: 0.7.0
     """
 
-    def __init__(self, rhobeg=2.1, tol=0.000001, maxiter=1000, disp=False, constraints=None):
+    def __init__(
+        self, rhobeg=2.1, tol=0.000001, maxiter=1000, disp=False, constraints=None
+    ):
         super().__init__()
         self.rhobeg = rhobeg
         self.tol = tol
