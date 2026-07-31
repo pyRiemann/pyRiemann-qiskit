@@ -29,9 +29,10 @@ from qiskit_addon_opt_mapper.converters import EqualityToPenalty, IntegerToBinar
 from qiskit_addon_opt_mapper.problems import VarType
 from qiskit_addon_opt_mapper.translators import from_docplex_mp
 from qiskit_algorithms import QAOA
-from qiskit_algorithms.optimizers import COBYLA, L_BFGS_B, SLSQP, SPSA
+from qiskit_algorithms.optimizers import L_BFGS_B, SLSQP, SPSA
 from sklearn.preprocessing import MinMaxScaler
 
+from .cobyla_optimizer import CobylaOptimizer
 from ..utils.hyper_params_factory import create_mixer_rotational_X_gates
 from ..utils.math import is_pauli_identity
 from ..utils.quantum_provider import get_simulator
@@ -163,35 +164,13 @@ def square_bin_mat_var(prob, channels, name="bin_spdmat"):
     return prob.binary_var_matrix(keys1=channels, keys2=channels, name=name)
 
 
-def _bounds_as_constraints(bounds):
-    """Workaround for optimizers with no native support for bounds.
-
-    scipy.optimize.minimize COBYLA ignores the `bounds` argument, so variable
-    bounds must also be expressed as inequality constraints to be enforced.
-    This is redundant (but harmless) for optimizers, such as SLSQP, that do
-    support `bounds` natively.
-
-    Parameters
-    ----------
-    bounds : list of tuple(float, float)
-        The (lowerbound, upperbound) of each decision variable.
-
-    Returns
-    -------
-    constraints : list of dict
-        scipy.optimize.minimize-style inequality constraints.
-    """
-    constraints = []
-    for i, (lb, ub) in enumerate(bounds):
-        if lb > -INFINITY:
-            constraints.append({"type": "ineq", "fun": lambda x, lb=lb, i=i: x[i] - lb})
-        if ub < INFINITY:
-            constraints.append({"type": "ineq", "fun": lambda x, ub=ub, i=i: ub - x[i]})
-    return constraints
-
-
 def _linear_constraints_as_constraints(linear_constraints):
     """Translate docplex linear constraints into scipy.optimize.minimize constraints.
+
+    Generic across optimizer choice (e.g. CobylaOptimizer, SLSQP): the
+    equality-as-two-inequalities encoding is required by COBYLA (which does
+    not support the 'eq' constraint type) and is harmless for optimizers that
+    do support 'eq' natively.
 
     Parameters
     ----------
@@ -203,10 +182,6 @@ def _linear_constraints_as_constraints(linear_constraints):
     constraints : list of dict
         scipy.optimize.minimize-style equality/inequality constraints.
     """
-    # COBYLA only supports inequality ('ineq') constraints, so an equality
-    # constraint c(x) == rhs is expressed as the pair c(x) >= rhs and
-    # c(x) <= rhs, exactly as qiskit_optimization.algorithms.CobylaOptimizer
-    # used to do.
     constraints = []
     for constraint in linear_constraints:
         rhs = constraint.rhs
@@ -234,13 +209,15 @@ def _with_constraints(optimizer, constraints):
     The `constraints` kwarg of scipy.optimize.minimize cannot be set on
     `optimizer` directly, because it depends on the docplex model being
     solved, which is only known at solve time, whereas `optimizer` is
-    typically instantiated upfront (e.g. as a default argument).
+    typically instantiated upfront (e.g. as a default argument). Works
+    generically for any optimizer type (e.g. CobylaOptimizer, SLSQP) whose
+    `settings` property round-trips through its constructor.
 
     Parameters
     ----------
     optimizer : SciPyOptimizer
-        The base optimizer instance (e.g. COBYLA, SLSQP), holding all other
-        settings (rhobeg, tol, maxiter, ...).
+        The base optimizer instance (e.g. CobylaOptimizer, SLSQP), holding
+        all other settings (rhobeg, tol, maxiter, ...).
     constraints : list of dict
         scipy.optimize.minimize-style constraints to add.
 
@@ -393,7 +370,7 @@ class ClassicalOptimizer(pyQiskitOptimizer):
     Attributes
     ----------
     optimizer : SciPyOptimizer
-        An instance of SciPyOptimizer [1]_, e.g. COBYLA or SLSQP.
+        An instance of SciPyOptimizer [1]_, e.g. CobylaOptimizer or SLSQP.
 
     Notes
     -----
@@ -403,7 +380,8 @@ class ClassicalOptimizer(pyQiskitOptimizer):
         Add attribute `optimizer`.
     .. versionchanged:: 0.7.0
         `optimizer` is now a :class:`qiskit_algorithms.optimizers.SciPyOptimizer`
-        (e.g. COBYLA, SLSQP) instead of a
+        (e.g. :class:`~pyriemann_qiskit.optimization.cobyla_optimizer.CobylaOptimizer`,
+        SLSQP) instead of a
         `qiskit_optimization.algorithms.OptimizationAlgorithm`, following the
         migration away from the archived ``qiskit-optimization`` package.
         Variable bounds and linear constraints of the docplex model are now
@@ -420,7 +398,7 @@ class ClassicalOptimizer(pyQiskitOptimizer):
 
     """
 
-    def __init__(self, optimizer=COBYLA(rhobeg=2.1, tol=0.000001)):
+    def __init__(self, optimizer=CobylaOptimizer(rhobeg=2.1, tol=0.000001)):
         pyQiskitOptimizer.__init__(self)
         self.optimizer = optimizer
 
@@ -466,9 +444,7 @@ class ClassicalOptimizer(pyQiskitOptimizer):
     def _solve_qp(self, qp, reshape=True):
         bounds = [(v.lowerbound, v.upperbound) for v in qp.variables]
 
-        constraints = _bounds_as_constraints(bounds) + _linear_constraints_as_constraints(
-            qp.linear_constraints
-        )
+        constraints = _linear_constraints_as_constraints(qp.linear_constraints)
         optimizer = _with_constraints(self.optimizer, constraints)
 
         x0 = np.zeros(len(bounds))

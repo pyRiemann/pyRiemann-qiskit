@@ -1,7 +1,8 @@
 """Quantum-enhanced MDM classifier."""
 
-from qiskit_algorithms.optimizers import COBYLA, SLSQP
+from qiskit_algorithms.optimizers import SLSQP
 
+from ...optimization.cobyla_optimizer import CobylaOptimizer
 from ...utils.utils import get_docplex_optimizer_from_params_bag
 from ..algorithms import CpMDM
 from .quantic_classifier_base import QuanticClassifierBase
@@ -71,8 +72,8 @@ class QuanticMDM(QuanticClassifierBase):
         The maximum integer value for matrix normalization.
     regularization : MixinTransformer, default=None
         Additional post-processing to regularize means.
-    classical_optimizer : SciPyOptimizer, default=COBYLA()
-        An instance of a scipy optimizer [3]_, e.g. COBYLA or SLSQP.
+    classical_optimizer : SciPyOptimizer, default=CobylaOptimizer()
+        An instance of a scipy optimizer [3]_, e.g. CobylaOptimizer or SLSQP.
     qaoa_optimizer : SciPyOptimizer, default=SLSQP()
         An instance of a scipy optimizer to find the optimal weights for the
         parametric circuit (ansatz).
@@ -139,7 +140,7 @@ class QuanticMDM(QuanticClassifierBase):
         self.classical_optimizer = (
             classical_optimizer
             if classical_optimizer is not None
-            else COBYLA(rhobeg=2.1, tol=0.000001)
+            else CobylaOptimizer(rhobeg=2.1, tol=0.000001)
         )
         self.qaoa_optimizer = qaoa_optimizer if qaoa_optimizer is not None else SLSQP()
         self.create_mixer = create_mixer
