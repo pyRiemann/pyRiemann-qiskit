@@ -1,7 +1,6 @@
 """Quantum-enhanced MDM classifier."""
 
-from qiskit_algorithms.optimizers import SLSQP
-from qiskit_optimization.algorithms import CobylaOptimizer
+from qiskit_algorithms.optimizers import COBYLA, SLSQP
 
 from ...utils.utils import get_docplex_optimizer_from_params_bag
 from ..algorithms import CpMDM
@@ -37,6 +36,10 @@ class QuanticMDM(QuanticClassifierBase):
         Add the qaoacv_implementation parameter.
     .. versionchanged:: 0.6.0
         Moved to :mod:`pyriemann_qiskit.classification.wrappers.quantic_mdm`.
+    .. versionchanged:: 0.7.0
+        `classical_optimizer` is now a
+        :class:`qiskit_algorithms.optimizers.SciPyOptimizer` instead of a
+        `qiskit_optimization.algorithms.OptimizationAlgorithm`.
 
     Parameters
     ----------
@@ -68,8 +71,8 @@ class QuanticMDM(QuanticClassifierBase):
         The maximum integer value for matrix normalization.
     regularization : MixinTransformer, default=None
         Additional post-processing to regularize means.
-    classical_optimizer : OptimizationAlgorithm, default=CobylaOptimizer()
-        An instance of OptimizationAlgorithm [3]_.
+    classical_optimizer : SciPyOptimizer, default=COBYLA()
+        An instance of a scipy optimizer [3]_, e.g. COBYLA or SLSQP.
     qaoa_optimizer : SciPyOptimizer, default=SLSQP()
         An instance of a scipy optimizer to find the optimal weights for the
         parametric circuit (ansatz).
@@ -107,7 +110,7 @@ class QuanticMDM(QuanticClassifierBase):
         Conference Latent Variable Analysis and Signal Separation
         (LVA/ICA 2010), LNCS vol. 6365, 2010, p. 629-636.
     .. [3] \
-        https://qiskit-community.github.io/qiskit-optimization/stubs/qiskit_optimization.algorithms.OptimizationAlgorithm.html#optimizationalgorithm
+        https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.optimizers.SciPyOptimizer.html
     """
 
     def __init__(
@@ -136,7 +139,7 @@ class QuanticMDM(QuanticClassifierBase):
         self.classical_optimizer = (
             classical_optimizer
             if classical_optimizer is not None
-            else CobylaOptimizer(rhobeg=2.1, rhoend=0.000001)
+            else COBYLA(rhobeg=2.1, tol=0.000001)
         )
         self.qaoa_optimizer = qaoa_optimizer if qaoa_optimizer is not None else SLSQP()
         self.create_mixer = create_mixer

@@ -12,7 +12,6 @@ from pyriemann.estimation import ERPCovariances, XdawnCovariances
 from pyriemann.preprocessing import Whitening
 from pyriemann.tangentspace import TangentSpace
 from qiskit_algorithms.optimizers import SLSQP
-from qiskit_optimization.algorithms import SlsqpOptimizer
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
@@ -334,8 +333,8 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         The maximum integer value for matrix normalization.
     regularization: MixinTransformer (defulat: None)
         Additional post-processing to regularize means.
-    classical_optimizer : OptimizationAlgorithm
-        An instance of OptimizationAlgorithm [1]_
+    classical_optimizer : SciPyOptimizer, default=SLSQP()
+        An instance of a scipy optimizer [1]_, e.g. SLSQP or COBYLA.
     seed : int | None, default=None
         Random seed for the simulation and transpilation.
     qaoa_optimizer : SciPyOptimizer, default=SLSQP()
@@ -358,6 +357,10 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
     .. versionchanged:: 0.3.0
         Add seed parameter.
         Add qaoa_optimizer
+    .. versionchanged:: 0.7.0
+        `classical_optimizer` is now a
+        :class:`qiskit_algorithms.optimizers.SciPyOptimizer` instead of a
+        `qiskit_optimization.algorithms.OptimizationAlgorithm`.
 
     See Also
     --------
@@ -366,7 +369,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
     References
     ----------
     .. [1] \
-        https://qiskit-community.github.io/qiskit-optimization/stubs/qiskit_optimization.algorithms.OptimizationAlgorithm.html#optimizationalgorithm
+        https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.optimizers.SciPyOptimizer.html
 
     """
 
@@ -379,7 +382,7 @@ class QuantumMDMWithRiemannianPipeline(BasePipeline):
         shots=1024,
         upper_bound=7,
         regularization=None,
-        classical_optimizer=SlsqpOptimizer(),
+        classical_optimizer=SLSQP(),
         seed=None,
         qaoa_optimizer=SLSQP(),
     ):
