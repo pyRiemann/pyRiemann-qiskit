@@ -633,6 +633,11 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     def _solve_qp(self, qp, reshape=True):
         conv = IntegerToBinary()
         qubo = conv.convert(qp)
+        # `to_ising` requires a fully unconstrained QUBO. `IntegerToBinary` only
+        # rewrites integer variables as binary; any remaining linear equality
+        # constraints (e.g. the convex-hull weight simplex) must be folded into
+        # the objective as penalty terms before the Ising conversion.
+        qubo = EqualityToPenalty().convert(qubo)
         quantum_instance = _get_quantum_instance(self)
 
         self.evaluated_values_ = []
