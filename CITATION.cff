@@ -1,0 +1,84 @@
+cff-version: 1.3.0
+title: pyRiemann-qiskit
+message: >-
+  If you use this software, please cite it using the metadata from this file.
+type: software
+version: 0.6.0
+date-released: "2026-07-04"
+url: "https://github.com/pyRiemann/pyRiemann-qiskit"
+repository-code: "https://github.com/pyRiemann/pyRiemann-qiskit"
+license: BSD-3-Clause
+abstract: >-
+  pyRiemann-qiskit is a Python library that extends pyRiemann with quantum computing
+  capabilities via Qiskit. It provides quantum-enhanced classifiers for Riemannian
+  geometry-based Brain-Computer Interface (BCI) and EEG signal classification, including
+  support for QAOA, VQC, quantum kernels, and nearest convex hull methods.
+identifiers:
+  - type: doi
+    value: "10.3897/rio.9.e101006"
+    relation: IsSupplementTo
+    description: >-
+      This software is a supplement to the article published in Research Ideas and
+      Outcomes (RIO Journal).
+references:
+  - type: article
+    title: >-
+      pyRiemann-qiskit: A Sandbox for Quantum Classification Experiments with Riemannian
+      Geometry
+    authors:
+      - given-names: Anton
+        family-names: Andreev
+        affiliation: GIPSA-lab, CNRS
+      - given-names: Gregoire
+        family-names: Cattan
+        affiliation: IBM
+      - given-names: Sylvain
+        family-names: Chevallier
+        affiliation: Université Paris-Saclay
+      - given-names: Quentin
+        family-names: Barthélemy
+        affiliation: Foxstream
+    journal: Research Ideas and Outcomes
+    publisher:
+      name: Pensoft Publishers
+    year: 2023
+    month: 3
+    volume: 9
+    doi: "10.3897/rio.9.e101006"
+    url: "https://riojournal.com/article/101006/"
+keywords:
+  - quantum computing
+  - brain-computer interface
+  - Riemannian geometry
+  - EEG
+  - Qiskit
+  - machine learning
+  - BCI
+authors:
+  - given-names: Gregoire
+    family-names: Cattan
+    email: gcattan@hotmail.com
+    affiliation: IBM
+  - given-names: Quentin
+    family-names: Barthélemy
+    email: q.barthelemy@gmail.com
+    affiliation: Foxstream
+  - given-names: Anton
+    family-names: Andreev
+    affiliation: GIPSA-lab, CNRS
+    email: andreev.anton@gipsa-lab.grenoble-inp.fr
+  - given-names: Sylvain
+    family-names: Chevallier
+    affiliation: Université Paris-Saclay
+    email: sylvain.chevallier@uvsq.fr
+  - family-names: Patare
+    given-names: Vedant
+    affiliation: Fr. Conceicao Rodrigues Institute of Technology
+  - given-names: Alexandre
+    family-names: Quemy
+    affiliation: Hother
+    email: alexandre@quemy.info
+  - family-names: Movsumzada
+    given-names: Ulvi
+    email: ulvi.movsumzada@ibm.com
+    affiliation: IBM
