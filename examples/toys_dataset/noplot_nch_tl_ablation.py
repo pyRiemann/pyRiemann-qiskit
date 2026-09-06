@@ -35,6 +35,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import QuanticNCH
+from pyriemann_qiskit.utils.dataset import generate_subject_data
 from pyriemann_qiskit.utils.math import to_xyz
 from pyriemann_qiskit.utils.transfer import Adapter
 
@@ -61,28 +62,16 @@ n_samples_per_hull = 2
 # while keeping covariance matrices positive definite.
 
 
-def make_subject_data(n_trials_per_class, n_channels, n_times, n_classes, subj_seed):
-    rng = np.random.RandomState(subj_seed)
-    # Per-subject channel mixing matrix (simulates domain shift)
-    M = rng.randn(n_channels, n_channels)
-    A = np.linalg.cholesky(M @ M.T + n_channels * np.eye(n_channels))
-    X_list, y_list = [], []
-    for cls in range(n_classes):
-        scale = np.ones(n_channels)
-        scale[cls] = 0.001  # class k: Increase std → survives lwf centering
-        noise = rng.randn(n_trials_per_class, n_channels, n_times)
-        noise *= scale[:, None]
-        X_cls = np.einsum("ij,tjk->tik", A, noise)  # apply domain shift
-        X_list.append(X_cls)
-        y_list.append(np.full(n_trials_per_class, cls))
-    return np.concatenate(X_list), np.concatenate(y_list)
-
-
 X_per_subj = []
 y_per_subj = []
 for s in range(n_subjects):
-    X_s, y_s = make_subject_data(
-        n_trials_per_class, n_channels, n_times, n_classes, subj_seed=seed + s
+    X_s, y_s = generate_subject_data(
+        n_trials_per_class,
+        n_channels,
+        n_times,
+        n_classes,
+        subj_seed=seed + s,
+        scale_factor=0.001,
     )
     X_per_subj.append(X_s)
     y_per_subj.append(y_s)

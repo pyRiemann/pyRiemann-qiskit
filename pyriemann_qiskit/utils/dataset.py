@@ -162,6 +162,63 @@ def generate_linearly_separable_dataset(n_samples=100):
     return (X, y)
 
 
+def generate_subject_data(
+    n_trials_per_class, n_channels, n_times, n_classes, subj_seed, scale_factor=2.0
+):
+    """Generate synthetic multi-channel signal for one subject.
+
+    Builds a random (Cholesky) channel-mixing matrix -- simulating
+    subject-specific domain shift -- then generates per-class trials whose
+    channel `cls` has a different noise scale than the other channels. This
+    preserves the class signal through covariance-matrix estimation (e.g.
+    Ledoit-Wolf), unlike a mean shift, which centering estimators remove.
+
+    Parameters
+    ----------
+    n_trials_per_class : int
+        Number of trials to generate for each class.
+    n_channels : int
+        Number of channels.
+    n_times : int
+        Number of time samples per trial.
+    n_classes : int
+        Number of classes. Must be <= n_channels, since class `cls` scales
+        channel `cls`.
+    subj_seed : int
+        Seed for this subject's random channel mixing and noise.
+    scale_factor : float (default: 2.0)
+        Noise scale applied to channel `cls` for class `cls`'s trials
+        (relative to the other channels' scale of 1.0). Values above 1
+        amplify that channel; values below 1 attenuate it -- either
+        preserves the per-class signal through centering.
+
+    Returns
+    -------
+    X : ndarray, shape (n_trials_per_class * n_classes, n_channels, n_times)
+        Generated trials.
+    y : ndarray, shape (n_trials_per_class * n_classes,)
+        Target vector relative to X.
+
+    Notes
+    -----
+    .. versionadded:: 0.7.0
+
+    """
+    rng = np.random.RandomState(subj_seed)
+    M = rng.randn(n_channels, n_channels)
+    A = np.linalg.cholesky(M @ M.T + n_channels * np.eye(n_channels))
+    X_list, y_list = [], []
+    for cls in range(n_classes):
+        scale = np.ones(n_channels)
+        scale[cls] = scale_factor
+        noise = rng.randn(n_trials_per_class, n_channels, n_times)
+        noise *= scale[:, None]
+        X_cls = np.einsum("ij,tjk->tik", A, noise)
+        X_list.append(X_cls)
+        y_list.append(np.full(n_trials_per_class, cls))
+    return np.concatenate(X_list), np.concatenate(y_list)
+
+
 def get_feature_dimension(dataset):
     """Return the feature dimension of a dataset.
 

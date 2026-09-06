@@ -3,45 +3,22 @@
 QAOA backend ablation — quantum simulator vs p-bit emulation
 ====================================================================
 
-This study answers: **does swapping the QAOA solving engine change the
-answer, only the wall-clock cost?**
+Compares two solvers for the same QAOA-based optimization problem:
 
-Two optimizers are compared:
-
-- **NaiveQAOAOptimizer** (``backend="qiskit"``): runs a real QAOA circuit
-  (cost + mixer operators) on a quantum simulator (Aer).
-- **PBitQAOAOptimizer** (``backend="pkit"``): emulates the same QAOA
-  dynamics classically with a Suzuki-Trotter p-bit circuit
+- **NaiveQAOAOptimizer** (``backend="qiskit"``): a real QAOA circuit run on
+  a quantum simulator (Aer).
+- **PBitQAOAOptimizer** (``backend="pkit"``): the same QAOA dynamics
+  emulated classically with a Suzuki-Trotter p-bit circuit
   (https://github.com/IBM/p-kit), run on ordinary CPU hardware.
 
-These two are the *only* strictly equivalent pair in this library: both
-build the exact same problem -- ``IntegerToBinary`` + ``EqualityToPenalty``
-applied to the same docplex model, the same integer/``upper_bound``
-variable encoding (``NaiveQAOAOptimizer.spdmat_var`` / ``get_weights``,
-which ``PBitQAOAOptimizer`` reuses directly) -- and differ *only* in which
-engine solves the resulting Ising Hamiltonian.
+Both build the exact same problem, so any difference between them comes
+only from the solving engine. ``ClassicalOptimizer`` /
+``PBitClassicalOptimizer`` are not included: they solve a different
+(continuous-variable) formulation, so they wouldn't isolate the same thing.
 
-``ClassicalOptimizer`` and ``PBitClassicalOptimizer`` are deliberately left
-out of this ablation: they are not a matching pair. ``ClassicalOptimizer``
-optimizes *continuous* variables with a generic SciPy solver -- a different
-problem formulation entirely -- while ``PBitClassicalOptimizer`` reuses the
-same integer/QUBO formulation as the QAOA pair above, just without the
-transverse-field (mixer) term. Comparing either of them to
-``ClassicalOptimizer`` would confound "classical vs quantum simulation"
-with "continuous vs integer formulation", which is exactly what this
-ablation is designed to avoid.
-
-Two comparisons are run:
-
-1. **Optimizer-level**: both optimizers solve the *same* small
-   docplex model (weights for the log-Euclidean distance to a convex hull)
-   directly, so their raw solutions and solve times can be compared without
-   any classifier-level variance in between.
-2. **Classifier-level**: both optimizers are plugged into
-   :class:`~pyriemann_qiskit.classification.QuanticNCH` (via its
-   ``backend`` parameter) and cross-validated on a synthetic dataset, to
-   check that the choice of engine does not change downstream
-   classification performance -- only training time.
+Two comparisons are shown: solving one small problem directly with each
+optimizer, and cross-validating both as the optimizer inside
+:class:`~pyriemann_qiskit.classification.QuanticNCH`.
 
 """
 
@@ -61,6 +38,7 @@ from pyriemann_qiskit.classification import QuanticNCH
 from pyriemann_qiskit.optimization.distance import weights_logeuclid_to_convex_hull
 from pyriemann_qiskit.optimization.docplex import NaiveQAOAOptimizer
 from pyriemann_qiskit.optimization.pkit_optimizer import HAS_PKIT
+from pyriemann_qiskit.utils.dataset import generate_subject_data
 
 print(__doc__)
 
@@ -119,8 +97,8 @@ for name, optimizer in engines.items():
 # 2. Classifier-level ablation
 # ------------------------------
 #
-# Same synthetic-SPD-matrix generator as other toy-dataset examples in this
-# repository: classes differ in per-channel variance, which survives
+# Shared synthetic-SPD-matrix generator (also used by other toy-dataset
+# examples): classes differ in per-channel variance, which survives
 # covariance estimation (a mean shift would not).
 
 n_times = 50
@@ -129,23 +107,7 @@ n_trials_per_class = 12
 n_splits = 3
 
 
-def make_subject_data(n_trials_per_class, n_channels, n_times, n_classes, subj_seed):
-    rng = np.random.RandomState(subj_seed)
-    M = rng.randn(n_channels, n_channels)
-    A = np.linalg.cholesky(M @ M.T + n_channels * np.eye(n_channels))
-    X_list, y_list = [], []
-    for cls in range(n_classes):
-        scale = np.ones(n_channels)
-        scale[cls] = 2.0
-        noise = rng.randn(n_trials_per_class, n_channels, n_times)
-        noise *= scale[:, None]
-        X_cls = np.einsum("ij,tjk->tik", A, noise)
-        X_list.append(X_cls)
-        y_list.append(np.full(n_trials_per_class, cls))
-    return np.concatenate(X_list), np.concatenate(y_list)
-
-
-X, y = make_subject_data(
+X, y = generate_subject_data(
     n_trials_per_class, n_channels, n_times, n_classes, subj_seed=seed
 )
 print(f"\nDataset: X={X.shape}, y={y.shape}")

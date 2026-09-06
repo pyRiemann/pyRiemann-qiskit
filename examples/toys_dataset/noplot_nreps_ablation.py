@@ -26,7 +26,6 @@ import time
 from copy import deepcopy
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from pyriemann.estimation import Covariances
 from pyriemann.preprocessing import Whitening
@@ -36,6 +35,7 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import ContinuousQIOCEClassifier, QuanticNCH
+from pyriemann_qiskit.utils.dataset import generate_subject_data
 from pyriemann_qiskit.utils.hyper_params_factory import (
     create_mixer_with_circular_entanglement,
 )
@@ -67,23 +67,7 @@ n_trials_per_class = 30
 #   class k → channel k has 5× higher std → covariance differs from other class.
 
 
-def make_subject_data(n_trials_per_class, n_channels, n_times, n_classes, subj_seed):
-    rng = np.random.RandomState(subj_seed)
-    M = rng.randn(n_channels, n_channels)
-    A = np.linalg.cholesky(M @ M.T + n_channels * np.eye(n_channels))
-    X_list, y_list = [], []
-    for cls in range(n_classes):
-        scale = np.ones(n_channels)
-        scale[cls] = 2.0  # class k: channel k has 2× higher variance
-        noise = rng.randn(n_trials_per_class, n_channels, n_times)
-        noise *= scale[:, None]  # scale per channel — survives covariance centering
-        X_cls = np.einsum("ij,tjk->tik", A, noise)
-        X_list.append(X_cls)
-        y_list.append(np.full(n_trials_per_class, cls))
-    return np.concatenate(X_list), np.concatenate(y_list)
-
-
-X, y = make_subject_data(
+X, y = generate_subject_data(
     n_trials_per_class, n_channels, n_times, n_classes, subj_seed=seed
 )
 print(f"Dataset: X={X.shape}, y={y.shape}")
