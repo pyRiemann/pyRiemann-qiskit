@@ -41,6 +41,7 @@ class QuanticMDM(QuanticClassifierBase):
         `classical_optimizer` is now a
         :class:`qiskit_algorithms.optimizers.SciPyOptimizer` instead of a
         `qiskit_optimization.algorithms.OptimizationAlgorithm`.
+        Add `backend` and `pkit_optimizer` parameters.
 
     Parameters
     ----------
@@ -91,6 +92,24 @@ class QuanticMDM(QuanticClassifierBase):
         "ulvi" selects QAOACVAngleOptimizer, "luna" or other string values
         select QAOACVOptimizer. If None, uses default QAOACVOptimizer.
         If not quantum or not mixer provided, has no effect.
+    backend : {"qiskit", "pkit"}, default="qiskit"
+        Which optimization engine to use. "qiskit" is the original
+        Qiskit-based engine (ignores this parameter's sibling
+        `pkit_optimizer`). "pkit" runs on p-kit
+        (https://github.com/IBM/p-kit), a probabilistic-bit (p-bit) circuit
+        simulator, as a classical-hardware alternative to running QAOA on a
+        quantum simulator or device; it requires p-kit to be installed
+        separately, and ignores `q_account_token`, `classical_optimizer`,
+        `qaoa_optimizer`, `create_mixer`, `n_reps`, `qaoa_initial_points`
+        and `qaoacv_implementation`, none of which apply to p-kit's own
+        solver.
+    pkit_optimizer : PBitClassicalOptimizer, PBitQAOAOptimizer, or None, \
+            default=None
+        Only used when `backend="pkit"`. A pre-configured p-kit optimizer
+        instance (to control its solver hyperparameters, e.g. `Nt`, `dt`,
+        `i0`, `gamma`, `beta`, `n_replicas`). If None, one is constructed
+        with default hyperparameters (`PBitQAOAOptimizer` if `quantum`,
+        `PBitClassicalOptimizer` otherwise).
 
     See Also
     --------
@@ -130,6 +149,8 @@ class QuanticMDM(QuanticClassifierBase):
         n_reps=3,
         qaoa_initial_points=None,
         qaoacv_implementation=None,
+        backend="qiskit",
+        pkit_optimizer=None,
     ):
         QuanticClassifierBase.__init__(
             self, quantum, q_account_token, verbose, shots, None, seed
@@ -149,6 +170,8 @@ class QuanticMDM(QuanticClassifierBase):
             qaoa_initial_points if qaoa_initial_points is not None else [0.0, 0.0]
         )
         self.qaoacv_implementation = qaoacv_implementation
+        self.backend = backend
+        self.pkit_optimizer = pkit_optimizer
 
     def _init_algo(self, n_features):
         self._log("Quantic MDM initiating algorithm")
@@ -164,6 +187,8 @@ class QuanticMDM(QuanticClassifierBase):
             self.n_reps,
             self.qaoa_initial_points,
             self.qaoacv_implementation,
+            self.backend,
+            self.pkit_optimizer,
         )
 
         classifier = CpMDM(optimizer=self._optimizer, metric=self.metric)
