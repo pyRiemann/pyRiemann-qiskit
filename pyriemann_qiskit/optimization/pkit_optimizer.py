@@ -280,7 +280,7 @@ if HAS_PKIT:
             n_jobs=1,
             seed=42,
         ):
-            pyQiskitOptimizer.__init__(self)
+            super().__init__()
             self.upper_bound = upper_bound
             self.gamma = gamma
             self.beta = beta
