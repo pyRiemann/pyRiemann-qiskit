@@ -43,9 +43,7 @@ def test_generate_subject_signal_shapes(
 
 def test_generate_subject_signal_labels_are_balanced():
     n_trials_per_class, n_classes = 7, 3
-    _, y = generate_subject_signal(
-        n_trials_per_class, 4, 32, n_classes, subj_seed=42
-    )
+    _, y = generate_subject_signal(n_trials_per_class, 4, 32, n_classes, subj_seed=42)
     classes, counts = np.unique(y, return_counts=True)
     np.testing.assert_array_equal(classes, np.arange(n_classes))
     np.testing.assert_array_equal(counts, np.full(n_classes, n_trials_per_class))
