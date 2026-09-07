@@ -1,20 +1,31 @@
 """
 ====================================================================
-QAOA backend ablation — quantum simulator vs p-bit emulation
+Solver backend ablation — QAOA circuit vs p-bit annealer
 ====================================================================
 
-Compares two solvers for the same QAOA-based optimization problem:
+Compares two solvers on the *same* combinatorial optimization problem:
 
 - **NaiveQAOAOptimizer** (``backend="qiskit"``): a real QAOA circuit run on
-  a quantum simulator (Aer).
-- **PBitQAOAOptimizer** (``backend="pkit"``): the same QAOA dynamics
-  emulated classically with a Suzuki-Trotter p-bit circuit
-  (https://github.com/IBM/p-kit), run on ordinary CPU hardware.
+  a quantum simulator (Aer), with a variational classical outer loop
+  (SLSQP) tuning the per-layer cost/mixer angles.
+- **PBitTFIsingOptimizer** (``backend="pkit"``): a *static* transverse-field
+  Ising model at fixed ``gamma``/``beta``, in its Suzuki-Trotter
+  (path-integral) representation, sampled by a stochastic p-bit annealer
+  (https://github.com/IBM/p-kit) on ordinary CPU hardware.
 
-Both build the exact same problem, so any difference between them comes
-only from the solving engine. ``ClassicalOptimizer`` /
-``PBitClassicalOptimizer`` are not included: they solve a different
-(continuous-variable) formulation, so they wouldn't isolate the same thing.
+What the two share is the *problem*: the same docplex model, mapped to the
+same QUBO / Ising cost Hamiltonian. They do not share the search. The
+p-bit engine is not QAOA executed on classical hardware -- it has no
+variational loop, and its Trotter replicas are imaginary-time slices, not
+QAOA circuit layers (this is the quantum Monte Carlo / stoquastic
+emulation regime of Camsari et al., Phys. Rev. Applied 12, 034061, 2019).
+So this ablation isolates *solver engine*, not "the same algorithm on
+different hardware": a difference in AUC can come from the search itself,
+not only from sampling noise.
+
+``ClassicalOptimizer`` / ``PBitClassicalOptimizer`` are not included: they
+solve a different (continuous-variable) formulation, so they would not
+even share the problem.
 
 Two comparisons are shown: solving one small problem directly with each
 optimizer, and cross-validating both as the optimizer inside
@@ -49,7 +60,9 @@ if not HAS_PKIT:
     )
     raise SystemExit(0)
 
-from pyriemann_qiskit.optimization.pkit_optimizer import PBitQAOAOptimizer  # noqa: E402
+from pyriemann_qiskit.optimization.pkit_optimizer import (  # noqa: E402
+    PBitTFIsingOptimizer,
+)
 
 seed = 42
 rng = np.random.RandomState(seed)
@@ -79,7 +92,7 @@ B = make_spd(n_channels, rng)
 
 engines = {
     "qiskit (NaiveQAOAOptimizer)": NaiveQAOAOptimizer(),
-    "pkit (PBitQAOAOptimizer)": PBitQAOAOptimizer(),
+    "pkit (PBitTFIsingOptimizer)": PBitTFIsingOptimizer(),
 }
 
 print("=== Optimizer-level comparison ===")
@@ -117,21 +130,21 @@ print(f"\nDataset: X={X.shape}, y={y.shape}")
 # ---------
 #
 # The two pipelines differ *only* in ``backend`` -- everything else
-# (``quantum=True``, hull configuration, seed) is identical, so any
-# difference in AUC across folds is measurement noise, not a formulation
-# difference.
+# (``quantum=True``, hull configuration, seed) is identical, so the problem
+# handed to each engine is the same. Any AUC difference across folds is
+# down to the two search procedures (and their stochasticity), not to a
+# difference in formulation.
 
 pipeline_configs = {
     "NCH+NaiveQAOA (qiskit)": dict(backend="qiskit"),
-    # A reduced annealing budget (Nt, n_shots) than PBitQAOAOptimizer's own
+    # A reduced annealing budget (Nt, n_shots) than PBitTFIsingOptimizer's own
     # defaults -- ~0.5s/solve instead of ~12s/solve on this toy problem size,
     # verified above to still converge to the same answer -- so the ablation
-    # itself runs quickly. The comparison is still apples-to-apples: the
-    # *formulation* handed to the p-bit engine is unchanged, only its own
-    # internal sampling budget is smaller.
-    "NCH+PBitQAOA (pkit)": dict(
+    # itself runs quickly. The *formulation* handed to the p-bit engine is
+    # unchanged, only its own internal sampling budget is smaller.
+    "NCH+PBitTFIsing (pkit)": dict(
         backend="pkit",
-        pkit_optimizer=PBitQAOAOptimizer(Nt=2000, n_shots=20, seed=seed),
+        pkit_optimizer=PBitTFIsingOptimizer(Nt=2000, n_shots=20, seed=seed),
     ),
 }
 
@@ -189,9 +202,10 @@ for name, backend_kwargs in pipeline_configs.items():
 # Plots
 # -----
 #
-# Side by side: classification performance (should match within noise,
-# since the formulation is identical) and fit+predict time (the actual
-# quantity this ablation is meant to isolate).
+# Side by side: classification performance (both engines minimize the same
+# cost function, so they are expected to land close, though they are not
+# guaranteed to agree -- two different searches over one problem) and
+# fit+predict time (the quantity this ablation mainly isolates).
 
 names = list(pipeline_configs.keys())
 colors = ["#4C72B0", "#DD8452"]
@@ -200,7 +214,7 @@ width = 0.5
 
 fig, axes = plt.subplots(1, 2, figsize=(10, 4), facecolor="white")
 fig.suptitle(
-    "QAOA backend ablation — quantum simulator vs p-bit emulation", fontsize=13
+    "Solver backend ablation — QAOA circuit vs p-bit annealer", fontsize=13
 )
 
 ax = axes[0]

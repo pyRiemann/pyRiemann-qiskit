@@ -103,12 +103,12 @@ class QuanticMDM(QuanticClassifierBase):
         `qaoa_optimizer`, `create_mixer`, `n_reps`, `qaoa_initial_points`
         and `qaoacv_implementation`, none of which apply to p-kit's own
         solver.
-    pkit_optimizer : PBitClassicalOptimizer, PBitQAOAOptimizer, or None, \
+    pkit_optimizer : PBitClassicalOptimizer, PBitTFIsingOptimizer, or None, \
             default=None
         Only used when `backend="pkit"`. A pre-configured p-kit optimizer
         instance (to control its solver hyperparameters, e.g. `Nt`, `dt`,
         `i0`, `gamma`, `beta`, `n_replicas`). If None, one is constructed
-        with default hyperparameters (`PBitQAOAOptimizer` if `quantum`,
+        with default hyperparameters (`PBitTFIsingOptimizer` if `quantum`,
         `PBitClassicalOptimizer` otherwise).
 
     See Also
@@ -179,7 +179,7 @@ class QuanticMDM(QuanticClassifierBase):
         self._optimizer = get_docplex_optimizer_from_params_bag(
             self,
             self.quantum,
-            self._quantum_instance if self.quantum else None,
+            self._quantum_instance if self._uses_qiskit_backend() else None,
             self.upper_bound,
             self.qaoa_optimizer,
             self.classical_optimizer,

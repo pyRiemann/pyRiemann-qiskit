@@ -54,7 +54,7 @@ def get_docplex_optimizer_from_params_bag(
 
     Creates and returns the appropriate optimizer instance (quantum or classical)
     based on the provided parameters. Selects between NaiveQAOAOptimizer,
-    QAOACVAngleOptimizer, QAOACVOptimizer, ClassicalOptimizer, PBitQAOAOptimizer,
+    QAOACVAngleOptimizer, QAOACVOptimizer, ClassicalOptimizer, PBitTFIsingOptimizer,
     or PBitClassicalOptimizer depending on the configuration.
 
     Parameters
@@ -94,15 +94,15 @@ def get_docplex_optimizer_from_params_bag(
         `qaoa_optimizer`, `classical_optimizer`, `create_mixer`, `n_reps`,
         `qaoa_initial_points` and `qaoacv_implementation`, none of which
         apply to p-kit's own solver.
-    pkit_optimizer : PBitClassicalOptimizer, PBitQAOAOptimizer, or None
+    pkit_optimizer : PBitClassicalOptimizer, PBitTFIsingOptimizer, or None
         Only used when backend="pkit". A pre-configured p-kit optimizer
         instance. If None, one is constructed with default hyperparameters
-        (PBitQAOAOptimizer if quantum, PBitClassicalOptimizer otherwise).
+        (PBitTFIsingOptimizer if quantum, PBitClassicalOptimizer otherwise).
 
     Returns
     -------
     optimizer : ClassicalOptimizer, NaiveQAOAOptimizer, QAOACVAngleOptimizer,
-        QAOACVOptimizer, PBitClassicalOptimizer, or PBitQAOAOptimizer
+        QAOACVOptimizer, PBitClassicalOptimizer, or PBitTFIsingOptimizer
         Configured optimizer instance based on the provided parameters.
 
     Notes
@@ -110,7 +110,7 @@ def get_docplex_optimizer_from_params_bag(
     The function selects the optimizer according to the following logic:
     - If backend="pkit":
         - If pkit_optimizer is provided, returns it as-is.
-        - Else if quantum=True: returns PBitQAOAOptimizer
+        - Else if quantum=True: returns PBitTFIsingOptimizer
         - Else: returns PBitClassicalOptimizer
     - Else (backend="qiskit"):
         - If quantum=False: returns ClassicalOptimizer
@@ -136,8 +136,8 @@ def get_docplex_optimizer_from_params_bag(
             logger._log(f"Using provided {type(pkit_optimizer).__name__}")
             return pkit_optimizer
         if quantum:
-            logger._log("Using PBitQAOAOptimizer")
-            return pkit_optimizer_module.PBitQAOAOptimizer(upper_bound=upper_bound)
+            logger._log("Using PBitTFIsingOptimizer")
+            return pkit_optimizer_module.PBitTFIsingOptimizer(upper_bound=upper_bound)
         else:
             logger._log("Using PBitClassicalOptimizer")
             return pkit_optimizer_module.PBitClassicalOptimizer(upper_bound=upper_bound)

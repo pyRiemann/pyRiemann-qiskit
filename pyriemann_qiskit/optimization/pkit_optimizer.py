@@ -1,8 +1,10 @@
 """Optimizers backed by p-kit, a probabilistic-bit (p-bit) circuit simulator.
 
-p-kit (https://github.com/IBM/p-kit) emulates Ising/QAOA-style optimization on
-classical hardware using stochastic p-bit dynamics, as an alternative to
-running QAOA on a quantum simulator or device. It is an *optional* dependency
+p-kit (https://github.com/IBM/p-kit) solves Ising/QUBO problems on classical
+hardware using stochastic p-bit dynamics, as an alternative to running QAOA
+on a quantum simulator or device. Note that it is an *alternative* solver,
+not a reimplementation of QAOA: see :class:`PBitTFIsingOptimizer` for what it
+does and does not share with QAOA. It is an *optional* dependency
 of this package: install it separately (e.g.
 ``pip install git+https://github.com/IBM/p-kit.git``) to use the classes in
 this module. If it is not installed, this module still imports cleanly, but
@@ -102,8 +104,9 @@ if HAS_PKIT:
         :class:`~p_kit.library.poly.PolyOptimizer`, which performs its own
         integer-to-binary expansion, then samples the ground state with
         :class:`~p_kit.library.csd_solver.CaSuDaSolver`. This is the
-        classical baseline (no transverse field / no QAOA-like dynamics) --
-        see :class:`PBitQAOAOptimizer` for the QAOA-emulating counterpart.
+        classical baseline: no transverse field, hence no emulated quantum
+        dynamics -- see :class:`PBitTFIsingOptimizer` for the transverse-field
+        counterpart.
 
         Parameters
         ----------
@@ -136,7 +139,7 @@ if HAS_PKIT:
         See Also
         --------
         pyQiskitOptimizer
-        PBitQAOAOptimizer
+        PBitTFIsingOptimizer
         """
 
         def __init__(
@@ -209,25 +212,32 @@ if HAS_PKIT:
                 return np.reshape(result, (n_channels, n_channels))
             return result
 
-    class PBitQAOAOptimizer(pyQiskitOptimizer):
-        """Wrapper for p-kit's QAOA-emulating p-bit optimizer.
+    class PBitTFIsingOptimizer(pyQiskitOptimizer):
+        """Wrapper for p-kit's transverse-field-Ising p-bit optimizer.
 
         Maps the docplex model to a QUBO (via ``IntegerToBinary`` +
         ``EqualityToPenalty``, same convention as
         :class:`~pyriemann_qiskit.optimization.docplex.NaiveQAOAOptimizer`),
         then builds a :class:`~p_kit.library.quantum.TransverseFieldIsing`
-        p-bit circuit -- a Suzuki-Trotter emulation of QAOA dynamics on
-        classical hardware -- and samples it with
+        p-bit circuit and samples it with
         :class:`~p_kit.library.csd_solver.CaSuDaSolver`.
+
+        This is a *drop-in replacement* for
+        :class:`~pyriemann_qiskit.optimization.docplex.NaiveQAOAOptimizer`,
+        not a classical reimplementation of QAOA: the two share the
+        problem, not the search. See the Notes below before interpreting
+        any comparison between them.
 
         Parameters
         ----------
         upper_bound : int, default=7
             The maximum integer value for matrix normalization.
         gamma : float, default=0.3
-            Transverse field / QAOA mixer strength. ``gamma=0`` recovers the
-            classical Ising limit (see :class:`PBitClassicalOptimizer`
-            instead, which is cheaper for that case).
+            Transverse field strength of the emulated Ising model. Held
+            fixed: unlike a QAOA mixer angle, it is not variationally
+            optimized. ``gamma=0`` recovers the classical Ising limit (see
+            :class:`PBitClassicalOptimizer` instead, which is cheaper for
+            that case).
         beta : float, default=5.0
             Inverse temperature of the emulated quantum system. Lower
             values (e.g. 3.0) occasionally fail to settle on the true
@@ -236,8 +246,12 @@ if HAS_PKIT:
             solver; 5.0 was found empirically more robust across seeds for
             this reason.
         n_replicas : int, default=10
-            Number of Trotter replicas, analogous to the number of QAOA
-            layers/repetitions.
+            Number of Suzuki-Trotter replicas: imaginary-time slices of the
+            path-integral representation of the transverse-field Ising
+            model. More replicas make the emulation of the quantum model
+            more faithful (the Trotter error shrinks) at proportional
+            cost. These are *not* QAOA layers (see Notes), so this is not a
+            counterpart of ``NaiveQAOAOptimizer``'s `n_reps`.
         Nt : int, default=10000
             Number of annealing timesteps run by the p-bit solver.
         dt : float, default=0.1
@@ -258,7 +272,42 @@ if HAS_PKIT:
 
         Notes
         -----
+        What this optimizer shares with
+        :class:`~pyriemann_qiskit.optimization.docplex.NaiveQAOAOptimizer`
+        is the problem: the same docplex model, mapped to the same
+        QUBO / Ising cost Hamiltonian. How each one searches that problem
+        differs substantially:
+
+        * ``NaiveQAOAOptimizer`` builds an actual QAOA circuit -- `n_reps`
+          layers of alternating cost and mixer unitaries -- and runs a
+          *variational* classical outer loop (e.g. SLSQP) tuning the
+          per-layer angles to minimize the measured expectation value.
+        * This class builds one *static* transverse-field Ising model at
+          fixed `gamma` and `beta` -- no variational angles, no outer loop
+          -- in its Suzuki-Trotter (path-integral) representation, where
+          the `n_replicas` copies are imaginary-time slices coupled along
+          the Trotter axis, and samples its low-energy states with a
+          stochastic p-bit annealer. This is the quantum Monte Carlo /
+          stoquastic-Hamiltonian emulation regime described by Camsari et
+          al. [1]_, the same family as simulated quantum annealing. The
+          Trotter replicas are not QAOA circuit layers.
+
+        The transverse field `gamma` is loosely comparable to QAOA's mixer
+        only in that it is what makes the dynamics non-classical:
+        ``gamma=0`` collapses the model to a plain classical Ising system.
+        The resemblance ends there. A benchmark of this class against
+        ``NaiveQAOAOptimizer`` therefore compares two different solvers on
+        one shared problem; it is not an isolation of "the same QAOA, on
+        different hardware".
+
         .. versionadded:: 0.7.0
+
+        References
+        ----------
+        .. [1] K. Y. Camsari, S. Chowdhury and S. Datta,
+               "Scaled Quantum Circuits Emulated with Room-Temperature
+               p-Bits". Physical Review Applied, 2019.
+               https://doi.org/10.1103/PhysRevApplied.12.034061
 
         See Also
         --------
