@@ -1,7 +1,7 @@
 """
-====================================================================
+==========================================================
 Solver backend ablation — QAOA circuit vs p-bit annealer
-====================================================================
+==========================================================
 
 Compares two solvers on the *same* combinatorial optimization problem:
 
@@ -11,26 +11,21 @@ Compares two solvers on the *same* combinatorial optimization problem:
 - **PBitTFIsingOptimizer** (``backend="pkit"``): a *static* transverse-field
   Ising model at fixed ``gamma``/``beta``, in its Suzuki-Trotter
   (path-integral) representation, sampled by a stochastic p-bit annealer
-  (https://github.com/IBM/p-kit) on ordinary CPU hardware.
+  (https://github.com/IBM/p-kit) on ordinary CPU hardware. This is the
+  quantum Monte Carlo / stoquastic emulation regime of [1]_.
 
-What the two share is the *problem*: the same docplex model, mapped to the
-same QUBO / Ising cost Hamiltonian. They do not share the search. The
-p-bit engine is not QAOA executed on classical hardware -- it has no
-variational loop, and its Trotter replicas are imaginary-time slices, not
-QAOA circuit layers (this is the quantum Monte Carlo / stoquastic
-emulation regime of Camsari et al., Phys. Rev. Applied 12, 034061, 2019).
-So this ablation isolates *solver engine*, not "the same algorithm on
-different hardware": a difference in AUC can come from the search itself,
-not only from sampling noise.
-
-``ClassicalOptimizer`` / ``PBitClassicalOptimizer`` are not included: they
-solve a different (continuous-variable) formulation, so they would not
-even share the problem.
+The two solvers share the same docplex model, mapped to the same QUBO /
+Ising cost Hamiltonian, and differ only in the search strategy: p-kit is
+an alternative Ising-optimization backend for the same QUBO problems,
+not a drop-in emulation of QAOA dynamics.
 
 Two comparisons are shown: solving one small problem directly with each
 optimizer, and cross-validating both as the optimizer inside
 :class:`~pyriemann_qiskit.classification.QuanticNCH`.
 
+References
+----------
+[1] Camsari et al., Phys. Rev. Applied 12, 034061, 2019
 """
 
 # Author: Gregoire Cattan
