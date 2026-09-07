@@ -213,9 +213,7 @@ x_pos = np.arange(len(names))
 width = 0.5
 
 fig, axes = plt.subplots(1, 2, figsize=(10, 4), facecolor="white")
-fig.suptitle(
-    "Solver backend ablation — QAOA circuit vs p-bit annealer", fontsize=13
-)
+fig.suptitle("Solver backend ablation — QAOA circuit vs p-bit annealer", fontsize=13)
 
 ax = axes[0]
 means = [np.mean(results[n]["auc"]) for n in names]
