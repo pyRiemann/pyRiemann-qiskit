@@ -100,9 +100,10 @@ if HAS_PKIT:
     class PBitClassicalOptimizer(pyQiskitOptimizer):
         """Wrapper for p-kit's classical (Boltzmann) p-bit optimizer.
 
-        Encodes the docplex model directly with p-kit's
-        :class:`~p_kit.library.poly.PolyOptimizer`, which performs its own
-        integer-to-binary expansion, then samples the ground state with
+        Maps the docplex model to a binary QUBO (via ``IntegerToBinary`` +
+        ``EqualityToPenalty``), encodes it with p-kit's
+        :class:`~p_kit.library.poly.PolyOptimizer`, then samples the ground
+        state with
         :class:`~p_kit.library.csd_solver.CaSuDaSolver`. This is the
         classical baseline: no transverse field, hence no emulated quantum
         dynamics -- see :class:`PBitTFIsingOptimizer` for the transverse-field
@@ -111,8 +112,10 @@ if HAS_PKIT:
         Parameters
         ----------
         upper_bound : int, default=7
-            The maximum integer value for matrix normalization, and the
-            value used to infer the bit-width of p-kit's binary expansion.
+            The maximum integer value for matrix normalization. It bounds
+            the integer variables created by `spdmat_var` and `get_weights`;
+            the binary expansion itself follows each variable's own declared
+            domain, not this value.
         Nt : int, default=10000
             Number of annealing timesteps run by the p-bit solver.
         dt : float, default=0.1
@@ -171,7 +174,15 @@ if HAS_PKIT:
             return NaiveQAOAOptimizer.get_weights(self, prob, classes)
 
         def _solve_qp(self, qp, reshape=True):
-            qubo = EqualityToPenalty().convert(qp)
+            # `IntegerToBinary` expands each integer variable according to its
+            # own declared bounds. `PolyOptimizer` applies a single `n_bits` to
+            # every variable alike, so deriving that width from `upper_bound`
+            # instead would widen variables declared narrower than it -- a
+            # binary variable would range over [0, upper_bound] and the solver
+            # would return an infeasible point.
+            conv = IntegerToBinary()
+            qubo = conv.convert(qp)
+            qubo = EqualityToPenalty().convert(qubo)
             variables = [v.name for v in qubo.variables]
 
             linear = qubo.objective.linear.to_array()
@@ -194,8 +205,8 @@ if HAS_PKIT:
             scale = _normalize_scale(max((abs(v) for v in coeffs.values()), default=1))
             coeffs = {mono: value / scale for mono, value in coeffs.items()}
 
-            n_bits = max(1, math.ceil(math.log2(self.upper_bound + 1)))
-            circuit = PolyOptimizer(coeffs, variables, n_bits=n_bits, minimize=True)
+            # Every variable is binary after the conversion above.
+            circuit = PolyOptimizer(coeffs, variables, n_bits=1, minimize=True)
 
             samples = _sample_final_states(
                 circuit, self.Nt, self.dt, self.i0, self.n_shots, self.seed, self.n_jobs
@@ -205,7 +216,8 @@ if HAS_PKIT:
                 np.array([circuit.decode(row)[name] for name in variables], dtype=float)
                 for row in samples
             ]
-            result = _best_candidate(qubo.objective, candidates)
+            best_bits = _best_candidate(qubo.objective, candidates)
+            result = conv.interpret(best_bits)
 
             if reshape:
                 n_channels = int(math.sqrt(result.shape[0]))
