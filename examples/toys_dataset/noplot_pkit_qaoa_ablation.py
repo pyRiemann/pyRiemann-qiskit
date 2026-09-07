@@ -49,7 +49,7 @@ from pyriemann_qiskit.classification import QuanticNCH
 from pyriemann_qiskit.optimization.distance import weights_logeuclid_to_convex_hull
 from pyriemann_qiskit.optimization.docplex import NaiveQAOAOptimizer
 from pyriemann_qiskit.optimization.pkit_optimizer import HAS_PKIT
-from pyriemann_qiskit.utils.dataset import generate_subject_data
+from pyriemann_qiskit.utils.dataset import generate_subject_signal
 
 print(__doc__)
 
@@ -120,7 +120,7 @@ n_trials_per_class = 12
 n_splits = 3
 
 
-X, y = generate_subject_data(
+X, y = generate_subject_signal(
     n_trials_per_class, n_channels, n_times, n_classes, subj_seed=seed
 )
 print(f"\nDataset: X={X.shape}, y={y.shape}")

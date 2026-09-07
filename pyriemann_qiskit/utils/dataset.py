@@ -162,7 +162,7 @@ def generate_linearly_separable_dataset(n_samples=100):
     return (X, y)
 
 
-def generate_subject_data(
+def generate_subject_signal(
     n_trials_per_class, n_channels, n_times, n_classes, subj_seed, scale_factor=2.0
 ):
     """Generate synthetic multi-channel signal for one subject.
@@ -183,7 +183,7 @@ def generate_subject_data(
         Number of time samples per trial.
     n_classes : int
         Number of classes. Must be <= n_channels, since class `cls` scales
-        channel `cls`.
+        channel `cls`. A larger value raises a ``ValueError``.
     subj_seed : int
         Seed for this subject's random channel mixing and noise.
     scale_factor : float (default: 2.0)
@@ -204,6 +204,12 @@ def generate_subject_data(
     .. versionadded:: 0.7.0
 
     """
+    if n_classes > n_channels:
+        raise ValueError(
+            "n_classes must be <= n_channels, since class `cls` is encoded by "
+            f"scaling channel `cls` (got n_classes={n_classes}, "
+            f"n_channels={n_channels})."
+        )
     rng = np.random.RandomState(subj_seed)
     M = rng.randn(n_channels, n_channels)
     A = np.linalg.cholesky(M @ M.T + n_channels * np.eye(n_channels))

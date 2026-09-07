@@ -35,7 +35,7 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import ContinuousQIOCEClassifier, QuanticNCH
-from pyriemann_qiskit.utils.dataset import generate_subject_data
+from pyriemann_qiskit.utils.dataset import generate_subject_signal
 from pyriemann_qiskit.utils.hyper_params_factory import (
     create_mixer_with_circular_entanglement,
 )
@@ -67,7 +67,7 @@ n_trials_per_class = 30
 #   class k → channel k has 5× higher std → covariance differs from other class.
 
 
-X, y = generate_subject_data(
+X, y = generate_subject_signal(
     n_trials_per_class, n_channels, n_times, n_classes, subj_seed=seed
 )
 print(f"Dataset: X={X.shape}, y={y.shape}")

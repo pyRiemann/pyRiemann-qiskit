@@ -35,7 +35,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.pipeline import make_pipeline
 
 from pyriemann_qiskit.classification import QuanticNCH
-from pyriemann_qiskit.utils.dataset import generate_subject_data
+from pyriemann_qiskit.utils.dataset import generate_subject_signal
 from pyriemann_qiskit.utils.math import to_xyz
 from pyriemann_qiskit.utils.transfer import Adapter
 
@@ -65,7 +65,7 @@ n_samples_per_hull = 2
 X_per_subj = []
 y_per_subj = []
 for s in range(n_subjects):
-    X_s, y_s = generate_subject_data(
+    X_s, y_s = generate_subject_signal(
         n_trials_per_class,
         n_channels,
         n_times,
