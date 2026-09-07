@@ -205,6 +205,7 @@ Datasets
     get_mne_sample
     generate_linearly_separable_dataset
     generate_qiskit_dataset
+    generate_subject_signal
     get_feature_dimension
     MockDataset
 
