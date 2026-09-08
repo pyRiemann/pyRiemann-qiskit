@@ -17,12 +17,7 @@ Notes
 
 import numpy as np
 
-from .docplex import (
-    IntegerEncoding,
-    _interpret_solution,
-    _to_qubo,
-    pyQiskitOptimizer,
-)
+from .docplex import IntegerEncoding, _interpret_solution, _to_qubo, pyQiskitOptimizer
 
 try:
     from joblib import Parallel, delayed
