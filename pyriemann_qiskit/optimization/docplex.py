@@ -244,21 +244,33 @@ def _with_constraints(optimizer, constraints):
     return type(optimizer)(**settings)
 
 
-class pyQiskitOptimizer:
-    """Wrapper for Qiskit optimizer.
+class SpdMatEncoding:
+    """How a docplex model represents SPD matrices and weights.
 
-    This class is an abstract class which provides an interface
-    for running a docplex model independently of the optimizer type
-    (such as classical or quantum optimizer).
+    An optimizer has two independent concerns: *how* the decision variables
+    of the docplex model are encoded, and *where* the resulting problem is
+    solved. This class is the first of the two, held by
+    :class:`pyQiskitOptimizer` as its `encoding` attribute and injected by
+    each concrete optimizer.
+
+    Keeping it separate from the optimizer class hierarchy is what lets the
+    two concerns vary independently: `NaiveQAOAOptimizer` (Qiskit backend)
+    and `PBitClassicalOptimizer` (p-bit backend) share
+    :class:`IntegerEncoding`, while `ClassicalOptimizer` (scipy) and
+    `QAOACVOptimizer` (Qiskit backend) share :class:`ContinuousEncoding`.
+    Neither grouping is a subtree of the other, so no single inheritance
+    chain can express both.
 
     Notes
     -----
-    .. versionadded:: 0.0.2
-    .. versionchanged:: 0.0.4
-    """
+    .. versionadded:: 0.7.0
 
-    def __init__(self):
-        pass
+    See Also
+    --------
+    ContinuousEncoding
+    IntegerEncoding
+    pyQiskitOptimizer
+    """
 
     def convert_spdmat(self, X):
         """Convert a SPD matrix
@@ -277,17 +289,311 @@ class pyQiskitOptimizer:
 
         Notes
         -----
+        .. versionadded:: 0.7.0
+        """
+        return X
+
+    def spdmat_var(self, prob, channels, name):
+        """Create docplex matrix variable
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model.
+        channels : list
+            The list of channels. A channel can be any Python object,
+            such as channels'name or number but None.
+        name : string
+            A custom name for the variable.
+
+        Returns
+        -------
+        docplex_spdmat : dict
+            A docplex representation of a SPD matrix.
+
+        Notes
+        -----
+        .. versionadded:: 0.7.0
+        """
+        raise NotImplementedError()
+
+    def get_weights(self, prob, classes):
+        """Create docplex weight vector
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model.
+        classes : list
+            The classes.
+
+        Returns
+        -------
+        docplex_weights : ndarray
+            A vector of decision variables representing weights.
+
+        Notes
+        -----
+        .. versionadded:: 0.7.0
+        """
+        raise NotImplementedError()
+
+
+class ContinuousEncoding(SpdMatEncoding):
+    """Encode SPD matrices and weights as continuous docplex variables.
+
+    SPD matrices are passed through unchanged, since a continuous variable
+    can represent them directly. Used by optimizers solving the docplex
+    model in its continuous form, such as `ClassicalOptimizer`,
+    `QAOACVOptimizer` and `QAOACVAngleOptimizer`.
+
+    Notes
+    -----
+    .. versionadded:: 0.7.0
+
+    See Also
+    --------
+    SpdMatEncoding
+    square_cont_mat_var
+    """
+
+    def spdmat_var(self, prob, channels, name):
+        """Create docplex matrix variable
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model.
+        channels : list
+            The list of channels. A channel can be any Python object,
+            such as channels'name or number but None.
+        name : string
+            A custom name for the variable.
+
+        Returns
+        -------
+        docplex_spdmat : dict
+            A docplex representation of a SPD matrix with continuous
+            variables.
+
+        Notes
+        -----
+        .. versionadded:: 0.7.0
+        """
+        return square_cont_mat_var(prob, channels, name)
+
+    def get_weights(self, prob, classes):
+        """Create docplex weight vector
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model.
+        classes : list
+            The classes.
+
+        Returns
+        -------
+        docplex_weights : ndarray
+            A vector of continuous decision variables representing weights.
+
+        Notes
+        -----
+        .. versionadded:: 0.7.0
+        """
+        w = prob.continuous_var_matrix(
+            keys1=[1], keys2=classes, name="weight", lb=0, ub=1
+        )
+        return np.array([w[key] for key in w])
+
+
+class IntegerEncoding(SpdMatEncoding):
+    """Encode SPD matrices and weights as integer docplex variables.
+
+    SPD matrices are normalized to correlation matrices and rounded onto the
+    integer grid ``[0, upper_bound]``, so that the model can be converted to
+    a QUBO / Ising formulation. Used by optimizers solving that formulation,
+    such as `NaiveQAOAOptimizer`, `PBitClassicalOptimizer` and
+    `PBitTFIsingOptimizer`.
+
+    Parameters
+    ----------
+    upper_bound : int, default=7
+        The maximum integer value for matrix normalization. It bounds the
+        integer variables created by `spdmat_var` and `get_weights`.
+
+    Notes
+    -----
+    .. versionadded:: 0.7.0
+
+    See Also
+    --------
+    SpdMatEncoding
+    square_int_mat_var
+    """
+
+    def __init__(self, upper_bound=7):
+        self.upper_bound = upper_bound
+
+    def convert_spdmat(self, X):
+        """Convert a SPD matrix
+
+        Transform all values in the SPD matrix to integers.
+
+        Example:
+        0.123 -> 1230
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_features, n_features)
+            The SPD matrix.
+
+        Returns
+        -------
+        transformed_X : ndarray, shape (n_features, n_features)
+            A transformation of the SPD matrix.
+
+        Notes
+        -----
+        .. versionadded:: 0.7.0
+        """
+        corr = normalize(X, "corr")
+        return np.round(corr * self.upper_bound, 0)
+
+    def spdmat_var(self, prob, channels, name):
+        """Create docplex matrix variable
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model.
+        channels : list
+            The list of channels. A channel can be any Python object,
+            such as channels'name or number but None.
+        name : string
+            A custom name for the variable.
+
+        Returns
+        -------
+        docplex_spdmat : dict
+            A docplex representation of a SPD matrix with integer variables.
+
+        Notes
+        -----
+        .. versionadded:: 0.7.0
+        """
+        return square_int_mat_var(prob, channels, self.upper_bound, name)
+
+    def get_weights(self, prob, classes):
+        """Create docplex weight vector
+
+        Parameters
+        ----------
+        prob : Model
+            An instance of the docplex model.
+        classes : list
+            The classes.
+
+        Returns
+        -------
+        docplex_weights : ndarray
+            A vector of integer decision variables representing weights.
+
+        Notes
+        -----
+        .. versionadded:: 0.7.0
+        """
+        w = prob.integer_var_matrix(
+            keys1=[1], keys2=classes, name="weight", lb=0, ub=self.upper_bound
+        )
+        return np.array([w[key] for key in w])
+
+
+class pyQiskitOptimizer:
+    """Wrapper for Qiskit optimizer.
+
+    This class is an abstract class which provides an interface
+    for running a docplex model independently of the optimizer type
+    (such as classical or quantum optimizer).
+
+    How the docplex variables are encoded is delegated to an
+    :class:`SpdMatEncoding` instance rather than fixed by the class
+    hierarchy, because the encoding and the solving backend vary
+    independently across optimizers (see :class:`SpdMatEncoding`).
+
+    Parameters
+    ----------
+    encoding : SpdMatEncoding, default=ContinuousEncoding()
+        The docplex variable encoding used by `convert_spdmat`,
+        `spdmat_var` and `get_weights`.
+
+    Attributes
+    ----------
+    upper_bound : int
+        The maximum integer value for matrix normalization. Shortcut for
+        ``self.encoding.upper_bound``, available only when the encoding
+        defines one (i.e. :class:`IntegerEncoding`).
+
+    Notes
+    -----
+    .. versionadded:: 0.0.2
+    .. versionchanged:: 0.0.4
+    .. versionchanged:: 0.7.0
+        Add `encoding` parameter. `convert_spdmat`, `spdmat_var` and
+        `get_weights` now delegate to it, instead of being reimplemented
+        (or borrowed from a sibling class) by each subclass.
+    """
+
+    def __init__(self, encoding=None):
+        self.encoding = ContinuousEncoding() if encoding is None else encoding
+
+    @property
+    def upper_bound(self):
+        """The maximum integer value for matrix normalization."""
+        encoding = self.encoding
+        upper_bound = getattr(encoding, "upper_bound", None)
+        if upper_bound is None:
+            raise AttributeError(
+                f"{type(self).__name__} uses a "
+                f"{type(encoding).__name__}, which has no upper_bound."
+            )
+        return upper_bound
+
+    @upper_bound.setter
+    def upper_bound(self, value):
+        setattr(self.encoding, "upper_bound", value)
+
+    def convert_spdmat(self, X):
+        """Convert a SPD matrix
+
+        Hook to apply some transformation on a SPD matrix,
+        delegated to `self.encoding`.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_features, n_features)
+            A SPD matrix.
+
+        Returns
+        -------
+        X_new : ndarray, shape (n_features, n_features)
+            A transformation of the SPD matrix.
+
+        Notes
+        -----
         .. versionadded:: 0.0.2
         .. versionchanged:: 0.4.0
             rename convert_covmat to convert_spdmat
+        .. versionchanged:: 0.7.0
+            delegate to `self.encoding`
         """
-        return X
+        return self.encoding.convert_spdmat(X)
 
     def spdmat_var(self, prob, channels, name):
         """ Create docplex matrix variable
 
         Helper to create a docplex representation of a
-        SPD matrix variable.
+        SPD matrix variable, delegated to `self.encoding`.
 
         Parameters
         ----------
@@ -305,11 +611,17 @@ class pyQiskitOptimizer:
         docplex_spdmat : dict
             A docplex representation of a SPD matrix.
 
+        See Also
+        -----
+        SpdMatEncoding
+
         Notes
         -----
         .. versionadded:: 0.0.2
         .. versionchanged:: 0.4.0
             rename covmat_var to spdmat_var
+        .. versionchanged:: 0.7.0
+            delegate to `self.encoding`
 
         References
         ----------
@@ -317,7 +629,7 @@ class pyQiskitOptimizer:
             http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
 
         """
-        raise NotImplementedError()
+        return self.encoding.spdmat_var(prob, channels, name)
 
     def _solve_qp(self, qp, reshape=True):
         raise NotImplementedError()
@@ -353,7 +665,7 @@ class pyQiskitOptimizer:
         """Weights variable
 
         Helper to create a docplex representation of a
-        weight vector.
+        weight vector, delegated to `self.encoding`.
 
         Parameters
         ----------
@@ -368,12 +680,18 @@ class pyQiskitOptimizer:
             A vector of decision variables representing
             weights.
 
+        See Also
+        -----
+        SpdMatEncoding
+
         Notes
         -----
         .. versionadded:: 0.0.4
+        .. versionchanged:: 0.7.0
+            delegate to `self.encoding`
 
         """
-        raise NotImplementedError()
+        return self.encoding.get_weights(prob, classes)
 
 
 class ClassicalOptimizer(pyQiskitOptimizer):
@@ -411,47 +729,8 @@ class ClassicalOptimizer(pyQiskitOptimizer):
     """
 
     def __init__(self, optimizer=CobylaOptimizer(rhobeg=2.1, tol=0.000001)):
-        pyQiskitOptimizer.__init__(self)
+        super().__init__(encoding=ContinuousEncoding())
         self.optimizer = optimizer
-
-    def spdmat_var(self, prob, channels, name):
-        """ Create docplex matrix variable
-
-        Helper to create a docplex representation of a
-        SPD matrix variable.
-
-        Parameters
-        ----------
-        prob : Model
-            An instance of the docplex model [1]_
-        channels : list
-            The list of channels. A channel can be any Python object,
-            such as channels'name or number but None.
-        name : string
-            A custom name for the variable. The name is used internally by docplex
-            and may appear if your print the model to a file for example.
-
-        Returns
-        -------
-        docplex_spdmat : dict
-            A docplex representation of a SPD matrix with continuous variables.
-
-        See Also
-        -----
-        square_cont_mat_var
-
-        Notes
-        -----
-        .. versionadded:: 0.0.2
-        .. versionchanged:: 0.4.0
-            rename covmat_var to spdmat_var
-
-        References
-        ----------
-        .. [1] \
-            http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
-        """
-        return square_cont_mat_var(prob, channels, name)
 
     def _solve_qp(self, qp, reshape=True):
         bounds = [(v.lowerbound, v.upperbound) for v in qp.variables]
@@ -470,35 +749,6 @@ class ClassicalOptimizer(pyQiskitOptimizer):
             n_channels = int(math.sqrt(result.shape[0]))
             return np.reshape(result, (n_channels, n_channels))
         return result
-
-    def get_weights(self, prob, classes):
-        """Weights variabpe
-
-        Helper to create a docplex representation of a
-        weight vector.
-
-        Parameters
-        ----------
-        prob : Model
-            An instance of the docplex model [1]_
-        classes : list
-            The classes.
-
-        Returns
-        -------
-        docplex_weights : dict
-            A vector of continuous decision variables representing weights.
-
-        Notes
-        -----
-        .. versionadded:: 0.0.4
-
-        """
-        w = prob.continuous_var_matrix(
-            keys1=[1], keys2=classes, name="weight", lb=0, ub=1
-        )
-        w = np.array([w[key] for key in w])
-        return w
 
 
 def _get_quantum_instance(self):
@@ -538,6 +788,9 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     .. versionchanged:: 0.3.0
         add `evaluated_values_` attribute.
         add optimizer parameter.
+    .. versionchanged:: 0.7.0
+        `convert_spdmat`, `spdmat_var` and `get_weights` are now provided by
+        :class:`IntegerEncoding`, shared with the p-kit optimizers.
 
     Attributes
     ----------
@@ -547,6 +800,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
     See Also
     --------
     pyQiskitOptimizer
+    IntegerEncoding
     """
 
     def __init__(
@@ -556,79 +810,10 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         optimizer=SLSQP(),
         initial_points=[0.0, 0.0],
     ):
-        pyQiskitOptimizer.__init__(self)
-        self.upper_bound = upper_bound
+        super().__init__(encoding=IntegerEncoding(upper_bound))
         self.quantum_instance = quantum_instance
         self.optimizer = optimizer
         self.initial_points = initial_points
-
-    def convert_spdmat(self, X):
-        """Convert a SPD matrix
-
-        Transform all values in the SPD matrix to integers.
-
-        Example:
-        0.123 -> 1230
-
-        Parameters
-        ----------
-        X : ndarray, shape (n_features, n_features)
-            The SPD matrix.
-
-        Returns
-        -------
-        transformed_X : ndarray, shape (n_features, n_features)
-            A transformation of the SPD matrix.
-
-        Notes
-        -----
-        .. versionadded:: 0.0.2
-        .. versionchanged:: 0.4.0
-            rename convert_covmat to convert_spdmat
-
-        """
-        corr = normalize(X, "corr")
-        return np.round(corr * self.upper_bound, 0)
-
-    def spdmat_var(self, prob, channels, name):
-        """ Create docplex matrix variable
-
-        Helper to create a docplex representation of a
-        SPD matrix variable.
-
-        Parameters
-        ----------
-        prob : Model
-            An instance of the docplex model [1]_
-        channels : list
-            The list of channels. A channel can be any Python object,
-            such as channels'name or number but None.
-        name : string
-            A custom name for the variable. The name is used internally by docplex
-            and may appear if your print the model to a file for example.
-
-        Returns
-        -------
-        docplex_spdmat : dict
-            A docplex representation of a SPD matrix with integer variables.
-
-        See Also
-        -----
-        square_int_mat_var
-
-        Notes
-        -----
-        .. versionadded:: 0.0.2
-        .. versionchanged:: 0.4.0
-            rename covmat_var to spdmat_var
-
-        References
-        ----------
-        .. [1] \
-            http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
-
-        """
-        return square_int_mat_var(prob, channels, self.upper_bound, name)
 
     def _solve_qp(self, qp, reshape=True):
         conv = IntegerToBinary()
@@ -667,34 +852,6 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
             n_channels = int(math.sqrt(result.shape[0]))
             return np.reshape(result, (n_channels, n_channels))
         return result
-
-    def get_weights(self, prob, classes):
-        """Get weights variable
-
-        Helper to create a docplex representation of a weight vector.
-
-        Parameters
-        ----------
-        prob : Model
-            An instance of the docplex model [1]_
-        classes : list
-            The classes.
-
-        Returns
-        -------
-        docplex_weights : dict
-            A vector of integer decision variables representing weights.
-
-        Notes
-        -----
-        .. versionadded:: 0.0.4
-
-        """
-        w = prob.integer_var_matrix(
-            keys1=[1], keys2=classes, name="weight", lb=0, ub=self.upper_bound
-        )
-        w = np.array([w[key] for key in w])
-        return w
 
 
 def build_qaoa_ansatz(create_mixer, n_reps, n_var):
@@ -802,6 +959,7 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
         quantum_instance=None,
         optimizer=None,
     ):
+        super().__init__(encoding=ContinuousEncoding())
         self.n_reps = n_reps
         self.create_mixer = (
             create_mixer
@@ -826,65 +984,6 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
             variable_bounds.append((v.lowerbound, v.upperbound))
 
         return variable_bounds
-
-    def spdmat_var(self, prob, channels, name):
-        """ Create docplex matrix variable
-
-        Parameters
-        ----------
-        prob : Model
-            An instance of the docplex model [1]_.
-        channels : list
-            The list of channels. A channel can be any Python object,
-            such as channels'name or number but None.
-        name : string
-            A custom name for the variable. The name is used internally by docplex
-            and may appear if your print the model to a file for example.
-
-        Returns
-        -------
-        docplex_spdmat : dict
-            A docplex representation of a SPD matrix with continuous variables.
-
-        See Also
-        -----
-        square_cont_mat_var
-
-        Notes
-        -----
-        .. versionadded:: 0.5.0
-
-        References
-        ----------
-        .. [1] \
-            http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
-
-        """
-        return ClassicalOptimizer.spdmat_var(self, prob, channels, name)
-
-    def get_weights(self, prob, classes):
-        """Get weights variable
-
-        Helper to create a docplex representation of a weight vector.
-
-        Parameters
-        ----------
-        prob : Model
-            An instance of the docplex model [1]_
-        classes : list
-            The classes.
-
-        Returns
-        -------
-        docplex_weights : dict
-            A vector of continuous decision variables representing weights.
-
-        Notes
-        -----
-        .. versionadded:: 0.5.0
-
-        """
-        return ClassicalOptimizer.get_weights(self, prob, classes)
 
     def _build_ansatz(self, n_var):
         """Build QAOA ansatz circuit with angle encoding for *n_var* qubits."""
@@ -1060,6 +1159,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         quantum_instance=None,
         optimizer=SPSA(),
     ):
+        super().__init__(encoding=ContinuousEncoding())
         self.n_reps = n_reps
         self.create_mixer = create_mixer
         self.quantum_instance = quantum_instance
@@ -1082,67 +1182,6 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         qp = conv.convert(qp)
 
         return qp, scalers
-
-    def spdmat_var(self, prob, channels, name):
-        """ Create docplex matrix variable
-
-        Parameters
-        ----------
-        prob : Model
-            An instance of the docplex model [1]_.
-        channels : list
-            The list of channels. A channel can be any Python object,
-            such as channels'name or number but None.
-        name : string
-            A custom name for the variable. The name is used internally by docplex
-            and may appear if your print the model to a file for example.
-
-        Returns
-        -------
-        docplex_spdmat : dict
-            A docplex representation of a SPD matrix with continuous variables.
-
-        See Also
-        -----
-        square_cont_mat_var
-
-        Notes
-        -----
-        .. versionadded:: 0.4.0
-        .. versionchanged:: 0.4.0
-            rename covmat_var to spdmat_var
-
-        References
-        ----------
-        .. [1] \
-            http://ibmdecisionoptimization.github.io/docplex-doc/mp/_modules/docplex/mp/model.html#Model
-
-        """
-        return ClassicalOptimizer.spdmat_var(self, prob, channels, name)
-
-    def get_weights(self, prob, classes):
-        """Get weights variable
-
-        Helper to create a docplex representation of a weight vector.
-
-        Parameters
-        ----------
-        prob : Model
-            An instance of the docplex model [1]_
-        classes : list
-            The classes.
-
-        Returns
-        -------
-        docplex_weights : dict
-            A vector of integer decision variables representing weights.
-
-        Notes
-        -----
-        .. versionadded:: 0.4.0
-
-        """
-        return ClassicalOptimizer.get_weights(self, prob, classes)
 
     def _solve_qp(self, qp, reshape=True):
         quantum_instance = _get_quantum_instance(self)
