@@ -4,8 +4,8 @@ scikit-learn==1.8.0
 git+https://github.com/pyRiemann/pyRiemann#egg=pyriemann
 qiskit==2.5.2
 qiskit_algorithms==0.4.0
-qiskit_machine_learning==0.9.0
-qiskit_ibm_runtime==0.48.0
+qiskit_machine_learning==0.9.1
+qiskit_ibm_runtime==0.49.0
 qiskit-addon-opt-mapper==0.1.0
 qiskit-aer==0.17.2
 cvxpy==1.9.2

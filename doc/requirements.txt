@@ -17,12 +17,12 @@ pandas
 cvxpy==1.9.2
 qiskit==2.5.2
 qiskit_algorithms==0.4.0
-qiskit_machine_learning==0.9.0
-qiskit_ibm_runtime==0.48.0
+qiskit_machine_learning==0.9.1
+qiskit_ibm_runtime==0.49.0
 qiskit-addon-opt-mapper==0.1.0
 qiskit-aer==0.17.2
 scipy==1.17.1
-moabb==1.5.0
+moabb==1.6.1
 pyriemann==0.12
 docplex==2.32.264
 hashable_list
