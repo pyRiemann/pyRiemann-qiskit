@@ -15,12 +15,14 @@ Notes
 .. versionadded:: 0.7.0
 """
 
-import math
-
 import numpy as np
-from qiskit_addon_opt_mapper.converters import EqualityToPenalty, IntegerToBinary
 
-from .docplex import NaiveQAOAOptimizer, pyQiskitOptimizer
+from .docplex import (
+    IntegerEncoding,
+    _interpret_solution,
+    _to_qubo,
+    pyQiskitOptimizer,
+)
 
 try:
     from joblib import Parallel, delayed
@@ -97,7 +99,74 @@ if HAS_PKIT:
                 best_x, best_value = x, value
         return best_x
 
-    class PBitClassicalOptimizer(pyQiskitOptimizer):
+    class _PBitOptimizer(pyQiskitOptimizer):
+        """Shared base for the p-kit optimizers.
+
+        :class:`PBitClassicalOptimizer` and :class:`PBitTFIsingOptimizer`
+        differ only in how they map the QUBO onto a p-bit circuit, and in how
+        they read one classical bit back out of the sampled spins. Everything
+        else is common and lives here: the integer encoding of the docplex
+        model, the ``CaSuDaSolver`` annealing parameters, and the sampling
+        itself.
+
+        Unlike the docplex variable encoding -- injected as an
+        :class:`~pyriemann_qiskit.optimization.docplex.SpdMatEncoding` because
+        it varies independently of the solver -- these two classes share both
+        their encoding *and* their backend, so plain inheritance is enough
+        here.
+
+        Parameters
+        ----------
+        upper_bound : int, default=7
+            The maximum integer value for matrix normalization.
+        Nt : int, default=10000
+            Number of annealing timesteps run by the p-bit solver.
+        dt : float, default=0.1
+            Solver integration timestep.
+        i0 : float, default=1.0
+            Coupling-strength scale used by the (constant) annealing schedule.
+        n_shots : int, default=100
+            Number of independent p-bit annealing trajectories to sample.
+        n_jobs : int, default=1
+            Number of parallel jobs used to run the `n_shots` trajectories.
+        seed : int, default=42
+            Base seed for the p-bit solver's random number generator.
+
+        Notes
+        -----
+        .. versionadded:: 0.7.0
+
+        See Also
+        --------
+        pyQiskitOptimizer
+        pyriemann_qiskit.optimization.docplex.IntegerEncoding
+        """
+
+        def __init__(
+            self,
+            upper_bound=7,
+            Nt=10000,
+            dt=0.1,
+            i0=1.0,
+            n_shots=100,
+            n_jobs=1,
+            seed=42,
+        ):
+            super().__init__(encoding=IntegerEncoding(upper_bound))
+            self.Nt = Nt
+            self.dt = dt
+            self.i0 = i0
+            self.n_shots = n_shots
+            self.n_jobs = n_jobs
+            self.seed = seed
+
+        def _sample(self, circuit):
+            """Sample `self.n_shots` final p-bit states of `circuit`."""
+            return _sample_final_states(
+                circuit, self.Nt, self.dt, self.i0, self.n_shots, self.seed, self.n_jobs
+            )
+
+    class PBitClassicalOptimizer(_PBitOptimizer):
         """Wrapper for p-kit's classical (Boltzmann) p-bit optimizer.
 
         Maps the docplex model to a binary QUBO (via ``IntegerToBinary`` +
@@ -142,6 +211,7 @@ if HAS_PKIT:
         See Also
         --------
         pyQiskitOptimizer
+        pyriemann_qiskit.optimization.docplex.IntegerEncoding
         PBitTFIsingOptimizer
         """
 
@@ -155,34 +225,10 @@ if HAS_PKIT:
             n_jobs=1,
             seed=42,
         ):
-            super().__init__()
-            self.upper_bound = upper_bound
-            self.Nt = Nt
-            self.dt = dt
-            self.i0 = i0
-            self.n_shots = n_shots
-            self.n_jobs = n_jobs
-            self.seed = seed
-
-        def convert_spdmat(self, X):
-            return NaiveQAOAOptimizer.convert_spdmat(self, X)
-
-        def spdmat_var(self, prob, channels, name):
-            return NaiveQAOAOptimizer.spdmat_var(self, prob, channels, name)
-
-        def get_weights(self, prob, classes):
-            return NaiveQAOAOptimizer.get_weights(self, prob, classes)
+            super().__init__(upper_bound, Nt, dt, i0, n_shots, n_jobs, seed)
 
         def _solve_qp(self, qp, reshape=True):
-            # `IntegerToBinary` expands each integer variable according to its
-            # own declared bounds. `PolyOptimizer` applies a single `n_bits` to
-            # every variable alike, so deriving that width from `upper_bound`
-            # instead would widen variables declared narrower than it -- a
-            # binary variable would range over [0, upper_bound] and the solver
-            # would return an infeasible point.
-            conv = IntegerToBinary()
-            qubo = conv.convert(qp)
-            qubo = EqualityToPenalty().convert(qubo)
+            conv, qubo = _to_qubo(qp)
             variables = [v.name for v in qubo.variables]
 
             linear = qubo.objective.linear.to_array()
@@ -205,26 +251,24 @@ if HAS_PKIT:
             scale = _normalize_scale(max((abs(v) for v in coeffs.values()), default=1))
             coeffs = {mono: value / scale for mono, value in coeffs.items()}
 
-            # Every variable is binary after the conversion above.
+            # Every variable is binary after `_to_qubo`, hence `n_bits=1`.
+            # `PolyOptimizer` applies a single `n_bits` to every variable
+            # alike, so deriving that width from `upper_bound` instead would
+            # widen variables declared narrower than it -- a binary variable
+            # would range over [0, upper_bound] and the solver would return an
+            # infeasible point.
             circuit = PolyOptimizer(coeffs, variables, n_bits=1, minimize=True)
 
-            samples = _sample_final_states(
-                circuit, self.Nt, self.dt, self.i0, self.n_shots, self.seed, self.n_jobs
-            )
+            samples = self._sample(circuit)
 
             candidates = [
                 np.array([circuit.decode(row)[name] for name in variables], dtype=float)
                 for row in samples
             ]
             best_bits = _best_candidate(qubo.objective, candidates)
-            result = conv.interpret(best_bits)
+            return _interpret_solution(conv, best_bits, reshape)
 
-            if reshape:
-                n_channels = int(math.sqrt(result.shape[0]))
-                return np.reshape(result, (n_channels, n_channels))
-            return result
-
-    class PBitTFIsingOptimizer(pyQiskitOptimizer):
+    class PBitTFIsingOptimizer(_PBitOptimizer):
         """Wrapper for p-kit's transverse-field-Ising p-bit optimizer.
 
         Maps the docplex model to a QUBO (via ``IntegerToBinary`` +
@@ -324,6 +368,7 @@ if HAS_PKIT:
         See Also
         --------
         pyQiskitOptimizer
+        pyriemann_qiskit.optimization.docplex.IntegerEncoding
         PBitClassicalOptimizer
         pyriemann_qiskit.optimization.docplex.NaiveQAOAOptimizer
         """
@@ -341,31 +386,13 @@ if HAS_PKIT:
             n_jobs=1,
             seed=42,
         ):
-            super().__init__()
-            self.upper_bound = upper_bound
+            super().__init__(upper_bound, Nt, dt, i0, n_shots, n_jobs, seed)
             self.gamma = gamma
             self.beta = beta
             self.n_replicas = n_replicas
-            self.Nt = Nt
-            self.dt = dt
-            self.i0 = i0
-            self.n_shots = n_shots
-            self.n_jobs = n_jobs
-            self.seed = seed
-
-        def convert_spdmat(self, X):
-            return NaiveQAOAOptimizer.convert_spdmat(self, X)
-
-        def spdmat_var(self, prob, channels, name):
-            return NaiveQAOAOptimizer.spdmat_var(self, prob, channels, name)
-
-        def get_weights(self, prob, classes):
-            return NaiveQAOAOptimizer.get_weights(self, prob, classes)
 
         def _solve_qp(self, qp, reshape=True):
-            conv = IntegerToBinary()
-            qubo = conv.convert(qp)
-            qubo = EqualityToPenalty().convert(qubo)
+            conv, qubo = _to_qubo(qp)
 
             Q = _qubo_to_matrix(qubo)
             n_bin = Q.shape[0]
@@ -375,9 +402,7 @@ if HAS_PKIT:
                 Q / scale, gamma=self.gamma, beta=self.beta, n_replicas=self.n_replicas
             )
 
-            samples = _sample_final_states(
-                circuit, self.Nt, self.dt, self.i0, self.n_shots, self.seed, self.n_jobs
-            )
+            samples = self._sample(circuit)
 
             # p-bit (i, tau) maps to index tau * n_bin + i (replica-major
             # ordering); average over the replica axis and threshold to
@@ -386,9 +411,4 @@ if HAS_PKIT:
             bits = (spins.mean(axis=1) > 0).astype(float)
 
             best_bits = _best_candidate(qubo.objective, bits)
-            result = conv.interpret(best_bits)
-
-            if reshape:
-                n_channels = int(math.sqrt(result.shape[0]))
-                return np.reshape(result, (n_channels, n_channels))
-            return result
+            return _interpret_solution(conv, best_bits, reshape)

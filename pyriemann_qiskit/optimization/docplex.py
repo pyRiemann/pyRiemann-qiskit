@@ -244,6 +244,88 @@ def _with_constraints(optimizer, constraints):
     return type(optimizer)(**settings)
 
 
+def _to_qubo(qp):
+    """Map an optimization problem to an unconstrained binary QUBO.
+
+    `IntegerToBinary` expands each integer variable according to its own
+    declared bounds, but only rewrites the variables: any remaining linear
+    equality constraint (e.g. the convex-hull weight simplex) must then be
+    folded into the objective as penalty terms by `EqualityToPenalty`, since
+    both `to_ising` and the p-bit circuit builders require a fully
+    unconstrained problem.
+
+    Parameters
+    ----------
+    qp : OptimizationProblem
+        The problem to convert.
+
+    Returns
+    -------
+    conv : IntegerToBinary
+        The converter, needed to interpret a solution back into the original
+        variables.
+    qubo : OptimizationProblem
+        The unconstrained binary QUBO.
+
+    Notes
+    -----
+    .. versionadded:: 0.7.0
+    """
+    conv = IntegerToBinary()
+    qubo = conv.convert(qp)
+    return conv, EqualityToPenalty().convert(qubo)
+
+
+def _reshape_solution(solution, reshape):
+    """Reshape a flat solution vector into a square matrix, if requested.
+
+    Parameters
+    ----------
+    solution : ndarray, shape (n_features,)
+        A flat solution vector.
+    reshape : bool
+        Whether to fold `solution` into a square matrix.
+
+    Returns
+    -------
+    result : ndarray
+        `solution` itself, or its square matrix view.
+
+    Notes
+    -----
+    .. versionadded:: 0.7.0
+    """
+    if reshape:
+        n_channels = int(math.sqrt(solution.shape[0]))
+        return np.reshape(solution, (n_channels, n_channels))
+    return solution
+
+
+def _interpret_solution(conv, x, reshape):
+    """Map a binary solution back onto the original variables of a problem
+    converted by :func:`_to_qubo`, reshaping it as :func:`_reshape_solution`.
+
+    Parameters
+    ----------
+    conv : IntegerToBinary
+        The converter returned by :func:`_to_qubo`.
+    x : ndarray
+        A solution of the converted problem, in binary variables.
+    reshape : bool
+        Whether to fold the result into a square matrix.
+
+    Returns
+    -------
+    result : ndarray
+        The solution, in the original variables.
+
+    Notes
+    -----
+    .. versionadded:: 0.7.0
+    """
+    return _reshape_solution(conv.interpret(x), reshape)
+
+
 class SpdMatEncoding:
     """How a docplex model represents SPD matrices and weights.
 
@@ -745,10 +827,7 @@ class ClassicalOptimizer(pyQiskitOptimizer):
         ]
         result = optimizer.minimize(qp.objective.evaluate, x0, bounds=scipy_bounds).x
 
-        if reshape:
-            n_channels = int(math.sqrt(result.shape[0]))
-            return np.reshape(result, (n_channels, n_channels))
-        return result
+        return _reshape_solution(result, reshape)
 
 
 def _get_quantum_instance(self):
@@ -816,13 +895,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         self.initial_points = initial_points
 
     def _solve_qp(self, qp, reshape=True):
-        conv = IntegerToBinary()
-        qubo = conv.convert(qp)
-        # `to_ising` requires a fully unconstrained QUBO. `IntegerToBinary` only
-        # rewrites integer variables as binary; any remaining linear equality
-        # constraints (e.g. the convex-hull weight simplex) must be folded into
-        # the objective as penalty terms before the Ising conversion.
-        qubo = EqualityToPenalty().convert(qubo)
+        conv, qubo = _to_qubo(qp)
         quantum_instance = _get_quantum_instance(self)
 
         self.evaluated_values_ = []
@@ -847,11 +920,7 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         # the bitstring realigns it with variable order.
         bitstring = eigen_result.best_measurement["bitstring"][::-1]
         x = np.array([int(bit) for bit in bitstring], dtype=float)
-        result = conv.interpret(x)
-        if reshape:
-            n_channels = int(math.sqrt(result.shape[0]))
-            return np.reshape(result, (n_channels, n_channels))
-        return result
+        return _interpret_solution(conv, x, reshape)
 
 
 def build_qaoa_ansatz(create_mixer, n_reps, n_var):
@@ -1100,11 +1169,7 @@ class QAOACVAngleOptimizer(pyQiskitOptimizer):
         solution = np.array([prob(self.state_vector_, i) for i in range(n_var)])
         self.minimum_ = objective_expr.evaluate(solution)
 
-        if reshape:
-            n_channels = int(math.sqrt(solution.shape[0]))
-            return np.reshape(solution, (n_channels, n_channels))
-
-        return solution
+        return _reshape_solution(solution, reshape)
 
 
 class QAOACVOptimizer(pyQiskitOptimizer):
@@ -1275,8 +1340,4 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         optimized_circuit = ansatz_0.assign_parameters(self.optim_params_)
         self.state_vector_ = Statevector(optimized_circuit)
 
-        if reshape:
-            n_channels = int(math.sqrt(solution.shape[0]))
-            return np.reshape(solution, (n_channels, n_channels))
-
-        return solution
+        return _reshape_solution(solution, reshape)
