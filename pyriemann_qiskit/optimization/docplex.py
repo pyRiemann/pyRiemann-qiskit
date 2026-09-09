@@ -373,7 +373,7 @@ class SpdMatEncoding:
         -----
         .. versionadded:: 0.7.0
         """
-        return X
+        raise NotImplementedError()
 
     def spdmat_var(self, prob, channels, name):
         """Create docplex matrix variable
