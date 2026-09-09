@@ -102,11 +102,25 @@ Docplex
     square_cont_mat_var
     square_int_mat_var
     square_bin_mat_var
+    SpdMatEncoding
+    ContinuousEncoding
+    IntegerEncoding
     pyQiskitOptimizer
     ClassicalOptimizer
     NaiveQAOAOptimizer
     QAOACVAngleOptimizer
     QAOACVOptimizer
+
+p-kit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _pkit_api:
+.. currentmodule:: pyriemann_qiskit.optimization.pkit_optimizer
+
+.. autosummary::
+    :toctree: generated/
+
+    PBitClassicalOptimizer
+    PBitTFIsingOptimizer
 
 Optimizers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -205,6 +219,7 @@ Datasets
     get_mne_sample
     generate_linearly_separable_dataset
     generate_qiskit_dataset
+    generate_subject_signal
     get_feature_dimension
     MockDataset
 
