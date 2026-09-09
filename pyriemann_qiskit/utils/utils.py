@@ -108,6 +108,7 @@ def get_docplex_optimizer_from_params_bag(
     Notes
     -----
     The function selects the optimizer according to the following logic:
+
     - If backend="pkit":
         - If pkit_optimizer is provided, returns it as-is.
         - Else if quantum=True: returns PBitTFIsingOptimizer
