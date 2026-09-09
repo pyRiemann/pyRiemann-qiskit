@@ -605,7 +605,7 @@ class pyQiskitOptimizer:
 
     Parameters
     ----------
-    encoding : SpdMatEncoding, default=ContinuousEncoding()
+    encoding : {ContinuousEncoding(), IntergerEncoding()}, default=ContinuousEncoding()
         The docplex variable encoding used by `convert_spdmat`,
         `spdmat_var` and `get_weights`.
 
