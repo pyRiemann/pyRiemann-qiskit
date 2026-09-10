@@ -1,48 +1,10 @@
 """Quantum State Discriminator classifier."""
 
 import numpy as np
-from joblib import Parallel, delayed
+from pyriemann.estimation import Covariances, TimeDelayCovariances, XdawnCovariances
 from scipy.linalg import eigh
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import check_is_fitted
-
-
-def _build_operator(X):
-    """Construct normalized EEG measurement operator from a single trial.
-
-    Parameters
-    ----------
-    X : ndarray, shape (n_channels, n_times)
-
-    Returns
-    -------
-    M : ndarray, shape (n_channels, n_channels)
-        Normalized EEG covariance (trace=1), acting as a quantum observable.
-    """
-    M = X @ X.T / X.shape[1]
-    tr = np.trace(M)
-    if tr < 1e-12:
-        n = X.shape[0]
-        return np.eye(n) / n
-    return M / tr
-
-
-def _score_trial(X_i, povm, classes):
-    """Compute POVM scores trace(Pi_c . M) for one trial.
-
-    Parameters
-    ----------
-    X_i : ndarray, shape (n_channels, n_times)
-    povm : dict[label -> ndarray (n_channels, n_channels)]
-    classes : ndarray
-
-    Returns
-    -------
-    scores : ndarray, shape (n_classes,)
-        Valid probabilities: non-negative and summing to 1.
-    """
-    M = _build_operator(X_i)
-    return np.array([np.sum(povm[c] * M) for c in classes])
 
 
 class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
@@ -67,34 +29,163 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
     For two classes with equal priors, this approximates the Helstrom
     measurement (theoretically optimal quantum state discrimination).
 
+    The operator M representing a trial is a trace-normalized covariance
+    matrix, estimated by pyriemann rather than here: ``covariance`` selects
+    which pyriemann estimator to delegate to.
+
     Parameters
     ----------
+    covariance : {"cov", "erp", "hankel"}, default="cov"
+        Which pyriemann estimator builds the operator of a trial.
+
+        - "cov": :class:`pyriemann.estimation.Covariances`, the temporal
+          covariance X.X^T. It is the state of a sustained (oscillatory)
+          process, so it suits resting-state paradigms, where the classes
+          differ in spatial covariance and band power.
+        - "erp": :class:`pyriemann.estimation.XdawnCovariances`, which
+          concatenates the class-average evoked responses to each
+          Xdawn-filtered trial before the covariance, so the operator also
+          carries the trial/prototype cross-correlation. Required for
+          time-locked paradigms (P300 and other ERPs): a plain covariance
+          integrates over time and averages the evoked deflection away.
+        - "hankel": :class:`pyriemann.estimation.TimeDelayCovariances`,
+          which concatenates ``delays`` time-shifted copies of the trial,
+          so the operator carries temporal auto-correlation. Unlike "erp"
+          this needs no labels.
+    estimator : string, default="scm"
+        Covariance estimator passed to the pyriemann estimator above, see
+        :func:`pyriemann.geometry.covariance.covariances`.
+    nfilter : int, default=8
+        Number of Xdawn spatial filters, when ``covariance="erp"``.
+        Capped at n_channels by Xdawn.
+    prototype_weight : float | None, default=None
+        Energy of the prototype block relative to the average trial, when
+        ``covariance="erp"``. ``None`` uses the prototypes unscaled.
+
+        The operator is trace-normalized, so its blocks compete for a fixed
+        budget, and only the prototype/trial cross-block is discriminative:
+        the prototype block is identical for every trial. A class-average
+        prototype carries far less energy than a single trial, so without
+        boosting it the cross-block claims little of the trace. This matters
+        because QSD compares against class-mean density matrices and cannot
+        down-weight uninformative entries the way a trained classifier does.
+
+        Applied as a congruence on the covariance, which is exactly
+        equivalent to scaling the prototype before estimating it.
+    delays : int, default=4
+        Number of time-shifted copies, when ``covariance="hankel"``.
+    xdawn_estimator : string, default="oas"
+        Covariance estimator used to fit Xdawn, when ``covariance="erp"``.
     n_jobs : int, default=1
-        Number of parallel jobs over trials at predict time.
+        Unused, kept for backward compatibility. Scoring is vectorized over
+        trials and runs in BLAS, so spreading trials over worker processes
+        cost more than it saved.
 
     Attributes
     ----------
-    density_matrices_ : dict[label -> ndarray (n_channels, n_channels)]
+    cov_estimator_ : object
+        The fitted pyriemann estimator building the operators.
+    density_matrices_ : dict[label -> ndarray (n_channels_, n_channels_)]
         Per-class density matrices rho_c (trace=1, PSD), estimated via
         quantum state tomography.
-    povm_ : dict[label -> ndarray (n_channels, n_channels)]
+    povm_ : dict[label -> ndarray (n_channels_, n_channels_)]
         Per-class POVM elements Pi_c satisfying sum_c Pi_c = I.
     priors_ : dict[label -> float]
         Class prior probabilities estimated from training set frequencies.
     classes_ : ndarray
         Unique class labels seen at fit time.
     n_channels_ : int
-        Number of EEG channels.
+        Dimension of the density matrices. Equal to the number of EEG
+        channels when ``covariance="cov"``, larger otherwise.
+    prototype_scale_ : float
+        Amplitude applied to the prototype block, when
+        ``covariance="erp"`` and ``prototype_weight`` is set.
 
     Notes
     -----
     .. versionadded:: 0.5.0
     .. versionchanged:: 0.6.0
         Moved to algorithms sub-package
+    .. versionchanged:: 0.6.0
+        Add ``covariance`` to support time-locked (ERP) paradigms
+    .. versionchanged:: 0.6.0
+        Delegate covariance estimation to pyriemann; ``n_jobs`` is now
+        unused
     """
 
-    def __init__(self, n_jobs=1):
+    def __init__(
+        self,
+        covariance="cov",
+        estimator="scm",
+        nfilter=8,
+        prototype_weight=None,
+        delays=4,
+        xdawn_estimator="oas",
+        n_jobs=1,
+    ):
+        self.covariance = covariance
+        self.estimator = estimator
+        self.nfilter = nfilter
+        self.prototype_weight = prototype_weight
+        self.delays = delays
+        self.xdawn_estimator = xdawn_estimator
         self.n_jobs = n_jobs
+
+    def _make_cov_estimator(self):
+        if self.covariance == "cov":
+            return Covariances(estimator=self.estimator)
+        if self.covariance == "erp":
+            return XdawnCovariances(
+                nfilter=self.nfilter,
+                estimator=self.estimator,
+                xdawn_estimator=self.xdawn_estimator,
+            )
+        if self.covariance == "hankel":
+            return TimeDelayCovariances(delays=self.delays, estimator=self.estimator)
+        raise ValueError(
+            'covariance must be "cov", "erp" or "hankel", got ' f"{self.covariance}"
+        )
+
+    def _weight_prototype(self, covmats):
+        """Rescale the prototype block of the ERP operator.
+
+        Scaling the prototype rows by s before estimating the covariance
+        multiplies the prototype block by s^2 and the cross-blocks by s,
+        which is the congruence D.C.D with D = diag(s I_p, I_x).
+        """
+        if self.covariance != "erp" or self.prototype_weight is None:
+            self.prototype_scale_ = 1.0
+            return covmats
+
+        n_proto = self.cov_estimator_.P_.shape[0]
+        idx = np.arange(covmats.shape[-1])
+        proto_energy = np.trace(
+            covmats[0, :n_proto, :n_proto]  # identical for every trial
+        )
+        trial_energy = np.mean(
+            np.trace(covmats[:, n_proto:, n_proto:], axis1=-2, axis2=-1)
+        )
+        self.prototype_scale_ = float(
+            np.sqrt(self.prototype_weight * trial_energy / proto_energy)
+        )
+
+        scale = np.where(idx < n_proto, self.prototype_scale_, 1.0)
+        return covmats * scale[None, :, None] * scale[None, None, :]
+
+    def _operators(self, X, y=None):
+        """Trial operators, estimated by pyriemann and prototype-weighted."""
+        if y is None:
+            covmats = self.cov_estimator_.transform(np.asarray(X))
+            if self.covariance == "erp" and self.prototype_weight is not None:
+                n_proto = self.cov_estimator_.P_.shape[0]
+                idx = np.arange(covmats.shape[-1])
+                scale = np.where(idx < n_proto, self.prototype_scale_, 1.0)
+                covmats = covmats * scale[None, :, None] * scale[None, None, :]
+            return covmats
+
+        self.cov_estimator_ = self._make_cov_estimator()
+        covmats = self.cov_estimator_.fit_transform(np.asarray(X), y)
+        return self._weight_prototype(covmats)
 
     def fit(self, X, y):
         """Fit class density matrices and POVM from raw EEG epochs.
@@ -110,23 +201,19 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
         -------
         self
         """
-        X = np.asarray(X)
         y = np.asarray(y)
+        covmats = self._operators(X, y)
 
-        self.n_channels_ = X.shape[1]
+        self.n_channels_ = covmats.shape[-1]
         self.classes_ = np.unique(y)
         n_total = len(y)
 
         # Step 1: quantum state tomography + prior estimation
-        density_matrices = {}
-        priors = {}
+        density_matrices, priors = {}, {}
         for c in self.classes_:
             idx = np.where(y == c)[0]
             priors[c] = len(idx) / n_total
-            Sigma_c = np.zeros((self.n_channels_, self.n_channels_))
-            for i in idx:
-                Sigma_c += X[i] @ X[i].T / X[i].shape[1]
-            Sigma_c /= len(idx)
+            Sigma_c = covmats[idx].mean(axis=0)
             density_matrices[c] = Sigma_c / np.trace(Sigma_c)
 
         self.priors_ = priors
@@ -142,11 +229,22 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
         rho_inv_sqrt = eigenvectors @ np.diag(inv_sqrt_eig) @ eigenvectors.T
 
         # Pi_c = rho_total^{-1/2} (pi_c * rho_c) rho_total^{-1/2}
-        # satisfies sum_c Pi_c = I by construction
         self.povm_ = {
             c: rho_inv_sqrt @ (priors[c] * density_matrices[c]) @ rho_inv_sqrt
             for c in self.classes_
         }
+
+        # The PGM sums to the projector onto the support of rho_total, which
+        # is the identity only when rho_total is full rank. A rank-deficient
+        # rho_total (fewer time samples than channels, or an augmented
+        # operator) otherwise leaves sum_c Pi_c != I, and predict_proba would
+        # not sum to 1. Share the residual equally between classes: this
+        # restores completeness while staying PSD, and stays uninformative on
+        # the null space, where no class was observed.
+        residual = np.eye(self.n_channels_) - sum(self.povm_.values())
+        residual = (residual + residual.T) / 2
+        for c in self.classes_:
+            self.povm_[c] = self.povm_[c] + residual / len(self.classes_)
 
         return self
 
@@ -163,13 +261,21 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
             Valid probabilities: non-negative and summing to 1.
         """
         check_is_fitted(self, ["povm_", "classes_"])
-        X = np.asarray(X)
+        covmats = self._operators(X)
 
-        all_scores = Parallel(n_jobs=self.n_jobs)(
-            delayed(_score_trial)(X[i], self.povm_, self.classes_)
-            for i in range(len(X))
-        )
-        return np.array(all_scores)
+        # M = C / trace(C), so trace(Pi_c . M) = sum(Pi_c * C) / trace(C)
+        povm = np.stack([self.povm_[c] for c in self.classes_])
+        scores = np.einsum("nij,cij->nc", covmats, povm)
+
+        energy = np.trace(covmats, axis1=-2, axis2=-1)
+        degenerate = energy < 1e-12
+        scores /= np.where(degenerate, 1.0, energy)[:, None]
+
+        if degenerate.any():
+            # A silent trial carries no state: M = I / n_channels.
+            scores[degenerate] = np.trace(povm, axis1=-2, axis2=-1) / self.n_channels_
+
+        return scores
 
     def predict(self, X):
         """Predict class labels.

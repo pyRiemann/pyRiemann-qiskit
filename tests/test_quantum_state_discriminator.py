@@ -249,7 +249,15 @@ def test_sklearn_clone():
 def test_get_params():
     clf = QuantumStateDiscriminator(n_jobs=4)
     params = clf.get_params()
-    assert params == {"n_jobs": 4}
+    assert params == {
+        "n_jobs": 4,
+        "covariance": "cov",
+        "estimator": "scm",
+        "nfilter": 8,
+        "delays": 4,
+        "xdawn_estimator": "oas",
+        "prototype_weight": None,
+    }
 
 
 def test_sklearn_pipeline(binary_data):
@@ -284,6 +292,193 @@ def test_separable_data():
     y = np.array([0] * n_trials + [1] * n_trials)
     clf = QuantumStateDiscriminator().fit(X, y)
     assert clf.score(X, y) == 1.0
+
+
+# ---------------------------------------------------------------------------
+# covariance definitions
+# ---------------------------------------------------------------------------
+
+
+def test_covariance_invalid(binary_data):
+    X, y = binary_data
+    with pytest.raises(ValueError, match="covariance must be"):
+        QuantumStateDiscriminator(covariance="not_a_covariance").fit(X, y)
+
+
+@pytest.mark.parametrize("covariance", ["cov", "erp", "hankel"])
+def test_covariance_povm_stays_valid(binary_data, covariance):
+    """Augmenting the operator must preserve the POVM guarantees."""
+    X, y = binary_data
+    clf = QuantumStateDiscriminator(covariance=covariance, nfilter=2).fit(X, y)
+
+    # Looser than the full-rank case: an augmented rho_total is close to
+    # singular, so inverting it amplifies floating-point error.
+    n = clf.n_channels_
+    np.testing.assert_allclose(sum(clf.povm_.values()), np.eye(n), atol=1e-6)
+    for rho in clf.density_matrices_.values():
+        np.testing.assert_allclose(np.trace(rho), 1.0, atol=1e-10)
+        assert np.all(np.linalg.eigvalsh(rho) >= -1e-10)
+
+    proba = clf.predict_proba(X)
+    assert proba.shape == (X.shape[0], len(clf.classes_))
+    np.testing.assert_allclose(proba.sum(axis=1), 1.0, atol=1e-10)
+
+
+def test_covariance_cov_is_default(binary_data):
+    """Default must stay the plain covariance, unchanged by the new modes."""
+    X, y = binary_data
+    default = QuantumStateDiscriminator().fit(X, y)
+    explicit = QuantumStateDiscriminator(covariance="cov").fit(X, y)
+    np.testing.assert_array_equal(default.predict(X), explicit.predict(X))
+    assert default.n_channels_ == X.shape[1]
+
+
+def test_covariance_erp_augments_dimension(binary_data):
+    """ERP operator is the prototypes stacked on the filtered trial."""
+    X, y = binary_data
+    clf = QuantumStateDiscriminator(covariance="erp", nfilter=2).fit(X, y)
+    n_proto = clf.cov_estimator_.P_.shape[0]
+    filtered = clf.cov_estimator_.Xd_.transform(X).shape[1]
+    assert clf.n_channels_ == n_proto + filtered
+
+
+def test_covariance_hankel_augments_dimension(binary_data):
+    X, y = binary_data
+    clf = QuantumStateDiscriminator(covariance="hankel", delays=3).fit(X, y)
+    assert clf.n_channels_ == 3 * X.shape[1]
+
+
+def test_prototype_weight_sets_energy_ratio(binary_data):
+    """The weight is the prototype/trial energy ratio, not a raw scale."""
+    X, y = binary_data
+    weight = 5.0
+    clf = QuantumStateDiscriminator(
+        covariance="erp", nfilter=2, prototype_weight=weight
+    ).fit(X, y)
+
+    # After weighting, the prototype block should hold `weight` times the
+    # energy of the average trial block.
+    covmats = clf._operators(X)
+    n_proto = clf.cov_estimator_.P_.shape[0]
+    proto_energy = np.trace(covmats[0, :n_proto, :n_proto])
+    trial_energy = np.mean(np.trace(covmats[:, n_proto:, n_proto:], axis1=-2, axis2=-1))
+    np.testing.assert_allclose(proto_energy / trial_energy, weight, rtol=1e-8)
+
+
+def test_prototype_weight_matches_scaling_the_prototype(binary_data):
+    """The congruence equals scaling the prototype before estimating.
+
+    Scaling the prototype rows by s multiplies the prototype block by s^2
+    and the cross-blocks by s, which is what D.C.D does.
+    """
+    from pyriemann.estimation import XdawnCovariances
+    from pyriemann.utils.covariance import covariances_EP
+
+    X, y = binary_data
+    clf = QuantumStateDiscriminator(
+        covariance="erp", nfilter=2, prototype_weight=5.0
+    ).fit(X, y)
+
+    xc = XdawnCovariances(nfilter=2, estimator="scm", xdawn_estimator="oas")
+    xc.fit(X, y)
+    scaled = covariances_EP(
+        xc.Xd_.transform(X), xc.P_ * clf.prototype_scale_, estimator="scm"
+    )
+    np.testing.assert_allclose(clf._operators(X), scaled, rtol=1e-9)
+
+
+def test_prototype_weight_none_leaves_prototype_unscaled(binary_data):
+    X, y = binary_data
+    clf = QuantumStateDiscriminator(covariance="erp", nfilter=2).fit(X, y)
+    assert clf.prototype_scale_ == 1.0
+
+
+def test_prototype_weight_ignored_without_erp(binary_data):
+    """prototype_weight only applies to the erp operator."""
+    X, y = binary_data
+    plain = QuantumStateDiscriminator().fit(X, y)
+    weighted = QuantumStateDiscriminator(prototype_weight=10).fit(X, y)
+    np.testing.assert_array_equal(plain.predict(X), weighted.predict(X))
+
+
+def test_covariance_erp_recovers_time_locked_signal():
+    """A purely time-locked difference is invisible to a plain covariance.
+
+    Both classes carry the same channel variance, so the classes differ
+    only in *when* the deflection occurs. "cov" integrates over time and
+    cannot separate them; "erp" keeps the prototype correlation and can.
+    """
+    rng = np.random.RandomState(0)
+    n_trials, n_ch, n_times = 40, 4, 64
+
+    X = rng.randn(n_trials * 2, n_ch, n_times) * 0.1
+    deflection = np.hanning(16) * 3.0
+    # Class 0: deflection early; class 1: same deflection, later.
+    X[:n_trials, 0, 8:24] += deflection
+    X[n_trials:, 0, 32:48] += deflection
+    y = np.array([0] * n_trials + [1] * n_trials)
+
+    cov = QuantumStateDiscriminator(covariance="cov").fit(X, y)
+    erp = QuantumStateDiscriminator(covariance="erp", nfilter=2).fit(X, y)
+
+    assert cov.score(X, y) < 0.7
+    assert erp.score(X, y) > 0.95
+
+
+# ---------------------------------------------------------------------------
+# vectorization equivalence
+# ---------------------------------------------------------------------------
+
+
+def _naive_scores(clf, X):
+    """Scores from the plain per-trial definition, as a reference.
+
+    Normalizes each operator to unit trace and takes the Frobenius inner
+    product with each POVM element, one trial at a time. The shipped code
+    contracts the whole batch with einsum instead; this pins the two
+    together so an optimisation cannot silently change the maths.
+    """
+    covmats = clf._operators(X)
+    out = np.zeros((len(covmats), len(clf.classes_)))
+    for i, C_i in enumerate(covmats):
+        trace = np.trace(C_i)
+        if trace < 1e-12:
+            M = np.eye(len(C_i)) / len(C_i)
+        else:
+            M = C_i / trace
+        for k, c in enumerate(clf.classes_):
+            out[i, k] = np.sum(clf.povm_[c] * M)
+    return out
+
+
+@pytest.mark.parametrize("covariance", ["cov", "erp", "hankel"])
+def test_scores_match_naive_definition(binary_data, covariance):
+    X, y = binary_data
+    clf = QuantumStateDiscriminator(covariance=covariance, nfilter=2).fit(X, y)
+    np.testing.assert_allclose(
+        clf.predict_proba(X), _naive_scores(clf, X), rtol=1e-9, atol=1e-12
+    )
+
+
+def test_scores_match_naive_definition_many_trials(rndstate):
+    X = rndstate.randn(300, 4, 30)
+    y = np.array([0, 1] * 150)
+    clf = QuantumStateDiscriminator().fit(X, y)
+    np.testing.assert_allclose(
+        clf.predict_proba(X), _naive_scores(clf, X), rtol=1e-9, atol=1e-12
+    )
+
+
+def test_silent_trial_is_uninformative(binary_data):
+    """An all-zero trial has no state: every class gets trace(Pi_c)/n."""
+    X, y = binary_data
+    clf = QuantumStateDiscriminator().fit(X, y)
+
+    X_test = np.zeros((1, X.shape[1], X.shape[2]))
+    proba = clf.predict_proba(X_test)
+    expected = [np.trace(clf.povm_[c]) / clf.n_channels_ for c in clf.classes_]
+    np.testing.assert_allclose(proba[0], expected, atol=1e-12)
+    np.testing.assert_allclose(proba.sum(), 1.0, atol=1e-10)
 
 
 # ---------------------------------------------------------------------------
