@@ -37,7 +37,7 @@ cross-validation of its hyper-parameters.
 
 """
 
-# Author: Gregoire Cattan
+# Authors: Anton Andreev, Gregoire Cattan
 # License: BSD (3-clause)
 
 import warnings
