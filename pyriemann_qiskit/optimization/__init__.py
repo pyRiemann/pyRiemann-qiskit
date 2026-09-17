@@ -4,6 +4,7 @@ from . import (
     distance,
     docplex,
     mean,
+    pkit_optimizer,
     riemannian_adam,
 )
 
@@ -13,5 +14,6 @@ __all__ = [
     "distance",
     "docplex",
     "mean",
+    "pkit_optimizer",
     "riemannian_adam",
 ]

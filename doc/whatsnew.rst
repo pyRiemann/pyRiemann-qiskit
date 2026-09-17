@@ -9,6 +9,9 @@ What's new in the package
 v0.7.0
 ------
 
+- Introduce a new category of optimization relying on probabilistic bit, aka p-bit.
+  With this change, ``pyQiskitOptimizer`` was refactored to accept an encoding policy.
+
 - Add ``RiemannianAdamOptimizer`` in ``pyriemann_qiskit.optimization.riemannian_adam``:
   Adam optimizer with manifold-aware retraction (periodic wrap / bound clipping) for
   variational quantum circuit parameters, complementing ``AndersonAccelerationOptimizer``.

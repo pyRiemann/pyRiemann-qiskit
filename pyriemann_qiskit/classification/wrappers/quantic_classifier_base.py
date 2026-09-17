@@ -102,8 +102,21 @@ class QuanticClassifierBase(ClassifierMixin, BaseEstimator):
         # protected field for child classes
         self._training_input = {}
 
+    def _uses_qiskit_backend(self):
+        """Whether this estimator needs a Qiskit backend to be initialized.
+
+        ``quantum=True`` selects the quantum-flavoured algorithm in general,
+        but sub-classes exposing ``backend="pkit"`` run their optimization
+        entirely on p-kit's classical p-bit solver: no Qiskit simulator, no
+        IBM provider and no account credentials are involved there, so none
+        of them must be set up (in particular, `q_account_token` must not
+        reach ``QiskitRuntimeService``). Sub-classes without a `backend`
+        parameter are always Qiskit-based.
+        """
+        return self.quantum and getattr(self, "backend", "qiskit") != "pkit"
+
     def _init_quantum(self):
-        if self.quantum:
+        if self._uses_qiskit_backend():
             if self.q_account_token:
                 self._log("Real quantum computation will be performed")
                 if not self.q_account_token == "load_account":
@@ -184,7 +197,7 @@ class QuanticClassifierBase(ClassifierMixin, BaseEstimator):
         self._log("Feature dimension = ", n_features)
         if hasattr(self, "gen_feature_map") and self.gen_feature_map is not None:
             self._feature_map = self.gen_feature_map(n_features)
-        if self.quantum:
+        if self._uses_qiskit_backend():
             if not hasattr(self, "_backend"):
                 self._backend = get_device(self._provider, n_features)
             self._log("Quantum backend = ", self._backend)
