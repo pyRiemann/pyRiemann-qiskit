@@ -109,6 +109,7 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
         follow the selected pyriemann estimator rather than the previous
         explicit ``X @ X.T / n_times`` construction.
     """
+
     def __init__(
         self,
         covariance="cov",
