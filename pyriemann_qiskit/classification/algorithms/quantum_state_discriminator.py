@@ -164,6 +164,7 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
                 axis1=-2,
                 axis2=-1,
             )
+        )
         trial_energy = np.mean(
             np.trace(covmats[:, n_proto:, n_proto:], axis1=-2, axis2=-1)
         )
