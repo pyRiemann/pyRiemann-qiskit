@@ -67,8 +67,11 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
         boosting it the cross-block claims little of the trace. This matters
         because QSD compares against class-mean density matrices and cannot
         down-weight uninformative entries the way a trained classifier does.
-        Applied as a congruence on the covariance, which is exactly
-        equivalent to scaling the prototype before estimating it.
+        Applied as a congruence transformation to the estimated covariance.
+        For SCM, this is equivalent to scaling the prototype channels before
+        covariance estimation. For estimators with data-dependent shrinkage
+        or regularization, it should be interpreted as post-estimation
+        prototype weighting.
     delays : int, default=4
         Number of time-shifted copies, when ``covariance="hankel"``.
     xdawn_estimator : string, default="oas"
@@ -154,9 +157,12 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
             return covmats
         n_proto = self.cov_estimator_.P_.shape[0]
         idx = np.arange(covmats.shape[-1])
-        proto_energy = np.trace(
-            covmats[0, :n_proto, :n_proto]  # identical for every trial
-        )
+        proto_energy = np.mean(
+            np.trace(
+                covmats[:, :n_proto, :n_proto],
+                axis1=-2,
+                axis2=-1,
+            )
         trial_energy = np.mean(
             np.trace(covmats[:, n_proto:, n_proto:], axis1=-2, axis2=-1)
         )
