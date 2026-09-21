@@ -21,14 +21,12 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
         Pi_c = rho_total^{-1/2} (pi_c * rho_c) rho_total^{-1/2}
 
     where rho_total = sum_c pi_c * rho_c is the prior-weighted average state.
-
     The POVM satisfies sum_c Pi_c = I, so scores trace(Pi_c . M) are valid
     probabilities (non-negative, summing to 1) directly from the Born rule —
     no softmax needed.
 
     For two classes with equal priors, this approximates the Helstrom
     measurement (theoretically optimal quantum state discrimination).
-
     The operator M representing a trial is a trace-normalized covariance
     matrix, estimated by pyriemann rather than here: ``covariance`` selects
     which pyriemann estimator to delegate to.
@@ -37,11 +35,12 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
     ----------
     covariance : {"cov", "erp", "hankel"}, default="cov"
         Which pyriemann estimator builds the operator of a trial.
-
-        - "cov": :class:`pyriemann.estimation.Covariances`, the temporal
-          covariance X.X^T. It is the state of a sustained (oscillatory)
-          process, so it suits resting-state paradigms, where the classes
-          differ in spatial covariance and band power.
+        - "cov": :class:`pyriemann.estimation.Covariances`. The covariance
+          is computed according to the selected pyriemann covariance
+          estimator (``estimator``, "scm" by default). It is the state of a
+          sustained (oscillatory) process, so it suits resting-state
+          paradigms, where the classes differ in spatial covariance and band
+          power.
         - "erp": :class:`pyriemann.estimation.XdawnCovariances`, which
           concatenates the class-average evoked responses to each
           Xdawn-filtered trial before the covariance, so the operator also
@@ -61,7 +60,6 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
     prototype_weight : float | None, default=None
         Energy of the prototype block relative to the average trial, when
         ``covariance="erp"``. ``None`` uses the prototypes unscaled.
-
         The operator is trace-normalized, so its blocks compete for a fixed
         budget, and only the prototype/trial cross-block is discriminative:
         the prototype block is identical for every trial. A class-average
@@ -69,7 +67,6 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
         boosting it the cross-block claims little of the trace. This matters
         because QSD compares against class-mean density matrices and cannot
         down-weight uninformative entries the way a trained classifier does.
-
         Applied as a congruence on the covariance, which is exactly
         equivalent to scaling the prototype before estimating it.
     delays : int, default=4
@@ -80,7 +77,6 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
         Unused, kept for backward compatibility. Scoring is vectorized over
         trials and runs in BLAS, so spreading trials over worker processes
         cost more than it saved.
-
     Attributes
     ----------
     cov_estimator_ : object
@@ -100,7 +96,6 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
     prototype_scale_ : float
         Amplitude applied to the prototype block, when
         ``covariance="erp"`` and ``prototype_weight`` is set.
-
     Notes
     -----
     .. versionadded:: 0.5.0
@@ -110,9 +105,10 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
         Add ``covariance`` to support time-locked (ERP) paradigms
     .. versionchanged:: 0.6.0
         Delegate covariance estimation to pyriemann; ``n_jobs`` is now
-        unused
+        unused. With ``covariance="cov"``, covariance semantics therefore
+        follow the selected pyriemann estimator rather than the previous
+        explicit ``X @ X.T / n_times`` construction.
     """
-
     def __init__(
         self,
         covariance="cov",
@@ -156,7 +152,6 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
         if self.covariance != "erp" or self.prototype_weight is None:
             self.prototype_scale_ = 1.0
             return covmats
-
         n_proto = self.cov_estimator_.P_.shape[0]
         idx = np.arange(covmats.shape[-1])
         proto_energy = np.trace(
@@ -168,7 +163,6 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
         self.prototype_scale_ = float(
             np.sqrt(self.prototype_weight * trial_energy / proto_energy)
         )
-
         scale = np.where(idx < n_proto, self.prototype_scale_, 1.0)
         return covmats * scale[None, :, None] * scale[None, None, :]
 
@@ -182,10 +176,34 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
                 scale = np.where(idx < n_proto, self.prototype_scale_, 1.0)
                 covmats = covmats * scale[None, :, None] * scale[None, None, :]
             return covmats
-
         self.cov_estimator_ = self._make_cov_estimator()
         covmats = self.cov_estimator_.fit_transform(np.asarray(X), y)
         return self._weight_prototype(covmats)
+
+    def transform(self, X):
+        """Return the trace-normalized QSD state of each trial.
+
+        The trial operators are built by the fitted pyriemann estimator and
+        receive the same QSD prototype weighting as during prediction.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_trials, n_channels, n_times)
+            Raw EEG epochs.
+
+        Returns
+        -------
+        states : ndarray, shape (n_trials, n_channels_, n_channels_)
+            Trace-one density matrices used by the QSD measurement.
+        """
+        check_is_fitted(self, ["cov_estimator_", "n_channels_"])
+        covmats = self._operators(X)
+        energy = np.trace(covmats, axis1=-2, axis2=-1)
+        degenerate = energy < 1e-12
+        states = covmats / np.where(degenerate, 1.0, energy)[:, None, None]
+        if degenerate.any():
+            states[degenerate] = np.eye(self.n_channels_) / self.n_channels_
+        return states
 
     def fit(self, X, y):
         """Fit class density matrices and POVM from raw EEG epochs.
@@ -196,7 +214,6 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
             Raw EEG epochs.
         y : array-like, shape (n_trials,)
             Class labels.
-
         Returns
         -------
         self
@@ -207,7 +224,6 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
         self.n_channels_ = covmats.shape[-1]
         self.classes_ = np.unique(y)
         n_total = len(y)
-
         # Step 1: quantum state tomography + prior estimation
         density_matrices, priors = {}, {}
         for c in self.classes_:
@@ -218,7 +234,6 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
 
         self.priors_ = priors
         self.density_matrices_ = density_matrices
-
         # Step 2: Pretty Good Measurement
         # rho_total = sum_c pi_c * rho_c  (prior-weighted average state)
         rho_total = sum(priors[c] * density_matrices[c] for c in self.classes_)
@@ -227,13 +242,11 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
         eigenvalues, eigenvectors = eigh(rho_total)
         inv_sqrt_eig = 1.0 / np.sqrt(np.maximum(eigenvalues, 1e-10))
         rho_inv_sqrt = eigenvectors @ np.diag(inv_sqrt_eig) @ eigenvectors.T
-
         # Pi_c = rho_total^{-1/2} (pi_c * rho_c) rho_total^{-1/2}
         self.povm_ = {
             c: rho_inv_sqrt @ (priors[c] * density_matrices[c]) @ rho_inv_sqrt
             for c in self.classes_
         }
-
         # The PGM sums to the projector onto the support of rho_total, which
         # is the identity only when rho_total is full rank. A rank-deficient
         # rho_total (fewer time samples than channels, or an augmented
@@ -245,7 +258,6 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
         residual = (residual + residual.T) / 2
         for c in self.classes_:
             self.povm_[c] = self.povm_[c] + residual / len(self.classes_)
-
         return self
 
     def _compute_scores(self, X):
@@ -262,7 +274,6 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
         """
         check_is_fitted(self, ["povm_", "classes_"])
         covmats = self._operators(X)
-
         # M = C / trace(C), so trace(Pi_c . M) = sum(Pi_c * C) / trace(C)
         povm = np.stack([self.povm_[c] for c in self.classes_])
         scores = np.einsum("nij,cij->nc", covmats, povm)
@@ -270,7 +281,6 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
         energy = np.trace(covmats, axis1=-2, axis2=-1)
         degenerate = energy < 1e-12
         scores /= np.where(degenerate, 1.0, energy)[:, None]
-
         if degenerate.any():
             # A silent trial carries no state: M = I / n_channels.
             scores[degenerate] = np.trace(povm, axis1=-2, axis2=-1) / self.n_channels_
@@ -283,7 +293,6 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
         Parameters
         ----------
         X : ndarray, shape (n_trials, n_channels, n_times)
-
         Returns
         -------
         y_pred : ndarray, shape (n_trials,)
@@ -300,7 +309,6 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
         Parameters
         ----------
         X : ndarray, shape (n_trials, n_channels, n_times)
-
         Returns
         -------
         proba : ndarray, shape (n_trials, n_classes)
