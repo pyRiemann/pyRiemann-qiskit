@@ -439,6 +439,28 @@ class ContinuousEncoding(SpdMatEncoding):
     square_cont_mat_var
     """
 
+    def convert_spdmat(self, X):
+        """Convert a SPD matrix
+
+        Return the SPD matrix unchanged, as continuous variables can
+        represent it directly.
+
+        Parameters
+        ----------
+        X : ndarray, shape (n_features, n_features)
+            A SPD matrix.
+
+        Returns
+        -------
+        X : ndarray, shape (n_features, n_features)
+            The same SPD matrix.
+
+        Notes
+        -----
+        .. versionadded:: 0.7.0
+        """
+        return X
+
     def spdmat_var(self, prob, channels, name):
         """Create docplex matrix variable
 
