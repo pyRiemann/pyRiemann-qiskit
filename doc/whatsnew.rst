@@ -5,6 +5,19 @@
 What's new in the package
 =========================
 
+Unreleased
+----------
+
+- Correct integer convex-hull weights to enforce the simplex at the integer
+  resolution and optimize using normalized weights. QAOA-CV hull estimates
+  are projected onto the simplex. QAOA-CV exposes its decoded
+  pre-projection solution for feasibility measurements.
+- Add opt-in deterministic multi-start support to ``NaiveQAOAOptimizer`` via
+  ``num_starts`` and ``seed``. The default remains one start.
+- Add opt-in ``resolution_bounds`` evaluation to the convex-hull distance
+  functions for integer encoded optimizers. The configured bound must be in
+  the sequence, and the returned weights come from the resolution with the
+  smallest original Log-Euclidean distance.
 
 v0.7.0
 ------

@@ -7,6 +7,8 @@ Notes
     ``pyriemann_qiskit.optimization.distance``.
 """
 
+from copy import copy
+
 import numpy as np
 from docplex.mp.model import Model
 from pyriemann.utils.base import logm
@@ -17,10 +19,12 @@ from pyriemann.utils.distance import (
 )
 from pyriemann.utils.mean import mean_logeuclid
 
-from .docplex import ClassicalOptimizer
+from .docplex import ClassicalOptimizer, QAOACVOptimizer
 
 
-def qdistance_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
+def qdistance_logeuclid_to_convex_hull(
+    A, B, optimizer=ClassicalOptimizer(), resolution_bounds=None
+):
     """Log-Euclidean distance to a convex hull of SPD matrices.
 
     Log-Euclidean distance between a SPD matrix B and the convex hull of a set
@@ -36,6 +40,10 @@ def qdistance_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
     optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
         An instance of
         :class:`pyriemann_qiskit.optimization.docplex.pyQiskitOptimizer`.
+    resolution_bounds : sequence of int or None, default=None
+        Integer upper bounds to evaluate for an integer encoded optimizer.
+        The configured bound must be included. The result uses the stage with
+        the smallest original Log-Euclidean distance.
 
     Returns
     -------
@@ -58,7 +66,9 @@ def qdistance_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
         http://ibmdecisionoptimization.github.io/docplex-doc/cp/creating_model.html
 
     """
-    weights = weights_logeuclid_to_convex_hull(A, B, optimizer)
+    weights = weights_logeuclid_to_convex_hull(
+        A, B, optimizer, resolution_bounds=resolution_bounds
+    )
     # compute nearest matrix
     C = mean_logeuclid(A, weights)
     distance = distance_logeuclid(C, B)
@@ -66,7 +76,9 @@ def qdistance_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
     return distance
 
 
-def weights_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
+def weights_logeuclid_to_convex_hull(
+    A, B, optimizer=ClassicalOptimizer(), resolution_bounds=None
+):
     """Weights for Log-Euclidean distance to a convex hull of SPD matrices.
 
     Weights for Log-Euclidean distance between a SPD matrix B
@@ -82,6 +94,11 @@ def weights_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
     optimizer : pyQiskitOptimizer, default=ClassicalOptimizer()
         An instance of
         :class:`pyriemann_qiskit.optimization.docplex.pyQiskitOptimizer`.
+    resolution_bounds : sequence of int or None, default=None
+        Integer upper bounds to evaluate for an integer encoded optimizer.
+        The configured bound must be included. The returned weights minimize
+        the original Log-Euclidean distance among the evaluated resolutions.
+
 
     Returns
     -------
@@ -113,21 +130,99 @@ def weights_logeuclid_to_convex_hull(A, B, optimizer=ClassicalOptimizer()):
     def trace_prod_log(m1, m2):
         return np.trace(logm(m1) @ logm(m2))
 
-    prob = Model()
-    w = optimizer.get_weights(prob, matrices)
+    configured_bound = getattr(optimizer.encoding, "upper_bound", None)
+    if resolution_bounds is None:
+        bounds = [configured_bound]
+    else:
+        if configured_bound is None:
+            raise ValueError("resolution_bounds requires an integer encoded optimizer")
+        bounds = list(resolution_bounds)
+        if (
+            not bounds
+            or configured_bound not in bounds
+            or any(
+                not isinstance(bound, (int, np.integer))
+                or isinstance(bound, (bool, np.bool_))
+                or bound <= 0
+                for bound in bounds
+            )
+            or len(set(bounds)) != len(bounds)
+        ):
+            raise ValueError(
+                "resolution_bounds must contain distinct positive integers "
+                "including the optimizer's configured upper_bound"
+            )
 
-    wtLogAtLogAw = prob.sum(
-        w[i] * w[j] * trace_prod_log(A[i], A[j]) for i in matrices for j in matrices
-    )
-    wLogBLogA = prob.sum(w[i] * trace_prod_log(B, A[i]) for i in matrices)
-    objective = wtLogAtLogAw - 2 * wLogBLogA
+    best_weights = None
+    best_distance = np.inf
+    evaluation_history = []
+    for bound in bounds:
+        stage_optimizer = optimizer
+        if bound != configured_bound:
+            stage_optimizer = copy(optimizer)
+            stage_optimizer.encoding = copy(optimizer.encoding)
+            stage_optimizer.upper_bound = bound
 
-    prob.set_objective("min", objective)
-    prob.add_constraint(prob.sum(w) == 1)
+        prob = Model()
+        raw_weights = stage_optimizer.get_weights(prob, matrices)
+        if bound is None:
+            w = raw_weights
+        else:
+            if bound <= 0:
+                raise ValueError("integer encoding upper_bound must be positive")
+            # Integer weights are represented on a grid. Impose the simplex
+            # at that grid's scale and use normalized weights in the objective.
+            w = raw_weights / bound
 
-    weights = optimizer.solve(prob, reshape=False)
+        wt_log_a_log_a = prob.sum(
+            w[i] * w[j] * trace_prod_log(A[i], A[j]) for i in matrices for j in matrices
+        )
+        w_log_b_log_a = prob.sum(w[i] * trace_prod_log(B, A[i]) for i in matrices)
+        prob.set_objective("min", wt_log_a_log_a - 2 * w_log_b_log_a)
+        if bound is None:
+            prob.add_constraint(prob.sum(w) == 1)
+        else:
+            prob.add_constraint(prob.sum(raw_weights) == bound)
 
-    return weights
+        weights = stage_optimizer.solve(prob, reshape=False)
+        if isinstance(stage_optimizer, QAOACVOptimizer):
+            weights = _project_to_simplex(weights)
+        elif bound is not None:
+            weights = weights / bound
+            if (
+                not np.all(np.isfinite(weights))
+                or np.any(weights < -1e-8)
+                or np.any(weights > 1 + 1e-8)
+                or not np.isclose(np.sum(weights), 1.0, atol=1e-8)
+            ):
+                evaluation_history.extend(
+                    getattr(
+                        stage_optimizer,
+                        "evaluated_values_",
+                        getattr(stage_optimizer, "y_", []),
+                    )
+                )
+                continue
+        distance = distance_logeuclid(mean_logeuclid(A, weights), B)
+        if distance < best_distance:
+            best_weights = weights
+            best_distance = distance
+        evaluation_history.extend(
+            getattr(
+                stage_optimizer,
+                "evaluated_values_",
+                getattr(stage_optimizer, "y_", []),
+            )
+        )
+
+    if resolution_bounds is not None:
+        if hasattr(optimizer, "evaluated_values_"):
+            optimizer.evaluated_values_ = evaluation_history
+        if hasattr(optimizer, "y_"):
+            optimizer.y_ = evaluation_history
+    if best_weights is None:
+        raise RuntimeError("integer optimizer did not return feasible simplex weights")
+    return best_weights
 
 
 def _weights_distance(
@@ -183,6 +278,24 @@ def _weights_distance(
     weights = optimizer.solve(prob, reshape=False)
 
     return weights
+
+
+def _project_to_simplex(values):
+    """Project a vector onto the probability simplex.
+
+    This repairs small feasibility errors in continuous quantum estimates
+    without solving the original optimization problem classically.
+    """
+    values = np.asarray(values, dtype=float)
+    if values.ndim != 1 or values.size == 0 or not np.all(np.isfinite(values)):
+        raise ValueError("simplex weights must be a non-empty finite vector")
+    ordered = np.sort(values)[::-1]
+    cumulative = np.cumsum(ordered) - 1
+    indices = np.arange(1, values.size + 1)
+    valid = ordered - cumulative / indices > 0
+    rho = np.flatnonzero(valid)[-1]
+    threshold = cumulative[rho] / (rho + 1)
+    return np.maximum(values - threshold, 0)
 
 
 distance_functions["qlogeuclid_hull"] = weights_logeuclid_to_convex_hull
