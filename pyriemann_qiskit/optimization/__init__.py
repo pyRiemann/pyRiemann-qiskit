@@ -6,6 +6,7 @@ from . import (
     mean,
     pkit_optimizer,
     riemannian_adam,
+    simplex,
 )
 
 __all__ = [
@@ -16,4 +17,5 @@ __all__ = [
     "mean",
     "pkit_optimizer",
     "riemannian_adam",
+    "simplex",
 ]

@@ -33,6 +33,13 @@ from pyriemann_qiskit.optimization.pkit_optimizer import (
     PBitClassicalOptimizer,
     PBitTFIsingOptimizer,
 )
+from pyriemann_qiskit.optimization.simplex import (
+    SingleExcitationHullOptimizer,
+    _decode_counts,
+    _single_excitation_circuit,
+    _single_excitation_probabilities,
+    _uniform_angles,
+)
 from pyriemann_qiskit.utils.dataset import get_mne_sample
 
 
@@ -301,3 +308,107 @@ def test_resolution_bounds_require_integer_encoding():
             QAOACVOptimizer(),
             resolution_bounds=(7, 5),
         )
+
+
+def test_single_excitation_circuit_and_analytic_probabilities_agree():
+    """Analytic one-excitation probabilities match the circuit statevector."""
+    from qiskit.quantum_info import Statevector
+
+    circuit, parameters = _single_excitation_circuit(5)
+    cases = [
+        (np.zeros(4), [1, 0, 0, 0, 0]),
+        (_uniform_angles(5), [0.2] * 5),
+    ]
+    expected = np.array([0.37, 0.21, 0.19, 0.14, 0.09])
+    angles = []
+    remaining = 1.0
+    for weight in expected[:-1]:
+        angles.append(2 * np.arccos(np.sqrt(weight / remaining)))
+        remaining -= weight
+    cases.append((np.asarray(angles), expected))
+
+    for angles, expected_weights in cases:
+        state = Statevector(circuit.assign_parameters(dict(zip(parameters, angles))))
+        decoded = np.array([state.probabilities()[1 << i] for i in range(5)])
+        np.testing.assert_allclose(decoded, expected_weights, atol=1e-12)
+        np.testing.assert_allclose(
+            _single_excitation_probabilities(angles), expected_weights, atol=1e-12
+        )
+
+
+def test_single_excitation_decoder_rejects_low_valid_shot_fraction():
+    counts = {"001": 60, "010": 20, "100": 10, "000": 10}
+    weights, fraction = _decode_counts(counts, 3, 0.5, 32)
+    np.testing.assert_allclose(weights, [60 / 90, 20 / 90, 10 / 90])
+    assert fraction == pytest.approx(0.9)
+
+    weights, fraction = _decode_counts(counts, 3, 0.95, 32)
+    assert weights is None
+    assert fraction == pytest.approx(0.9)
+
+
+def test_single_excitation_decoder_maps_qiskit_bit_order():
+    counts = {"00100": 37, "00010": 21, "00001": 42, "11000": 5}
+    weights, fraction = _decode_counts(counts, 5, 0.5, 32)
+    np.testing.assert_allclose(weights, [0.42, 0.21, 0.37, 0, 0])
+    assert fraction == pytest.approx(100 / 105)
+
+
+def test_single_excitation_hull_exact_is_feasible_and_repeatable():
+    """The generic optimizer interface returns its best feasible hull point."""
+    from pyriemann_qiskit.optimization.cobyla_optimizer import CobylaOptimizer
+
+    assert issubclass(SingleExcitationHullOptimizer, pyQiskitOptimizer)
+    matrices = np.array([[[1.0]], [[9.0]]])
+    target = np.array([[3.0]])
+    solutions = []
+    for _ in range(2):
+        optimizer = SingleExcitationHullOptimizer(
+            exact=True,
+            optimizer=CobylaOptimizer(maxiter=150),
+            min_valid_fraction=1.0,
+        )
+        weights = weights_logeuclid_to_convex_hull(matrices, target, optimizer)
+        solutions.append(weights)
+        np.testing.assert_array_equal(weights, optimizer.weights_)
+        assert weights.sum() == pytest.approx(1, abs=1e-12)
+        assert np.all(weights >= 0)
+        assert optimizer.minimum_ == pytest.approx(
+            distance_logeuclid(mean_logeuclid(matrices, weights), target) ** 2,
+            abs=1e-10,
+        )
+        assert optimizer.valid_fraction_ == pytest.approx(1, abs=1e-12)
+        assert optimizer.evaluations_ > 0
+    np.testing.assert_array_equal(solutions[0], solutions[1])
+    np.testing.assert_allclose(solutions[0], [0.5, 0.5], atol=1e-3)
+
+
+def test_single_excitation_hull_rejects_unreliable_evaluations(monkeypatch):
+    """No reliable evaluation raises instead of returning a fallback point."""
+    import pyriemann_qiskit.optimization.simplex as simplex_module
+    from pyriemann_qiskit.optimization.cobyla_optimizer import CobylaOptimizer
+
+    monkeypatch.setattr(
+        simplex_module, "_single_excitation_probabilities", lambda angles: None
+    )
+    matrices = np.array([[[1.0]], [[9.0]]])
+    optimizer = SingleExcitationHullOptimizer(
+        exact=True, optimizer=CobylaOptimizer(maxiter=3)
+    )
+    with pytest.raises(RuntimeError, match="enough one-excitation shots"):
+        weights_logeuclid_to_convex_hull(matrices, np.array([[3.0]]), optimizer)
+
+
+def test_single_excitation_hull_shot_sampler_is_feasible():
+    from pyriemann_qiskit.optimization.cobyla_optimizer import CobylaOptimizer
+
+    matrices = np.array([[[1.0]], [[9.0]]])
+    optimizer = SingleExcitationHullOptimizer(
+        optimizer=CobylaOptimizer(maxiter=5), shots=128, seed=42
+    )
+    weights = weights_logeuclid_to_convex_hull(matrices, np.array([[3.0]]), optimizer)
+
+    np.testing.assert_array_equal(weights, optimizer.weights_)
+    assert weights.sum() == pytest.approx(1, abs=1e-12)
+    assert np.all(weights >= 0)
+    assert optimizer.valid_fraction_ == pytest.approx(1, abs=1e-12)

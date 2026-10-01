@@ -18,6 +18,10 @@ v0.7.0 (dev)
   functions for integer encoded optimizers. The configured bound must be in
   the sequence, and the returned weights come from the resolution with the
   smallest original Log-Euclidean distance.
+- Add an opt-in ``SingleExcitationHullOptimizer`` for continuous
+  Log-Euclidean convex hulls. Exact probabilities are computed analytically
+  from circuit angles. In shot mode, returned weights are conditional on
+  valid one-excitation samples; the valid fraction is reported.
 
 - Introduce a new category of optimization relying on probabilistic bit, aka p-bit.
   With this change, ``pyQiskitOptimizer`` was refactored to accept an encoding policy.

@@ -156,7 +156,8 @@ def weights_logeuclid_to_convex_hull(
             w[i] * w[j] * trace_prod_log(A[i], A[j]) for i in matrices for j in matrices
         )
         w_log_b_log_a = prob.sum(w[i] * trace_prod_log(B, A[i]) for i in matrices)
-        prob.set_objective("min", wt_log_a_log_a - 2 * w_log_b_log_a)
+        target_log_norm = trace_prod_log(B, B)
+        prob.set_objective("min", wt_log_a_log_a - 2 * w_log_b_log_a + target_log_norm)
         if bound is None:
             prob.add_constraint(prob.sum(w) == 1)
         else:

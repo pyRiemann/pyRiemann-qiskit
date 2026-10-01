@@ -111,6 +111,15 @@ Docplex
     QAOACVAngleOptimizer
     QAOACVOptimizer
 
+Single-excitation hull optimization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. currentmodule:: pyriemann_qiskit.optimization.simplex
+
+.. autosummary::
+    :toctree: generated/
+
+    SingleExcitationHullOptimizer
+
 p-kit
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. _pkit_api:
