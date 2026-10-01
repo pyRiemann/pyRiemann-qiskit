@@ -11,8 +11,8 @@ from qiskit_algorithms.optimizers import SLSQP
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.pipeline import make_pipeline
 
-from pyriemann_qiskit.classification import QuanticMDM
 import pyriemann_qiskit.optimization.docplex as docplex_module
+from pyriemann_qiskit.classification import QuanticMDM
 from pyriemann_qiskit.optimization.distance import (
     qdistance_logeuclid_to_convex_hull,
     weights_logeuclid_to_convex_hull,
