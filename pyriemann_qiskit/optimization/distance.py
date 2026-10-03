@@ -7,7 +7,7 @@ Notes
     ``pyriemann_qiskit.optimization.distance``.
 """
 
-from copy import copy
+from copy import deepcopy
 
 import numpy as np
 from docplex.mp.model import Model
@@ -19,7 +19,7 @@ from pyriemann.utils.distance import (
 )
 from pyriemann.utils.mean import mean_logeuclid
 
-from .docplex import ClassicalOptimizer, QAOACVOptimizer
+from .docplex import ClassicalOptimizer
 
 
 def qdistance_logeuclid_to_convex_hull(
@@ -130,28 +130,7 @@ def weights_logeuclid_to_convex_hull(
     def trace_prod_log(m1, m2):
         return np.trace(logm(m1) @ logm(m2))
 
-    configured_bound = getattr(optimizer.encoding, "upper_bound", None)
-    if resolution_bounds is None:
-        bounds = [configured_bound]
-    else:
-        if configured_bound is None:
-            raise ValueError("resolution_bounds requires an integer encoded optimizer")
-        bounds = list(resolution_bounds)
-        if (
-            not bounds
-            or configured_bound not in bounds
-            or any(
-                not isinstance(bound, (int, np.integer))
-                or isinstance(bound, (bool, np.bool_))
-                or bound <= 0
-                for bound in bounds
-            )
-            or len(set(bounds)) != len(bounds)
-        ):
-            raise ValueError(
-                "resolution_bounds must contain distinct positive integers "
-                "including the optimizer's configured upper_bound"
-            )
+    configured_bound, bounds = _get_bounds(optimizer, resolution_bounds)
 
     best_weights = None
     best_distance = np.inf
@@ -159,8 +138,7 @@ def weights_logeuclid_to_convex_hull(
     for bound in bounds:
         stage_optimizer = optimizer
         if bound != configured_bound:
-            stage_optimizer = copy(optimizer)
-            stage_optimizer.encoding = copy(optimizer.encoding)
+            stage_optimizer = deepcopy(optimizer)
             stage_optimizer.upper_bound = bound
 
         prob = Model()
@@ -185,10 +163,8 @@ def weights_logeuclid_to_convex_hull(
             prob.add_constraint(prob.sum(raw_weights) == bound)
 
         weights = stage_optimizer.solve(prob, reshape=False)
-        if isinstance(stage_optimizer, QAOACVOptimizer):
-            weights = _project_to_simplex(weights)
-        elif bound is not None:
-            weights = weights / bound
+        weights = stage_optimizer._decode_hull_weights(weights, bound)
+        if bound is not None:
             if (
                 not np.all(np.isfinite(weights))
                 or np.any(weights < -1e-8)
@@ -223,6 +199,35 @@ def weights_logeuclid_to_convex_hull(
     if best_weights is None:
         raise RuntimeError("integer optimizer did not return feasible simplex weights")
     return best_weights
+
+
+def _get_bounds(optimizer, resolution_bounds):
+    """Return the configured integer bound and resolution schedule."""
+    configured_bound = getattr(optimizer.encoding, "upper_bound", None)
+    if configured_bound is not None and configured_bound <= 0:
+        raise ValueError("integer encoding upper_bound must be positive")
+    if resolution_bounds is None:
+        return configured_bound, [configured_bound]
+    if configured_bound is None:
+        raise ValueError("resolution_bounds requires an integer encoded optimizer")
+
+    bounds = list(resolution_bounds)
+    if (
+        not bounds
+        or configured_bound not in bounds
+        or any(
+            not isinstance(bound, (int, np.integer))
+            or isinstance(bound, (bool, np.bool_))
+            or bound <= 0
+            for bound in bounds
+        )
+        or len(set(bounds)) != len(bounds)
+    ):
+        raise ValueError(
+            "resolution_bounds must contain distinct positive integers "
+            "including the optimizer's configured upper_bound"
+        )
+    return configured_bound, bounds
 
 
 def _weights_distance(
@@ -278,24 +283,6 @@ def _weights_distance(
     weights = optimizer.solve(prob, reshape=False)
 
     return weights
-
-
-def _project_to_simplex(values):
-    """Project a vector onto the probability simplex.
-
-    This repairs small feasibility errors in continuous quantum estimates
-    without solving the original optimization problem classically.
-    """
-    values = np.asarray(values, dtype=float)
-    if values.ndim != 1 or values.size == 0 or not np.all(np.isfinite(values)):
-        raise ValueError("simplex weights must be a non-empty finite vector")
-    ordered = np.sort(values)[::-1]
-    cumulative = np.cumsum(ordered) - 1
-    indices = np.arange(1, values.size + 1)
-    valid = ordered - cumulative / indices > 0
-    rho = np.flatnonzero(valid)[-1]
-    threshold = cumulative[rho] / (rho + 1)
-    return np.maximum(values - threshold, 0)
 
 
 distance_functions["qlogeuclid_hull"] = weights_logeuclid_to_convex_hull

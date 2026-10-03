@@ -244,6 +244,31 @@ def _with_constraints(optimizer, constraints):
     return type(optimizer)(**settings)
 
 
+def _objective_with_penalty(objective, constraints, penalty, values):
+    """Evaluate a continuous objective and its equality-constraint penalty."""
+    value = objective.evaluate(values)
+    violation = sum(
+        (constraint.evaluate(values) - constraint.rhs) ** 2
+        for constraint in constraints
+        if constraint.sense == constraint.Sense.EQ
+    )
+    return value + penalty * violation
+
+
+def _project_to_simplex(values):
+    """Project a vector onto the probability simplex."""
+    values = np.asarray(values, dtype=float)
+    if values.ndim != 1 or values.size == 0 or not np.all(np.isfinite(values)):
+        raise ValueError("simplex weights must be a non-empty finite vector")
+    ordered = np.sort(values)[::-1]
+    cumulative = np.cumsum(ordered) - 1
+    indices = np.arange(1, values.size + 1)
+    valid = ordered - cumulative / indices > 0
+    rho = np.flatnonzero(valid)[-1]
+    threshold = cumulative[rho] / (rho + 1)
+    return np.maximum(values - threshold, 0)
+
+
 def _to_qubo(qp):
     """Map an optimization problem to an unconstrained binary QUBO.
 
@@ -797,6 +822,13 @@ class pyQiskitOptimizer:
         """
         return self.encoding.get_weights(prob, classes)
 
+    def _decode_hull_weights(self, weights, upper_bound=None):
+        """Decode optimizer output into convex-hull weights."""
+        weights = np.asarray(weights, dtype=float)
+        if upper_bound is None:
+            return weights
+        return weights / upper_bound
+
 
 class ClassicalOptimizer(pyQiskitOptimizer):
     """Wrapper for the classical Cobyla optimizer.
@@ -1303,7 +1335,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         conv = EqualityToPenalty()
         qp = conv.convert(qp)
 
-        return qp, scalers
+        return qp, scalers, conv.penalty
 
     def _solve_qp(self, qp, reshape=True):
         quantum_instance = _get_quantum_instance(self)
@@ -1312,14 +1344,11 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         # Extract the objective function from the docplex model
         # We want the object expression with continuous variable
         objective_expr = qp._objective
+        linear_constraints = list(qp.linear_constraints)
 
         # Convert continuous variable to binary ones
         # Get scalers corresponding to the definition range of each variables
-        qp, scalers = QAOACVOptimizer.prepare_model(qp)
-        # The circuit encodes a binary penalized objective, whereas the
-        # continuous result is decoded from qubit marginals. Evaluating the
-        # binary penalty at those marginals is not its expectation. Retain the
-        # continuous objective for the variational loss.
+        qp, scalers, penalty = QAOACVOptimizer.prepare_model(qp)
 
         # Check all variables are converted to binary, and scalers are registered
         # print(qp.prettyprint(), scalers)
@@ -1377,7 +1406,9 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         def loss(params):
             job = quantum_instance.run([(ansatz, params)])
             var_hat = [prob(job, i) for i in range(n_var)]
-            cost = objective_expr.evaluate(var_hat)
+            cost = _objective_with_penalty(
+                objective_expr, linear_constraints, penalty, var_hat
+            )
             self.x_.append(len(self.x_))
             self.y_.append(cost)
             return cost
@@ -1397,9 +1428,15 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         job = quantum_instance.run([(ansatz, self.optim_params_)])
         solution = np.array([prob(job, i) for i in range(n_var)])
         self.decoded_solution_ = solution.copy()
-        self.minimum_ = objective_expr.evaluate(solution)
+        self.minimum_ = _objective_with_penalty(
+            objective_expr, linear_constraints, penalty, solution
+        )
 
         optimized_circuit = ansatz_0.assign_parameters(self.optim_params_)
         self.state_vector_ = Statevector(optimized_circuit)
 
         return _reshape_solution(solution, reshape)
+
+    def _decode_hull_weights(self, weights, upper_bound=None):
+        """Project continuous optimizer output onto the probability simplex."""
+        return _project_to_simplex(weights)

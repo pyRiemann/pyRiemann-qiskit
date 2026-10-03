@@ -8,12 +8,14 @@ from pyriemann.estimation import XdawnCovariances
 from pyriemann.utils.distance import distance_logeuclid
 from pyriemann.utils.mean import mean_logeuclid
 from qiskit_algorithms.optimizers import SLSQP
+from qiskit_addon_opt_mapper.translators import from_docplex_mp
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.pipeline import make_pipeline
 
 import pyriemann_qiskit.optimization.docplex as docplex_module
 from pyriemann_qiskit.classification import QuanticMDM
 from pyriemann_qiskit.optimization.distance import (
+    _get_bounds,
     qdistance_logeuclid_to_convex_hull,
     weights_logeuclid_to_convex_hull,
 )
@@ -130,8 +132,30 @@ def test_integer_convex_hull_matches_exact_qubo(target, expected_weights):
     ("target_value", "expected_weights"),
     [(1.0, [1.0, 0.0]), (3.0, [0.5, 0.5])],
 )
-def test_naive_qaoa_recovers_vertex_and_interior_points(target_value, expected_weights):
-    """Naive QAOA decodes integer weights onto the normalized simplex."""
+def test_naive_qaoa_recovers_vertex_and_interior_points(
+    monkeypatch, target_value, expected_weights
+):
+    """A deterministic QAOA result decodes vertex and interior hull points."""
+    class ExactQAOA:
+        def __init__(self, callback, **kwargs):
+            self.callback = callback
+
+        def compute_minimum_eigenvalue(self, operator):
+            diagonal = np.diag(operator.to_matrix()).real
+            basis_index = int(np.argmin(diagonal))
+            bitstring = format(basis_index, f"0{operator.num_qubits}b")
+            self.callback(1, None, float(diagonal[basis_index]), {})
+            return SimpleNamespace(best_measurement={"bitstring": bitstring})
+
+    monkeypatch.setattr(docplex_module, "QAOA", ExactQAOA)
+    monkeypatch.setattr(
+        docplex_module,
+        "_get_quantum_instance",
+        lambda _: SimpleNamespace(backend=object()),
+    )
+    monkeypatch.setattr(
+        docplex_module, "generate_preset_pass_manager", lambda **kwargs: object()
+    )
     matrices = np.array([[[1.0]], [[9.0]]])
     target = np.array([[target_value]])
     optimizer = NaiveQAOAOptimizer(upper_bound=2)
@@ -194,6 +218,36 @@ def test_resolution_schedule_selects_best_exact_grid():
 
     np.testing.assert_allclose(weights, [2 / 3, 1 / 3], atol=1e-12)
     assert optimizer.upper_bound == 2
+    assert optimizer.encoding.upper_bound == 2
+
+
+@pytest.mark.parametrize(
+    ("resolution_bounds", "expected"),
+    [(None, (2, [2])), ((3, 2), (2, [3, 2]))],
+)
+def test_get_bounds_returns_configured_bound_and_schedule(resolution_bounds, expected):
+    optimizer = _ExactIntegerOptimizer(upper_bound=2)
+    assert _get_bounds(optimizer, resolution_bounds) == expected
+
+
+def test_qaoacv_loss_includes_equality_constraint_penalty():
+    model = Model()
+    x = model.continuous_var(lb=0, ub=1)
+    y = model.continuous_var(lb=0, ub=1)
+    model.minimize(x * x + y * y)
+    model.add_constraint(x + y == 1)
+    qp = from_docplex_mp(model)
+    objective = qp._objective
+    constraints = list(qp.linear_constraints)
+
+    _, _, penalty = QAOACVOptimizer.prepare_model(qp)
+    loss = docplex_module._objective_with_penalty(
+        objective, constraints, penalty, [0.2, 0.3]
+    )
+
+    expected = objective.evaluate([0.2, 0.3]) + penalty * (0.2 + 0.3 - 1) ** 2
+    assert penalty > 0
+    assert loss == pytest.approx(expected)
 
 
 @pytest.mark.skipif(not HAS_PKIT, reason="p-kit is an optional dependency")

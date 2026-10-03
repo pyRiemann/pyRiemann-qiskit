@@ -5,8 +5,8 @@
 What's new in the package
 =========================
 
-Unreleased
-----------
+v0.7.0 (dev)
+------------
 
 - Correct integer convex-hull weights to enforce the simplex at the integer
   resolution and optimize using normalized weights. QAOA-CV hull estimates
@@ -18,9 +18,6 @@ Unreleased
   functions for integer encoded optimizers. The configured bound must be in
   the sequence, and the returned weights come from the resolution with the
   smallest original Log-Euclidean distance.
-
-v0.7.0
-------
 
 - Introduce a new category of optimization relying on probabilistic bit, aka p-bit.
   With this change, ``pyQiskitOptimizer`` was refactored to accept an encoding policy.
