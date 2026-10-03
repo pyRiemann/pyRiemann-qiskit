@@ -7,8 +7,8 @@ from docplex.mp.model import Model
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.utils.distance import distance_logeuclid
 from pyriemann.utils.mean import mean_logeuclid
-from qiskit_algorithms.optimizers import SLSQP
 from qiskit_addon_opt_mapper.translators import from_docplex_mp
+from qiskit_algorithms.optimizers import SLSQP
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.pipeline import make_pipeline
 
@@ -136,6 +136,7 @@ def test_naive_qaoa_recovers_vertex_and_interior_points(
     monkeypatch, target_value, expected_weights
 ):
     """A deterministic QAOA result decodes vertex and interior hull points."""
+
     class ExactQAOA:
         def __init__(self, callback, **kwargs):
             self.callback = callback
