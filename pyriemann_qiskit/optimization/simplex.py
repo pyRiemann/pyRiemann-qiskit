@@ -11,7 +11,7 @@ from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 from qiskit_algorithms.optimizers import SPSA
 
 from ..utils.quantum_provider import get_simulator
-from .docplex import pyQiskitOptimizer
+from .docplex import _reshape_solution, pyQiskitOptimizer
 
 
 def _single_excitation_circuit(n_weights):
@@ -148,6 +148,34 @@ class SingleExcitationHullOptimizer(pyQiskitOptimizer):
     def _solve_qp(self, qp, reshape=True):
         """Solve a continuous simplex model using the exchange circuit."""
         n_weights = qp.get_num_vars()
+        variables = qp.variables
+        constraints = qp.linear_constraints
+        is_continuous = all(
+            variable.vartype.name == "CONTINUOUS" for variable in variables
+        )
+        bounds_cover_simplex = all(
+            (variable.lowerbound is None or variable.lowerbound <= 0)
+            and (variable.upperbound is None or variable.upperbound >= 1)
+            for variable in variables
+        )
+        is_unit_simplex = (
+            len(constraints) == 1
+            and constraints[0].sense == constraints[0].Sense.EQ
+            and np.isclose(constraints[0].rhs, 1)
+            and np.allclose(constraints[0].linear.to_array(), np.ones(n_weights))
+        )
+        if (
+            not is_continuous
+            or not bounds_cover_simplex
+            or not is_unit_simplex
+            or qp.objective.sense != qp.objective.Sense.MINIMIZE
+            or qp.objective.higher_order
+        ):
+            raise ValueError(
+                "SingleExcitationHullOptimizer supports minimization models "
+                "with continuous variables on the unit simplex and a "
+                "linear or quadratic objective"
+            )
         if n_weights < 2:
             raise ValueError("single-excitation hull needs at least two matrices")
         circuit, parameters = _single_excitation_circuit(n_weights)
@@ -217,4 +245,4 @@ class SingleExcitationHullOptimizer(pyQiskitOptimizer):
         if best is None:
             raise RuntimeError("no evaluation had enough one-excitation shots")
         self.minimum_, self.weights_, self.valid_fraction_, self.optim_params_ = best
-        return self.weights_.copy()
+        return _reshape_solution(self.weights_.copy(), reshape)

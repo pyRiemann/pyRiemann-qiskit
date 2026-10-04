@@ -383,6 +383,43 @@ def test_single_excitation_hull_exact_is_feasible_and_repeatable():
     np.testing.assert_allclose(solutions[0], [0.5, 0.5], atol=1e-3)
 
 
+def test_single_excitation_hull_honors_reshape_argument():
+    from docplex.mp.model import Model
+
+    from pyriemann_qiskit.optimization.cobyla_optimizer import CobylaOptimizer
+
+    model = Model()
+    weights = model.continuous_var_list(4, lb=0)
+    model.minimize(model.sum(weights[i] ** 2 for i in range(4)))
+    model.add_constraint(model.sum(weights) == 1)
+    optimizer = SingleExcitationHullOptimizer(
+        exact=True, optimizer=CobylaOptimizer(maxiter=20)
+    )
+
+    assert optimizer.solve(model, reshape=True).shape == (2, 2)
+    assert optimizer.solve(model, reshape=False).shape == (4,)
+
+
+def test_single_excitation_hull_rejects_non_simplex_models():
+    from docplex.mp.model import Model
+
+    model = Model()
+    weights = model.binary_var_list(2)
+    model.minimize(model.sum(weights))
+    model.add_constraint(model.sum(weights) == 1)
+
+    optimizer = SingleExcitationHullOptimizer(exact=True)
+    with pytest.raises(ValueError, match="continuous variables.*unit simplex"):
+        optimizer.solve(model)
+
+    model = Model()
+    weights = model.continuous_var_list(2, lb=0)
+    model.maximize(weights[0])
+    model.add_constraint(model.sum(weights) == 1)
+    with pytest.raises(ValueError, match="continuous variables.*unit simplex"):
+        optimizer.solve(model)
+
+
 def test_single_excitation_hull_rejects_unreliable_evaluations(monkeypatch):
     """No reliable evaluation raises instead of returning a fallback point."""
     import pyriemann_qiskit.optimization.simplex as simplex_module
