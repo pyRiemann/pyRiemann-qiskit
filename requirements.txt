@@ -8,7 +8,7 @@ qiskit_machine_learning==0.9.1
 qiskit_ibm_runtime==0.50.0
 qiskit-addon-opt-mapper==0.1.0
 qiskit-aer==0.17.2
-cvxpy==1.9.2
+cvxpy==1.9.3
 scipy==1.17.1
 docplex>=2.32.264
 tqdm
