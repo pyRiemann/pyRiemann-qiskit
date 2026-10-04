@@ -244,6 +244,31 @@ def _with_constraints(optimizer, constraints):
     return type(optimizer)(**settings)
 
 
+def _objective_with_penalty(objective, constraints, penalty, values):
+    """Evaluate a continuous objective and its equality-constraint penalty."""
+    value = objective.evaluate(values)
+    violation = sum(
+        (constraint.evaluate(values) - constraint.rhs) ** 2
+        for constraint in constraints
+        if constraint.sense == constraint.Sense.EQ
+    )
+    return value + penalty * violation
+
+
+def _project_to_simplex(values):
+    """Project a vector onto the probability simplex."""
+    values = np.asarray(values, dtype=float)
+    if values.ndim != 1 or values.size == 0 or not np.all(np.isfinite(values)):
+        raise ValueError("simplex weights must be a non-empty finite vector")
+    ordered = np.sort(values)[::-1]
+    cumulative = np.cumsum(ordered) - 1
+    indices = np.arange(1, values.size + 1)
+    valid = ordered - cumulative / indices > 0
+    rho = np.flatnonzero(valid)[-1]
+    threshold = cumulative[rho] / (rho + 1)
+    return np.maximum(values - threshold, 0)
+
+
 def _to_qubo(qp):
     """Map an optimization problem to an unconstrained binary QUBO.
 
@@ -797,6 +822,13 @@ class pyQiskitOptimizer:
         """
         return self.encoding.get_weights(prob, classes)
 
+    def _decode_hull_weights(self, weights, upper_bound=None):
+        """Decode optimizer output into convex-hull weights."""
+        weights = np.asarray(weights, dtype=float)
+        if upper_bound is None:
+            return weights
+        return weights / upper_bound
+
 
 class ClassicalOptimizer(pyQiskitOptimizer):
     """Wrapper for the classical Cobyla optimizer.
@@ -880,6 +912,13 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         parametric circuit (ansatz).
     initial_points : Tuple[int, int], default=[0.0, 0.0].
         Starting parameters (beta and gamma) for the QAOA.
+    num_starts : int, default=1
+        Number of deterministic QAOA parameter initializations. The configured
+        `initial_points` are always tried first; additional starts are drawn
+        from a seeded uniform distribution on ``[0, 2π)``.
+    seed : int, default=42
+        Seed used to generate additional initial points when `num_starts` is
+        greater than one.
 
     Notes
     -----
@@ -910,11 +949,21 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         quantum_instance=None,
         optimizer=SLSQP(),
         initial_points=[0.0, 0.0],
+        num_starts=1,
+        seed=42,
     ):
         super().__init__(encoding=IntegerEncoding(upper_bound))
         self.quantum_instance = quantum_instance
         self.optimizer = optimizer
         self.initial_points = initial_points
+        if (
+            not isinstance(num_starts, (int, np.integer))
+            or isinstance(num_starts, (bool, np.bool_))
+            or num_starts < 1
+        ):
+            raise ValueError("num_starts must be a positive integer")
+        self.num_starts = num_starts
+        self.seed = seed
 
     def _solve_qp(self, qp, reshape=True):
         conv, qubo = _to_qubo(qp)
@@ -928,20 +977,36 @@ class NaiveQAOAOptimizer(pyQiskitOptimizer):
         pm = generate_preset_pass_manager(
             optimization_level=1, backend=quantum_instance.backend
         )
-        qaoa_mes = QAOA(
-            sampler=quantum_instance,
-            optimizer=self.optimizer,
-            initial_point=self.initial_points,
-            callback=_callback,
-            transpiler=pm,
-        )
         operator, _offset = qubo.to_ising()
-        eigen_result = qaoa_mes.compute_minimum_eigenvalue(operator)
-        # Qiskit orders bitstrings with qubit 0 as the rightmost character,
-        # while `to_ising` maps the i-th variable to qubit (n - 1 - i); reversing
-        # the bitstring realigns it with variable order.
-        bitstring = eigen_result.best_measurement["bitstring"][::-1]
-        x = np.array([int(bit) for bit in bitstring], dtype=float)
+        initial_point = np.asarray(self.initial_points, dtype=float)
+        rng = np.random.default_rng(self.seed)
+        initial_points = [initial_point]
+        initial_points.extend(
+            rng.uniform(0, 2 * np.pi, size=initial_point.shape)
+            for _ in range(self.num_starts - 1)
+        )
+
+        best_x = None
+        best_value = np.inf
+        for point in initial_points:
+            qaoa_mes = QAOA(
+                sampler=quantum_instance,
+                optimizer=self.optimizer,
+                initial_point=point,
+                callback=_callback,
+                transpiler=pm,
+            )
+            eigen_result = qaoa_mes.compute_minimum_eigenvalue(operator)
+            # Qiskit orders bitstrings with qubit 0 as the rightmost character,
+            # while `to_ising` maps the i-th variable to qubit (n - 1 - i).
+            bitstring = eigen_result.best_measurement["bitstring"][::-1]
+            candidate = np.array([int(bit) for bit in bitstring], dtype=float)
+            value = qubo.objective.evaluate(candidate)
+            if value < best_value:
+                best_x = candidate
+                best_value = value
+
+        x = best_x
         return _interpret_solution(conv, x, reshape)
 
 
@@ -1232,6 +1297,8 @@ class QAOACVOptimizer(pyQiskitOptimizer):
     state_vector_: StateVector
         State vector of the optimized quantum circuit
         (optimal parameters assigned to the parametric gates).
+    decoded_solution_ : ndarray
+        Marginal estimates before any caller-specific feasibility projection.
 
     See Also
     --------
@@ -1268,7 +1335,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         conv = EqualityToPenalty()
         qp = conv.convert(qp)
 
-        return qp, scalers
+        return qp, scalers, conv.penalty
 
     def _solve_qp(self, qp, reshape=True):
         quantum_instance = _get_quantum_instance(self)
@@ -1277,10 +1344,11 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         # Extract the objective function from the docplex model
         # We want the object expression with continuous variable
         objective_expr = qp._objective
+        linear_constraints = list(qp.linear_constraints)
 
         # Convert continuous variable to binary ones
         # Get scalers corresponding to the definition range of each variables
-        qp, scalers = QAOACVOptimizer.prepare_model(qp)
+        qp, scalers, penalty = QAOACVOptimizer.prepare_model(qp)
 
         # Check all variables are converted to binary, and scalers are registered
         # print(qp.prettyprint(), scalers)
@@ -1338,7 +1406,9 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         def loss(params):
             job = quantum_instance.run([(ansatz, params)])
             var_hat = [prob(job, i) for i in range(n_var)]
-            cost = objective_expr.evaluate(var_hat)
+            cost = _objective_with_penalty(
+                objective_expr, linear_constraints, penalty, var_hat
+            )
             self.x_.append(len(self.x_))
             self.y_.append(cost)
             return cost
@@ -1348,7 +1418,7 @@ class QAOACVOptimizer(pyQiskitOptimizer):
 
         # minimize function to search for the optimal parameters
         start_time = time.time()
-        result = self.optimizer.minimize(loss, initial_guess, bounds=[])
+        result = self.optimizer.minimize(loss, initial_guess, bounds=None)
         stop_time = time.time()
         self.run_time_ = stop_time - start_time
 
@@ -1357,9 +1427,16 @@ class QAOACVOptimizer(pyQiskitOptimizer):
         # running QAOA circuit with optimal parameters
         job = quantum_instance.run([(ansatz, self.optim_params_)])
         solution = np.array([prob(job, i) for i in range(n_var)])
-        self.minimum_ = objective_expr.evaluate(solution)
+        self.decoded_solution_ = solution.copy()
+        self.minimum_ = _objective_with_penalty(
+            objective_expr, linear_constraints, penalty, solution
+        )
 
         optimized_circuit = ansatz_0.assign_parameters(self.optim_params_)
         self.state_vector_ = Statevector(optimized_circuit)
 
         return _reshape_solution(solution, reshape)
+
+    def _decode_hull_weights(self, weights, upper_bound=None):
+        """Project continuous optimizer output onto the probability simplex."""
+        return _project_to_simplex(weights)
