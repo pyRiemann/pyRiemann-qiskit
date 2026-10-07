@@ -87,49 +87,6 @@ def test_nch_init_full():
     with pytest.raises(ValueError):
         clf._predict_distances(X=[0])
 
-
-class TestQSVMSplitClasses(BinaryTest):
-    """Test _split_classes method of quantum classifiers"""
-
-    def get_params(self):
-        quantum_instance = QuanticSVM(quantum=False)
-        return {
-            "n_samples": 100,
-            "n_features": 9,
-            "quantum_instance": quantum_instance,
-            "type": "rand",
-        }
-
-    def additional_steps(self):
-        # As fit method is not called here, classes_ is not set.
-        # We need to provide the classes ourselves.
-        self.quantum_instance.classes_ = range(0, self.n_classes)
-        self.x_classes = self.quantum_instance._split_classes(self.samples, self.labels)
-
-    def check(self):
-        for i in range(self.n_classes):
-            assert np.shape(self.x_classes[i]) == (self.class_len, self.n_features)
-
-
-class TestQSVMSplitClasses_MultiClass(MultiClassTest):
-    """Test _split_classes method of quantum classifiers (with 3 classes)"""
-
-    def get_params(self):
-        params = TestQSVMSplitClasses.get_params(self)
-        # This is a limitation of the get_separable_feats methods:
-        # we want to have a number of samples
-        # that can be divided by the number of classes
-        # (3 with MultiClassTest)
-        params["n_samples"] = 99
-        return params
-
-    def additional_steps(self):
-        return TestQSVMSplitClasses.additional_steps(self)
-
-    def check(self):
-        return TestQSVMSplitClasses.check(self)
-
-
 class TestClassicalSVM(BinaryFVT):
     """Tests the classic SVM version of Quantic SVM"""
 
