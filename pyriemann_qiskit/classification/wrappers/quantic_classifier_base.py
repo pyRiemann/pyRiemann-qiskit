@@ -137,13 +137,6 @@ class QuanticClassifierBase(ClassifierMixin, BaseEstimator):
         if self.verbose:
             print("[QClass] ", *values)
 
-    def _split_classes(self, X, y):
-        n_classes = len(self.classes_)
-        X_classes = []
-        for idx in range(n_classes):
-            X_classes.append(X[y == self.classes_[idx]])
-        return X_classes
-
     def _map_classes_to_indices(self, y):
         y_copy = y.copy()
         n_classes = len(self.classes_)
