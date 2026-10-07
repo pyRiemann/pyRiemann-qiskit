@@ -8,6 +8,8 @@ What's new in the package
 v0.7.0 (dev)
 ------------
 
+- Remove obsolete ``_training_input`` attribute and ``_split_classes`` helper
+  from ``QuanticClassifierBase``, simplifying ``fit()`` to read feature dimensions directly.
 - Correct integer convex-hull weights to enforce the simplex at the integer
   resolution and optimize using normalized weights. QAOA-CV hull estimates
   are projected onto the simplex. QAOA-CV exposes its decoded
