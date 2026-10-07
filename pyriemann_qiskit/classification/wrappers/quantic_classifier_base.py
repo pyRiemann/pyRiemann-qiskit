@@ -8,7 +8,6 @@ from qiskit.primitives import BackendSamplerV2
 from scipy.special import softmax
 from sklearn.base import BaseEstimator, ClassifierMixin
 
-from ...utils.dataset import get_feature_dimension
 from ...utils.hyper_params_factory import gen_zz_feature_map
 from ...utils.quantum_provider import get_device, get_provider, get_simulator
 
@@ -99,8 +98,6 @@ class QuanticClassifierBase(ClassifierMixin, BaseEstimator):
         self.shots = shots
         self.seed = datetime.now().microsecond if seed is None else seed
         self.gen_feature_map = gen_feature_map
-        # protected field for child classes
-        self._training_input = {}
 
     def _uses_qiskit_backend(self):
         """Whether this estimator needs a Qiskit backend to be initialized.
@@ -186,14 +183,10 @@ class QuanticClassifierBase(ClassifierMixin, BaseEstimator):
         self._log("Fitting: ", X.shape)
         self.classes_ = np.unique(y)
 
-        X_classes = self._split_classes(X, y)
         y = self._map_classes_to_indices(y)
-
-        n_classes = len(self.classes_)
-        for idx in range(n_classes):
-            self._training_input[self.classes_[idx]] = X_classes[idx]
-
-        n_features = get_feature_dimension(self._training_input)
+        
+        n_features = X.shape[1]
+        
         self._log("Feature dimension = ", n_features)
         if hasattr(self, "gen_feature_map") and self.gen_feature_map is not None:
             self._feature_map = self.gen_feature_map(n_features)
