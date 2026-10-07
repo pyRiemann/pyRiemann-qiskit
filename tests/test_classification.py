@@ -87,6 +87,7 @@ def test_nch_init_full():
     with pytest.raises(ValueError):
         clf._predict_distances(X=[0])
 
+
 class TestClassicalSVM(BinaryFVT):
     """Tests the classic SVM version of Quantic SVM"""
 
