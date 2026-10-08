@@ -2,7 +2,7 @@ import warnings
 
 import numpy as np
 import pytest
-from conftest import BinaryFVT, BinaryTest, MultiClassFVT, MultiClassTest
+from conftest import BinaryFVT, MultiClassFVT
 from pyriemann.classification import TangentSpace
 from pyriemann.estimation import XdawnCovariances
 from sklearn.model_selection import StratifiedKFold, cross_val_score
