@@ -64,6 +64,6 @@ setup(name='pyriemann-qiskit',
                       # GPU optimization not available on all platform.
                       # See https://github.com/Qiskit/qiskit-aer/issues/929#issuecomment-691716936
                       'optim': ['qiskit-symb==0.6.0', 'symengine==0.14.1'],
-                      'optim_linux': ['qiskit-aer-gpu==0.15.1']},
+                      'optim_linux': ['qiskit-aer-gpu==0.18.2']},
       zip_safe=False,
 )
