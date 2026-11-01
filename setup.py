@@ -55,7 +55,7 @@ setup(name='pyriemann-qiskit',
                                 'sphinx-bootstrap_theme',
                                 'numpydoc',
                                 'mne==1.11.0',
-                                'mne-bids==0.19.0',
+                                'mne-bids==0.20.0',
                                 'seaborn>=0.12.1',
                                 'moabb==1.7.2',
                                 'imbalanced-learn==0.14.2'
