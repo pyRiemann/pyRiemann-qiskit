@@ -6,9 +6,9 @@ sphinx-design
 numpydoc
 cython
 filelock
-mne==1.11.0
+mne==1.13.2
 mne-bids==0.19.0
-mne[data]>=0.24
+mne[data]>=1.13.2
 seaborn>=0.13.2
 scikit-learn==1.8.0
 imbalanced-learn==0.14.2
