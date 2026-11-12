@@ -19,7 +19,7 @@ try:
     HAS_MOABB = True
 except ImportError:
     HAS_MOABB = False
-from pyriemann.transfer import encode_domains
+from pyriemann.transfer import TLCenter, TLScale, encode_domains
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.metrics import get_scorer
 from sklearn.model_selection import GroupKFold, LeaveOneGroupOut, StratifiedKFold
@@ -94,16 +94,78 @@ class Adapter(ClassifierMixin, BaseEstimator):
         return self.estimator_.predict_proba(self._apply_preprocessing(X))
 
 
+class SelfAlignAdapter(Adapter):
+    """Center and scale every subject on its own trials, without any label.
+
+    Each training subject is centered to the identity and scaled to unit
+    dispersion using its own trials, then a plain estimator is trained on the
+    pooled result. At predict time the batch is treated as one unseen subject
+    and aligned the same way.
+
+    This is transductive: it uses the held-out trials but never their labels,
+    so ``predict`` and ``predict_proba`` must receive all the trials of a
+    subject or session at once. The rotation step of Riemannian Procrustes
+    Analysis is left out because it needs labels from the held-out subject.
+
+    Parameters
+    ----------
+    preprocessing : sklearn transformer
+        Transforms raw input into covariance matrices.
+    estimator : sklearn estimator
+        Plain classifier trained on the aligned matrices.
+    scale : bool, default=True
+        If True, scale each subject to unit dispersion after centering.
+    """
+
+    def __init__(self, preprocessing, estimator, scale=True):
+        super().__init__(preprocessing, estimator)
+        self.scale = scale
+
+    def _align(self, X_cov):
+        domain = "subject"
+        _, y_enc = encode_domains(
+            X_cov, np.zeros(len(X_cov), dtype=int), np.full(len(X_cov), domain)
+        )
+        X_new = TLCenter(target_domain=domain).fit_transform(X_cov, y_enc)
+        if self.scale:
+            X_new = TLScale(target_domain=domain, centered_data=True).fit_transform(
+                X_new, y_enc
+            )
+        return X_new
+
+    def fit(self, X, y, groups=None, target_domain=None):
+        self.preprocessing_ = deepcopy(self.preprocessing)
+        X_cov = self.preprocessing_.fit_transform(X, y)
+        X_aligned = np.empty_like(X_cov)
+        for group in np.unique(groups):
+            idx = groups == group
+            X_aligned[idx] = self._align(X_cov[idx])
+        self.estimator_ = deepcopy(self.estimator).fit(X_aligned, y)
+        self.classes_ = np.unique(y)
+        return self
+
+    def predict(self, X):
+        return self.estimator_.predict(self._align(self._apply_preprocessing(X)))
+
+    def predict_proba(self, X):
+        return self.estimator_.predict_proba(self._align(self._apply_preprocessing(X)))
+
+
 if HAS_MOABB:
 
     class TLCrossSubjectEvaluation(CrossSubjectEvaluation):
         """CrossSubjectEvaluation with group and target-domain forwarding.
 
-        Extends CrossSubjectEvaluation with one behavioural change:
+        Extends CrossSubjectEvaluation with two behavioural changes:
 
         Pipelines whose fit() declares ``groups`` receive the training subject IDs.
-        Pipelines whose fit() also declares ``target_domain`` receive the test
-        subject's ID as target_domain. All other pipelines are unaffected.
+        Pipelines whose fit() also declares ``target_domain`` receive the first
+        training subject's ID as target_domain, never the test subject's. All
+        other pipelines are unaffected.
+
+        Each result also holds ``score_time``, the seconds spent predicting and
+        scoring one session. ``time`` still covers fitting only. Pass
+        ``additional_columns=["score_time"]`` to keep it in the results.
 
         **kwargs
             Forwarded to CrossSubjectEvaluation.__init__().
@@ -233,6 +295,7 @@ if HAS_MOABB:
 
                     for session in np.unique(sessions[test]):
                         ix = sessions[test] == session
+                        t_score = time()
                         try:
                             score = scorer(model, X[test[ix]], y[test[ix]])
                         except Exception as e:
@@ -243,11 +306,13 @@ if HAS_MOABB:
                             )
                             traceback.print_exc()
                             continue
+                        score_time = time() - t_score
                         nchan = (
                             X.info["nchan"] if isinstance(X, BaseEpochs) else X.shape[1]
                         )
                         res = {
                             "time": duration,
+                            "score_time": score_time,
                             "dataset": dataset,
                             "subject": subject,
                             "session": session,

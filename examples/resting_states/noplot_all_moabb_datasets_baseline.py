@@ -14,7 +14,6 @@ No transfer learning is applied.
 # License: BSD (3-clause)
 
 import random
-import time
 
 import numpy as np
 import pandas as pd
@@ -36,7 +35,7 @@ set_log_level("info")
 ##############################################################################
 # Set global seed for better reproducibility
 
-seed = round(time.time())
+seed = 42
 print(seed)
 
 random.seed(seed)
@@ -82,6 +81,8 @@ psd_configs = [
             fmin=1,
             fmax=35,
             events=["closed", "open"],
+            tmin=2,
+            tmax=8,
             channels=[_find_channel(_rodrigues)],
         ),
         ["closed", "open"],
@@ -154,7 +155,7 @@ evaluation_cattan = WithinSessionEvaluation(
     datasets=[Cattan2019_PHMD()],
     suffix="baseline_cattan",
     overwrite=overwrite,
-    n_splits=3,
+    random_state=seed,
 )
 results_cattan = evaluation_cattan.process(pipelines)
 print("Cattan pipelines computed:", results_cattan["pipeline"].unique().tolist())
@@ -162,16 +163,19 @@ print("Cattan results:")
 print(results_cattan.groupby("pipeline")[["score", "time"]].mean())
 
 # --- Rodrigues2017: WithinSession ---
-paradigm_rodrigues = RestingStateToP300Adapter(events=dict(closed=2, open=1))
+# Blocks last 10 s and alternate, so the epoch must stay inside its own block.
+# 2-8 s is the window of the dataset authors' example, away from block edges.
+paradigm_rodrigues = RestingStateToP300Adapter(
+    events=dict(closed=1, open=2), tmin=2, tmax=8
+)
 evaluation_rodrigues = WithinSessionEvaluation(
     paradigm=paradigm_rodrigues,
     datasets=[Rodrigues2017()],
-    suffix="baseline_rodrigues",
+    suffix="baseline_rodrigues_w2-8",
     overwrite=overwrite,
-    n_splits=3,
+    random_state=seed,
 )
 results_rodrigues = evaluation_rodrigues.process(pipelines)
-results_rodrigues["score"] = 1 - results_rodrigues["score"]
 print("Rodrigues results:")
 print(results_rodrigues.groupby("pipeline")[["score", "time"]].mean())
 
@@ -184,7 +188,7 @@ evaluation_hinss = WithinSessionEvaluation(
     datasets=[Hinss2021()],
     suffix="baseline_hinss",
     overwrite=overwrite,
-    n_splits=3,
+    random_state=seed,
 )
 results_hinss = evaluation_hinss.process(pipelines)
 print("Hinss results:")
