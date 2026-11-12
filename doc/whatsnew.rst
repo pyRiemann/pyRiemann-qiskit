@@ -8,6 +8,18 @@ What's new in the package
 v0.7.0 (dev)
 ------------
 
+- Fix ``QuantumStateDiscriminator.fit``: each trial is normalized to unit trace
+  before averaging, so every trial has the same weight in its class state
+  whatever its power. Before, the covariances were averaged and normalized
+  afterwards.
+- Add ``SelfAlignAdapter`` in ``pyriemann_qiskit.utils.transfer``: each subject
+  is re-centered and re-scaled on its own trials, without labels, and the
+  prediction batch is aligned the same way. ``TLCrossSubjectEvaluation`` now
+  records the prediction time (``score_time``) separately from the fit time.
+- Resting-state examples: seeded runs, a Rodrigues2017 epoch window inside the
+  10-s blocks (2-8 s), and new pipelines (QSD+TL, plain MDM, quantum-kernel
+  baseline).
+
 - Remove obsolete ``_training_input`` attribute and ``_split_classes`` helper
   from ``QuanticClassifierBase``, simplifying ``fit()`` to read feature dimensions directly.
 - Correct integer convex-hull weights to enforce the simplex at the integer

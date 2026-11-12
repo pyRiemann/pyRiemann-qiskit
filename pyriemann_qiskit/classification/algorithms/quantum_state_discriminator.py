@@ -205,12 +205,17 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
             Trace-one density matrices used by the QSD measurement.
         """
         check_is_fitted(self, ["cov_estimator_", "n_channels_"])
-        covmats = self._operators(X)
+        return self._normalize(self._operators(X))
+
+    @staticmethod
+    def _normalize(covmats):
+        """Normalize each operator to unit trace (maximally mixed if empty)."""
+        n_channels = covmats.shape[-1]
         energy = np.trace(covmats, axis1=-2, axis2=-1)
         degenerate = energy < 1e-12
         states = covmats / np.where(degenerate, 1.0, energy)[:, None, None]
         if degenerate.any():
-            states[degenerate] = np.eye(self.n_channels_) / self.n_channels_
+            states[degenerate] = np.eye(n_channels) / n_channels
         return states
 
     def fit(self, X, y):
@@ -227,9 +232,12 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
         self
         """
         y = np.asarray(y)
-        covmats = self._operators(X, y)
+        # Normalize each trial to unit trace before averaging, so every trial
+        # weighs the same in its class state whatever its power. The mean of
+        # unit-trace matrices keeps unit trace.
+        states = self._normalize(self._operators(X, y))
 
-        self.n_channels_ = covmats.shape[-1]
+        self.n_channels_ = states.shape[-1]
         self.classes_ = np.unique(y)
         n_total = len(y)
         # Step 1: quantum state tomography + prior estimation
@@ -237,8 +245,7 @@ class QuantumStateDiscriminator(ClassifierMixin, BaseEstimator):
         for c in self.classes_:
             idx = np.where(y == c)[0]
             priors[c] = len(idx) / n_total
-            Sigma_c = covmats[idx].mean(axis=0)
-            density_matrices[c] = Sigma_c / np.trace(Sigma_c)
+            density_matrices[c] = states[idx].mean(axis=0)
 
         self.priors_ = priors
         self.density_matrices_ = density_matrices

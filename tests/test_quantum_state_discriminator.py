@@ -81,6 +81,30 @@ def test_density_matrices_trace_one(binary_data):
         np.testing.assert_allclose(np.trace(rho), 1.0, atol=1e-10)
 
 
+def test_density_matrices_are_mean_of_trial_states(binary_data):
+    """Each class state is the mean of the trace-normalized trial states."""
+    X, y = binary_data
+    clf = QuantumStateDiscriminator().fit(X, y)
+    states = clf.transform(X)
+    for c in clf.classes_:
+        np.testing.assert_allclose(
+            clf.density_matrices_[c], states[y == c].mean(axis=0), atol=1e-12
+        )
+
+
+def test_density_matrices_ignore_trial_amplitude(binary_data):
+    """Rescaling one trial must not change the class states."""
+    X, y = binary_data
+    X_scaled = X.copy()
+    X_scaled[0] *= 100.0
+    clf = QuantumStateDiscriminator().fit(X, y)
+    clf_scaled = QuantumStateDiscriminator().fit(X_scaled, y)
+    for c in clf.classes_:
+        np.testing.assert_allclose(
+            clf.density_matrices_[c], clf_scaled.density_matrices_[c], atol=1e-12
+        )
+
+
 # ---------------------------------------------------------------------------
 # Priors
 # ---------------------------------------------------------------------------
